@@ -13,62 +13,64 @@
 - Current milestone: P0.1 Repo & tooling (P0-51, P0-45, P0-46 completed; ready for P0-01); next delivery gate: M0 (GRE Priority)
 - Last session log: docs/logs/sessions/2026-11-11-onboarding-and-realignment.md
 - Active branch: main
-- Last green `pnpm verify`: bootstrap complete (pending P0-01 monorepo scaffold)
+- Last green `pnpm verify`: P0-01 monorepo scaffold (8 packages, turbo concurrency=2, memory runner)
 - Phase in progress: P0
 
 ## Current task
 
 ```yaml
-id: P0-01
-title: "Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons with 8GB RAM flags per D2"
-status: ready
-branch: task/P0-01-monorepo-scaffold
-owner_model: "Argon (high) / 3.8 Flash (med)"
-subagent: backend-engineer
-depends_on: [P0-45, P0-46, P0-51]
+id: P0-02
+title: "Shared TS strict + ESLint flat config + Prettier presets in packages/config"
+status: in_progress
+branch: task/P0-02-config-presets
+owner_model: "3.8-flash"
+subagent: fullstack-engineer
+depends_on: [P0-01]
 read:
-  - "docs/00-DECISIONS.md#D2"
-  - "docs/04-ARCHITECTURE.md#§1"
-  - "docs/22-ENGINEERING-GUARDRAILS.md#§10"
+  - "docs/22-ENGINEERING-GUARDRAILS.md#§3"
+  - "docs/04-ARCHITECTURE.md#§4"
 touch:
   - package.json
-  - pnpm-workspace.yaml
-  - turbo.json
-  - .gitignore
-  - apps/web/package.json
-  - apps/web/src/index.ts
-  - packages/core/package.json
-  - packages/core/src/index.ts
-  - packages/db/package.json
-  - packages/db/src/index.ts
-  - packages/auth/package.json
-  - packages/auth/src/index.ts
-  - packages/ui/package.json
-  - packages/ui/src/index.ts
+  - pnpm-lock.yaml
+  - eslint.config.mjs
+  - .prettierrc
+  - .prettierignore
   - packages/config/package.json
   - packages/config/src/index.ts
-  - packages/ai/package.json
-  - packages/ai/src/index.ts
-  - tooling/package.json
+  - packages/config/tsconfig/base.json
+  - packages/config/tsconfig/react.json
+  - packages/config/tsconfig/nextjs.json
+  - packages/config/tsconfig/library.json
+  - packages/config/eslint/base.js
+  - packages/config/prettier/index.js
+  - apps/web/tsconfig.json
+  - packages/core/tsconfig.json
+  - packages/db/tsconfig.json
+  - packages/auth/tsconfig.json
+  - packages/ui/tsconfig.json
+  - packages/ai/tsconfig.json
+  - tooling/tsconfig.json
 do:
-  - Create root package.json with "packageManager": "pnpm@9.15.0" and scripts enforcing NODE_OPTIONS="--max-old-space-size=2048" and turbo --concurrency=2
-  - Create pnpm-workspace.yaml defining apps/*, packages/*, tooling/*
-  - Create turbo.json with build, typecheck, lint, test tasks with concurrency=2 and caching
-  - Scaffold 8 package skeletons (apps/web, packages/{core,db,auth,ui,config,ai}, tooling) with package.json and @purpose header in src/index.ts
-  - Update root .gitignore with .next, node_modules, .turbo, dist, coverage, .env*.local, snap-*.md
+  - Install typescript-eslint, eslint, prettier, prettier-plugin-tailwindcss
+  - Create base, react, nextjs, library tsconfig presets in packages/config/tsconfig/
+  - Create shared ESLint flat config preset in packages/config/eslint/
+  - Create Prettier preset in packages/config/prettier/
+  - Point all workspace tsconfig.json files to @lumen/config tsconfig presets
+  - Create root eslint.config.mjs, .prettierrc, .prettierignore
+  - Configure package lint and format scripts
 acceptance:
-  - "pnpm install succeeds without error"
-  - "Folders and package skeletons match D2 and docs/04 layout exactly"
-  - "Every src/index.ts contains a leading 1-line /** @purpose ... */ header"
-  - "turbo run build/typecheck respects --concurrency=2 and 2048MB memory limit"
-verify: "pnpm install && pnpm turbo run typecheck --concurrency=2"
+  - "strict + noUncheckedIndexedAccess enabled across all packages"
+  - "pnpm typecheck passes across all 8 packages"
+  - "pnpm lint passes across all packages without error"
+  - "pnpm format:check passes"
+verify: "pnpm turbo run typecheck lint --concurrency=2"
 verify_ladder: L0
 reviewer: "3.8 Flash (high)"
 out_of_scope:
   - "Writing Next.js App Router pages (deferred to P0-04)"
   - "Writing Drizzle schemas / migrations (deferred to P0-12/13)"
   - "Writing Shadcn / Tailwind design tokens (deferred to P0-05/06)"
-notes: "Strict 8GB RAM ceiling: no local containers, cloud Neon and Upstash only."
+notes: "Enforce strict TS and noUncheckedIndexedAccess everywhere."
 ```
 
 ## Decisions needing the founder
@@ -122,7 +124,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P0-45 | Install agent guardrail hooks (`.claude/hooks/*`, settings, rules, commands) + self-test (docs/22 §11.4) | 3.8-flash | deps: -
 - [x] P0-46 | Logs scaffolding: `docs/logs/{sessions,progress,errors,decisions,reviews,incidents}`, templates, root CHANGELOG, `.gitignore` entries, `docs/approved-deps.txt`, CLAUDE/AGENTS/GEMINI "Never" drift check | argon | deps: -
 - [x] P0-51 | mise + corepack pinning: `mise.toml`/`.tool-versions`, `.nvmrc`, `packageManager`, `engines`, README setup | 3.8-flash | deps: -
-- [ ] P0-01 | Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons per D2 | argon | deps: P0-45, P0-46, P0-51
+- [x] P0-01 | Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons per D2 | argon | deps: P0-45, P0-46, P0-51
 - [ ] P0-02 | Shared TS/ESLint (flat)/Prettier presets in packages/config | 3.8-flash | deps: P0-01
 - [ ] P0-03 | Root `pnpm verify` pipeline + pnpm minimumReleaseAge >= 3 days | 3.8-flash | deps: P0-02
 - [ ] P0-50 | lefthook: pre-commit lint-staged + gitleaks, commit-msg check, pre-push `pnpm verify:fast`; add `verify:fast` script | 3.8-flash | deps: P0-03
@@ -584,6 +586,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-51 | bootstrap | 3.8-flash | Pinned node 22.20.0, pnpm 9.15.0, .npmrc 3-day age guard |
 | 2026-11-11 | P0-45 | bootstrap | 3.8-flash | POSIX hook compliance verified; git push block guard active |
 | 2026-11-11 | P0-46 | bootstrap | argon | Scaffolded docs/logs tree, CHANGELOG.md, and FILEMAP.md |
+| 2026-11-11 | P0-01 | e4e66bb | argon | Monorepo scaffold: 8 packages, turbo --concurrency=2, memory runner |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
