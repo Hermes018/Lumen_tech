@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "tsc --incremental",
-    "dev": "echo \"web:dev stub\"",
-    "lint": "eslint src",
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "eslint src app",
+    "start": "next start",
     "test": "echo \"web:test stub\"",
     "typecheck": "tsc --noEmit --incremental"
   },
@@ -13,10 +14,16 @@
     "@lumen/auth": "workspace:*",
     "@lumen/config": "workspace:*",
     "@lumen/core": "workspace:*",
-    "@lumen/ui": "workspace:*"
+    "@lumen/ui": "workspace:*",
+    "next": "^16.4.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "typescript": "^5.7.2"
   }
 }
