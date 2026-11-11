@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc --incremental",
     "dev": "echo \"web:dev stub\"",
-    "lint": "echo \"web:lint stub\"",
+    "lint": "eslint src",
     "test": "echo \"web:test stub\"",
     "typecheck": "tsc --noEmit --incremental"
   },
