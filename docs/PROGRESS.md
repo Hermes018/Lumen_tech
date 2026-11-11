@@ -19,41 +19,42 @@
 ## Current task
 
 ```yaml
-id: P0-09
-title: "apps/web: Canonical App Shells (Marketing, Learner, GRE CBT Exam Shell) [P0-28]"
-status: in_progress
-branch: task/P0-09-app-shells
+id: P0-12
+title: "packages/db: Drizzle ORM + Neon Driver + D13 Interactive Pedagogy & FSRS Schemas"
+status: ready
+branch: task/P0-12-drizzle-neon-schema
 owner_model: "3.8-flash"
-subagent: frontend-engineer
-depends_on: [P0-04, P0-05, P0-06]
+subagent: backend-engineer
+depends_on: [P0-07]
 read:
-  - "docs/00-DECISIONS.md#D2"
-  - "docs/08-UI-UX-DESIGN-SYSTEM.md#§1-§4"
+  - "docs/00-DECISIONS.md#D5"
+  - "docs/00-DECISIONS.md#D13"
+  - "docs/05-DATABASE.md#§1-§4"
   - "docs/07-TEST-ENGINE.md#§1"
+  - "docs/34-AI-LEARNING-FEATURES.md#§1-§3"
 touch:
-  - apps/web/package.json
-  - apps/web/app/[locale]/(marketing)/layout.tsx
-  - apps/web/app/[locale]/(marketing)/page.tsx
-  - apps/web/app/[locale]/(learner)/layout.tsx
-  - apps/web/app/[locale]/(learner)/app/page.tsx
-  - apps/web/app/[locale]/(exam)/layout.tsx
-  - apps/web/app/[locale]/(exam)/exam/[attemptId]/page.tsx
+  - packages/db/package.json
+  - packages/db/drizzle.config.ts
+  - packages/db/src/index.ts
+  - packages/db/src/schema/index.ts
+  - packages/db/src/schema/auth.ts
+  - packages/db/src/schema/pedagogy.ts
+  - packages/db/src/schema/flashcards.ts
 do:
-  - Add lucide-react to apps/web dependencies
-  - Implement Marketing Shell with frosted navbar, trademark disclaimer, and responsive navigation
-  - Implement Learner Portal Shell with collapsible sidebar, Study Streak pill, track switcher, and AI credit badge
-  - Implement GRE CBT Exam Shell with ultra-authentic ETS header bar, timer toggle, calculator trigger, flag, and review buttons
+  - Install pinned drizzle-orm, @neondatabase/serverless, drizzle-kit from approved deps
+  - Configure drizzle.config.ts for Neon Serverless Postgres with pg driver
+  - Scaffold initial schema including Better Auth base tables (user, session, account, verification) and audit_log
+  - Implement D13 interactive pedagogy schema (3-tier hints, trap tags, Socratic steps) and 4-mode FSRS vocab decks
 acceptance:
-  - "apps/web compiles and builds with next build using 2 workers"
-  - "All three shells render clean responsive layouts"
-  - "pnpm verify passes across all monorepo packages"
-verify: "pnpm turbo run build typecheck --concurrency=2"
+  - "pnpm --filter @lumen/db build and typecheck pass"
+  - "drizzle-kit generate runs cleanly without syntax errors"
+  - "All table schemas conform to D5 and D13 specifications"
+verify: "pnpm turbo run build typecheck lint --concurrency=2"
 verify_ladder: L0
-reviewer: "3.8 Flash (high)"
+reviewer: "Argon (high)"
 out_of_scope:
-  - "Writing full interactive test engine state management (P1-19..P1-26)"
-  - "Live DB user sessions (P0-13)"
-notes: "Ensure zero distraction layout in exam shell with authentic ETS PowerPrep visual language."
+  - "Running live migrations against production Neon cluster (deferred to staging smoke gate P0-59)"
+notes: "Zero local Docker containers. Strict serverless Neon HTTP driver compatibility."
 ```
 
 ## Decisions needing the founder
@@ -141,8 +142,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 - [x] P0-26 | Design tokens: colour (one accent), type scale, 8-pt spacing, radius, shadow, motion, light/dark | 3.8-flash | deps: P0-06
 - [x] P0-27 | Core component set restyled to Lumen tokens (button, input, select, dialog, sheet, toast, tabs, table, form, skeleton) | 3.8-flash | deps: P0-26
-- [ ] P0-28 | Layout shell: frosted nav, footer, locale switcher, theme toggle, skip-link | 3.8-flash | deps: P0-27
-- [ ] P0-29 | next-intl (en, bn), Bangla fonts, locale routing, string extraction convention | sonnet | deps: P0-04
+- [x] P0-28 | Layout shell: frosted nav, footer, locale switcher, theme toggle, skip-link | 3.8-flash | deps: P0-27
+- [x] P0-29 | next-intl (en, bn), Bangla fonts, locale routing, string extraction convention | sonnet | deps: P0-04
 - [ ] P0-48 | Visual-regression baseline in CI Linux: Playwright `visual` project, pinned container, `update-visuals` workflow | sonnet | deps: P0-10, P0-28
 - [ ] P0-61 | i18n structure and routing: namespace-split `messages/<locale>/<ns>.json` + generator, `localePrefix: as-needed`, `localeDetection: false`, endonym switcher, dismissible suggestion banner, typed message keys, runtime `i18n.missing` report | sonnet | deps: P0-29
 - [ ] P0-62 | Format module (numbers, money, dates, lists; explicit numberingSystem; `nfExam()` hard-Latin; BDT lakh grouping) + ESLint rules banning literal strings and `Intl`/`toLocaleString`/`next/link` outside it | sonnet | deps: P0-29
@@ -575,6 +576,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-04 | 1943891 | 3.8-flash | apps/web Next.js 16 + React 19 App Router skeleton with 8GB RAM protections |
 | 2026-11-11 | P0-05 | a40eb35 | 3.8-flash | Tailwind CSS v4 + Lumen design system tokens & GRE themes |
 | 2026-11-11 | P0-06 | e34e600 | 3.8-flash | Core UI primitives in packages/ui with Vitest unit tests |
+| 2026-11-11 | P0-09 | 18fc0a5 | 3.8-flash | Canonical App Shells (Marketing, Learner, GRE CBT Exam) |
+| 2026-11-11 | P0-10 | fb14ae5 | 3.8-flash | next-intl localization (en/bn) + Bangla digits/currency utilities |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
