@@ -1,13 +1,85 @@
-/** @purpose Marketing landing page */
+/** @purpose Marketing landing page showcasing GRE & IELTS test engines */
+import Link from 'next/link';
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
+import { Sparkles, Brain, CheckCircle2, Zap, ArrowRight } from 'lucide-react';
+
 export default function MarketingPage() {
   return (
-    <div className="marketing-landing mx-auto max-w-4xl p-8">
-      <h1 className="mb-4 text-4xl font-extrabold tracking-tight">
-        Master IELTS & GRE with Confidence
-      </h1>
-      <p className="text-lg text-gray-600">
-        Computer-based mock exams, Magoosh-parity practice drills, and active-recall flashcards.
-      </p>
+    <div className="flex flex-col items-center">
+      {/* Hero Section */}
+      <section className="w-full px-4 py-16 text-center sm:py-24">
+        <div className="mx-auto max-w-4xl space-y-6">
+          <Badge variant="default" className="gap-1.5 px-3 py-1">
+            <Sparkles className="h-3.5 w-3.5" />
+            Next-Gen GRE & IELTS Computer-Based Testing
+          </Badge>
+          <h1 className="text-fg text-4xl font-extrabold tracking-tight sm:text-6xl">
+            Target 330+ GRE & Band 8.0+ IELTS with High Precision
+          </h1>
+          <p className="text-fg-muted mx-auto max-w-2xl text-lg sm:text-xl">
+            The first Bangladesh-tailored ed-tech platform featuring authentic ETS exam interfaces,
+            section-adaptive difficulty algorithms, active-recall FSRS flashcards, and instant
+            Socratic walkthroughs.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+            <Link href="/app">
+              <Button size="lg" className="gap-2">
+                Launch Diagnostic Test <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/pricing">
+              <Button variant="outline" size="lg">
+                View Pricing & Plans
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Pillars */}
+      <section className="w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <div className="bg-accent/10 text-accent mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
+                <Zap className="h-5 w-5" />
+              </div>
+              <CardTitle>Authentic CBT Engine</CardTitle>
+            </CardHeader>
+            <CardContent className="text-fg-muted text-sm">
+              Practice in pixel-accurate test interfaces replicating ETS PowerPrep and
+              computer-delivered IELTS, with official calculators, keyboard navigation, and 10s
+              autosave.
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="bg-accent/10 text-accent mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
+                <Brain className="h-5 w-5" />
+              </div>
+              <CardTitle>4-Mode Active Recall (FSRS)</CardTitle>
+            </CardHeader>
+            <CardContent className="text-fg-muted text-sm">
+              Master 1,500+ high-frequency GRE words with scientifically calibrated intervals across
+              flashcards, dual-definition matching, roots, and timed sentence completion.
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="bg-accent/10 text-accent mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <CardTitle>Trap Diagnostics & Socratic Hints</CardTitle>
+            </CardHeader>
+            <CardContent className="text-fg-muted text-sm">
+              Never just see why the answer is right. Discover why each incorrect distractor was an
+              engineered trap, with progressive 3-tier hints for guided mastery.
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </div>
   );
 }

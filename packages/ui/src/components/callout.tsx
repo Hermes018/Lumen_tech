@@ -1,7 +1,7 @@
 /** @purpose Pedagogical callout component for 3-tier hints and trap diagnostics (D13) */
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 import { AlertCircle, HelpCircle, Lightbulb, ShieldAlert, Sparkles } from 'lucide-react';
 
 export const calloutVariants = cva('rounded-lg border p-4 my-2 flex gap-3 text-sm transition-all', {

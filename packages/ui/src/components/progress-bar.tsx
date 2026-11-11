@@ -1,6 +1,6 @@
 /** @purpose Accessible progress bar with percentage indicator */
 import * as React from 'react';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 export interface ProgressBarProps extends React.HTMLAttributes<HTMLDivElement> {
   value: number; // 0 to 100

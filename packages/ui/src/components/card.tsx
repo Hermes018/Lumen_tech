@@ -1,6 +1,6 @@
 /** @purpose Academic card container with subtle elevation */
 import * as React from 'react';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (

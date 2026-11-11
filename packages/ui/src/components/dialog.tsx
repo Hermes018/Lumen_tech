@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Dialog as RadixDialog } from 'radix-ui';
 import { X } from 'lucide-react';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 export const Dialog = RadixDialog.Root;
 export const DialogTrigger = RadixDialog.Trigger;
