@@ -1,7 +1,7 @@
 /** @purpose Accessible tooltip component built with Radix UI */
 import * as React from 'react';
 import { Tooltip as RadixTooltip } from 'radix-ui';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 export const TooltipProvider = RadixTooltip.Provider;
 export const Tooltip = RadixTooltip.Root;

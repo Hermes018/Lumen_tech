@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['@lumen/ui', '@lumen/config', '@lumen/core'],
   productionBrowserSourceMaps: false,
   typescript: {
     ignoreBuildErrors: false,

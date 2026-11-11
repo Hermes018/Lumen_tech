@@ -2,12 +2,12 @@
 import { describe, it, expect } from 'vitest';
 import * as React from 'react';
 import { render, screen } from '@testing-library/react';
-import { Button } from '../components/button.js';
-import { Badge } from '../components/badge.js';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/card.js';
-import { Input } from '../components/input.js';
-import { ProgressBar } from '../components/progress-bar.js';
-import { Callout } from '../components/callout.js';
+import { Button } from '../components/button';
+import { Badge } from '../components/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/card';
+import { Input } from '../components/input';
+import { ProgressBar } from '../components/progress-bar';
+import { Callout } from '../components/callout';
 
 describe('UI Primitives Smoke Suite', () => {
   it('renders Button with primary academic blue variant', () => {

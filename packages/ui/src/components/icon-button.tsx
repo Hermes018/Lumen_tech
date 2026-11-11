@@ -1,7 +1,7 @@
 /** @purpose Accessible icon-only button requiring aria-label */
 import * as React from 'react';
-import { cn } from '../lib/utils.js';
-import { Button, type ButtonProps } from './button.js';
+import { cn } from '../lib/utils';
+import { Button, type ButtonProps } from './button';
 
 export interface IconButtonProps extends ButtonProps {
   'aria-label': string;

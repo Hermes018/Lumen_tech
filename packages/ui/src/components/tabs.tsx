@@ -1,7 +1,7 @@
 /** @purpose Accessible tabs navigation component built with Radix UI */
 import * as React from 'react';
 import { Tabs as RadixTabs } from 'radix-ui';
-import { cn } from '../lib/utils.js';
+import { cn } from '../lib/utils';
 
 export const Tabs = RadixTabs.Root;
 

@@ -19,39 +19,41 @@
 ## Current task
 
 ```yaml
-id: P0-04
-title: "apps/web: Next.js 16 + React 19 App Router skeleton with 8GB RAM protections"
-status: ready
-branch: task/P0-04-nextjs-scaffold
+id: P0-09
+title: "apps/web: Canonical App Shells (Marketing, Learner, GRE CBT Exam Shell) [P0-28]"
+status: in_progress
+branch: task/P0-09-app-shells
 owner_model: "3.8-flash"
 subagent: frontend-engineer
-depends_on: [P0-02, P0-03]
+depends_on: [P0-04, P0-05, P0-06]
 read:
   - "docs/00-DECISIONS.md#D2"
-  - "docs/04-ARCHITECTURE.md#§4"
-  - "docs/22-ENGINEERING-GUARDRAILS.md#§10"
+  - "docs/08-UI-UX-DESIGN-SYSTEM.md#§1-§4"
+  - "docs/07-TEST-ENGINE.md#§1"
 touch:
   - apps/web/package.json
-  - apps/web/next.config.ts
-  - apps/web/app/layout.tsx
-  - apps/web/app/page.tsx
-  - apps/web/app/[locale]/layout.tsx
-  - apps/web/app/[locale]/page.tsx
+  - apps/web/app/[locale]/(marketing)/layout.tsx
+  - apps/web/app/[locale]/(marketing)/page.tsx
+  - apps/web/app/[locale]/(learner)/layout.tsx
+  - apps/web/app/[locale]/(learner)/app/page.tsx
+  - apps/web/app/[locale]/(exam)/layout.tsx
+  - apps/web/app/[locale]/(exam)/exam/[attemptId]/page.tsx
 do:
-  - Add next, react, react-dom dependencies to apps/web
-  - Configure next.config.ts with 8GB RAM worker thread caps and security headers
-  - Scaffold root layout and initial route groups per D2
+  - Add lucide-react to apps/web dependencies
+  - Implement Marketing Shell with frosted navbar, trademark disclaimer, and responsive navigation
+  - Implement Learner Portal Shell with collapsible sidebar, Study Streak pill, track switcher, and AI credit badge
+  - Implement GRE CBT Exam Shell with ultra-authentic ETS header bar, timer toggle, calculator trigger, flag, and review buttons
 acceptance:
-  - "pnpm build and pnpm typecheck pass with Next.js 16"
-  - "Route layout structure conforms to D2 canonical table"
-  - "Memory cap 2048MB and concurrency=2 enforced"
+  - "apps/web compiles and builds with next build using 2 workers"
+  - "All three shells render clean responsive layouts"
+  - "pnpm verify passes across all monorepo packages"
 verify: "pnpm turbo run build typecheck --concurrency=2"
 verify_ladder: L0
 reviewer: "3.8 Flash (high)"
 out_of_scope:
-  - "Writing full page content or business logic (deferred to P0-26..P0-35)"
-  - "Tailwind styling tokens (deferred to P0-05)"
-notes: "Enforce Next.js 16 (React 19) App Router without legacy pages."
+  - "Writing full interactive test engine state management (P1-19..P1-26)"
+  - "Live DB user sessions (P0-13)"
+notes: "Ensure zero distraction layout in exam shell with authentic ETS PowerPrep visual language."
 ```
 
 ## Decisions needing the founder
@@ -122,9 +124,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P0.2 App skeleton, env & data (gate: M0, M1)
 
-- [ ] P0-04 | apps/web: Next.js 16 + React 19 App Router skeleton | 3.8-flash | deps: P0-02
-- [ ] P0-05 | Tailwind v4 wiring with CSS-variable token layer | 3.8-flash | deps: P0-04
-- [ ] P0-06 | Initialise shadcn/ui into packages/ui (Radix, Lucide) and consume from apps/web | 3.8-flash | deps: P0-05
+- [x] P0-04 | apps/web: Next.js 16 + React 19 App Router skeleton | 3.8-flash | deps: P0-02
+- [x] P0-05 | Tailwind v4 wiring with CSS-variable token layer | 3.8-flash | deps: P0-04
+- [x] P0-06 | Initialise shadcn/ui into packages/ui (Radix, Lucide) and consume from apps/web | 3.8-flash | deps: P0-05
 - [x] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | 3.8-flash | deps: P0-02
 - [ ] P0-11 | Vercel project (sin1/bom1), preview deploys, Neon branch-per-PR workflow | 3.8-flash | deps: P0-08, P0-07
 - [ ] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | 3.8-flash | deps: P0-07
@@ -137,8 +139,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P0.3 Design system & shell (gate: M0, M1)
 
-- [ ] P0-26 | Design tokens: colour (one accent), type scale, 8-pt spacing, radius, shadow, motion, light/dark | 3.8-flash | deps: P0-06
-- [ ] P0-27 | Core component set restyled to Lumen tokens (button, input, select, dialog, sheet, toast, tabs, table, form, skeleton) | 3.8-flash | deps: P0-26
+- [x] P0-26 | Design tokens: colour (one accent), type scale, 8-pt spacing, radius, shadow, motion, light/dark | 3.8-flash | deps: P0-06
+- [x] P0-27 | Core component set restyled to Lumen tokens (button, input, select, dialog, sheet, toast, tabs, table, form, skeleton) | 3.8-flash | deps: P0-26
 - [ ] P0-28 | Layout shell: frosted nav, footer, locale switcher, theme toggle, skip-link | 3.8-flash | deps: P0-27
 - [ ] P0-29 | next-intl (en, bn), Bangla fonts, locale routing, string extraction convention | sonnet | deps: P0-04
 - [ ] P0-48 | Visual-regression baseline in CI Linux: Playwright `visual` project, pinned container, `update-visuals` workflow | sonnet | deps: P0-10, P0-28
@@ -570,6 +572,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-01 | e4e66bb | argon | Monorepo scaffold: 8 packages, turbo --concurrency=2, memory runner |
 | 2026-11-11 | P0-02 | 383ba2c | 3.8-flash | Shared TS strict, ESLint flat config, Prettier presets in packages/config |
 | 2026-11-11 | P0-03 | 0f06a74 | 3.8-flash | Brand identity (brand.ts), Zod-validated env.ts, and root .env.example |
+| 2026-11-11 | P0-04 | 1943891 | 3.8-flash | apps/web Next.js 16 + React 19 App Router skeleton with 8GB RAM protections |
+| 2026-11-11 | P0-05 | a40eb35 | 3.8-flash | Tailwind CSS v4 + Lumen design system tokens & GRE themes |
+| 2026-11-11 | P0-06 | e34e600 | 3.8-flash | Core UI primitives in packages/ui with Vitest unit tests |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
