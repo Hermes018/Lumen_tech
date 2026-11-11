@@ -7,34 +7,68 @@
 
 ## Status
 
-- Date updated: YYYY-MM-DD
-- Active tool: claude | gemini
-- Active device: -
-- Current milestone: P0.1 Repo & tooling (start with P0-51, P0-45, P0-46); next delivery gate: M0 (see "Milestone gates")
-- Last session log: -
-- Active branch: -
-- Last green `pnpm verify`: commit SHA / date
+- Date updated: 2026-11-11
+- Active tool: 3.8 Flash (High) / Antigravity
+- Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
+- Current milestone: P0.1 Repo & tooling (P0-51, P0-45, P0-46 completed; ready for P0-01); next delivery gate: M0 (GRE Priority)
+- Last session log: docs/logs/sessions/2026-11-11-onboarding-and-realignment.md
+- Active branch: main
+- Last green `pnpm verify`: bootstrap complete (pending P0-01 monorepo scaffold)
 - Phase in progress: P0
 
 ## Current task
 
 ```yaml
-id: -
-title: -
-status: not started          # not started | in progress | in review | blocked
-branch: -
-owner_model: -
-subagent: -
-depends_on: []
-read: []
-touch: []
-do: []
-acceptance: []
-verify: pnpm verify
-verify_ladder: L1        # L0 | L1 | L2 | L3 (docs/22 s5)
-reviewer: -              # must differ from the author (docs/22 s6)
-out_of_scope: []
-notes: -
+id: P0-01
+title: "Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons with 8GB RAM flags per D2"
+status: ready
+branch: task/P0-01-monorepo-scaffold
+owner_model: "Argon (high) / 3.8 Flash (med)"
+subagent: backend-engineer
+depends_on: [P0-45, P0-46, P0-51]
+read:
+  - "docs/00-DECISIONS.md#D2"
+  - "docs/04-ARCHITECTURE.md#§1"
+  - "docs/22-ENGINEERING-GUARDRAILS.md#§10"
+touch:
+  - package.json
+  - pnpm-workspace.yaml
+  - turbo.json
+  - .gitignore
+  - apps/web/package.json
+  - apps/web/src/index.ts
+  - packages/core/package.json
+  - packages/core/src/index.ts
+  - packages/db/package.json
+  - packages/db/src/index.ts
+  - packages/auth/package.json
+  - packages/auth/src/index.ts
+  - packages/ui/package.json
+  - packages/ui/src/index.ts
+  - packages/config/package.json
+  - packages/config/src/index.ts
+  - packages/ai/package.json
+  - packages/ai/src/index.ts
+  - tooling/package.json
+do:
+  - Create root package.json with "packageManager": "pnpm@9.15.0" and scripts enforcing NODE_OPTIONS="--max-old-space-size=2048" and turbo --concurrency=2
+  - Create pnpm-workspace.yaml defining apps/*, packages/*, tooling/*
+  - Create turbo.json with build, typecheck, lint, test tasks with concurrency=2 and caching
+  - Scaffold 8 package skeletons (apps/web, packages/{core,db,auth,ui,config,ai}, tooling) with package.json and @purpose header in src/index.ts
+  - Update root .gitignore with .next, node_modules, .turbo, dist, coverage, .env*.local, snap-*.md
+acceptance:
+  - "pnpm install succeeds without error"
+  - "Folders and package skeletons match D2 and docs/04 layout exactly"
+  - "Every src/index.ts contains a leading 1-line /** @purpose ... */ header"
+  - "turbo run build/typecheck respects --concurrency=2 and 2048MB memory limit"
+verify: "pnpm install && pnpm turbo run typecheck --concurrency=2"
+verify_ladder: L0
+reviewer: "3.8 Flash (high)"
+out_of_scope:
+  - "Writing Next.js App Router pages (deferred to P0-04)"
+  - "Writing Drizzle schemas / migrations (deferred to P0-12/13)"
+  - "Writing Shadcn / Tailwind design tokens (deferred to P0-05/06)"
+notes: "Strict 8GB RAM ceiling: no local containers, cloud Neon and Upstash only."
 ```
 
 ## Decisions needing the founder
