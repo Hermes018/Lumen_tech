@@ -1,0 +1,2 @@
+/** @purpose Global stylesheet re-exporting design tokens */
+@import "./tokens.css";
