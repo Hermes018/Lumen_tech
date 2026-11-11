@@ -52,14 +52,10 @@ notes: -
 
 A gate is reached when every task in its list is ticked. Lists are the dependency closure of the gate-defining tasks, grouped by first gate; each task also carries its gate in `docs/12` section 11.
 
-- **M0 Clickable prototype** - target Fri 27 Nov 2026 (earliest 20 Nov). Gate-defining tasks: P0-16, P0-17, P0-30, P0-35, P0-28, P1-16, P1-26. Newly needed here: 35 task(s).
-  - P0-01, P0-02, P0-04, P0-05, P0-06, P0-07, P0-12, P0-13, P0-14, P0-15, P0-16, P0-17, P0-18, P0-20, P0-21, P0-26, P0-27, P0-28, P0-30, P0-32, P0-34, P0-35, P0-45, P0-46, P0-51, P1-07, P1-11, P1-12, P1-13, P1-14, P1-16, P1-17, P1-21, P1-25, P1-26
-- **M1 Internal alpha** - target Fri 8 Jan 2027 (earliest 18 Dec). Gate-defining tasks (added to the previous gate): P1-37, P1-15, P1-18, P1-23, P1-27, P1-09, P1-32, P1-33, P1-39, P1-30. Newly needed here: 64 task(s).
-  - P0-03, P0-08, P0-09, P0-10, P0-11, P0-19, P0-22, P0-23, P0-24, P0-25, P0-29, P0-31, P0-33, P0-36, P0-37, P0-38, P0-39, P0-40, P0-41, P0-42, P0-43, P0-44, P0-47, P0-48, P0-49, P0-50, P0-52, P0-53, P0-54, P0-55, P0-56, P0-57, P0-58, P0-59, P0-60, P0-61, P0-62, P0-63, P0-64, P0-65, P0-66, P0-67, P0-68, P0-69, P0-70, P0-71, P1-01, P1-02, P1-08, P1-09, P1-15, P1-18, P1-19, P1-23, P1-27, P1-30, P1-31, P1-32, P1-33, P1-34, P1-36, P1-37, P1-39, P1-56
-- **M2 Closed pilot** - target Mon 1 Mar 2027 (earliest 1 Feb). Gate-defining tasks (added to the previous gate): P1-36, P1-35, P1-24, P1-41, P1-42, P1-53, P1-52, P1-118, P1-119, P1-104, P1-105, P1-106, P1-107, P1-72, P1-71, P1-75, P1-167, P1-165, P1-166, P1-100, P1-101, P1-189, P1-64, P1-92, P1-113, P1-70, P1-61. Newly needed here: 38 task(s).
-  - P1-03, P1-24, P1-28, P1-29, P1-35, P1-41, P1-42, P1-52, P1-53, P1-55, P1-61, P1-64, P1-69, P1-70, P1-71, P1-72, P1-75, P1-91, P1-92, P1-100, P1-101, P1-103, P1-104, P1-105, P1-106, P1-107, P1-113, P1-116, P1-118, P1-119, P1-164, P1-165, P1-166, P1-167, P1-178, P1-184, P1-186, P1-189
-- **M3 Public launch (P1 complete)** - target Mon 3 May 2027 (earliest 1 Apr). Gate-defining tasks: P1-54. Newly needed here: 132 task(s).
-  - all remaining P1 tasks not listed in M0-M2 (see `docs/12` section 11, Gate column) and P1-54
+- **M0 Clickable prototype (GRE Priority)** - target Fri 27 Nov 2026 (earliest 20 Nov). Gate-defining tasks: P0-16, P0-17, P0-30, P0-35, P0-28, P1-19, P1-20, P1-21, P1-26, P1-66. Showcases one GRE Quant + Verbal mini-sectional in the real GRE exam shell (on-screen 4-function calculator with transfer-display, TC/SE/QC/Numeric Entry items, strikethrough option eliminator, server timer, 10s autosave), one Magoosh-style custom practice session with explanations + FSRS Vocab deck preview, and one GRE AWA Issue AI evaluation.
+- **M1 Internal alpha (GRE Core + Magoosh Engine)** - target Fri 8 Jan 2027 (earliest 18 Dec). Gate-defining tasks (added to the previous gate): P1-22, P1-23, P1-37, P1-09, P1-32, P1-33, P1-39, P1-30, P1-15, P1-16, P1-17, P1-18, P1-27. Full GRE section-level adaptive engine, Magoosh practice & pacing analytics, GRE Vocab Pro (FSRS), plus IELTS runners and sandbox checkout.
+- **M2 Closed pilot** - target Mon 1 Mar 2027 (earliest 1 Feb). Gate-defining tasks (added to the previous gate): P1-36, P1-35, P1-24, P1-41, P1-42, P1-53, P1-52, P1-118, P1-119, P1-104, P1-105, P1-106, P1-107, P1-72, P1-71, P1-75, P1-167, P1-165, P1-166, P1-100, P1-101, P1-189, P1-64, P1-92, P1-113, P1-70, P1-61.
+- **M3 Public launch (P1 complete)** - target Mon 3 May 2027 (earliest 1 Apr). Gate-defining tasks: P1-54.
 - **M4 P2 Growth** (Sep 2027) and **M5 P3 Expansion** (Q2 2028): P2 and P3 sections below; start only after P1-54.
 
 ## Business readiness gates (human-owned; docs/12 section 11, BG-xx)
@@ -89,44 +85,44 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P0.1 Repo & tooling (gate: M0, M1)
 
-- [ ] P0-45 | Install agent guardrail hooks (`.claude/hooks/*`, settings, rules, commands) + self-test (docs/22 §11.4) | sonnet | deps: -
-- [ ] P0-46 | Logs scaffolding: `docs/logs/{sessions,progress,errors,decisions,reviews,incidents}`, templates, root CHANGELOG, `.gitignore` entries, `docs/approved-deps.txt`, CLAUDE/AGENTS/GEMINI "Never" drift check | haiku | deps: -
-- [ ] P0-51 | mise + corepack pinning: `mise.toml`/`.tool-versions`, `.nvmrc`, `packageManager`, `engines`, README setup | sonnet | deps: -
-- [ ] P0-01 | Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons per D2 | sonnet | deps: P0-45, P0-46, P0-51
-- [ ] P0-02 | Shared TS/ESLint (flat)/Prettier presets in packages/config | sonnet | deps: P0-01
-- [ ] P0-03 | Root `pnpm verify` pipeline + pnpm minimumReleaseAge >= 3 days | sonnet | deps: P0-02
-- [ ] P0-50 | lefthook: pre-commit lint-staged + gitleaks, commit-msg check, pre-push `pnpm verify:fast`; add `verify:fast` script | sonnet | deps: P0-03
-- [ ] P0-47 | `tooling/filemap.ts` + `pnpm filemap` (+ `--check`) + `tooling/ctxpack.sh` + `docs/ARCHITECTURE-MAP.md` stub | sonnet | deps: P0-01
-- [ ] P0-08 | GitHub Actions CI: typecheck, lint, test, build on PR | sonnet | deps: P0-03
-- [ ] P0-09 | Security CI: Gitleaks, OSV-Scanner, CodeQL, Renovate config | sonnet | deps: P0-08
-- [ ] P0-10 | Vitest + Playwright + axe-core harness and shared fixtures | sonnet | deps: P0-04
-- [ ] P0-49 | k6 skeleton `tooling/k6/`: smoke, exam-start-storm, autosave-soak, checkout-spike, `targets.json` allowlist | sonnet | deps: P0-04
-- [ ] P0-52 | Solo-safe branch protection ruleset (0 required approvals while one human, required checks, no bypass) + `.gitattributes` (`* text=auto eol=lf`) + env patterns in `.gitignore`; amend 11 §1.2 | haiku | deps: P0-03
-- [ ] P0-53 | Doc consistency sweep: apply 26 §19.6 X1-X13, 29 X1-X10, 32 Y1-Y7, 27 §21.2 and 16 R6 to 02/03/05/06/07/09/10/11; add dated change-log lines in 00 (founder approves any D-level change) | opus | deps: -
-- [ ] P0-54 | Apply requested cross-doc edits from 16, 30, 31, 33, 34 (FIN-31, AIOPS-26, AI-57, AI-93, I18N 16.2, 16 R2-R5/R7-R10, 26-19 sitemap routes) + `tooling/doc-lint.ts` | haiku | deps: P0-53
-- [ ] P0-55 | Traceability checks: `tooling/trace.ts` (every P1 feature ID in 03 has a backlog reference, GA-004) and `tooling/backlog-check.ts` (12 §11 vs PROGRESS.md: same IDs in the same order, deps exist, graph acyclic, owners valid) | sonnet | deps: P0-47
-- [ ] P0-56 | Founder-blockers lead-time reminders, `docs/ops/launch-evidence.md` skeleton and 'rotate a leaked secret' runbook stub | haiku | deps: -
+- [ ] P0-45 | Install agent guardrail hooks (`.claude/hooks/*`, settings, rules, commands) + self-test (docs/22 §11.4) | 3.8-flash | deps: -
+- [ ] P0-46 | Logs scaffolding: `docs/logs/{sessions,progress,errors,decisions,reviews,incidents}`, templates, root CHANGELOG, `.gitignore` entries, `docs/approved-deps.txt`, CLAUDE/AGENTS/GEMINI "Never" drift check | argon | deps: -
+- [ ] P0-51 | mise + corepack pinning: `mise.toml`/`.tool-versions`, `.nvmrc`, `packageManager`, `engines`, README setup | 3.8-flash | deps: -
+- [ ] P0-01 | Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons per D2 | argon | deps: P0-45, P0-46, P0-51
+- [ ] P0-02 | Shared TS/ESLint (flat)/Prettier presets in packages/config | 3.8-flash | deps: P0-01
+- [ ] P0-03 | Root `pnpm verify` pipeline + pnpm minimumReleaseAge >= 3 days | 3.8-flash | deps: P0-02
+- [ ] P0-50 | lefthook: pre-commit lint-staged + gitleaks, commit-msg check, pre-push `pnpm verify:fast`; add `verify:fast` script | 3.8-flash | deps: P0-03
+- [ ] P0-47 | `tooling/filemap.ts` + `pnpm filemap` (+ `--check`) + `tooling/ctxpack.sh` + `docs/ARCHITECTURE-MAP.md` stub | 3.8-flash | deps: P0-01
+- [ ] P0-08 | GitHub Actions CI: typecheck, lint, test, build on PR | 3.8-flash | deps: P0-03
+- [ ] P0-09 | Security CI: Gitleaks, OSV-Scanner, CodeQL, Renovate config | 3.8-flash | deps: P0-08
+- [ ] P0-10 | Vitest + Playwright + axe-core harness and shared fixtures | 3.8-flash | deps: P0-04
+- [ ] P0-49 | k6 skeleton `tooling/k6/`: smoke, exam-start-storm, autosave-soak, checkout-spike, `targets.json` allowlist | 3.8-flash | deps: P0-04
+- [ ] P0-52 | Solo-safe branch protection ruleset (0 required approvals while one human, required checks, no bypass) + `.gitattributes` (`* text=auto eol=lf`) + env patterns in `.gitignore`; amend 11 §1.2 | argon | deps: P0-03
+- [ ] P0-53 | Doc consistency sweep: apply 26 §19.6 X1-X13, 29 X1-X10, 32 Y1-Y7, 27 §21.2 and 16 R6 to 02/03/05/06/07/09/10/11; add dated change-log lines in 00 (founder approves any D-level change) | 3.8-flash | deps: -
+- [ ] P0-54 | Apply requested cross-doc edits from 16, 30, 31, 33, 34 (FIN-31, AIOPS-26, AI-57, AI-93, I18N 16.2, 16 R2-R5/R7-R10, 26-19 sitemap routes) + `tooling/doc-lint.ts` | argon | deps: P0-53
+- [ ] P0-55 | Traceability checks: `tooling/trace.ts` (every P1 feature ID in 03 has a backlog reference, GA-004) and `tooling/backlog-check.ts` (12 §11 vs PROGRESS.md: same IDs in the same order, deps exist, graph acyclic, owners valid) | 3.8-flash | deps: P0-47
+- [ ] P0-56 | Founder-blockers lead-time reminders, `docs/ops/launch-evidence.md` skeleton and 'rotate a leaked secret' runbook stub | argon | deps: -
 
 #### P0.2 App skeleton, env & data (gate: M0, M1)
 
-- [ ] P0-04 | apps/web: Next.js 16 + React 19 App Router skeleton | sonnet | deps: P0-02
-- [ ] P0-05 | Tailwind v4 wiring with CSS-variable token layer | sonnet | deps: P0-04
-- [ ] P0-06 | Initialise shadcn/ui into packages/ui (Radix, Lucide) and consume from apps/web | sonnet | deps: P0-05
-- [ ] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | sonnet | deps: P0-02
-- [ ] P0-11 | Vercel project (sin1/bom1), preview deploys, Neon branch-per-PR workflow | sonnet | deps: P0-08, P0-07
-- [ ] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | sonnet | deps: P0-07
-- [ ] P0-13 | Base schema via Better Auth generator (user, session, account, verification) + audit_log table | sonnet | deps: P0-12
-- [ ] P0-14 | Schema: roles, user_roles, organizations, memberships (additive roles per D4) | sonnet | deps: P0-13
-- [ ] P0-57 | `env.ts` cross-field validation (DB_DRIVER vs host; SSLCZ_IS_LIVE iff production; no fake providers or Turnstile test keys in production) + `env:example` generator with drift test; settle env-name drift (docs/28 §18.2: 10 wins) | sonnet | deps: P0-07
-- [ ] P0-58 | Smoke scripts `tooling/scripts/smoke/*` + `pnpm smoke:*` and `smoke:all` (PASS/FAIL/SKIP table, never prints secrets, refuses prod without flag) | sonnet | deps: P0-07
-- [ ] P0-59 | Staging smoke job `smoke-staging.yml` after deploy; gates `db-migrate-prod.yml` | sonnet | deps: P0-58, P0-11
-- [ ] P0-60 | `packages/config/legal.ts` (entity, addresses, role mailboxes, grievance officer) read by legal pages and emails | haiku | deps: P0-07
+- [ ] P0-04 | apps/web: Next.js 16 + React 19 App Router skeleton | 3.8-flash | deps: P0-02
+- [ ] P0-05 | Tailwind v4 wiring with CSS-variable token layer | 3.8-flash | deps: P0-04
+- [ ] P0-06 | Initialise shadcn/ui into packages/ui (Radix, Lucide) and consume from apps/web | 3.8-flash | deps: P0-05
+- [ ] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | 3.8-flash | deps: P0-02
+- [ ] P0-11 | Vercel project (sin1/bom1), preview deploys, Neon branch-per-PR workflow | 3.8-flash | deps: P0-08, P0-07
+- [ ] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | 3.8-flash | deps: P0-07
+- [ ] P0-13 | Base schema via Better Auth generator (user, session, account, verification) + audit_log table | 3.8-flash | deps: P0-12
+- [ ] P0-14 | Schema: roles, user_roles, organizations, memberships (additive roles per D4) | 3.8-flash | deps: P0-13
+- [ ] P0-57 | `env.ts` cross-field validation (DB_DRIVER vs host; SSLCZ_IS_LIVE iff production; no fake providers or Turnstile test keys in production) + `env:example` generator with drift test; settle env-name drift (docs/28 §18.2: 10 wins) | 3.8-flash | deps: P0-07
+- [ ] P0-58 | Smoke scripts `tooling/scripts/smoke/*` + `pnpm smoke:*` and `smoke:all` (PASS/FAIL/SKIP table, never prints secrets, refuses prod without flag) | 3.8-flash | deps: P0-07
+- [ ] P0-59 | Staging smoke job `smoke-staging.yml` after deploy; gates `db-migrate-prod.yml` | 3.8-flash | deps: P0-58, P0-11
+- [ ] P0-60 | `packages/config/legal.ts` (entity, addresses, role mailboxes, grievance officer) read by legal pages and emails | argon | deps: P0-07
 
 #### P0.3 Design system & shell (gate: M0, M1)
 
-- [ ] P0-26 | Design tokens: colour (one accent), type scale, 8-pt spacing, radius, shadow, motion, light/dark | sonnet | deps: P0-06
-- [ ] P0-27 | Core component set restyled to Lumen tokens (button, input, select, dialog, sheet, toast, tabs, table, form, skeleton) | sonnet | deps: P0-26
-- [ ] P0-28 | Layout shell: frosted nav, footer, locale switcher, theme toggle, skip-link | sonnet | deps: P0-27
+- [ ] P0-26 | Design tokens: colour (one accent), type scale, 8-pt spacing, radius, shadow, motion, light/dark | 3.8-flash | deps: P0-06
+- [ ] P0-27 | Core component set restyled to Lumen tokens (button, input, select, dialog, sheet, toast, tabs, table, form, skeleton) | 3.8-flash | deps: P0-26
+- [ ] P0-28 | Layout shell: frosted nav, footer, locale switcher, theme toggle, skip-link | 3.8-flash | deps: P0-27
 - [ ] P0-29 | next-intl (en, bn), Bangla fonts, locale routing, string extraction convention | sonnet | deps: P0-04
 - [ ] P0-48 | Visual-regression baseline in CI Linux: Playwright `visual` project, pinned container, `update-visuals` workflow | sonnet | deps: P0-10, P0-28
 - [ ] P0-61 | i18n structure and routing: namespace-split `messages/<locale>/<ns>.json` + generator, `localePrefix: as-needed`, `localeDetection: false`, endonym switcher, dismissible suggestion banner, typed message keys, runtime `i18n.missing` report | sonnet | deps: P0-29
@@ -211,21 +207,21 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-64 | Exam-disruption handling (C30): 'I lost connection' self-serve void once per attempt (connection loss > 2 min, exam mode), support `credit_mock`/`grant_resit`, `attempt:void` request, bulk re-issue admin job, all audited | sonnet | deps: P1-12, P1-55
 - [ ] P1-65 | Accommodations (C18): support-granted extra time 1.25x/1.5x/2.0x via ticket, evidence bucket, `accommodation_multiplier` applied to server deadlines, expiry | sonnet | deps: P1-12, P1-103
 
-#### P1.4 Exam runners, results & practice (gate: M0, M1, M2, M3)
+#### P1.4 Exam runners, results & practice (GRE First & Magoosh Engine) (gate: M0, M1, M2, M3)
 
-- [ ] P1-15 | IELTS Listening runner (single-play audio, sections, answer types) | sonnet | deps: P1-14, P1-13
-- [ ] P1-16 | IELTS Reading runner (split pane, highlight, notes, 3 passages) | sonnet | deps: P1-14, P1-13
-- [ ] P1-17 | IELTS Writing runner (Task 1/2, word counter, autosave) | sonnet | deps: P1-14
-- [ ] P1-18 | IELTS Speaking runner (mic check, recording, parts 1-3, upload to R2) | sonnet | deps: P1-14, P0-38
-- [ ] P1-19 | GRE Verbal runner (RC, text completion, sentence equivalence) | sonnet | deps: P1-14, P1-13
-- [ ] P1-20 | GRE Quant runner (MCQ, multi, numeric entry, QC) + on-screen calculator | sonnet | deps: P1-14, P1-13
-- [ ] P1-21 | GRE Analytical Writing (AWA) runner | sonnet | deps: P1-14
-- [ ] P1-22 | GRE section-level adaptive routing (V and Q second-section difficulty) | opus | deps: P1-19, P1-20
-- [ ] P1-23 | Results and review UI: score report, explanations, time per question, skill breakdown | sonnet | deps: P1-13, P1-15, P1-19
-- [ ] P1-24 | Free diagnostic test for guests with results gated behind sign-up | sonnet | deps: P1-23, P0-30
-- [ ] P1-66 | Practice sessions `/app/practice`: custom quiz builder, session player (practice-mode offline replay), history | sonnet | deps: P1-14, P1-13
-- [ ] P1-67 | Mistake notebook `/app/mistakes` fed by attempts and lesson quizzes (states Open/Resolved) | sonnet | deps: P1-23
-- [ ] P1-68 | Item statistics and retirement job (07 §8.6): p-values, discrimination, exposure, retire/flag rules | sonnet | deps: P1-23
+- [ ] P1-19 | GRE Verbal runner (RC, text completion 1/2/3-blank, sentence equivalence, strikethrough) | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-20 | GRE Quant runner (MCQ, multi, numeric entry, QC) + on-screen 4-function calculator with transfer | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-21 | GRE Analytical Writing (AWA) runner (30-min Analyze an Issue) | 3.8-flash | deps: P1-14
+- [ ] P1-22 | GRE section-level adaptive routing (Verbal 12Q->15Q, Quant 12Q->15Q second-section difficulty) | sonnet | deps: P1-19, P1-20
+- [ ] P1-66 | Magoosh Practice sessions `/app/practice`: custom quiz builder (topic/difficulty/mode), session player, personal notes | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-23 | Results and review UI: score report, explanations, time per question, pacing tracker, GRE score predictor (130-170) | 3.8-flash | deps: P1-13, P1-19, P1-20
+- [ ] P1-67 | Mistake notebook `/app/mistakes` fed by attempts and practice quizzes (states Open/Resolved) | 3.8-flash | deps: P1-23
+- [ ] P1-15 | IELTS Listening runner (single-play audio, sections, answer types) | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-16 | IELTS Reading runner (split pane, highlight, notes, 3 passages) | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-17 | IELTS Writing runner (Task 1/2, word counter, autosave) | 3.8-flash | deps: P1-14
+- [ ] P1-18 | IELTS Speaking runner (mic check, recording, parts 1-3, upload to R2) | 3.8-flash | deps: P1-14, P0-38
+- [ ] P1-24 | Free diagnostic test for guests with results gated behind sign-up | 3.8-flash | deps: P1-23, P0-30
+- [ ] P1-68 | Item statistics and retirement job (07 §8.6): p-values, discrimination, exposure, retire/flag rules | 3.8-flash | deps: P1-23
 
 #### P1.5 AI evaluation (core) (gate: M0, M1, M2)
 

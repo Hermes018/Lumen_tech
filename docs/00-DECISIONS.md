@@ -20,6 +20,18 @@ Date locked: 2026-11-07.
 
 **Catalogue phase map (from 14/15):** P1 — IELTS Academic, IELTS GT (4 full mocks each in Core), IELTS Writing Mastery, Speaking Mastery, L&R Accelerator, IELTS Crash Course (Zoom pilot), Mock Test Series, English Foundation, GRE (Verbal/Quant/AWA/Vocab). P2 — IELTS Life Skills A1/B1, Spoken English, PTE, DET, Admissions tools. P3 — TOEFL 2026, tech tracks, university packs, Work-Abroad tracks, optional OET/SAT/GMAT.
 
+**Strategic Build Priority (M0 & M1) — GRE-First & Magoosh-Parity Core:**
+While the platform architecture remains strictly multi-exam (GRE + IELTS), our immediate build priority for M0 (Clickable Prototype) and M1 (Alpha) is the GRE Suite & Magoosh-style Learning Engine:
+1. **GRE CBT Mock & Practice Engine (docs/07 & docs/15):**
+   - Section-Level Adaptivity: Verbal (Section 1: 12Q/18m -> Section 2: 15Q/23m Easy/Med/Hard routing) & Quant (Section 1: 12Q/21m -> Section 2: 15Q/26m).
+   - Exact Question Types: Text Completion (1/2/3-blank, no partial credit), Sentence Equivalence (pick 2 of 6, no partial credit), Reading Comprehension (single, multi-select, select-in-passage); Quantitative Comparison (A/B/C/D), Numeric Entry (single box & fraction two-box), Multiple-Choice (single & multi-select); AWA 30-min "Analyze an Issue" essay with AI evaluation.
+   - GRE Exam Shell Tools: On-screen 4-function calculator with transfer-display (Quant only), mark/flag for review, question review screen, strikethrough option eliminator, server-authoritative section timer, 10s autosave.
+2. **Magoosh-Style Practice & Smart Learning Features (docs/03 & docs/34):**
+   - Custom Practice Sessions: Filter by topic, difficulty (Easy/Medium/Hard/Very Hard), and mode (Timed vs Untimed/Tutor).
+   - Rich Explanations: Written step-by-step explanation, video explanation embed slot, AI Tutor contextual drawer ("Ask about this question"), personal notes.
+   - Analytics & Pacing Tracker: Time-per-question vs target pace, topic accuracy, estimated GRE Verbal & Quant (130–170) score predictor.
+   - GRE Vocab Pro (FSRS Flashcards): Spaced-repetition decks (Common, Basic, Advanced) with mnemonics, example sentences, and mastery states (New -> Learning -> Reviewing -> Mastered).
+
 ## D2. Architecture style
 
 - **Modular monolith** in a **pnpm + Turborepo monorepo**. No microservices. Every domain is a folder in `packages/core/src/<domain>` with a public `index.ts`; domains talk only through those exports.
@@ -255,3 +267,4 @@ IDP reported Language Testing volume −8% in FY26 and plans for a 20–30% mark
 - 2026-11-07 — D3: rate-limit store = Upstash Redis with Postgres fallback (aligns 09 and 10).
 - 2026-11-07 — D6: offline replay rule (exam mode grace-only; practice mode unrestricted) — resolves 07 OQ-1. 05 gains `attempt_session`, `attempt_annotation`, `item_exposure`, IRT columns on `question_stat` (from 07).
 - 2026-11-07 — D2: canonical route groups locked (table above, from 03-PRODUCT-SPEC). Supersedes `(learn)`, `(test)`, `(dashboard)` names used in early drafts. Locale prefix `as-needed` (supersedes "always prefixed").
+- 2026-11-11 — Strategic Pivot (Founder Directive): GRE-First Magoosh-parity core prioritized for M0/M1 ahead of IELTS audio pipelines. Model routing realigned to 3.8 Flash & Argon primary, Sonnet 5.5 critical review, Opus 5.5 break-glass only. Hardware guardrails pinned to Intel i5-1135G7 8GB RAM dual-boot (Windows 11 / Fedora 44).
