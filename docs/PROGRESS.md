@@ -13,64 +13,45 @@
 - Current milestone: P0.1 Repo & tooling (P0-51, P0-45, P0-46 completed; ready for P0-01); next delivery gate: M0 (GRE Priority)
 - Last session log: docs/logs/sessions/2026-11-11-onboarding-and-realignment.md
 - Active branch: main
-- Last green `pnpm verify`: P0-01 monorepo scaffold (8 packages, turbo concurrency=2, memory runner)
+- Last green `pnpm verify`: P0-01, P0-02, P0-03 (32 tasks in turbo pipeline green)
 - Phase in progress: P0
 
 ## Current task
 
 ```yaml
-id: P0-02
-title: "Shared TS strict + ESLint flat config + Prettier presets in packages/config"
-status: in_progress
-branch: task/P0-02-config-presets
+id: P0-04
+title: "apps/web: Next.js 16 + React 19 App Router skeleton with 8GB RAM protections"
+status: ready
+branch: task/P0-04-nextjs-scaffold
 owner_model: "3.8-flash"
-subagent: fullstack-engineer
-depends_on: [P0-01]
+subagent: frontend-engineer
+depends_on: [P0-02, P0-03]
 read:
-  - "docs/22-ENGINEERING-GUARDRAILS.md#§3"
+  - "docs/00-DECISIONS.md#D2"
   - "docs/04-ARCHITECTURE.md#§4"
+  - "docs/22-ENGINEERING-GUARDRAILS.md#§10"
 touch:
-  - package.json
-  - pnpm-lock.yaml
-  - eslint.config.mjs
-  - .prettierrc
-  - .prettierignore
-  - packages/config/package.json
-  - packages/config/src/index.ts
-  - packages/config/tsconfig/base.json
-  - packages/config/tsconfig/react.json
-  - packages/config/tsconfig/nextjs.json
-  - packages/config/tsconfig/library.json
-  - packages/config/eslint/base.js
-  - packages/config/prettier/index.js
-  - apps/web/tsconfig.json
-  - packages/core/tsconfig.json
-  - packages/db/tsconfig.json
-  - packages/auth/tsconfig.json
-  - packages/ui/tsconfig.json
-  - packages/ai/tsconfig.json
-  - tooling/tsconfig.json
+  - apps/web/package.json
+  - apps/web/next.config.ts
+  - apps/web/app/layout.tsx
+  - apps/web/app/page.tsx
+  - apps/web/app/[locale]/layout.tsx
+  - apps/web/app/[locale]/page.tsx
 do:
-  - Install typescript-eslint, eslint, prettier, prettier-plugin-tailwindcss
-  - Create base, react, nextjs, library tsconfig presets in packages/config/tsconfig/
-  - Create shared ESLint flat config preset in packages/config/eslint/
-  - Create Prettier preset in packages/config/prettier/
-  - Point all workspace tsconfig.json files to @lumen/config tsconfig presets
-  - Create root eslint.config.mjs, .prettierrc, .prettierignore
-  - Configure package lint and format scripts
+  - Add next, react, react-dom dependencies to apps/web
+  - Configure next.config.ts with 8GB RAM worker thread caps and security headers
+  - Scaffold root layout and initial route groups per D2
 acceptance:
-  - "strict + noUncheckedIndexedAccess enabled across all packages"
-  - "pnpm typecheck passes across all 8 packages"
-  - "pnpm lint passes across all packages without error"
-  - "pnpm format:check passes"
-verify: "pnpm turbo run typecheck lint --concurrency=2"
+  - "pnpm build and pnpm typecheck pass with Next.js 16"
+  - "Route layout structure conforms to D2 canonical table"
+  - "Memory cap 2048MB and concurrency=2 enforced"
+verify: "pnpm turbo run build typecheck --concurrency=2"
 verify_ladder: L0
 reviewer: "3.8 Flash (high)"
 out_of_scope:
-  - "Writing Next.js App Router pages (deferred to P0-04)"
-  - "Writing Drizzle schemas / migrations (deferred to P0-12/13)"
-  - "Writing Shadcn / Tailwind design tokens (deferred to P0-05/06)"
-notes: "Enforce strict TS and noUncheckedIndexedAccess everywhere."
+  - "Writing full page content or business logic (deferred to P0-26..P0-35)"
+  - "Tailwind styling tokens (deferred to P0-05)"
+notes: "Enforce Next.js 16 (React 19) App Router without legacy pages."
 ```
 
 ## Decisions needing the founder
@@ -125,8 +106,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P0-46 | Logs scaffolding: `docs/logs/{sessions,progress,errors,decisions,reviews,incidents}`, templates, root CHANGELOG, `.gitignore` entries, `docs/approved-deps.txt`, CLAUDE/AGENTS/GEMINI "Never" drift check | argon | deps: -
 - [x] P0-51 | mise + corepack pinning: `mise.toml`/`.tool-versions`, `.nvmrc`, `packageManager`, `engines`, README setup | 3.8-flash | deps: -
 - [x] P0-01 | Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons per D2 | argon | deps: P0-45, P0-46, P0-51
-- [ ] P0-02 | Shared TS/ESLint (flat)/Prettier presets in packages/config | 3.8-flash | deps: P0-01
-- [ ] P0-03 | Root `pnpm verify` pipeline + pnpm minimumReleaseAge >= 3 days | 3.8-flash | deps: P0-02
+- [x] P0-02 | Shared TS/ESLint (flat)/Prettier presets in packages/config | 3.8-flash | deps: P0-01
+- [x] P0-03 | Root `pnpm verify` pipeline + pnpm minimumReleaseAge >= 3 days | 3.8-flash | deps: P0-02
 - [ ] P0-50 | lefthook: pre-commit lint-staged + gitleaks, commit-msg check, pre-push `pnpm verify:fast`; add `verify:fast` script | 3.8-flash | deps: P0-03
 - [ ] P0-47 | `tooling/filemap.ts` + `pnpm filemap` (+ `--check`) + `tooling/ctxpack.sh` + `docs/ARCHITECTURE-MAP.md` stub | 3.8-flash | deps: P0-01
 - [ ] P0-08 | GitHub Actions CI: typecheck, lint, test, build on PR | 3.8-flash | deps: P0-03
@@ -144,7 +125,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P0-04 | apps/web: Next.js 16 + React 19 App Router skeleton | 3.8-flash | deps: P0-02
 - [ ] P0-05 | Tailwind v4 wiring with CSS-variable token layer | 3.8-flash | deps: P0-04
 - [ ] P0-06 | Initialise shadcn/ui into packages/ui (Radix, Lucide) and consume from apps/web | 3.8-flash | deps: P0-05
-- [ ] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | 3.8-flash | deps: P0-02
+- [x] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | 3.8-flash | deps: P0-02
 - [ ] P0-11 | Vercel project (sin1/bom1), preview deploys, Neon branch-per-PR workflow | 3.8-flash | deps: P0-08, P0-07
 - [ ] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | 3.8-flash | deps: P0-07
 - [ ] P0-13 | Base schema via Better Auth generator (user, session, account, verification) + audit_log table | 3.8-flash | deps: P0-12
@@ -587,6 +568,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-45 | bootstrap | 3.8-flash | POSIX hook compliance verified; git push block guard active |
 | 2026-11-11 | P0-46 | bootstrap | argon | Scaffolded docs/logs tree, CHANGELOG.md, and FILEMAP.md |
 | 2026-11-11 | P0-01 | e4e66bb | argon | Monorepo scaffold: 8 packages, turbo --concurrency=2, memory runner |
+| 2026-11-11 | P0-02 | 383ba2c | 3.8-flash | Shared TS strict, ESLint flat config, Prettier presets in packages/config |
+| 2026-11-11 | P0-03 | 0f06a74 | 3.8-flash | Brand identity (brand.ts), Zod-validated env.ts, and root .env.example |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
