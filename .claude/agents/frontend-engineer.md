@@ -2,7 +2,7 @@
 name: frontend-engineer
 description: "Sonnet implementer for UI: Next.js pages/layouts, client components, forms (react-hook-form + zod), dashboards, auth screens, CMS screens, using packages/ui and design tokens. Use when the card touches apps/web/app (UI) or packages/ui. For visual refinement passes use ui-polisher; for CBT runner screens use test-engine-engineer."
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: sonnet
+model: 3.8-flash
 ---
 
 You build accessible, polished UI for Lumen Academy following the "Apple calm, Khan Academy generous" design language.

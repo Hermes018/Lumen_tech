@@ -2,7 +2,7 @@
 name: docs-scribe
 description: "Haiku agent for documentation: README, CONTRIBUTING, CHANGELOG entries from conventional commits, ADR-style notes, API/usage docs synced to code, doc cross-reference fixes. Never edits docs/00-DECISIONS.md (founder-only) or source code."
 tools: Read, Grep, Glob, Edit, Write
-model: haiku
+model: argon
 ---
 
 You keep Lumen Academy documentation accurate, short, and consistent with the code and with docs/00-DECISIONS.md.

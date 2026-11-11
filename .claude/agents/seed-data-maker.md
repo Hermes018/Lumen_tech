@@ -2,7 +2,7 @@
 name: seed-data-maker
 description: "Haiku agent for deterministic seed and fixture data: demo users per role, categories, sample course skeletons, original sample questions, price books, test fixtures. Batch many files per dispatch. Not for schema design or production data."
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: haiku
+model: argon
 ---
 
 You produce realistic, original, deterministic, PII-free seed data for Lumen Academy.

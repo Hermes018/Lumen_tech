@@ -133,21 +133,27 @@ Gates as git tags: `m0-prototype`, `m1-alpha`, `m2-pilot` (= `v0.1.0-pilot`) and
 
 ---
 
-## 2. Model routing, cost, caching and limits
+## 2. Model routing, cost, caching and limits (Google AI Pro subscription realigned)
 
-### 2.1 Verified price sheet (USD per million tokens; API list price)
+### 2.1 Quota reality & model roles
+Opus 5.5 is severely rate-limited on our weekly quota and MUST NOT be used as the daily lead orchestrator, task-card writer, or routine reviewer. Instead, 90%+ of all work runs on 3.8 Flash and Argon:
+- **3.8 Flash (high)**: Daily Lead Orchestrator (plans sub-steps, writes task cards, reviews diffs, builds complex frontend/backend features, Drizzle schemas, Exam Shell UI, and Magoosh practice flows).
+- **3.8 Flash (med)**: Standard feature implementation (`frontend-engineer`, `backend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher`).
+- **3.8 Flash (low)**: Fast exploration, Tier B/C doc indexing, pre-commit self-checks.
+- **Argon (high)**: Standard CRUD routes, UI scaffolding from tokens, Vitest unit test suites, seed scripts, Zod schema wiring.
+- **Argon (med)**: `i18n-copywriter` (Bangla/English strings), `seed-data-maker` (GRE vocab decks, sample questions), `docs-scribe` (session logs, PROGRESS updates, FILEMAP).
+- **Argon (low)**: `lint-fixer`, formatting, boilerplate files, git hook checks, directory scaffolding.
+- **Sonnet 5.5 (med)**: Specialist escalation: complex algorithmic tasks, intricate GRE section-adaptive scoring (`test-engine-engineer`), RBAC `assertCan` policies, and payment webhook signature verification (`payments-integrator`).
+- **Sonnet 5.5 (high)**: Replaces Opus 5.5 as default Two-Key Reviewer (`architect-reviewer`, `security-auditor`) for auth, payments, DB migrations, and scoring PRs.
+- **Opus 5.5 (high only)**: Break-Glass / Milestone Sign-Off Only (<2% of tasks, strictly locked, Founder permission required, compact diff <250 lines).
 
-| Model | Input | Output | Cache write 5m / 1h | Cache read | Batch (−50%) |
-|---|---|---|---|---|---|
-| **Opus 5.5** (`claude-opus-5-5`) | $4 | $20 | $5 / $8 | $0.20 (0.05×) | $2 / $10 |
-| **Sonnet 5.5** (`claude-sonnet-5-5`) | $2 | $10 | $2.50 / $4 | $0.10 (0.05×) | $1 / $5 |
-| **Haiku 5.5** (prompt ≤ 100K) | $0.10 | $0.50 | $0.125 / $0.20 | $0.01 | $0.05 / $0.25 |
-| Haiku 5.5 (prompt > 100K) | $0.50 | $2.50 | $0.625 / $1 | $0.05 | $0.25 / $1.25 |
-| Opus 5.5 **fast mode** | $8 | $40 | - | - | not available |
+**Strict Escalation Ladder:**
+1. Argon (low/med) fails once -> retry on Argon (high) or 3.8 Flash (med).
+2. 3.8 Flash (med) fails once -> escalate to 3.8 Flash (high).
+3. 3.8 Flash (high) fails twice -> escalate to Sonnet 5.5 (med).
+4. Sonnet 5.5 (med/high) fails twice -> log to `docs/logs/errors/ERROR-LOG.md` and ask Founder before touching Opus 5.5.
 
-All 1M context, 128K output; Opus 5.5 thinking always on, default effort medium (Opus/Haiku), high (Sonnet) **(verified)**. New tokenizer produces ~30% more tokens for the same text than pre-4.7 models **(verified)**: do not reuse old token intuitions. Gemini fallback list prices: 3.5 Flash $1.50/$9, 3.1 Pro $2/$12 (≤200K), 3.1 Flash-Lite $0.25/$1.50 **(verified)**; Gemini CLI free tier with personal login ~60 req/min, 1,000 req/day (README claim; **verify in-app**).
-
-**Reading the $ figures:** on a Pro/Max subscription you are not billed per token; the dollar column is "API-equivalent shadow cost" used to compare routing choices and to budget scripted/API jobs. Real constraint on subscription = the 5-hour and weekly limits (§2.6). `/usage` is the ground truth (client estimate at list price **(verified)**).
+**Quiet Output Rule:** All test/lint/build commands must pipe output to a log file and print only the exit code and first 25 error lines so context windows stay tiny.
 
 ### 2.2 Routing table per development part
 

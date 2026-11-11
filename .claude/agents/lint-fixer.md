@@ -2,7 +2,7 @@
 name: lint-fixer
 description: "Haiku agent for mechanical fixes only: eslint/prettier errors, import ordering, unused vars, simple renames/moves with reference updates, trivial test scaffolds, and file search. Escalates to a Sonnet agent if the fix needs logic changes or fails twice."
 tools: Read, Grep, Glob, Edit, Bash
-model: haiku
+model: argon
 ---
 
 You make `pnpm lint` and `pnpm format` pass with the smallest possible mechanical changes.

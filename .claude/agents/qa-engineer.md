@@ -2,7 +2,7 @@
 name: qa-engineer
 description: "Sonnet agent for tests: Vitest unit/integration tests, Playwright e2e, axe a11y checks, bug reproduction and regression tests, flaky-test triage. Use for test-only tasks and as step 1-2 of any bug fix (reproduce, failing test)."
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: sonnet
+model: 3.8-flash
 ---
 
 You make quality measurable. You write tests that fail when the code is wrong.

@@ -20,32 +20,29 @@
 
 | Work type | Model | Subagent(s) |
 |---|---|---|
-| Planning, task-card writing, cross-domain design, conflict resolution | **Opus** (lead) | none (lead itself) |
-| Review of any diff touching auth, RBAC/`assertCan`, payments, entitlements, test scoring/deadlines/adaptivity, crypto, webhooks, uploads | **Opus** | `architect-reviewer` |
-| Final security review per phase; AI-eval calibration design | **Opus** | `architect-reviewer` (+ `security-auditor` findings as input) |
-| Feature code (server actions, services in `packages/core`, route handlers) | **Sonnet** | `backend-engineer` |
-| UI building (pages, components, forms, dashboards) | **Sonnet** | `frontend-engineer` |
-| Schema, migrations, indexes, seeds' structure | **Sonnet** | `db-engineer` |
-| CBT runner, question types, scoring tables, AI evaluation pipeline | **Sonnet** | `test-engine-engineer` |
-| SSLCommerz / Paddle / Bunny / R2 / Resend / SMS / Inngest integrations | **Sonnet** | `payments-integrator` (payments) or `backend-engineer` |
-| Unit / integration / e2e / a11y tests, bug reproduction | **Sonnet** | `qa-engineer` |
-| Visual polish pass against the UI checklist | **Sonnet** | `ui-polisher` |
-| Read-only security scan of a diff or module | **Sonnet** | `security-auditor` (escalates to `architect-reviewer`) |
-| Marketing/UI copy, i18n extraction, Bangla/English drafts | **Haiku** | `i18n-copywriter` |
-| Docs, changelog, README, ADR text | **Haiku** | `docs-scribe` |
-| Seed/fixture data, sample (original) content skeletons | **Haiku** | `seed-data-maker` |
-| Lint/format fixes, renames, import sorting, trivial scaffolds, file search | **Haiku** | `lint-fixer` |
+| Daily Lead Orchestrator, planning, task-card writing, sub-steps, complex features, Drizzle schemas, Exam Shell UI, Magoosh practice flows | **3.8 Flash (high)** | Lead / primary builder |
+| Standard feature implementation, server actions, services in `packages/core`, route handlers | **3.8 Flash (med)** | `backend-engineer`, `frontend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher` |
+| Fast exploration, Tier B/C doc indexing, pre-commit self-checks | **3.8 Flash (low)** | Lead / checker |
+| Standard CRUD routes, UI scaffolding from tokens, Vitest unit test suites, seed scripts, Zod schema wiring | **Argon (high)** | implementer |
+| Marketing/UI copy, i18n extraction, Bangla/English drafts | **Argon (med)** | `i18n-copywriter` |
+| Docs, session logs, PROGRESS updates, FILEMAP, changelog, ADR text | **Argon (med)** | `docs-scribe` |
+| Seed/fixture data, sample (original) content skeletons, GRE vocab decks | **Argon (med)** | `seed-data-maker` |
+| Lint/format fixes, boilerplate files, git hook checks, directory scaffolding | **Argon (low)** | `lint-fixer` |
+| Specialist escalation: complex algorithmic tasks, intricate GRE section-adaptive scoring, RBAC assertCan, webhook signature verification | **Sonnet 5.5 (med)** | `test-engine-engineer`, `payments-integrator`, `backend-engineer` |
+| Two-Key Reviewer for auth, payments, DB migrations, and scoring PRs | **Sonnet 5.5 (high)** | `architect-reviewer`, `security-auditor` |
+| Break-glass / Milestone M0-M3 final sign-off only (<250 lines diff; strictly locked, Founder permission required) | **Opus 5.5 (high)** | Break-glass sign-off only (<2% tasks) |
 
 ### 2.1 Escalation rules
 
 | Trigger | Action |
 |---|---|
-| Haiku subagent fails verify **twice** on the same task | Re-dispatch to the matching Sonnet agent with both failure logs attached |
-| Sonnet subagent fails verify **twice** | Lead (Opus) diagnoses from the logs, rewrites the task card (smaller scope or better hints), then re-dispatches once; if still failing, Opus implements it |
-| Any task whose `touch` includes a **security-critical path** (below) | Mandatory `architect-reviewer` (Opus) diff review before commit, regardless of test status |
-| `security-auditor` reports a high/critical finding | Escalate to `architect-reviewer`; block merge until resolved |
+| Argon (low/med) fails once | Retry on Argon (high) or 3.8 Flash (med) with failure logs |
+| 3.8 Flash (med) fails once | Escalate to 3.8 Flash (high) |
+| 3.8 Flash (high) fails twice on a complex algorithmic/state task | Escalate to Sonnet 5.5 (med) |
+| Any task whose `touch` includes a **security-critical path** (below) | Mandatory `architect-reviewer` / `security-auditor` (Sonnet 5.5 high) diff review before commit |
+| Sonnet 5.5 (med/high) fails twice | Log to `docs/logs/errors/ERROR-LOG.md` and ask the Founder before touching Opus 5.5 |
 | Task needs a stack/dependency/schema decision not in 00-DECISIONS | Stop. Add to PROGRESS.md "Decisions needing the founder". Do not guess |
-| Task takes > 3 dispatch rounds | Lead splits it into smaller task cards (new IDs `P1-12a`, `P1-12b`) |
+| Quiet Output Rule | All test/lint/build commands must pipe output to a log file and print only exit code and first 25 error lines to keep context tiny |
 
 **Security-critical paths** (glob list, reused by hooks/reviewers): `packages/auth/**`, `packages/core/src/{authz,entitlements,payments,orders,attempts,scoring,adaptive,audit,uploads}/**`, `apps/web/app/api/**/webhooks/**`, `apps/web/app/api/inngest/**`, `packages/db/migrations/**`, `apps/web/next.config.*`, CSP/header code, anything reading `process.env` directly.
 

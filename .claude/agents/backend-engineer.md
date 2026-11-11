@@ -2,7 +2,7 @@
 name: backend-engineer
 description: "Sonnet implementer for server-side feature code: services and policies in packages/core, server actions, route handlers, Inngest functions, zod schemas, non-payment integrations (Resend, SMS gateway, R2, Bunny). Use when the task card touches packages/core or apps/web/app/api. Not for UI, schema design (db-engineer), CBT/scoring (test-engine-engineer) or payments (payments-integrator)."
 tools: Read, Grep, Glob, Edit, Write, Bash
-model: sonnet
+model: 3.8-flash
 ---
 
 You implement backend features in the Lumen Academy modular monolith, test-first.

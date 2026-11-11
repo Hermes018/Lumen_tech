@@ -150,13 +150,27 @@ OWASP ASVS 5.0 **Level 2** target; OWASP Top 10 + API Top 10 covered in `09-SECU
 
 **"Apple calm, Khan Academy generous."** System font stack (`-apple-system, BlinkMacSystemFont, "SF Pro Text"` → `Inter`), 8-pt grid, large confident display type, lots of whitespace, one accent colour, frosted translucent nav, soft depth instead of borders, 150–300 ms ease-out motion, light + dark mode, WCAG 2.2 AA. Details in `08-UI-UX-DESIGN-SYSTEM.md`. **No gradients-on-everything, no emoji icons, no stock "AI glow" — that is what looks vibe-coded.**
 
-## D9. AI build orchestration
+## D9. AI build orchestration (Google AI Pro subscription realigned)
 
-- **Opus = lead** (planning, architecture, cross-domain review, final security review, merging).
-- **Sonnet = implementer** (feature code, schema, tests, integrations).
-- **Haiku = utility** (copy, i18n strings, seed data, docs, simple refactors, lint fixes, changelog).
-- **Gemini** = continuation agent when Claude limits are hit; reads `AGENTS.md` + `docs/PROGRESS.md` and continues from the next unchecked task.
-- Every task has ID, owner model, inputs, acceptance criteria and a verification command. Nothing is "done" until `pnpm verify` passes. Details in `12-BUILD-PLAN-AGENTS.md`.
+- **3.8 Flash (low | med | high) = Daily Lead & Primary Builder (90%+ of work)**:
+  - `3.8 Flash (high)`: Daily Lead Orchestrator (plans sub-steps, writes task cards, reviews diffs, builds complex frontend/backend features, Drizzle schemas, Exam Shell UI, and Magoosh practice flows).
+  - `3.8 Flash (med)`: Standard feature implementation (`frontend-engineer`, `backend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher`).
+  - `3.8 Flash (low)`: Fast exploration, Tier B/C doc indexing, pre-commit self-checks.
+- **Argon (low | med | high) = Mechanical & Volume Workhorse**:
+  - `Argon (high)`: Standard CRUD routes, UI component scaffolding from tokens, Vitest unit test suites, seed scripts, Zod schema wiring.
+  - `Argon (med)`: `i18n-copywriter` (Bangla/English strings), `seed-data-maker` (GRE vocab decks, sample questions), `docs-scribe` (session logs, PROGRESS updates, FILEMAP).
+  - `Argon (low)`: `lint-fixer`, formatting, boilerplate files, git hook checks, directory scaffolding.
+- **Sonnet 5.5 (low | med | high) = Specialist Escalation & Critical Paths**:
+  - `Sonnet 5.5 (med)`: Used only when 3.8 Flash (high) fails twice on a complex algorithmic task, OR for intricate GRE section-adaptive scoring (`test-engine-engineer`), RBAC `assertCan` policies, and payment webhook signature verification (`payments-integrator`).
+  - `Sonnet 5.5 (high)`: Replaces Opus 5.5 as default Two-Key Reviewer (`architect-reviewer`, `security-auditor`) for auth, payments, DB migrations, and scoring PRs.
+- **Opus 5.5 (high only) = Break-Glass / Milestone Sign-Off Only (<2% of tasks)**:
+  - Strictly locked. Only invoke Opus 5.5 with explicit Founder permission if Sonnet 5.5 (high) fails twice on a P0 security/data-integrity bug, or for the final 1-time gate sign-off at Milestone M0/M1/M2/M3 on a compact diff (<250 lines).
+- **Strict Escalation Ladder**:
+  - Argon (low/med) fails once -> retry on Argon (high) or 3.8 Flash (med).
+  - 3.8 Flash (med) fails once -> escalate to 3.8 Flash (high).
+  - 3.8 Flash (high) fails twice -> escalate to Sonnet 5.5 (med).
+  - Sonnet 5.5 (med/high) fails twice -> log to `docs/logs/errors/ERROR-LOG.md` and ask Founder before touching Opus 5.5.
+- **Quiet Output Rule**: All test/lint/build commands must pipe output to a log file and print only the exit code and first 25 error lines so context windows stay tiny.
 
 ## D10. Course tier framework (applies to every exam course: IELTS Academic, IELTS GT, GRE, later PTE, DET, TOEFL)
 
