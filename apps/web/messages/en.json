@@ -1,0 +1,45 @@
+{
+  "common": {
+    "appName": "Lumen Academy",
+    "getStarted": "Get Started",
+    "signIn": "Sign In",
+    "courses": "Courses",
+    "grePrep": "GRE Prep",
+    "ieltsPrep": "IELTS Prep",
+    "pricing": "Pricing",
+    "diagnostic": "Free Diagnostic"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "practice": "Practice & Drills",
+    "mockExams": "Mock Tests (CBT)",
+    "vocabDecks": "Vocab Decks (FSRS)",
+    "trapDiagnostics": "Trap Diagnostics",
+    "admissions": "Admissions (P2)"
+  },
+  "learner": {
+    "welcome": "Welcome back",
+    "streak": "{days} Day Streak",
+    "credits": "{count} Credits",
+    "dueCards": "{count} cards due today",
+    "quantAccuracy": "Quant Accuracy",
+    "verbalMastery": "Verbal Mastery"
+  },
+  "exam": {
+    "sectionHeader": "Section {current} of {total} — {title}",
+    "hideTime": "Hide Time",
+    "showTime": "Show Time",
+    "calculator": "Calculator",
+    "mark": "Mark",
+    "review": "Review",
+    "help": "Help",
+    "back": "Back",
+    "next": "Next",
+    "question": "Question {current} of {total}",
+    "autosave": "Autosave: Active (every 10s to Cloud Neon DB)"
+  },
+  "footer": {
+    "trademarkDisclaimer": "GRE® is a registered trademark of ETS. IELTS® is a registered trademark of Cambridge Assessment English, British Council, and IDP Education. Lumen Academy is an independent preparation service not endorsed by or affiliated with ETS, Cambridge, British Council, or IDP.",
+    "copyright": "© 2026 Lumen Academy. Built for high-ambition Bangladeshi & international scholars."
+  }
+}
