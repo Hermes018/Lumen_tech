@@ -1684,6 +1684,10 @@ export const questionVersion = pgTable('question_version', {
   /** NEVER sent to the client. null for writing/speaking (rubric-scored). */
   answerKey: jsonb('answer_key').$type<Record<string, unknown>>(),
   explanation: jsonb('explanation').$type<Record<string, unknown>>(),   // Tiptap doc; shown after submission
+  hintsJson: jsonb('hints_json').$type<Array<{ tier: 1 | 2 | 3; text: string }>>(), // D13 progressive 3-tier hints
+  choiceExplanationsJson: jsonb('choice_explanations_json').$type<Record<string, { explanation: string; trapTag?: string }>>(), // D13 per-choice trap diagnostics
+  stepsJson: jsonb('steps_json').$type<Array<{ step: number; prompt: string; question: string; options: string[]; answer: string }>>(), // D13 Socratic walkthrough
+  videoExplanationUrl: text('video_explanation_url'), // Magoosh-style video solution embed slot
   difficulty: smallint('difficulty').notNull().default(3),              // 1 (easy) .. 5 (hard); authoring estimate
   irtB: numeric('irt_b', { precision: 5, scale: 3 }),                   // calibrated difficulty (P2)
   estTimeSeconds: integer('est_time_seconds').notNull().default(60),
@@ -2951,6 +2955,9 @@ export const attemptResponse = pgTable('attempt_response', {
   answerSchemaVersion: schemaVersionCol('answer_schema_version'),
   isFlagged: boolean('is_flagged').notNull().default(false),
   timeSpentMs: integer('time_spent_ms').notNull().default(0),
+  hintsUsedCount: smallint('hints_used_count').notNull().default(0), // 0-3 (D13 practice mode only)
+  secondChanceUsed: boolean('second_chance_used').notNull().default(false), // D13 Tutor mode retry
+  trapTagsTriggered: text('trap_tags_triggered').array().notNull().default(sql`'{}'::text[]`), // D13
   lastSeq: bigint('last_seq', { mode: 'number' }).notNull().default(0),   // client sequence (per attempt, monotonic); stale writes ignored
   answeredAt: tstz('answered_at'),
   updatedAt: tstz('updated_at').notNull().defaultNow(),
@@ -3963,8 +3970,8 @@ export const srsDeck = pgTable('srs_deck', {
 
 export const srsCard = pgTable('srs_card', {
   id: pk(), deckId: uuid('deck_id').notNull().references(() => srsDeck.id, { onDelete: 'cascade' }),
-  kind: text('kind').notNull(),                                   // word|cloze|listen_spell|collocation|rule|mistake
-  /** {word,pos,ipa,def_en,meaning_bn,examples[],synonyms[],mnemonic,...} */
+  kind: text('kind').notNull(),                                   // word|cloze|listen_spell|collocation|rule|mistake|se_pair_drill|quant_formula_trap
+  /** {word,pos,ipa,def_en,meaning_bn,examples[],synonyms[],mnemonic,se_pairs[],quant_rule:...} */
   content: jsonb('content').$type<Record<string, unknown>>().notNull(),
   contentSchemaVersion: schemaVersionCol('content_schema_version'),
   audioAssetId: uuid('audio_asset_id').references(() => mediaAsset.id, { onDelete: 'set null' }),
@@ -3981,10 +3988,22 @@ export const srsUserCard = pgTable('srs_user_card', {
   due: tstz('due').notNull(), stability: numeric('stability', { precision: 10, scale: 4 }), difficulty: numeric('difficulty', { precision: 6, scale: 4 }),
   reps: integer('reps').notNull().default(0), lapses: integer('lapses').notNull().default(0), lastReviewAt: tstz('last_review_at'),
   suspended: boolean('suspended').notNull().default(false), leech: boolean('leech').notNull().default(false),
-  source: text('source').notNull().default('deck'),               // deck|mistake|lesson|evaluation|manual
+  source: text('source').notNull().default('deck'),               // deck|mistake|lesson|evaluation|manual|click_to_deck
   sourceRef: uuid('source_ref'),                                  // soft ref (attempt_response / evaluation_result / lesson) — documented polymorphic
   ...timestamps(),
 }, (t) => [uniqueIndex('srs_user_card_uq').on(t.userId, t.cardId), index('srs_user_card_due_idx').on(t.userId, t.due).where(sql`${t.suspended} = false`), index('srs_user_card_card_idx').on(t.cardId)]);
+
+/** Spaced Retry Queue for missed practice items (D13 1-click error reflection chips). */
+export const srsErrorLogQueue = pgTable('srs_error_log_queue', {
+  id: pk(),
+  userId: uuid('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  questionVersionId: uuid('question_version_id').notNull().references(() => questionVersion.id, { onDelete: 'cascade' }),
+  reflectionTag: text('reflection_tag').notNull(),                // concept_gap|vocab_gap|careless_calc|misread_prompt|pacing_time
+  stage: smallint('stage').notNull().default(1),                  // 1 (1d), 2 (3d), 3 (7d), 4 (21d)
+  dueAt: tstz('due_at').notNull(),
+  resolvedAt: tstz('resolved_at'),
+  ...timestamps(),
+}, (t) => [index('srs_err_queue_due_idx').on(t.userId, t.dueAt).where(sql`${t.resolvedAt} is null`)]);
 
 /** APPEND-ONLY review events (training data for the P2 optimiser; idempotent by client key). */
 export const srsReviewLog = pgTable('srs_review_log', {

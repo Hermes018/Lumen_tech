@@ -251,6 +251,32 @@ IDP reported Language Testing volume −8% in FY26 and plans for a 20–30% mark
 
 ---
 
+## D13. Interactive Pedagogy & Active-Recall Engine (Magoosh + TTP + GregMat + Brilliant Parity)
+
+1. **Progressive 3-Tier Hint System (Practice & Tutor Mode Only):**
+   - Stored in `question_version.hints_json` as up to 3 progressive hints:
+     - `tier 1 (Concept Nudge)`: Identifies the core formula, pivot word, or domain constraint without setup.
+     - `tier 2 (Setup / Trap Elimination)`: Shows the algebraic setup or eliminates 1–2 trap distractors.
+     - `tier 3 (Final Bridge)`: Guides to the final step right before the answer.
+   - **Exam Mode (`/exam/*`):** Hints are strictly disabled and stripped from the client payload.
+   - **Mastery Weighting:** 0 hints = 100% mastery weight; 1 hint = 85%; 2 hints = 65%; 3 hints = 40% ("Assisted Solve").
+   - **Hint Budget:** Challenge practice sets support capped Hint Banks (e.g., 3 hints per 10 questions).
+2. **Second-Chance Retry & Distractor Trap Diagnostics:**
+   - In Untimed Tutor Mode, wrong first submission triggers **"Try One More Time"** (highlights failing blank/comparison without giving answer).
+   - `question_version.choice_explanations_json`: Every choice has its own explanation and optional `trap_tag` (`forgot_zero_or_negative`, `reversed_ratio`, `extreme_modifier`, `orphan_synonym_no_pair`, `right_text_wrong_paragraph`).
+   - Surfacing: Picking an incorrect option shows **"Why Choice [X] is a Trap"** immediately above general walkthrough.
+3. **Interactive Socratic Walkthrough ("Walk Me Through It"):**
+   - Complex items support `steps_json` with 2–4 micro-steps containing mini-check questions to prevent passive skimming.
+4. **GregMat-Style Verbal Deconstructor & Quant Scratchpad Tools:**
+   - **Choice Hider ("Predict First" Toggle):** Blurs choices on TC/SE until learner clicks a pivot word or types a rough prediction (+/-).
+   - **Inline Word Click-to-Deck:** Clicking unfamiliar words in passages/choices opens definition + **"Add to My FSRS Vocab Deck"**.
+   - **Quant Helpers:** On-screen 4-function GRE Calculator with `Transfer Display` to Numeric Entry boxes; "F.R.O.Z.E.N." checklist for QC.
+5. **Multi-Mode FSRS Active-Recall Flashcard Engine:**
+   - Four card modes: Classic FSRS Flip, Cloze Context Mode, Sentence Equivalence Pair Drill (15s speed round), Quant Formula & Trap Deck.
+   - **Smart Error-Log Tagging:** Missed practice items tagged with reflection chips (`Concept Gap`, `Vocab Gap`, `Careless/Calculation`, `Misread Prompt`, `Pacing/Time`) schedule into the spaced-repetition **Error Log Review Queue** (1d, 3d, 7d, 21d).
+
+---
+
 ## Change Log
 - 2026-11-07 — Initial decisions locked.
 - 2026-11-07 — D4: mandatory 2FA extended to `instructor` (payouts) and `org_admin` (manages many users), per security review.
@@ -268,3 +294,4 @@ IDP reported Language Testing volume −8% in FY26 and plans for a 20–30% mark
 - 2026-11-07 — D6: offline replay rule (exam mode grace-only; practice mode unrestricted) — resolves 07 OQ-1. 05 gains `attempt_session`, `attempt_annotation`, `item_exposure`, IRT columns on `question_stat` (from 07).
 - 2026-11-07 — D2: canonical route groups locked (table above, from 03-PRODUCT-SPEC). Supersedes `(learn)`, `(test)`, `(dashboard)` names used in early drafts. Locale prefix `as-needed` (supersedes "always prefixed").
 - 2026-11-11 — Strategic Pivot (Founder Directive): GRE-First Magoosh-parity core prioritized for M0/M1 ahead of IELTS audio pipelines. Model routing realigned to 3.8 Flash & Argon primary, Sonnet 5.5 critical review, Opus 5.5 break-glass only. Hardware guardrails pinned to Intel i5-1135G7 8GB RAM dual-boot (Windows 11 / Fedora 44).
+- 2026-11-11 — D13 added: Interactive Pedagogy & Active-Recall Engine (Magoosh + TTP + GregMat + Brilliant parity): 3-tier progressive hints, Second-Chance retry with trap diagnostics, Socratic step-by-step solver, GregMat verbal deconstructor, and 4-mode FSRS active-recall flashcard engine.

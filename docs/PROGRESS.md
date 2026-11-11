@@ -243,11 +243,11 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.4 Exam runners, results & practice (GRE First & Magoosh Engine) (gate: M0, M1, M2, M3)
 
-- [ ] P1-19 | GRE Verbal runner (RC, text completion 1/2/3-blank, sentence equivalence, strikethrough) | 3.8-flash | deps: P1-14, P1-13
-- [ ] P1-20 | GRE Quant runner (MCQ, multi, numeric entry, QC) + on-screen 4-function calculator with transfer | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-19 | GRE Verbal runner (RC, text completion 1/2/3-blank, sentence equivalence, strikethrough, Choice Hider 'Predict First' toggle, inline word click-to-deck) | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-20 | GRE Quant runner (MCQ, multi, numeric entry, QC) + on-screen 4-function calculator with transfer + FROZEN plug-in numbers checklist badge | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-21 | GRE Analytical Writing (AWA) runner (30-min Analyze an Issue) | 3.8-flash | deps: P1-14
 - [ ] P1-22 | GRE section-level adaptive routing (Verbal 12Q->15Q, Quant 12Q->15Q second-section difficulty) | sonnet | deps: P1-19, P1-20
-- [ ] P1-66 | Magoosh Practice sessions `/app/practice`: custom quiz builder (topic/difficulty/mode), session player, personal notes | 3.8-flash | deps: P1-14, P1-13
+- [ ] P1-66 | Magoosh Practice & Tutor sessions `/app/practice`: custom quiz builder (topic/difficulty/mode), session player, progressive 3-tier hints (concept nudge, setup, bridge), second-chance retry with distractor trap diagnostics ('Why Choice [X] is a Trap'), Socratic micro-step walkthroughs ('Walk Me Through It'), personal notes | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-23 | Results and review UI: score report, explanations, time per question, pacing tracker, GRE score predictor (130-170) | 3.8-flash | deps: P1-13, P1-19, P1-20
 - [ ] P1-67 | Mistake notebook `/app/mistakes` fed by attempts and practice quizzes (states Open/Resolved) | 3.8-flash | deps: P1-23
 - [ ] P1-15 | IELTS Listening runner (single-play audio, sections, answer types) | 3.8-flash | deps: P1-14, P1-13
@@ -354,7 +354,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 - [ ] P1-127 | SRS tables `srs_deck`, `srs_card`, `srs_user_card`, `srs_review_log`, `srs_user_settings` + seed pipeline from editor CSV (1,150 cards) | sonnet | deps: P0-14
 - [ ] P1-128 | FSRS scheduler package shared client/server (`ts-fsrs`, licence re-verified) with SM-2 fallback flag and offline-replay fixtures (C26) | sonnet | deps: P1-127
-- [ ] P1-129 | Vocabulary review UI `/app/vocab` (F-VOC): modes, interval buttons, keyboard, data saver, en/bn | sonnet | deps: P1-128
+- [ ] P1-129 | Vocabulary review UI `/app/vocab` (F-VOC): 4 active-recall card modes (Classic FSRS Flip, Cloze Context, Sentence Equivalence Pair Drill 15s speed mode, Quant Formula & Trap Deck), interval buttons (Again/Hard/Good/Easy), keyboard shortcuts, smart error-log queue ('Queue for Vocab Review'), data saver, en/bn | sonnet | deps: P1-128
 - [ ] P1-130 | Deck audio pipeline (TTS at authoring, R2 cache, IPA/audio QA checklist) | sonnet | deps: P1-127, P1-144
 - [ ] P1-131 | pgvector + `content_chunk` + HNSW + fk-index CI checks, embedding adapter, Bangla/English retrieval benchmark (200 pairs) and model-choice ADR | sonnet | deps: P0-12
 - [ ] P1-132 | Chunker and `rag.reindex` Inngest job on `content.published` (video windows with `start_ms`, articles, explanations, vocab) | sonnet | deps: P1-131

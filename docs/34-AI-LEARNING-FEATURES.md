@@ -273,12 +273,17 @@ Failure handling: provider timeout 20 s (`AbortSignal.timeout`), one retry on th
 | Mistake cards (auto) | Generated per learner | all (capped) |
 | My deck (P2, 03 F-VOC-07) | Learner-added words | Core+ |
 
-**Card model:** `srs_card` (shared content) + `srs_user_card` (per-learner FSRS state). Card kinds: `word` (word, POS, IPA, EN definition, BN meaning, 2 examples, synonyms, mnemonic), `cloze` (GRE Text Completion style), `listen_spell`, `collocation`, `rule` (from lesson key terms / grammar), `mistake` (question stem snippet + wrong answer + corrected reasoning + linked lesson). Audio: word + example sentences, **pre-generated TTS** per card and cached in R2 (never generated at review time), labelled synthetic where the vendor requires it (16 §5.4). IPA verified by an editor for all 1,150 core cards (listen-through; TTS stress errors are the main risk).
+**Card model:** `srs_card` (shared content) + `srs_user_card` (per-learner FSRS state). Card kinds: `word` (word, POS, IPA, EN definition, BN meaning, 2 examples, synonyms, mnemonic), `cloze` (GRE Text Completion style), `listen_spell`, `collocation`, `rule` (from lesson key terms / grammar), `mistake` (question stem snippet + wrong answer + corrected reasoning + linked lesson), `se_pair_drill` (Sentence Equivalence pair matching), `quant_formula_trap` (Quant formulas and QC traps). Audio: word + example sentences, **pre-generated TTS** per card and cached in R2 (never generated at review time), labelled synthetic where the vendor requires it (16 §5.4). IPA verified by an editor for all 1,150 core cards (listen-through; TTS stress errors are the main risk).
 
 **UX (screens `/app/vocabulary`, `/app/vocabulary/decks/[deckId]`, `/app/vocabulary/review`):**
 - Dashboard card W-S-VOC: "23 words due · 4 min" / "২৩টি শব্দ রিভিউর জন্য · ৪ মিনিট" (03 §5 R13).
 - Review screen: one card, tap to flip, four buttons **Again · Hard · Good · Easy** each showing the next interval ("10 min · 2 d · 6 d · 14 d"), swipe gestures optional, keyboard 1-4, space flips. Progress ring, "mini session" = 10 cards. Audio autoplays after flip only if the user enabled it (default off on data saver). "Show Bangla first" toggle; "Add my own note".
-- Modes (03 F-VOC-04): flip, multiple-choice definition, cloze, listen-and-spell. IELTS decks default to listen-and-spell weekly.
+- **4 Active-Recall Card Modes (D13):**
+  1. **Classic FSRS Flip:** Target word on front $\to$ definition, POS, GRE example sentence, Bangla gloss, mnemonic hook, synonym cluster, and antonyms on back $\to$ 4-button FSRS rating (*Again, Hard, Good, Easy*).
+  2. **Cloze Context Mode:** GRE-style sentence with target word blanked out; learner selects or types the correct word.
+  3. **Sentence Equivalence Pair Drill (Speed Mode):** Shows 1 target word or short sentence and 6 options; learner must identify the exact synonymous pair within 15 seconds.
+  4. **Quant Formula & Trap Deck:** FSRS cards covering GRE Quant geometry rules, exponent/prime properties, and common QC traps (e.g., F.R.O.Z.E.N. checklist).
+- **Smart Error-Log Tagging & Spaced Retry Queue:** On any missed practice item, 1-click error reflection chips (`Concept Gap`, `Vocab Gap`, `Careless/Calculation`, `Misread Prompt`, `Pacing/Time`) automatically schedule the question into `srs_error_log_queue` for spaced retries (1d, 3d, 7d, 21d).
 - "Study ahead" after daily cap (AC-VOC-02) never alters FSRS state beyond logging.
 - Leech rule: 8 lapses -> card flagged, offers an alternative mnemonic (Haiku draft, shown as "AI suggestion", editable) and a tutor shortcut "Explain this word differently" (counts as `tutor_msg`).
 - Settings: new cards/day (10/15/25), desired retention (default 0.90; range 0.80-0.95 with a plain-language note on workload), reminder time, audio on/off, data saver.

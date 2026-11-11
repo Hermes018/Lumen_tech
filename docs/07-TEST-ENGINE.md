@@ -1040,6 +1040,27 @@ Reserved type ids (names from research; per-task counts/timings still to be veri
 | PTE Academic (22 types) | **Speaking & Writing:** `pte.read_aloud`, `pte.repeat_sentence`, `pte.describe_image`, `pte.retell_lecture`, `pte.answer_short_question`, `pte.summarize_group_discussion`, `pte.respond_to_situation`, `pte.summarize_written_text`, `pte.write_essay`. **Reading:** `pte.rw_fill_blanks_dropdown`, `pte.r_mc_multi`, `pte.reorder_paragraphs`, `pte.r_fill_blanks_drag`, `pte.r_mc_single`. **Listening:** `pte.summarize_spoken_text`, `pte.l_mc_multi`, `pte.l_fill_blanks_type`, `pte.highlight_correct_summary`, `pte.l_mc_single`, `pte.select_missing_word`, `pte.highlight_incorrect_words`, `pte.write_from_dictation` | `per_blank_partial`, `negative_marking` (multi-answer), `pairwise_adjacent` (reorder), enabling-skills multi-trait AI scoring |
 | Duolingo English Test | `det.read_and_select`, `det.listen_and_type`, `det.read_aloud`, `det.write_about_photo`, `det.interactive_reading`, `det.interactive_listening`, `det.writing_sample`, `det.speaking_sample`, `det.fill_in_the_blanks`, `det.video_interview` | item-level CAT (`kind: 'item_cat'`), AI scoring for production tasks; last two are ungraded samples sent to institutions |
 
+### 2.7 Interactive Practice & Tutor Pedagogy (D13: Magoosh + TTP + GregMat + Brilliant Parity)
+
+1. **Progressive 3-Tier Hint System (Practice & Tutor Mode Only):**
+   - Stored in `question_version.hints_json` as an array of up to 3 progressive hints:
+     - `tier 1 (Concept Nudge)`: Identifies the core formula, sentence pivot word, or domain constraint without revealing setup.
+     - `tier 2 (Setup / Trap Elimination)`: Demonstrates initial algebraic equation or eliminates 1–2 distractor trap choices.
+     - `tier 3 (Final Bridge)`: Guides to the final calculation or grammatical bridge right before the answer.
+   - **Exam Mode Protection:** Stripped from `ClientQuestion` DTO in `/exam/*`.
+   - **Mastery Weighting:** 0 hints = 100% mastery; 1 hint = 85%; 2 hints = 65%; 3 hints = 40% ("Assisted Solve").
+   - **Hint Bank:** Challenge Practice sessions enforce a capped Hint Bank (e.g. 3 hints per 10 questions).
+2. **Second-Chance Retry & Distractor Trap Diagnostics:**
+   - In Untimed Tutor Mode, incorrect first submit triggers **"Try One More Time"** (flags failing blank/comparison without revealing correct choice).
+   - `question_version.choice_explanations_json`: Every choice has an individual explanation and optional `trap_tag` (`forgot_zero_or_negative`, `reversed_ratio`, `extreme_modifier`, `orphan_synonym_no_pair`, `right_text_wrong_paragraph`).
+   - Surfacing: Picking an incorrect choice surfaces a prominent **"Why Choice [X] is a Trap"** callout above the general solution.
+3. **Interactive Socratic Walkthrough ("Walk Me Through It"):**
+   - Complex items support `steps_json` with 2–4 micro-steps containing mini-check questions to verify conceptual understanding step by step.
+4. **GregMat-Style Verbal Deconstructor & Quant Scratchpad Tools:**
+   - **Choice Hider ("Predict First" Toggle):** Blurs choices on TC/SE until learner clicks a pivot word in the sentence or types a rough prediction (+/-).
+   - **Inline Word Click-to-Deck:** Clicking unfamiliar words in passages/choices opens definition + **"Add to My FSRS Vocab Deck"**.
+   - **Quant Helpers:** On-screen 4-function GRE Calculator with `Transfer Display` to Numeric Entry boxes; "F.R.O.Z.E.N." checklist for QC.
+
 ---
 
 ## 3. Scoring
