@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # SessionStart hook: stdout is injected as context (verify against installed version). Never blocks; always exit 0.
 root=${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}
 cd "$root" 2>/dev/null || exit 0

@@ -69,7 +69,7 @@ Escalate: Haiku fails twice -> Sonnet; Sonnet fails twice or touches a security-
 - Evidence rule: no claim without `file:line` or pasted command output. Unknown is a valid answer. Package/env/API names must exist (docs/10 section 15.3, installed types, `docs/approved-deps.txt`); never invent them.
 - Reviewer is never the author; critical paths need the two-key rule (Opus architect-reviewer + auditor). Stop and ask the founder per docs/22 section 12.2.
 - Hooks enforce: guard-paths (protected files), guard-bash (curl|sh, force/main push, unapproved deps). A BLOCKED message means stop and ask, not work around.
-- Fan-less Mac: `turbo --concurrency=2`, one dev server, Playwright workers 2, no Docker Desktop (Neon dev branch), heavy jobs in CI. Visual snapshots only from CI Linux.
+- 8 GB RAM Guardrails (Intel i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44): `NODE_OPTIONS="--max-old-space-size=2048"`, `turbo --concurrency=2`, Vitest `--pool=forks --maxWorkers=2 --no-file-parallelism`, `tsc --noEmit --incremental`, zero local containers (no Docker/Podman, Neon + Upstash only), no local Playwright swarms (run L0/L1 locally, full E2E in CI). Dual-boot OS switch via git commit -> boot -> pull --rebase -> `pnpm install --prefer-offline`.
 
 ## Token discipline
 Short answers; diffs not files; cards list line ranges (`tooling/ctxpack.sh`); manual `/compact` at ~60% with the preserve template (docs/22 3.3); working context <=150K; do not re-read files you just edited; batch small Haiku jobs; cache research in `docs/research-cache/`; `/clear` after each task.

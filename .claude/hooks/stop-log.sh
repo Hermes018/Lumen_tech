@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # Stop hook: append ONE terse line to the active session log. Non-blocking, deduplicated, never fails.
 root=${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}
 cd "$root" 2>/dev/null || exit 0

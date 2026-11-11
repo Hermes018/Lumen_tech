@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # PreCompact hook: write a timestamped state snapshot to docs/logs/sessions/ (gitignored: snap-*.md). Never blocks.
 root=${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}
 cd "$root" 2>/dev/null || exit 0

@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # PreToolUse guard for Bash. Exit 2 = BLOCK. (verify tool_input.command field against installed version)
 # Blocks: curl|sh, force-push, direct push to main, --no-verify, shell writes to guard files / .env,
-#         dependency adds not listed in docs/approved-deps.txt (slopsquatting gate).
+#         git push (unless ALLOW_GIT_PUSH=1), dependency adds not listed in docs/approved-deps.txt (slopsquatting gate).
 deny() { printf 'BLOCKED by guard-bash.sh: %s\n' "$1" >&2; exit 2; }
 
 input=$(cat)
@@ -21,6 +21,11 @@ printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+push([[:space:]]+[^;&|]*)?[[:space
   && deny "no direct push to main. Push the task branch and open a PR."
 printf '%s' "$cmd" | grep -Eq 'git[[:space:]]+(commit|push)[^;&|]*--no-verify' \
   && deny "--no-verify skips git hooks. Fix the failure instead."
+if printf '%s' "$cmd" | grep -Eq '(^|[[:space:]])git[[:space:]]+push([[:space:]]|$)'; then
+  if [ "${ALLOW_GIT_PUSH:-0}" != "1" ]; then
+    deny "git push is paused by founder directive until explicitly authorized (set ALLOW_GIT_PUSH=1 to override)."
+  fi
+fi
 printf '%s' "$cmd" | grep -Eq '(>|>>|tee[[:space:]]+(-a[[:space:]]+)?|sed[[:space:]]+-i[^;&|]*)[[:space:]]*\.?/?(\.claude/(settings|hooks|allow-protected)|\.gemini/settings|\.env([^.a-z]|\.local|\.production|\.development|$))' \
   && deny "shell writes to guard config or .env* are forbidden."
 

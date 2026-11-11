@@ -1,6 +1,6 @@
 # 28 — Founder Setup and Environments (Day 0 to first deploy)
 
-> Audience: the founder, a capable solo developer who wants zero guesswork. Primary machine: fanless MacBook Air (Apple M5). Optional second machine: a Windows PC (WSL2) or Linux PC, synchronised only through git.
+> Audience: the founder (Ayman Rahman), a capable solo developer who wants zero guesswork. Primary machine: Laptop with Intel Core i5-1135G7 (4C/8T), 8 GB DDR4 RAM, NVIDIA GeForce MX330 (2 GB VRAM), dual-SSD storage. Dual-Boot OS: Windows 11 (Git Bash / WSL2 / PowerShell) and Fedora 44 KDE Plasma (native bash, systemd, zram/swap).
 > Resolves GA-005 (25-GAP-AUDIT) and is the proposed doc 28 from that audit. Conforms to `00-DECISIONS.md` (D2 locale `as-needed`, D3 stack, D12 GA-005: Neon dev branch is the default local DB, `DB_DRIVER=neon|pg`, `.env.example` is readable by agents, real `.env*` files are not).
 > `<domain>` = your real domain (not chosen yet; use any placeholder until you buy it). `Lumen Academy` is a placeholder brand and appears only in `packages/config/brand.ts`.
 
@@ -14,8 +14,8 @@
 **Table of contents**
 
 1. Order of operations (one-page map)
-2. macOS prerequisites
-3. Second machine parity (Windows WSL2 / Linux)
+2. Operating System prerequisites (Windows 11 & Fedora 44)
+3. Dual-boot parity & OS switching (OS-Baton)
 4. GitHub repository and branch protection
 5. Install Claude Code and Gemini CLI
 6. Copy the build kit and bootstrap the repo
@@ -28,7 +28,7 @@
 13. Staging and production promotion
 14. Domain and email DNS checklist
 15. Troubleshooting: top 25 errors
-16. Resource-saving settings for the fanless Mac
+16. 8 GB RAM Survival Rules (Windows 11 / Fedora 44 Dual-Boot)
 17. "Fresh machine in 30 minutes" checklist
 18. Backlog tasks (NEW-ENV-xx) and doc drift found while writing
 
@@ -1046,30 +1046,24 @@ Extra quick fixes: port 3000 busy → `lsof -i :3000` then `kill <pid>`; stale b
 
 ---
 
-## 16. Resource-saving settings for the fanless MacBook Air
+## 16. 8 GB RAM Survival Rules (Windows 11 / Fedora 44 Dual-Boot)
 
-The M5 Air has no fan; sustained load throttles the CPU. Goal: do the heavy work in the cloud (CI, Neon, Vercel) and keep the laptop doing editing, one dev server and one agent.
+The Founder operates on a laptop with an Intel Core i5-1135G7 (4C/8T), 8 GB DDR4 RAM, and NVIDIA GeForce MX330 (2 GB VRAM) dual-booting Windows 11 and Fedora 44 KDE Plasma. Strict memory and execution caps are mandatory to avoid OOM crashes.
 
-**Process budget (rule of thumb)**
-| Allowed together | Avoid |
-|---|---|
-| 1 editor, 1 `pnpm dev`, 1 agent session, 1 browser window | Docker/OrbStack running idle, Inngest Dev Server idle, two agent sessions, `turbo watch`, Playwright headed with video |
+**8 GB RAM Survival Rules (STRICT NON-NEGOTIABLES)**
+1. **Node Memory Cap:** Every Node/Next.js/Vitest process MUST run with `NODE_OPTIONS="--max-old-space-size=2048"` (2 GB max).
+2. **Concurrency Cap:**
+   - Turborepo: `turbo run ... --concurrency=2` (never default to all cores).
+   - Vitest: `vitest run --pool=forks --maxWorkers=2 --no-file-parallelism`.
+   - TypeScript: `tsc --noEmit --incremental`.
+   - Next.js build/dev: disable experimental parallel webpack/turbopack workers that exceed 2 threads; never run `next build` while `next dev` is running.
+3. **Zero Local Containers:** NEVER run Docker Desktop, Podman, local Postgres, or local Redis on this machine. Database is strictly cloud Neon Serverless Postgres, rate-limit is Upstash Redis (or DB fallback).
+4. **No Local Playwright/Browser Swarms:** Full Playwright E2E and Lighthouse suites run in GitHub Actions CI (`pnpm verify:ci`). Local `pnpm verify` runs L0 (format, lint, typecheck) + L1 (unit/service tests with maxWorkers=2).
 
-**Settings and habits**
-1. **Neon dev branch instead of Docker Postgres** (default, D12): saves ~1 GB RAM and constant background CPU.
-2. Next.js 16 uses **Turbopack** for dev by default (verify); keep it. Add to the shell profile: `export NODE_OPTIONS="--max-old-space-size=4096"` and `export NEXT_TELEMETRY_DISABLED=1 TURBO_TELEMETRY_DISABLED=1`.
-3. Work on **one app**: `pnpm --filter web dev` (not every package's watch). Packages are consumed from source via TS paths so no separate watch builds (task NEW-ENV-08 to confirm).
-4. **Run heavy checks in CI**: use `pnpm turbo run typecheck lint test --filter="...[origin/main]"` (only changed packages) locally; run the full `pnpm verify` before opening a PR; run Playwright e2e **only in CI** (`e2e-preview`) or locally with Chromium headless and `--workers=1`: `pnpm exec playwright test --project=chromium --workers=1`.
-5. **Turborepo cache**: enable Vercel Remote Cache (`pnpm dlx turbo login` then `turbo link`; verify), so builds your CI already did are not repeated locally.
-6. **Spotlight and Time Machine**: exclude the code folder; `touch node_modules/.metadata_never_index` at the repo root.
-7. **Docker/OrbStack**: `orb stop` when not needed; never auto-start at login (OrbStack settings).
-8. **Browser**: one Chrome profile; close DevTools Performance panes; no extensions that inject into localhost.
-9. **Low Power Mode** while on battery or when the case feels warm; plug in for builds. Do heavy `pnpm install` on a table, not on a bed/lap (airflow).
-10. **Agents**: one at a time; keep sessions short with `/clear` after each task (CLAUDE.md token discipline); prefer Haiku for copy/i18n/seed tasks (D9). Don't run `/stress-test`/k6 locally; use CI or a cloud runner.
-11. **Monitor**: Activity Monitor → CPU tab, sort by %CPU. Look for `node`, `esbuild`, `postgres`, `Docker`/`OrbStack`, `mds_stores` (Spotlight), `Google Chrome Helper`. Thermal pressure: `pmset -g thermlog` (shows throttling lines; verify) or iStat/`macmon` (third-party, optional).
-12. **Disk**: `pnpm store prune` monthly; `brew cleanup`; keep ≥ 15 GB free so macOS swap stays fast.
-13. **Sleep**: `caffeinate` is not needed; closing the lid with background jobs running is not supported, so stop `pnpm dev` first.
-14. If the machine throttles anyway: push the branch, then continue on the second PC or in GitHub Codespaces (optional, free hours limited; verify) with the same `mise.toml`.
+**Dual-Boot Switching Protocol (OS-Baton):**
+- Shared NTFS/exFAT drives corrupt `node_modules` symlinks and `.next` binary caches between Windows and Fedora.
+- When switching OS: run `git commit` -> `git push` (when authorized) -> boot other OS -> `git pull --rebase` -> `pnpm install --prefer-offline`.
+- Cross-platform hooks: `.claude/hooks/*.sh` use POSIX `#!/usr/bin/env sh` (no macOS-specific `stat -f` or `sed -i ''` flags) so they execute identically in Fedora bash and Windows Git Bash / WSL2.
 
 ---
 

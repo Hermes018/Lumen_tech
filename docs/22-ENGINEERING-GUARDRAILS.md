@@ -511,6 +511,11 @@ Milestone tags on `main` at the merge that satisfies exit criteria: `p0.1` … `
 5. Lockfile conflicts: take either side, then `pnpm install` to regenerate; never hand-merge.
 6. Migration number collisions between two branches: the later branch regenerates its migration after rebasing (drizzle-kit `db:generate`), never renumbers by hand; Opus reviews.
 7. The device name is recorded in each session log, so history shows who did what.
+8. **Dual-Boot Switching Protocol (OS-Baton):**
+   - The Founder operates on a dual-boot setup: Windows 11 (Git Bash / WSL2 / PowerShell) and Fedora 44 KDE Plasma (native bash, systemd, zram/swap).
+   - Shared NTFS/exFAT drives corrupt `node_modules` symlinks and `.next` binary caches between Windows and Fedora.
+   - When switching OS: run `git commit` -> `git push` (when authorized) -> boot other OS -> `git pull --rebase` -> `pnpm install --prefer-offline`.
+   - Cross-platform hooks: `.claude/hooks/*.sh` use POSIX `#!/usr/bin/env sh` (no macOS-specific `stat -f` or `sed -i ''` flags) so they execute identically in Fedora bash and Windows Git Bash / WSL2.
 
 ---
 
@@ -555,9 +560,24 @@ Session logs: keep in git 90 days then move to `docs/logs/archive/YYYY/` (Haiku 
 
 ---
 
-## 10. Resource-conscious development (fan-less MacBook Air M5, plus a second PC)
+## 10. Resource-conscious development (Intel i5-1135G7, 8 GB DDR4 RAM, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
 
-Thermals note: the model runs remotely; local heat comes from dev servers, bundlers, test runners, browsers and containers **(inference)**. Parallel agents/worktrees multiply that load.
+Machine Reality: Laptop with Intel Core i5-1135G7 (4C/8T), 8 GB DDR4 RAM, NVIDIA GeForce MX330 (2 GB VRAM), dual-SSD storage.
+Dual-Boot Environment:
+- OS 1: Windows 11 (Git Bash / WSL2 / PowerShell).
+- OS 2: Fedora 44 KDE Plasma (native bash, systemd, zram/swap).
+
+### 10.0 8 GB RAM Survival Rules (STRICT NON-NEGOTIABLES)
+1. **Node Memory Cap:** Every Node/Next.js/Vitest process MUST run with `NODE_OPTIONS="--max-old-space-size=2048"` (2 GB max).
+2. **Concurrency Cap:**
+   - Turborepo: `turbo run ... --concurrency=2` (never default to all cores).
+   - Vitest: `vitest run --pool=forks --maxWorkers=2 --no-file-parallelism`.
+   - TypeScript: `tsc --noEmit --incremental`.
+   - Next.js build/dev: disable experimental parallel webpack/turbopack workers that exceed 2 threads; never run `next build` while `next dev` is running.
+3. **Zero Local Containers:** NEVER run Docker Desktop, Podman, local Postgres, or local Redis on this machine. Database is strictly cloud Neon Serverless Postgres, rate-limit is Upstash Redis (or DB fallback).
+4. **No Local Playwright/Browser Swarms:** Full Playwright E2E and Lighthouse suites run in GitHub Actions CI (`pnpm verify:ci`). Local `pnpm verify` runs L0 (format, lint, typecheck) + L1 (unit/service tests with maxWorkers=2).
+
+Thermals note: the model runs remotely; local load comes from dev servers, bundlers, test runners and browsers. With 8 GB RAM, strict execution caps prevent OOM crashes.
 
 ### 10.1 Toolchain pinning (multi-device parity) — P0-51
 - **mise** (or Volta) pins Node LTS and pnpm-compatible tooling: `mise.toml`/`.tool-versions` with `node = "<LTS exact>"`; `.nvmrc` mirrors it for CI/Codespaces. `mise install` on every machine. (Exact versions chosen when scaffolding; verify the current Node LTS then.)

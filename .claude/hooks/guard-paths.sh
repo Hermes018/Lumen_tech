@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # PreToolUse guard for Edit|Write|MultiEdit. Exit 2 = BLOCK (message goes to stderr, shown to the agent).
 # stdin: hook JSON with tool_input.file_path (verify against installed Claude Code version).
 # Tier A  = never editable by agents (human only).
