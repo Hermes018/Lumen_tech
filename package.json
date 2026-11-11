@@ -1,0 +1,25 @@
+{
+  "name": "lumen",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22.20.0",
+    "pnpm": ">=9.15.0"
+  },
+  "scripts": {
+    "build": "node tooling/run.js turbo run build --concurrency=2",
+    "clean": "node tooling/run.js turbo run clean",
+    "dev": "node tooling/run.js turbo run dev --concurrency=2",
+    "lint": "node tooling/run.js turbo run lint --concurrency=2",
+    "test": "node tooling/run.js turbo run test --concurrency=2",
+    "typecheck": "node tooling/run.js turbo run typecheck --concurrency=2",
+    "verify": "node tooling/run.js turbo run build typecheck lint test --concurrency=2",
+    "verify:fast": "node tooling/run.js turbo run typecheck lint test --concurrency=2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  }
+}

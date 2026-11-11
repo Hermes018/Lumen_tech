@@ -1,0 +1,22 @@
+{
+  "name": "@lumen/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc --incremental",
+    "dev": "echo \"web:dev stub\"",
+    "lint": "echo \"web:lint stub\"",
+    "test": "echo \"web:test stub\"",
+    "typecheck": "tsc --noEmit --incremental"
+  },
+  "dependencies": {
+    "@lumen/auth": "workspace:*",
+    "@lumen/config": "workspace:*",
+    "@lumen/core": "workspace:*",
+    "@lumen/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  }
+}
