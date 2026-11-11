@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Turborepo
+.turbo/
+
+# Next.js
+.next/
+out/
+
+# Build and test artifacts
+dist/
+build/
+coverage/
+snap-*.md
+*.log
+
+# Environment variables - protect real secrets, allow .env.example
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+!.env.example
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Tooling / scratch
+.system_generated/
+
+*.tsbuildinfo
