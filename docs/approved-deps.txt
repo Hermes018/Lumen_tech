@@ -1,0 +1,94 @@
+# approved-deps.txt — one npm package name per line (exact match, read by .claude/hooks/guard-bash.sh)
+# Pre-approved by the lead from 00-DECISIONS.md D3 (2026-11-07). Versions are pinned by the lockfile.
+# Anything NOT listed needs the slopsquatting checklist in 22-ENGINEERING-GUARDRAILS.md + lead approval.
+# If a name below turns out not to exist on npm, do NOT install a look-alike — stop and ask.
+# --- framework & language
+next
+react
+react-dom
+typescript
+@types/node
+@types/react
+@types/react-dom
+server-only
+turbo
+tsx
+# --- styling & UI
+tailwindcss
+@tailwindcss/postcss
+postcss
+clsx
+tailwind-merge
+class-variance-authority
+radix-ui
+lucide-react
+motion
+sonner
+vaul
+cmdk
+react-day-picker
+embla-carousel-react
+recharts
+next-themes
+# --- forms, data, state
+zod
+react-hook-form
+@hookform/resolvers
+@tanstack/react-query
+@tanstack/react-table
+idb
+date-fns
+uuidv7
+# --- i18n
+next-intl
+# --- database
+drizzle-orm
+drizzle-kit
+@neondatabase/serverless
+pg
+@types/pg
+# --- auth & security
+better-auth
+@upstash/ratelimit
+@upstash/redis
+isomorphic-dompurify
+# --- API & jobs
+hono
+@hono/zod-openapi
+inngest
+# --- storage, email
+@aws-sdk/client-s3
+@aws-sdk/s3-request-presigner
+resend
+@react-email/components
+react-email
+@react-pdf/renderer
+# --- AI & speech
+@anthropic-ai/sdk
+@google/genai
+openai
+@deepgram/sdk
+# --- content
+@tiptap/react
+@tiptap/pm
+@tiptap/starter-kit
+katex
+shiki
+# --- analytics & monitoring
+posthog-js
+posthog-node
+@sentry/nextjs
+# --- testing & tooling
+vitest
+@vitest/coverage-v8
+jsdom
+@testing-library/react
+@testing-library/jest-dom
+@playwright/test
+@axe-core/playwright
+eslint
+typescript-eslint
+eslint-config-next
+prettier
+prettier-plugin-tailwindcss
+lefthook
