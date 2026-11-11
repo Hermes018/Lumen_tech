@@ -6,7 +6,7 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc --incremental",
-    "lint": "echo \"db:lint stub\"",
+    "lint": "eslint src",
     "test": "echo \"db:test stub\"",
     "typecheck": "tsc --noEmit --incremental"
   },
