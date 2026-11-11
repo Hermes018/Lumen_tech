@@ -41,12 +41,12 @@ notes: -
 
 | # | Date | Question | Options / recommendation | Blocks task | ANSWER |
 |---|---|---|---|---|---|
-| 1 | | e.g. Brand name final? (`packages/config/brand.ts`) | Keep "Lumen Academy" placeholder until domain chosen | none | |
-| 2 | | e.g. Which BD SMS gateway (SSL Wireless / Alpha SMS / BulkSMSBD)? | Pick by price + sender-ID approval time | P0-18 | |
-| 3 | | e.g. Paddle onboarding outcome (else Stripe via foreign entity) | Start Paddle application early | P1-35 | |
-| 4 | | Do AI credits and mocks expire with the product (12 months?) and do Terms say so? (30 OQ-F1) | Tie to access duration in 17 §2.2 | P1-70 | |
-| 5 | | Which VAT regime applies; do prices stay VAT-inclusive? (30 OQ-F5, accountant BG-02) | Keep VAT-inclusive display; regime is effective-dated | P1-69 | |
-| 6 | | First Bangla editor and rate (33 §8.1); native legal translator (26) | Founder at first, freelance editor before launch | P0-64 | |
+| 1 | 2026-11-11 | Brand name final? (`packages/config/brand.ts`) | Keep "Lumen Academy" placeholder until domain chosen | none | **LOCKED:** Keep `Lumen Academy` placeholder in `packages/config/brand.ts` |
+| 2 | 2026-11-11 | Which BD SMS gateway (SSL Wireless / Alpha SMS / BulkSMSBD)? | `SmsProvider` interface + console/DB stub for dev (unblocks P0-18) | P0-18 | **LOCKED:** `SmsProvider` interface + console/DB stub for dev |
+| 3 | 2026-11-11 | Paddle onboarding outcome (else Stripe via foreign entity) | `PaymentProvider` interface + SSLCommerz sandbox & Paddle sandbox stubs | P1-35 | **LOCKED:** `PaymentProvider` interface + SSLCommerz & Paddle sandbox stubs |
+| 4 | 2026-11-11 | Do AI credits and mocks expire with the product (12 months?) and do Terms say so? (30 OQ-F1) | Tie to access duration in 17 §2.2 | P1-70 | Tie to access duration in 17 §2.2 |
+| 5 | 2026-11-11 | Which VAT regime applies; do prices stay VAT-inclusive? (30 OQ-F5, accountant BG-02) | Keep VAT-inclusive display; regime is effective-dated | P1-69 | Keep VAT-inclusive display |
+| 6 | 2026-11-11 | First Bangla editor and rate (33 §8.1); native legal translator (26) | Founder at first, freelance editor before launch | P0-64 | Founder at first, freelance editor before launch |
 
 ## Milestone gates (docs/24-TIMELINE.md)
 
