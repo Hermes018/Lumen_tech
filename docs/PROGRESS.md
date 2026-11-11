@@ -85,9 +85,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P0.1 Repo & tooling (gate: M0, M1)
 
-- [ ] P0-45 | Install agent guardrail hooks (`.claude/hooks/*`, settings, rules, commands) + self-test (docs/22 §11.4) | 3.8-flash | deps: -
-- [ ] P0-46 | Logs scaffolding: `docs/logs/{sessions,progress,errors,decisions,reviews,incidents}`, templates, root CHANGELOG, `.gitignore` entries, `docs/approved-deps.txt`, CLAUDE/AGENTS/GEMINI "Never" drift check | argon | deps: -
-- [ ] P0-51 | mise + corepack pinning: `mise.toml`/`.tool-versions`, `.nvmrc`, `packageManager`, `engines`, README setup | 3.8-flash | deps: -
+- [x] P0-45 | Install agent guardrail hooks (`.claude/hooks/*`, settings, rules, commands) + self-test (docs/22 §11.4) | 3.8-flash | deps: -
+- [x] P0-46 | Logs scaffolding: `docs/logs/{sessions,progress,errors,decisions,reviews,incidents}`, templates, root CHANGELOG, `.gitignore` entries, `docs/approved-deps.txt`, CLAUDE/AGENTS/GEMINI "Never" drift check | argon | deps: -
+- [x] P0-51 | mise + corepack pinning: `mise.toml`/`.tool-versions`, `.nvmrc`, `packageManager`, `engines`, README setup | 3.8-flash | deps: -
 - [ ] P0-01 | Monorepo scaffold: pnpm workspaces + Turborepo + package skeletons per D2 | argon | deps: P0-45, P0-46, P0-51
 - [ ] P0-02 | Shared TS/ESLint (flat)/Prettier presets in packages/config | 3.8-flash | deps: P0-01
 - [ ] P0-03 | Root `pnpm verify` pipeline + pnpm minimumReleaseAge >= 3 days | 3.8-flash | deps: P0-02
@@ -547,7 +547,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 | Date | Task | Commit | Tool/model | Notes |
 |---|---|---|---|---|
-| | | | | |
+| 2026-11-11 | P0-51 | bootstrap | 3.8-flash | Pinned node 22.20.0, pnpm 9.15.0, .npmrc 3-day age guard |
+| 2026-11-11 | P0-45 | bootstrap | 3.8-flash | POSIX hook compliance verified; git push block guard active |
+| 2026-11-11 | P0-46 | bootstrap | argon | Scaffolded docs/logs tree, CHANGELOG.md, and FILEMAP.md |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
