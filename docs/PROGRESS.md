@@ -19,41 +19,38 @@
 ## Current task
 
 ```yaml
-id: P0-13-14
-title: "packages/auth & packages/core: RBAC Permission Matrix, assertCan Policy Engine & Better Auth Config"
+id: P0-15-16
+title: "Canonical Price Book Seed (docs/17) + Original GRE Magoosh-Parity Demo Seed (packages/db/src/seed/)"
 status: in_progress
-branch: task/P0-13-14-auth-rbac
+branch: task/P0-15-16-seeds-gre-pedagogy
 owner_model: "3.8-flash"
-subagent: backend-engineer
-depends_on: [P0-12]
+subagent: seed-data-maker
+depends_on: [P0-12, P0-13-14]
 read:
-  - "docs/00-DECISIONS.md#D4-D7"
-  - "docs/06-API-AND-SERVICES.md#§1"
-  - "docs/09-SECURITY-AUTH-COMPLIANCE.md#§2-§4"
+  - "docs/17-PRICING-MASTER.md#§13"
+  - "docs/15-CURRICULUM-GRE-AND-OTHER-TESTS.md#§1-§5"
 touch:
-  - packages/auth/package.json
-  - packages/auth/src/permissions.ts
-  - packages/auth/src/client.ts
-  - packages/auth/src/server.ts
-  - packages/auth/src/index.ts
-  - packages/core/src/auth/policy.ts
-  - packages/core/src/auth/index.ts
-  - packages/core/src/__tests__/policy.test.ts
+  - packages/db/src/seed/pricing-seed.ts
+  - packages/db/src/seed/gre-magoosh-seed.ts
+  - packages/db/src/seed/gre-vocab-seed.ts
+  - packages/db/src/seed/index.ts
+  - packages/db/src/__tests__/seed.test.ts
 do:
-  - Define all 11 additive roles and the canonical resource:action permission map in packages/auth/src/permissions.ts
-  - Implement assertCan(actor, permission, resource?) and can(...) in packages/core/src/auth/policy.ts with mandatory 2FA enforcement and tenant/ownership isolation
-  - Configure Better Auth server/client wrappers with session timeout controls
-  - Unit test 100% allow/deny matrix, tenant boundary isolation, and mandatory 2FA flags
+  - Parse the canonical pricing YAML block from docs/17 into pricing-seed.ts
+  - Create rich original 12-question GRE Magoosh-Parity demo pack in gre-magoosh-seed.ts with hints_json, choice_explanations_json with trap_tag, steps_json, and verbal_deconstructor_json
+  - Create 30 high-frequency GRE Vocab cards in gre-vocab-seed.ts with bn_meaning, mnemonics, SE pairs, and cloze
+  - Unit test offline validation of all seeds against Zod/Drizzle schemas
 acceptance:
-  - "pnpm --filter @lumen/auth build and typecheck pass"
-  - "pnpm --filter @lumen/core test passes with comprehensive RBAC allow/deny assertions"
+  - "All price minor units, regions BD/A/B/C, and allowances match docs/17"
+  - "All 12 GRE question types populated with D13 hints, trap tags, Socratic steps, and verbal deconstructor"
+  - "30 GRE vocab items validate cleanly with Bangla glosses and FSRS state"
   - "pnpm verify:fast is 100% green"
 verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
-reviewer: "Sonnet 5.5 (high)"
+reviewer: "Argon (med)"
 out_of_scope:
-  - "External SMS network calls or Google OAuth live client secrets"
-notes: "Mandatory 2FA for grader+ staff, instructor, and org_admin. Zero UI-only authorization."
+  - "Live DB network connection during unit tests"
+notes: "100% original content per D6. Offline deterministic validation."
 ```
 
 ## Decisions needing the founder
@@ -130,8 +127,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | 3.8-flash | deps: P0-02
 - [ ] P0-11 | Vercel project (sin1/bom1), preview deploys, Neon branch-per-PR workflow | 3.8-flash | deps: P0-08, P0-07
 - [x] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | 3.8-flash | deps: P0-07
-- [ ] P0-13 | Base schema via Better Auth generator (user, session, account, verification) + audit_log table | 3.8-flash | deps: P0-12
-- [ ] P0-14 | Schema: roles, user_roles, organizations, memberships (additive roles per D4) | 3.8-flash | deps: P0-13
+- [x] P0-13 | Base schema via Better Auth generator (user, session, account, verification) + audit_log table | 3.8-flash | deps: P0-12
+- [x] P0-14 | Schema: roles, user_roles, organizations, memberships (additive roles per D4) | 3.8-flash | deps: P0-13
 - [ ] P0-57 | `env.ts` cross-field validation (DB_DRIVER vs host; SSLCZ_IS_LIVE iff production; no fake providers or Turnstile test keys in production) + `env:example` generator with drift test; settle env-name drift (docs/28 §18.2: 10 wins) | 3.8-flash | deps: P0-07
 - [ ] P0-58 | Smoke scripts `tooling/scripts/smoke/*` + `pnpm smoke:*` and `smoke:all` (PASS/FAIL/SKIP table, never prints secrets, refuses prod without flag) | 3.8-flash | deps: P0-07
 - [ ] P0-59 | Staging smoke job `smoke-staging.yml` after deploy; gates `db-migrate-prod.yml` | 3.8-flash | deps: P0-58, P0-11
@@ -158,7 +155,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P0-19 | Cloudflare Turnstile + per-IP/per-user rate limits on signup/OTP/contact | sonnet | deps: P0-15
 - [ ] P0-20 | Passkeys (WebAuthn) enrol + sign-in | sonnet | deps: P0-15
 - [ ] P0-21 | TOTP 2FA + enforced 2FA for grader-and-above, instructor and org_admin (D4) | sonnet | deps: P0-20
-- [ ] P0-22 | Permission map (`resource:action`) + `assertCan` policy engine with ownership/org checks | opus | deps: P0-14
+- [x] P0-22 | Permission map (`resource:action`) + `assertCan` policy engine with ownership/org checks | 3.8-flash | deps: P0-14
 - [ ] P0-23 | Role grant/revoke service (admin cannot grant admin/super_admin) + session rotation on change | sonnet | deps: P0-22
 - [ ] P0-24 | Audit-log service (append-only) wired to role, impersonation, export, refund hooks | sonnet | deps: P0-22
 - [ ] P0-25 | Security headers: CSP with nonces, HSTS preload, frame/referrer/permissions policies | sonnet | deps: P0-04
@@ -578,6 +575,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-09 | 18fc0a5 | 3.8-flash | Canonical App Shells (Marketing, Learner, GRE CBT Exam) |
 | 2026-11-11 | P0-10 | fb14ae5 | 3.8-flash | next-intl localization (en/bn) + Bangla digits/currency utilities |
 | 2026-11-12 | P0-12 | 6c386cd | 3.8-flash | Drizzle ORM + Neon driver, D13 pedagogy schema (hints, traps, Socratic steps), and FSRS vocab decks |
+| 2026-11-12 | P0-13-14 | e089c3c | 3.8-flash | Better Auth server/client, 11 additive roles, mandatory 2FA, assertCan policy engine |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
