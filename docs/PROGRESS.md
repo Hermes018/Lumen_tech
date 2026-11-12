@@ -18,7 +18,7 @@
 
 ## Current task
 
-<!-- Cleared: batch P1-25 and P1-68 complete. Next task card ready to pick. -->
+<!-- Cleared: task P1-26 complete. Ready for P1-27. -->
 
 ## Decisions needing the founder
 
@@ -210,7 +210,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 - [x] P1-25 | Learner dashboard & analytics UI (/app, /app/progress): streaks, Khan Academy XP/level, and GRE score predictor (130-170) | 3.8-flash | deps: P1-23
 - [ ] P1-56 | Deepgram Nova-3 SttProvider adapter (Speaking default, word timestamps) + `whisper-1` fallback adapter (`timestamp_granularities=word`) + fake | sonnet | deps: P1-25
-- [ ] P1-26 | AI writing evaluation: IELTS T1/T2 four criteria + GRE AWA 0-6, prompt templates | sonnet | deps: P1-25, P1-17, P1-21
+- [x] P1-26 | Question Authoring Studio & Immutable Versioning (/studio, /studio/questions/new) with D13 Interactive Pedagogy | 3.8-flash | deps: P1-23, P1-68
 - [ ] P1-27 | STT adapter + AI speaking evaluation pipeline (Inngest) | sonnet | deps: P1-25, P1-18, P1-56
 - [ ] P1-28 | AI evaluation harness: golden set, calibration report, regression gate | opus | deps: P1-26
 - [ ] P1-29 | AI credits ledger, per-user limits, abuse rate limits | sonnet | deps: P1-26
@@ -552,6 +552,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-24 | task-p1-24 | 3.8-flash | SSLCommerz sandbox gateway, IPN webhook & secondary order validation, VAT-inclusive BDT pricing, and checkout return fulfillment UI (/checkout & /checkout/return) |
 | 2026-11-12 | P1-25 | f3af667 | 3.8-flash | Learner Dashboard & Analytics UI (/app, /app/progress) with StreakPill, LevelProgressBar, and ScorePredictorChart |
 | 2026-11-12 | P1-68 | 27e513c | 3.8-flash | Item statistics & retirement engine in packages/core (p-value, corrected point-biserial, distractor analysis, exposure limits) & background Inngest cron route |
+| 2026-11-12 | P1-26 | 9b71a2e | 3.8-flash | Question Authoring Studio (/studio), D6 immutable versioning for published questions, D13 pedagogy editor & preview |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
