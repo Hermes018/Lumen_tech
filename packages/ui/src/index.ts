@@ -14,5 +14,6 @@ export * from './components/tooltip';
 export * from './components/progress-bar';
 export * from './components/skeleton';
 export * from './components/callout';
+export * from './components/gre/index';
 
 export const UI_VERSION = '0.1.0';
