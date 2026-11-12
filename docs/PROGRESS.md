@@ -13,44 +13,42 @@
 - Current milestone: P0 Foundation & M0 Clickable Prototype (P0-12 to P0-16 completed); next delivery gate: M0 (GRE Priority)
 - Last session log: docs/logs/sessions/2026-11-12-data-auth-rbac-gre-seed.md
 - Active branch: main
-- Last green `pnpm verify`: P0-12, P0-13, P0-14, P0-15, P0-16, P0-22 (29 tasks in turbo pipeline green)
-- Phase in progress: P0 / P1-prep
+- Last green `pnpm verify`: P0-12, P0-13, P0-14, P0-15, P0-16, P0-22, P1-19, P1-20, P1-21, P1-22, P1-23 (29 tasks in turbo pipeline green)
+- Phase in progress: P1 Core
 
 ## Current task
 
 ```yaml
-id: P1-22-23
-title: "Mock Exam Engine & AI Evaluation Pipeline (GRE Section-Level Adaptive Routing & AI Grading Adapter)"
+id: P1-67
+title: "Mistake Notebook (/app/mistakes) with Open/Resolved States, Retry Loop & Error Taxonomy"
 status: ready
-branch: task/P1-22-23-adaptive-exam-ai-eval
-owner_model: "sonnet"
+branch: task/P1-67-mistake-notebook
+owner_model: "3.8-flash"
 subagent: fullstack-engineer
-depends_on: [P1-19, P1-20, P1-21]
+depends_on: [P1-23, P1-21]
 read:
-  - "docs/07-TEST-ENGINE.md#§3-§4,§7"
-  - "docs/34-AI-LEARNING-FEATURES.md#§1,§6"
+  - "docs/07-TEST-ENGINE.md#§3.4"
+  - "docs/12-BUILD-PLAN-AGENTS.md#P1-67"
 touch:
-  - packages/core/src/exam/adaptive.ts
-  - packages/core/src/exam/scoring.ts
-  - packages/ai/src/evaluation/awa.ts
-  - packages/ai/src/evaluation/index.ts
-  - apps/web/app/[locale]/(exam)/exam/[attemptId]/page.tsx
+  - packages/core/src/exam/practice.ts
+  - apps/web/app/[locale]/(learner)/app/mistakes/page.tsx
+  - apps/web/app/actions/mistakes.ts
 do:
-  - Implement GRE section-level adaptive routing algorithm (Verbal 12Q -> 15Q, Quant 12Q -> 15Q routing to Easy/Medium/Hard second section based on section 1 theta)
-  - Implement scaled score estimation (130-170 scaled score with standard error)
-  - Connect AI evaluation pipeline for GRE Analyze an Issue essay grading (0-6 scale across public rubrics with deterministic rules)
-  - Wire full exam attempt runner with server timer and auto-save in apps/web
+  - Implement Mistake Notebook domain service in packages/core to record wrong answers from mock attempts and practice sessions
+  - Wire Open and Resolved states: incorrect items enter as 'Open', correct retry transitions item to 'Resolved'
+  - Implement `/app/mistakes` UI with error taxonomy filtering (Careless Math, Vocab Gap, Trap Answer, Misread Prompt)
+  - Ensure mistake retry items are cleanly tagged and excluded from the adaptive IRT calibration pool
 acceptance:
-  - "GRE Section 1 correctly routes to appropriate Section 2 difficulty based on score cutoffs"
-  - "Scaled score estimation calculates honest 130-170 scores"
-  - "AI evaluation adapter scores AWA issue essays with schema validation and rubric breakdown"
+  - "Wrong answers from practice quizzes or mock exams appear in Mistake Notebook"
+  - "Retrying a mistake correctly updates status from Open to Resolved"
+  - "Filter by error category and subject works cleanly"
   - "pnpm verify:fast is 100% green"
 verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
 reviewer: "Sonnet 5.5 (high)"
 out_of_scope:
-  - "Speech recognition audio pipeline for IELTS Speaking (P1-27)"
-notes: "Zero local Docker containers. Strict server-authoritative routing and scoring."
+  - "Batch item retirement background cron (P1-68)"
+notes: "Zero local Docker containers. Exclude mistake review retries from IRT estimation pool."
 ```
 
 ## Decisions needing the founder
@@ -228,9 +226,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-19 | GRE Verbal runner (RC, text completion 1/2/3-blank, sentence equivalence, strikethrough, Choice Hider 'Predict First' toggle, inline word click-to-deck) & FSRS Core Math | 3.8-flash | deps: P1-14, P1-13
 - [x] P1-20 | GRE Quant runner (MCQ, multi, numeric entry, QC) + on-screen 4-function calculator with transfer + FROZEN plug-in numbers checklist badge & Pedagogy UI | 3.8-flash | deps: P1-14, P1-13
 - [x] P1-21 | GRE Analytical Writing (AWA) runner & Learner Practice/FSRS UI | 3.8-flash | deps: P1-14
-- [ ] P1-22 | GRE section-level adaptive routing (Verbal 12Q->15Q, Quant 12Q->15Q second-section difficulty) | sonnet | deps: P1-19, P1-20
+- [x] P1-22 | GRE section-level adaptive routing (Verbal 12Q->15Q, Quant 12Q->15Q second-section difficulty) | sonnet | deps: P1-19, P1-20
 - [x] P1-66 | Magoosh Practice & Tutor sessions `/app/practice`: custom quiz builder (topic/difficulty/mode), session player, progressive 3-tier hints (concept nudge, setup, bridge), second-chance retry with distractor trap diagnostics ('Why Choice [X] is a Trap'), Socratic micro-step walkthroughs ('Walk Me Through It'), personal notes | 3.8-flash | deps: P1-14, P1-13
-- [ ] P1-23 | Results and review UI: score report, explanations, time per question, pacing tracker, GRE score predictor (130-170) | 3.8-flash | deps: P1-13, P1-19, P1-20
+- [x] P1-23 | Results and review UI: score report, explanations, time per question, pacing tracker, GRE score predictor (130-170) | 3.8-flash | deps: P1-13, P1-19, P1-20
 - [ ] P1-67 | Mistake notebook `/app/mistakes` fed by attempts and practice quizzes (states Open/Resolved) | 3.8-flash | deps: P1-23
 - [ ] P1-15 | IELTS Listening runner (single-play audio, sections, answer types) | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-16 | IELTS Reading runner (split pane, highlight, notes, 3 passages) | 3.8-flash | deps: P1-14, P1-13
@@ -580,6 +578,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-19 | 5566c19 | 3.8-flash | FSRS v4.5 active recall scheduler, practice session state reducers (hints, mastery, second-chance, Socratic steps) |
 | 2026-11-12 | P1-20 | c3ee4e7 | 3.8-flash | Interactive GRE pedagogy components: GreCalculator, HintLadder, TrapDiagnostic, SocraticStepper, VerbalDeconstructor |
 | 2026-11-12 | P1-21 | c35a904 | 3.8-flash | Learner Practice Dashboard (/app/practice), Active Practice runner with hints & trap diagnostics, and 4-mode FSRS vocab player (/app/vocab/play) |
+| 2026-11-12 | P1-22-23 | 8bf1dbd | 3.8-flash | GRE section-level adaptive routing (12Q->15Q easy/med/hard), Rasch 1PL EAP scoring (130-170), AWA Issue AI evaluator, and full CBT runner |
 
 ## Parking lot (not scheduled, add a task ID before work)
 

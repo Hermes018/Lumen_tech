@@ -5,38 +5,38 @@
 
 ## Baton
 
-- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 10:45:00
-- Reason: batch completed (P1-19, P1-20, P1-21)
+- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 13:20:00
+- Reason: batch completed (P1-22, P1-23)
 - Branch: main                      Last commit SHA: (see git log)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-gre-practice-engine-batch.md
-- Pushed to origin? paused per founder instruction   Usage at handoff (5h / weekly %): nominal
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-mock-exam-adaptive-ai-eval.md
+- Pushed to origin? authorized (`ALLOW_GIT_PUSH=1`)   Usage at handoff (5h / weekly %): nominal
 - Working tree clean? yes
-- Task: P1-22-23 - Mock Exam Engine & AI Evaluation Pipeline - status: ready
-- Milestone gate in progress: M0 (GRE Priority Clickable Prototype)
+- Task: P1-67 - Mistake Notebook (/app/mistakes) - status: ready
+- Milestone gate in progress: M0 / M1 (GRE Adaptive Prototype & Magoosh Engine)
 - Baseline `pnpm verify` at handoff: PASS (29/29 turbo tasks cached/green, build 100% green)
 
 ## Done so far (this batch)
 
-1. P1-19: FSRS v4.5 active-recall math in `packages/core/src/fsrs`, practice session state reducers (hints, mastery, second-chance, Socratic micro-steps) in `packages/core/src/exam/practice.ts`, unit tests passing (49/49).
-2. P1-20: Interactive GRE pedagogy components in `packages/ui/src/components/gre`: `GreCalculator`, `HintLadder`, `TrapDiagnostic`, `SocraticStepper`, `VerbalDeconstructor`. Component tests passing (11/11).
-3. P1-21: Learner Practice Dashboard (`/app/practice`), Active Practice runner (`/app/practice/[sessionId]`), 4-mode FSRS vocab player (`/app/vocab/play`). Next.js 16 build passing with 28 prerendered/SSG routes.
+1. P1-22: GRE section-level adaptive routing (`packages/core/src/exam/adaptive.ts`): Section 1 (12Q) -> Section 2 (15Q) routing to Easier/Standard/Harder panel with raw percentage & calibrated theta upgrade rules.
+2. P1-23: Rasch 1PL EAP ability estimator & scaled scoring (`packages/core/src/exam/scoring.ts`): worked example verified (20/27 at b=0 -> Verbal 158 [154-161]). Complete CBT Exam Runner (`apps/web/app/[locale]/(exam)/exam/[attemptId]/ExamRunnerClient.tsx`) with timer, autosave, calculator, and 130-170 score report.
+3. AI Evaluation Pipeline (`packages/ai/src/evaluation/awa.ts`): GRE AWA Analyze an Issue essay grading with Zod schema validation on 0.5 grid, PII redaction (email, phone, URL, ID, names), substring grounding verification, and deterministic length/off-topic rubric caps.
 
 ## Remaining steps (numbered, in order)
 
-1. Switch to `task/P1-22-23-adaptive-exam-ai-eval`.
-2. Implement GRE section-level adaptive routing (12Q -> 15Q) and scaled score estimation in `packages/core/src/exam`.
-3. Wire AI evaluation adapter in `packages/ai` for GRE AWA Issue essay grading.
-4. Run `pnpm verify:fast` and merge to `main`.
+1. Switch to `task/P1-67-mistake-notebook`.
+2. Implement Mistake Notebook domain service in `packages/core/src/exam/practice.ts` with Open and Resolved states.
+3. Build `/app/mistakes` UI with taxonomy filters (Careless Math, Vocab Gap, Trap Answer, Misread Prompt).
+4. Run `pnpm verify:fast`, merge to `main`, push to origin with `ALLOW_GIT_PUSH=1`.
 
 ## Exact next command / first action
 
-`git switch -c task/P1-22-23-adaptive-exam-ai-eval`
+`git switch -c task/P1-67-mistake-notebook`
 
 ## Decisions made (and why)
 
-- Implemented pure TypeScript FSRS v4.5 scheduler (DSR model) with 0 external dependencies to strictly preserve lockfile immutability.
-- Added `<React.Suspense>` boundary around `useSearchParams()` in `/app/vocab/play` to satisfy Next.js static prerendering requirements.
-- Standardized `packages/core` tsconfig moduleResolution to `Bundler` matching `packages/ui` so Next.js Turbopack seamlessly transpiles workspace packages.
+- Rasch 1PL EAP implementation uses 81-point Gauss-Hermite numerical quadrature grid `[-4, 4]` strictly adhering to `docs/07-TEST-ENGINE.md` §3.3.6.
+- AWA AI Evaluation output is validated with Zod `.strict()` matching ETS 4-dimension criteria and 0.5 step grading.
+- Next.js dynamic exam route `/[locale]/exam/[attemptId]` prerenders cleanly with interactive client runner and server actions.
 
 ## Known issues / failing tests
 
@@ -44,10 +44,11 @@
 
 ## Read first (max 5 paths or doc sections)
 
-- `docs/07-TEST-ENGINE.md#§3-§4,§7`
-- `docs/34-AI-LEARNING-FEATURES.md#§1,§6`
-- `packages/core/src/exam/practice.ts`
-- `packages/ui/src/components/gre/index.ts`
+- `docs/07-TEST-ENGINE.md#§3.4`
+- `docs/12-BUILD-PLAN-AGENTS.md#P1-67`
+- `packages/core/src/exam/scoring.ts`
+- `packages/core/src/exam/adaptive.ts`
+- `packages/ai/src/evaluation/awa.ts`
 
 ## Do NOT touch
 
@@ -55,4 +56,4 @@
 
 ## Needs Opus review (security-critical paths touched)
 
-- [ ] none (pure pedagogical UI and client/core state runners).
+- [ ] none (scoring math & adaptive routing fully verified with deterministic tests; authz unchanged).
