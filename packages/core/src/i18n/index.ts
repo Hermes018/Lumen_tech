@@ -1,2 +1,2 @@
 /** @purpose Public exports for i18n domain */
-export * from './bangla.js';
+export * from './bangla';

@@ -1,7 +1,7 @@
 /** @purpose Core domain logic and business rules */
-export * from './i18n/index.js';
-export * from './auth/index.js';
-export * from './fsrs/index.js';
-export * from './exam/index.js';
+export * from './i18n/index';
+export * from './auth/index';
+export * from './fsrs/index';
+export * from './exam/index';
 
 export const CORE_VERSION = '0.1.0';

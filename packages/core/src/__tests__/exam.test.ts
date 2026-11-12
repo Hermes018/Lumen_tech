@@ -8,7 +8,7 @@ import {
   isLeech,
   calculateIntervalFromStability,
   formatIntervalLabel,
-} from '../fsrs/scheduler.js';
+} from '../fsrs/scheduler';
 import {
   createPracticeSession,
   useHint,
@@ -19,7 +19,7 @@ import {
   tagErrorLog,
   calculateMasteryWeight,
   calculateErrorRetryDate,
-} from '../exam/practice.js';
+} from '../exam/practice';
 
 describe('FSRS v4.5 Active-Recall Math', () => {
   it('schedules initial review correctly for all 4 ratings', () => {
