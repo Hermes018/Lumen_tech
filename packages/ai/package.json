@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc --incremental",
     "lint": "eslint src",
-    "test": "echo \"ai:test stub\"",
+    "test": "node ../core/node_modules/vitest/vitest.mjs run --pool=forks --maxWorkers=2 --no-file-parallelism",
     "typecheck": "tsc --noEmit --incremental"
   },
   "dependencies": {
