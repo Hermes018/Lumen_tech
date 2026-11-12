@@ -34,7 +34,11 @@ import {
   HelpCircle,
   Tag,
   ArrowLeft,
+  Bot,
+  Send,
+  X,
 } from 'lucide-react';
+import { askTutorAction } from '@/app/actions/tutor';
 
 export default function PracticeSessionRunnerPage() {
   const params = useParams();
@@ -76,6 +80,26 @@ export default function PracticeSessionRunnerPage() {
   const [predictionText, setPredictionText] = React.useState('');
   const [choicesRevealed, setChoicesRevealed] = React.useState(false);
   const [vocabToast, setVocabToast] = React.useState<string | null>(null);
+
+  // AI Tutor Drawer state
+  const [showTutorDrawer, setShowTutorDrawer] = React.useState(false);
+  const [tutorMessages, setTutorMessages] = React.useState<
+    Array<{
+      role: 'user' | 'tutor';
+      text: string;
+      citations?: Array<{ id: string; label: string; excerpt: string }>;
+      mode?: string;
+    }>
+  >([
+    {
+      role: 'tutor',
+      text: 'Hello! I am Ask Lumen, your GRE Socratic tutor. Ask for a hint, test your algebraic setup, or have me check your reasoning without spoiling the answer.',
+    },
+  ]);
+  const [tutorInput, setTutorInput] = React.useState('');
+  const [tutorMode, setTutorMode] = React.useState<'socratic_hint' | 'check_reasoning' | 'explain'>('socratic_hint');
+  const [tutorRemainingQuota, setTutorRemainingQuota] = React.useState(150);
+  const [isTutorLoading, setIsTutorLoading] = React.useState(false);
 
   const activeQuestion = questions[currentIdx];
   const activeQState = session.questions[currentIdx];
@@ -179,6 +203,66 @@ export default function PracticeSessionRunnerPage() {
     setTimeout(() => setVocabToast(null), 3000);
   };
 
+  const handleSendTutorMessage = async (customText?: string) => {
+    const textToSend = customText ?? tutorInput;
+    if (!textToSend.trim() || isTutorLoading) return;
+
+    setTutorMessages((prev) => [...prev, { role: 'user', text: textToSend }]);
+    if (!customText) setTutorInput('');
+    setIsTutorLoading(true);
+
+    try {
+      const response = await askTutorAction({
+        userMessage: textToSend,
+        mode: tutorMode,
+        isItemActive: !isSubmitted,
+        locale: 'en',
+        questionContext: {
+          id: activeQuestion.id,
+          promptMd: activeQuestion.promptMd,
+          questionType: activeQuestion.questionType,
+          topicSlug: activeQuestion.topicSlug,
+          options: activeQuestion.options,
+          correctAnswers: activeQuestion.correctAnswers,
+          userSelectedAnswer: selectedChoices[0] || numericEntryValue,
+          revealedHintTiers: activeQState.revealedHintTiers,
+          hints: activeQuestion.hints.map((h) => ({
+            tier: h.tier,
+            label: h.label,
+            content: h.content_md,
+          })),
+          writtenExplanationMd: activeQuestion.writtenExplanationMd,
+          steps: activeQuestion.steps.map((s) => ({
+            stepNumber: s.step_index,
+            prompt: s.prompt_md,
+            takeaway: s.takeaway_md,
+          })),
+        },
+      });
+
+      setTutorRemainingQuota(response.remainingQuota);
+      setTutorMessages((prev) => [
+        ...prev,
+        {
+          role: 'tutor',
+          text: response.text,
+          citations: response.citations,
+          mode: response.mode,
+        },
+      ]);
+    } catch {
+      setTutorMessages((prev) => [
+        ...prev,
+        {
+          role: 'tutor',
+          text: 'Sorry, I encountered an issue reaching the AI Tutor service. Please try again.',
+        },
+      ]);
+    } finally {
+      setIsTutorLoading(false);
+    }
+  };
+
   // Navigation
   const handleNext = () => {
     if (currentIdx < questions.length - 1) {
@@ -248,6 +332,20 @@ export default function PracticeSessionRunnerPage() {
               <span>Walk Me Through It</span>
             </Button>
           )}
+
+          {/* Ask AI Tutor drawer toggle with quota pill */}
+          <Button
+            variant={showTutorDrawer ? 'primary' : 'outline'}
+            size="sm"
+            onClick={() => setShowTutorDrawer(!showTutorDrawer)}
+            className="h-8 gap-1.5 text-xs text-accent border-accent/40 hover:bg-accent-soft"
+          >
+            <Bot className="w-3.5 h-3.5" />
+            <span>Ask AI Tutor</span>
+            <span className="ml-1 rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-bold text-accent">
+              {tutorRemainingQuota} left
+            </span>
+          </Button>
         </div>
       </div>
 
@@ -588,6 +686,173 @@ export default function PracticeSessionRunnerPage() {
               <Button size="sm" onClick={handleSaveErrorTag}>
                 Save to Error Queue
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Slide-over Ask AI Tutor Drawer */}
+      {showTutorDrawer && (
+        <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-control bg-surface shadow-2xl animate-in slide-in-from-right duration-200">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-control p-4 bg-surface-2">
+            <div className="flex items-center gap-2">
+              <div className="rounded-lg bg-accent/15 p-1.5 text-accent">
+                <Bot className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-fg">Ask Lumen (AI Tutor)</h3>
+                  <span className="rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-bold text-accent">
+                    {tutorRemainingQuota} left today
+                  </span>
+                </div>
+                <p className="text-[11px] text-fg-muted">
+                  {!isSubmitted ? 'Socratic Hint & Walkthrough Mode' : 'Post-Submission Explanatory Mode'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowTutorDrawer(false)}
+              className="rounded-lg p-1.5 text-fg-muted hover:bg-surface hover:text-fg transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Mode Switcher Chips */}
+          <div className="flex items-center gap-1.5 border-b border-control/60 bg-surface px-4 py-2 text-xs">
+            <span className="text-[10px] uppercase font-bold text-fg-muted mr-1">Mode:</span>
+            {[
+              ['socratic_hint', 'Hint Ladder'],
+              ['check_reasoning', 'Check Reasoning'],
+              ['explain', 'Explain Concept'],
+            ].map(([mKey, mLabel]) => (
+              <button
+                key={mKey}
+                type="button"
+                onClick={() => setTutorMode(mKey as 'socratic_hint' | 'check_reasoning' | 'explain')}
+                className={`rounded-md px-2.5 py-1 text-[11px] font-semibold transition-all ${
+                  tutorMode === mKey
+                    ? 'bg-accent text-accent-fg'
+                    : 'bg-surface-2 text-fg-muted hover:text-fg'
+                }`}
+              >
+                {mLabel}
+              </button>
+            ))}
+          </div>
+
+          {/* Active Status Banner */}
+          <div className="bg-accent-soft/40 px-4 py-1.5 border-b border-control/40 text-[11px] text-accent flex items-center justify-between">
+            <span>
+              {!isSubmitted
+                ? '🔒 Spoiler-Guard: Answers protected until submission.'
+                : '🔓 Full Diagnostics & Trap Tags Unlocked.'}
+            </span>
+          </div>
+
+          {/* Messages Scroll Area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 text-xs leading-relaxed">
+            {tutorMessages.map((msg, idx) => (
+              <div
+                key={idx}
+                className={`flex flex-col ${
+                  msg.role === 'user' ? 'items-end' : 'items-start'
+                }`}
+              >
+                <div
+                  className={`max-w-[88%] rounded-2xl p-3 ${
+                    msg.role === 'user'
+                      ? 'bg-accent text-accent-fg font-medium rounded-tr-sm'
+                      : 'border border-control bg-surface-2 text-fg rounded-tl-sm'
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                  {/* Grounding Citations */}
+                  {msg.citations && msg.citations.length > 0 && (
+                    <div className="mt-2.5 pt-2 border-t border-control/60 space-y-1">
+                      <span className="text-[10px] uppercase tracking-wide font-bold text-fg-muted block">
+                        Grounded Sources & Walkthrough Steps:
+                      </span>
+                      {msg.citations.map((cite) => (
+                        <div
+                          key={cite.id}
+                          className="rounded-md border border-accent/30 bg-surface px-2 py-1 text-[11px] text-accent flex items-center justify-between gap-2"
+                        >
+                          <span className="font-semibold truncate">{cite.label}</span>
+                          <span className="text-[10px] text-fg-muted truncate">{cite.excerpt}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {isTutorLoading && (
+              <div className="flex items-center gap-2 text-fg-muted italic text-xs pt-2">
+                <Bot className="h-4 w-4 animate-spin text-accent" />
+                <span>Thinking Socratically...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Prompts */}
+          <div className="border-t border-control/40 bg-surface-2/60 px-4 py-2 flex items-center gap-1.5 overflow-x-auto text-[11px]">
+            <button
+              type="button"
+              onClick={() => handleSendTutorMessage('Can you give me a progressive hint?')}
+              className="whitespace-nowrap rounded-full border border-control bg-surface px-2.5 py-1 text-fg hover:border-accent hover:text-accent transition-colors"
+            >
+              💡 Give me a hint
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSendTutorMessage('Why is my current reasoning wrong?')}
+              className="whitespace-nowrap rounded-full border border-control bg-surface px-2.5 py-1 text-fg hover:border-accent hover:text-accent transition-colors"
+            >
+              🔍 Check my setup
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSendTutorMessage('Explain the core concept behind this item')}
+              className="whitespace-nowrap rounded-full border border-control bg-surface px-2.5 py-1 text-fg hover:border-accent hover:text-accent transition-colors"
+            >
+              📖 Explain concept
+            </button>
+          </div>
+
+          {/* Composer Footer */}
+          <div className="border-t border-control p-3 bg-surface">
+            <div className="flex items-end gap-2">
+              <textarea
+                value={tutorInput}
+                onChange={(e) => setTutorInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendTutorMessage();
+                  }
+                }}
+                placeholder="Ask about this question or request a clue..."
+                rows={2}
+                maxLength={1500}
+                className="flex-1 rounded-xl border border-control bg-surface-2 p-2.5 text-xs text-fg focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+              />
+              <Button
+                size="sm"
+                onClick={() => handleSendTutorMessage()}
+                disabled={!tutorInput.trim() || isTutorLoading}
+                className="h-12 px-3.5 rounded-xl shrink-0 gap-1.5"
+              >
+                <Send className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-fg-muted mt-1 px-1">
+              <span>Enter to send &bull; Shift+Enter for new line</span>
+              <span>{tutorInput.length}/1500</span>
             </div>
           </div>
         </div>
