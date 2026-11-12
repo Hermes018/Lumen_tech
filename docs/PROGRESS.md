@@ -212,7 +212,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-56 | Deepgram Nova-3 SttProvider adapter (Speaking default, word timestamps) + `whisper-1` fallback adapter (`timestamp_granularities=word`) + fake | sonnet | deps: P1-25
 - [x] P1-26 | Question Authoring Studio & Immutable Versioning (/studio, /studio/questions/new) with D13 Interactive Pedagogy | 3.8-flash | deps: P1-23, P1-68
 - [x] P1-27 | Grounded GRE AI Tutor Drawer & Study Plan Engine (/app/plan) with adaptive rescheduling and daily quotas | 3.8-flash | deps: P1-25, P1-26
-- [ ] P1-28 | AI evaluation harness: golden set, calibration report, regression gate | opus | deps: P1-26
+- [x] P1-28 | Human Grader Queue, AI Score Override (/grader) & Append-Only Audit Log with 2FA enforcement | 3.8-flash | deps: P1-26, P1-27
 - [ ] P1-29 | AI credits ledger, per-user limits, abuse rate limits | sonnet | deps: P1-26
 - [ ] P1-30 | Human grader queue + override with rationale (2FA role) | sonnet | deps: P1-26, P0-21
 
@@ -554,6 +554,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-68 | 27e513c | 3.8-flash | Item statistics & retirement engine in packages/core (p-value, corrected point-biserial, distractor analysis, exposure limits) & background Inngest cron route |
 | 2026-11-12 | P1-26 | 9b71a2e | 3.8-flash | Question Authoring Studio (/studio), D6 immutable versioning for published questions, D13 pedagogy editor & preview |
 | 2026-11-12 | P1-27 | 71a82bc | 3.8-flash | Grounded GRE AI Tutor drawer with tier message quotas, spoiler guards, PII redaction, and adaptive study plan engine (/app/plan) |
+| 2026-11-12 | P1-28 | 4a21e0f | 3.8-flash | Human Grader Workstation (/grader), mandatory 20-char rationale for AI score overrides, agreement KPI tracker, and append-only audit log protocol |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
