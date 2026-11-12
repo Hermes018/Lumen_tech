@@ -110,8 +110,8 @@ export function can(actor: Actor, permission: Permission, resource?: ResourceCon
       }
     }
 
-    // Instructor course edit ownership isolation
-    if (permission === 'course:edit' && actor.roles.includes('instructor')) {
+    // Instructor course & question edit ownership isolation
+    if ((permission === 'course:edit' || permission === 'question:edit') && actor.roles.includes('instructor')) {
       const isEditorOrAdmin = actor.roles.includes('content_editor') || actor.roles.includes('admin');
       if (!isEditorOrAdmin && resource.ownerId && resource.ownerId !== actor.id) {
         return false;
