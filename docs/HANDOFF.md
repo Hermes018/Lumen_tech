@@ -5,56 +5,60 @@
 
 ## Baton
 
-- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 15:52:00
-- Reason: Founder Override batch completed (P1-25, P1-68)
-- Branch: main                      Last commit SHA: (see git log)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-learner-dashboard-and-item-stats-batch.md
-- Pushed to origin? authorized (`ALLOW_GIT_PUSH=1`)   Usage at handoff (5h / weekly %): nominal
+- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 17:15:00
+- Reason: Autonomous Batch completed (P1-26, P1-27, P1-28)
+- Branch: main                      Last commit SHA: 8ab19e9
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-studio-ai-tutor-grader-batch.md
+- Pushed to origin? executing now (`ALLOW_GIT_PUSH=1`)   Usage at handoff: nominal
 - Working tree clean? yes
 - Task: Next backlog task (e.g. P1-15 IELTS Listening runner or P1-56 Deepgram STT adapter) - status: ready
-- Milestone gate in progress: M0 / M1 (GRE Priority & Learner Analytics)
-- Baseline `pnpm verify` at handoff: PASS (29/29 turbo tasks cached/green, build 100% green)
+- Milestone gate in progress: M0 / M1 (Internal Alpha)
+- Baseline `pnpm verify` at handoff: PASS (30/30 turbo tasks cached/green, build 100% green)
 
 ## Done so far (this batch)
 
-1. P1-25: Learner Dashboard & Analytics UI:
-   - Aggregation service (`packages/core/src/analytics/progress.ts`) with study streaks (consecutive active days, freeze tracking, 30-day calendar), Khan Academy style XP levels (10 tiers), and estimated GRE score predictor (strictly 130-170 bounds, section breakdown, target gap, confidence rating).
-   - Reusable UI primitives (`packages/ui`): `StreakPill`, `LevelProgressBar`, `ScorePredictorChart` (accessible SVG, zero heavy dependencies).
-   - Server action `apps/web/app/actions/analytics.ts` with `assertCan(actor, 'user:view_own')` security check.
-   - Learner Dashboard at `/app` and full analytics & mastery view at `/app/progress`.
-2. P1-68: Item Statistics & Retirement Engine (07 §8.6):
-   - Math engine (`packages/core/src/exam/statistics.ts`): classical p-values, corrected item-rest point-biserial correlation ($r_{pbis}$), option-level distractor analysis, and exposure limits.
-   - Flagging and retirement rules: too hard (<0.15), too easy (>0.95), weak discrimination (<0.15), key-suspected (negative $r_{pbis}$ or distractor beats key), over-exposed (>rMax), and auto-retirement for defective items.
-   - Background job stub in `apps/web/app/api/inngest/route.ts` (`analytics.refresh-question-stats`).
-   - 14 comprehensive unit tests in `packages/core/src/__tests__/statistics.test.ts`.
+1. P1-26: Question Authoring Studio & Immutable Versioning (/studio, /studio/questions/new):
+   - Domain service (`packages/core/src/studio/authoring.ts`): RBAC & mandatory 2FA enforcement via `assertCan`, D6 immutable versioning for published questions (incrementing `version_number` while pinning past attempts), and strict D13 interactive pedagogy validation (hints ladder, trap tags, Socratic steps, verbal deconstructor).
+   - Studio UI: Question bank authoring table with status/flag filters and interactive multi-tab D13 question editor with live learner preview.
+   - 13 comprehensive unit tests in `packages/core/src/__tests__/studio.test.ts`.
+2. P1-27: Grounded GRE AI Tutor Drawer & Study Plan Engine (/app/plan):
+   - Grounded AI Tutor (`packages/ai/src/tutor/socratic-tutor.ts`): daily tier quotas (Free 10, Core 30, Plus 150), PII redaction, Socratic spoiler guards protecting active answers, and grounded citations.
+   - Study Plan Engine (`packages/core/src/analytics/study-plan.ts`): week-by-week schedule based on target exam date and weak topics, with one-click Adaptive Rescheduling for Plus/Live tiers.
+   - UI: Slide-over "Ask AI Tutor" drawer in Practice Runner and full `/app/plan` view.
+   - Unit tests in `packages/ai/src/__tests__/socratic-tutor.test.ts` and `packages/core/src/__tests__/study-plan.test.ts`.
+3. P1-28: Human Grader Queue, AI Score Override & Append-Only Audit Log (/grader):
+   - Domain service (`packages/core/src/grader/queue.ts`): queue assignment for `grader` role with 2FA, 4-dimension 0-6 rubric scoring (0.5 step), mandatory 20-char rationale for overrides, human-vs-AI agreement delta KPI tracking (target &ge; 80%), and append-only `audit_log` event protocol per D7.
+   - UI: Split-pane Human Grader Workstation at `/grader` with live KPI header.
+   - 9 unit tests in `packages/core/src/__tests__/grader.test.ts`.
 
 ## Remaining steps (numbered, in order)
 
-1. Push `main` to `origin` with `ALLOW_GIT_PUSH=1 git push origin main`.
-2. Pick next task card from `docs/PROGRESS.md`.
+1. Push `main` to `origin` with `$env:ALLOW_GIT_PUSH="1"; git push origin main`.
+2. Pick next task card from `docs/PROGRESS.md` (e.g. P1-15 IELTS Listening runner or P1-56 Deepgram STT adapter).
 3. Switch to task branch `gemini/<ID>-<slug>` or `task/<ID>-<slug>`.
 4. Implement, verify with `pnpm verify:fast`, merge to `main`.
 
 ## Exact next command / first action
 
-`ALLOW_GIT_PUSH=1 git push origin main`
+`$env:ALLOW_GIT_PUSH="1"; git push origin main`
 
 ## Decisions made (and why)
 
-- Zero new dependencies: used lightweight, highly responsive, WCAG 2.2 AA accessible SVG components for score predictor and streak tracking.
-- Classical psychometric formulas implemented with corrected item-rest calculations to prevent spurious inflation of item-total correlations.
+- D6 immutable versioning strictly preserves historical exam attempt integrity by minting fresh version records on published item edits while drafts mutate in place.
+- Socratic spoiler guard enforces that active questions never disclose correct answer options or values before item submission.
+- Grade overrides mandate at least 20 characters of justification and permanently append to the audit log per D7.
 
 ## Known issues / failing tests
 
-- None (all 29 tasks across 8 packages passing; 107 unit tests green in @lumen/core, 17 in @lumen/ui).
+- None (all 30 turbo tasks cached & green, 134 core tests passing, 18 ai tests passing, 17 ui tests passing).
 
 ## Read first (max 5 paths or doc sections)
 
-- `docs/07-TEST-ENGINE.md#§8.6`
-- `docs/03-PRODUCT-SPEC.md#§5.2`
-- `packages/core/src/analytics/progress.ts`
-- `packages/core/src/exam/statistics.ts`
-- `apps/web/app/[locale]/(learner)/app/page.tsx`
+- `docs/00-DECISIONS.md#D4-D7`
+- `packages/core/src/studio/authoring.ts`
+- `packages/ai/src/tutor/socratic-tutor.ts`
+- `packages/core/src/grader/queue.ts`
+- `apps/web/app/[locale]/(grader)/grader/page.tsx`
 
 ## Do NOT touch
 
@@ -62,4 +66,4 @@
 
 ## Needs Opus review (security-critical paths touched)
 
-- [ ] `packages/core/src/commerce/sslcommerz.ts` & `apps/web/app/api/webhooks/sslcommerz/route.ts` (Payment gateway & IPN validation - flagged for low/med review).
+- [ ] `packages/core/src/studio/authoring.ts` & `packages/core/src/grader/queue.ts` (Staff RBAC & Audit log protocol - low/med review).
