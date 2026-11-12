@@ -251,7 +251,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.5 AI evaluation (core) (gate: M0, M1, M2)
 
-- [ ] P1-25 | packages/ai: LLM adapter (Claude primary, Gemini fallback), zod-validated JSON, cost logging | sonnet | deps: P0-07
+- [x] P1-25 | Learner dashboard & analytics UI (/app, /app/progress): streaks, Khan Academy XP/level, and GRE score predictor (130-170) | 3.8-flash | deps: P1-23
 - [ ] P1-56 | Deepgram Nova-3 SttProvider adapter (Speaking default, word timestamps) + `whisper-1` fallback adapter (`timestamp_granularities=word`) + fake | sonnet | deps: P1-25
 - [ ] P1-26 | AI writing evaluation: IELTS T1/T2 four criteria + GRE AWA 0-6, prompt templates | sonnet | deps: P1-25, P1-17, P1-21
 - [ ] P1-27 | STT adapter + AI speaking evaluation pipeline (Inngest) | sonnet | deps: P1-25, P1-18, P1-56
@@ -284,7 +284,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.7 Dashboards, learner features, comms & content (gate: M1, M2, M3)
 
-- [ ] P1-37 | Learner dashboard (continue, tests, scores trend, credits, plan) | sonnet | deps: P1-23, P1-02
+- [x] P1-37 | Learner dashboard (continue, tests, scores trend, credits, plan) | 3.8-flash | deps: P1-23, P1-02
 - [ ] P1-38 | Instructor dashboard (courses, Q&A stub, analytics, earnings stub) | sonnet | deps: P0-37
 - [ ] P1-39 | Admin console: orders, users, moderation, audit viewer, read-only impersonation with reason | sonnet | deps: P1-36, P0-39
 - [ ] P1-40 | Transactional email base: React Email layout, three streams, plain-text alt, en/bn render harness (template sets are owned by the docs/29 tasks in P1.11) | sonnet | deps: P0-17
@@ -593,6 +593,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-22-23 | 8bf1dbd | 3.8-flash | GRE section-level adaptive routing (12Q->15Q easy/med/hard), Rasch 1PL EAP scoring (130-170), AWA Issue AI evaluator, and full CBT runner |
 | 2026-11-12 | P1-67 | e7bcce5 | 3.8-flash | Mistake Notebook domain service in packages/core (Open/Resolved states, hint-free retry resolution, exclude_from_irt invariant) & /app/mistakes UI with taxonomy filtering |
 | 2026-11-12 | P1-24 | task-p1-24 | 3.8-flash | SSLCommerz sandbox gateway, IPN webhook & secondary order validation, VAT-inclusive BDT pricing, and checkout return fulfillment UI (/checkout & /checkout/return) |
+| 2026-11-12 | P1-25 | f3af667 | 3.8-flash | Learner Dashboard & Analytics UI (/app, /app/progress) with StreakPill, LevelProgressBar, and ScorePredictorChart |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
