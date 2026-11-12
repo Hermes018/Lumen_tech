@@ -9,7 +9,7 @@
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
     "lint": "eslint src",
-    "test": "vitest run --pool=forks --maxWorkers=2 --no-file-parallelism",
+    "test": "vitest run src --pool=forks --maxWorkers=2 --no-file-parallelism",
     "typecheck": "tsc --noEmit --incremental"
   },
   "dependencies": {
