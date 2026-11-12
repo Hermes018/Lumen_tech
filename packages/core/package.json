@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit --incremental"
   },
   "dependencies": {
+    "@lumen/auth": "workspace:*",
     "@lumen/config": "workspace:*"
   },
   "devDependencies": {
