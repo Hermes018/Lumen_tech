@@ -5,3 +5,4 @@ export * from './fsrs';
 export * from './scoring';
 export * from './adaptive';
 export * from './mistakes';
+export * from './statistics';
