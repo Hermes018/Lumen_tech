@@ -19,44 +19,43 @@
 ## Current task
 
 ```yaml
-id: P1-19-20-21
-title: "Interactive GRE Practice & Magoosh/Brilliant Engine (Hint Ladder, Trap Diagnostics UI, Socratic Solver, Predict-First & 4-Mode FSRS Player)"
-status: ready
-branch: task/P1-19-gre-practice-engine
+id: P1-20
+title: "packages/ui/src/components/gre: Interactive Pedagogy UI Components"
+status: in_progress
+branch: task/P1-20-gre-ui-components
 owner_model: "3.8-flash"
 subagent: frontend-engineer
-depends_on: [P0-12, P0-13-14, P0-15-16]
+depends_on: [P1-19]
 read:
-  - "docs/00-DECISIONS.md#D13"
-  - "docs/03-PRODUCT-SPEC.md#§11"
-  - "docs/07-TEST-ENGINE.md#§1-§3"
-  - "docs/34-AI-LEARNING-FEATURES.md#§1-§4"
+  - "docs/08-UI-UX-DESIGN-SYSTEM.md"
+  - "docs/07-TEST-ENGINE.md#§2.7"
 touch:
-  - packages/core/src/exam/practice.ts
-  - packages/core/src/exam/fsrs.ts
-  - packages/core/src/exam/index.ts
-  - packages/core/src/__tests__/practice.test.ts
-  - packages/core/src/__tests__/fsrs.test.ts
-  - apps/web/app/[locale]/(learner)/app/practice/page.tsx
-  - apps/web/app/[locale]/(learner)/app/practice/[sessionId]/page.tsx
-  - apps/web/app/[locale]/(learner)/app/vocab/page.tsx
+  - packages/ui/src/components/gre/GreCalculator.tsx
+  - packages/ui/src/components/gre/HintLadder.tsx
+  - packages/ui/src/components/gre/TrapDiagnostic.tsx
+  - packages/ui/src/components/gre/SocraticStepper.tsx
+  - packages/ui/src/components/gre/VerbalDeconstructor.tsx
+  - packages/ui/src/components/gre/index.ts
+  - packages/ui/src/index.ts
+  - packages/ui/src/__tests__/gre-components.test.tsx
 do:
-  - Implement practice session runner in packages/core/src/exam/practice.ts (timed vs untimed tutor mode, hint budget tracking, second-chance scoring, error log tagging)
-  - Implement FSRS v4 algorithm scheduler in packages/core/src/exam/fsrs.ts (spaced repetition interval calculations for flip, cloze, se_pair_drill, and quant_formula)
-  - Build interactive UI in apps/web for Hint Ladder (3 progressive tiers), Trap Diagnostics Drawer, Socratic Step-by-Step Solver, Predict-First choice blurring, and on-screen 4-function GRE calculator with Transfer Display
-  - Build 4-mode FSRS vocab flashcard player with Bangla audio/text glosses and keyboard shortcuts (1: Again, 2: Hard, 3: Good, 4: Easy)
+  - Build GreCalculator on-screen 4-function calculator with Transfer Display
+  - Build HintLadder 3-tier progressive collapsible component with hint budget warnings
+  - Build TrapDiagnostic callout highlighting distractor trap reasons with --status-warning token
+  - Build SocraticStepper step-by-step interactive solver blocking progression until micro-prompt answered
+  - Build VerbalDeconstructor Predict First mode wrapper with blur toggle and word click-to-deck
+  - Write render smoke tests in packages/ui
 acceptance:
-  - "Interactive GRE practice session loads sample questions from seed pack"
-  - "Hint ladder reveals Tier 1, 2, and 3 with budget deductions"
-  - "Trap diagnostics render explaining why each incorrect choice is a distractor"
-  - "FSRS card state transitions calculate correct next due dates"
+  - "All 5 GRE pedagogy components render cleanly and react to state props"
+  - "GreCalculator correctly performs calculations and invokes onTransferDisplay"
+  - "HintLadder reveals tiers and shows budget alert"
   - "pnpm verify:fast is 100% green"
 verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
 reviewer: "Sonnet 5.5 (high)"
 out_of_scope:
-  - "Live speech recording for speaking drills (P2)"
-notes: "Zero local Docker containers. Real-time client state with server-authoritative submission."
+  - "Full exam attempt runner (P1-22)"
+notes: "Zero local Docker containers. Pure React 19 + Tailwind v4 components with accessible keyboard handling."
 ```
 
 ## Decisions needing the founder
@@ -231,7 +230,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.4 Exam runners, results & practice (GRE First & Magoosh Engine) (gate: M0, M1, M2, M3)
 
-- [ ] P1-19 | GRE Verbal runner (RC, text completion 1/2/3-blank, sentence equivalence, strikethrough, Choice Hider 'Predict First' toggle, inline word click-to-deck) | 3.8-flash | deps: P1-14, P1-13
+- [x] P1-19 | GRE Verbal runner (RC, text completion 1/2/3-blank, sentence equivalence, strikethrough, Choice Hider 'Predict First' toggle, inline word click-to-deck) & FSRS Core Math | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-20 | GRE Quant runner (MCQ, multi, numeric entry, QC) + on-screen 4-function calculator with transfer + FROZEN plug-in numbers checklist badge | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-21 | GRE Analytical Writing (AWA) runner (30-min Analyze an Issue) | 3.8-flash | deps: P1-14
 - [ ] P1-22 | GRE section-level adaptive routing (Verbal 12Q->15Q, Quant 12Q->15Q second-section difficulty) | sonnet | deps: P1-19, P1-20
@@ -583,6 +582,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P0-12 | 6c386cd | 3.8-flash | Drizzle ORM + Neon driver, D13 pedagogy schema (hints, traps, Socratic steps), and FSRS vocab decks |
 | 2026-11-12 | P0-13-14 | e089c3c | 3.8-flash | Better Auth server/client, 11 additive roles, mandatory 2FA, assertCan policy engine |
 | 2026-11-12 | P0-15-16 | 22a01a4 | 3.8-flash | Canonical price book seed (147 products) & original GRE Magoosh-parity demo pack (12 questions + 30 vocab) |
+| 2026-11-12 | P1-19 | 5566c19 | 3.8-flash | FSRS v4.5 active recall scheduler, practice session state reducers (hints, mastery, second-chance, Socratic steps) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
