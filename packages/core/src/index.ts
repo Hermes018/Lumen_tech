@@ -4,5 +4,6 @@ export * from './auth/index';
 export * from './fsrs/index';
 export * from './exam/index';
 export * from './commerce/index';
+export * from './analytics/index';
 
 export const CORE_VERSION = '0.1.0';

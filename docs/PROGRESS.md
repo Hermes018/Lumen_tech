@@ -19,36 +19,48 @@
 ## Current task
 
 ```yaml
-id: P1-67
-title: "Mistake Notebook (/app/mistakes) with Open/Resolved States, Retry Loop & Error Taxonomy"
-status: ready
-branch: task/P1-67-mistake-notebook
+id: P1-25
+title: "Learner Dashboard & Analytics UI (/app, /app/progress) with Streaks, XP/Level, Score Predictor"
+status: in_progress
+branch: task/P1-25-learner-dashboard
 owner_model: "3.8-flash"
 subagent: fullstack-engineer
-depends_on: [P1-23, P1-21]
+depends_on: [P1-23, P1-21, P1-67]
 read:
-  - "docs/07-TEST-ENGINE.md#§3.4"
-  - "docs/12-BUILD-PLAN-AGENTS.md#P1-67"
+  - "docs/03-PRODUCT-SPEC.md#§5.2"
+  - "docs/08-UI-UX-DESIGN-SYSTEM.md#§5.1.9"
 touch:
-  - packages/core/src/exam/practice.ts
-  - apps/web/app/[locale]/(learner)/app/mistakes/page.tsx
-  - apps/web/app/actions/mistakes.ts
+  - packages/core/src/analytics/progress.ts
+  - packages/core/src/analytics/index.ts
+  - packages/core/src/index.ts
+  - packages/core/src/__tests__/analytics.test.ts
+  - packages/ui/src/components/streak-pill.tsx
+  - packages/ui/src/components/level-progress-bar.tsx
+  - packages/ui/src/components/score-predictor-chart.tsx
+  - packages/ui/src/index.ts
+  - packages/ui/src/__tests__/analytics-components.test.tsx
+  - apps/web/app/actions/analytics.ts
+  - apps/web/app/[locale]/(learner)/app/page.tsx
+  - apps/web/app/[locale]/(learner)/app/progress/page.tsx
+  - apps/web/app/[locale]/(learner)/layout.tsx
 do:
-  - Implement Mistake Notebook domain service in packages/core to record wrong answers from mock attempts and practice sessions
-  - Wire Open and Resolved states: incorrect items enter as 'Open', correct retry transitions item to 'Resolved'
-  - Implement `/app/mistakes` UI with error taxonomy filtering (Careless Math, Vocab Gap, Trap Answer, Misread Prompt)
-  - Ensure mistake retry items are cleanly tagged and excluded from the adaptive IRT calibration pool
+  - In packages/core/src/analytics/progress.ts, implement data aggregation for study streaks (consecutive active days), Khan Academy style XP/levels, and 130-170 GRE score predictor
+  - Create reusable UI components in packages/ui: StreakPill, LevelProgressBar, ScorePredictorChart
+  - Build main Learner Dashboard page at apps/web/app/[locale]/(learner)/app/page.tsx and Progress view at /app/progress/page.tsx
+  - Ensure server actions securely scope data fetches to authenticated user with assertCan
 acceptance:
-  - "Wrong answers from practice quizzes or mock exams appear in Mistake Notebook"
-  - "Retrying a mistake correctly updates status from Open to Resolved"
-  - "Filter by error category and subject works cleanly"
+  - "Study streak logic correctly computes consecutive active days and freeze states"
+  - "XP level logic calculates Khan Academy style progress and mastery thresholds"
+  - "Estimated GRE score predictor stays bounded in 130-170 range with confidence ratings"
+  - "Reusable UI components render cleanly and pass unit tests"
+  - "Dashboard /app and /app/progress pages render responsive, accessible views"
   - "pnpm verify:fast is 100% green"
 verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
 reviewer: "Sonnet 5.5 (high)"
 out_of_scope:
   - "Batch item retirement background cron (P1-68)"
-notes: "Zero local Docker containers. Exclude mistake review retries from IRT estimation pool."
+notes: "Zero local Docker containers. Strict 8 GB RAM constraints."
 ```
 
 ## Decisions needing the founder
