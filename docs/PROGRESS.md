@@ -19,42 +19,41 @@
 ## Current task
 
 ```yaml
-id: P0-12
-title: "packages/db: Drizzle ORM + Neon Driver + D13 Interactive Pedagogy & FSRS Schemas"
-status: ready
-branch: task/P0-12-drizzle-neon-schema
+id: P0-13-14
+title: "packages/auth & packages/core: RBAC Permission Matrix, assertCan Policy Engine & Better Auth Config"
+status: in_progress
+branch: task/P0-13-14-auth-rbac
 owner_model: "3.8-flash"
 subagent: backend-engineer
-depends_on: [P0-07]
+depends_on: [P0-12]
 read:
-  - "docs/00-DECISIONS.md#D5"
-  - "docs/00-DECISIONS.md#D13"
-  - "docs/05-DATABASE.md#§1-§4"
-  - "docs/07-TEST-ENGINE.md#§1"
-  - "docs/34-AI-LEARNING-FEATURES.md#§1-§3"
+  - "docs/00-DECISIONS.md#D4-D7"
+  - "docs/06-API-AND-SERVICES.md#§1"
+  - "docs/09-SECURITY-AUTH-COMPLIANCE.md#§2-§4"
 touch:
-  - packages/db/package.json
-  - packages/db/drizzle.config.ts
-  - packages/db/src/index.ts
-  - packages/db/src/schema/index.ts
-  - packages/db/src/schema/auth.ts
-  - packages/db/src/schema/pedagogy.ts
-  - packages/db/src/schema/flashcards.ts
+  - packages/auth/package.json
+  - packages/auth/src/permissions.ts
+  - packages/auth/src/client.ts
+  - packages/auth/src/server.ts
+  - packages/auth/src/index.ts
+  - packages/core/src/auth/policy.ts
+  - packages/core/src/auth/index.ts
+  - packages/core/src/__tests__/policy.test.ts
 do:
-  - Install pinned drizzle-orm, @neondatabase/serverless, drizzle-kit from approved deps
-  - Configure drizzle.config.ts for Neon Serverless Postgres with pg driver
-  - Scaffold initial schema including Better Auth base tables (user, session, account, verification) and audit_log
-  - Implement D13 interactive pedagogy schema (3-tier hints, trap tags, Socratic steps) and 4-mode FSRS vocab decks
+  - Define all 11 additive roles and the canonical resource:action permission map in packages/auth/src/permissions.ts
+  - Implement assertCan(actor, permission, resource?) and can(...) in packages/core/src/auth/policy.ts with mandatory 2FA enforcement and tenant/ownership isolation
+  - Configure Better Auth server/client wrappers with session timeout controls
+  - Unit test 100% allow/deny matrix, tenant boundary isolation, and mandatory 2FA flags
 acceptance:
-  - "pnpm --filter @lumen/db build and typecheck pass"
-  - "drizzle-kit generate runs cleanly without syntax errors"
-  - "All table schemas conform to D5 and D13 specifications"
-verify: "pnpm turbo run build typecheck lint --concurrency=2"
+  - "pnpm --filter @lumen/auth build and typecheck pass"
+  - "pnpm --filter @lumen/core test passes with comprehensive RBAC allow/deny assertions"
+  - "pnpm verify:fast is 100% green"
+verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
-reviewer: "Argon (high)"
+reviewer: "Sonnet 5.5 (high)"
 out_of_scope:
-  - "Running live migrations against production Neon cluster (deferred to staging smoke gate P0-59)"
-notes: "Zero local Docker containers. Strict serverless Neon HTTP driver compatibility."
+  - "External SMS network calls or Google OAuth live client secrets"
+notes: "Mandatory 2FA for grader+ staff, instructor, and org_admin. Zero UI-only authorization."
 ```
 
 ## Decisions needing the founder
@@ -130,7 +129,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P0-06 | Initialise shadcn/ui into packages/ui (Radix, Lucide) and consume from apps/web | 3.8-flash | deps: P0-05
 - [x] P0-07 | packages/config: brand.ts + zod-validated env.ts + .env.example | 3.8-flash | deps: P0-02
 - [ ] P0-11 | Vercel project (sin1/bom1), preview deploys, Neon branch-per-PR workflow | 3.8-flash | deps: P0-08, P0-07
-- [ ] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | 3.8-flash | deps: P0-07
+- [x] P0-12 | packages/db: Drizzle + drizzle-kit, Neon driver, `db:generate`/`db:migrate` scripts | 3.8-flash | deps: P0-07
 - [ ] P0-13 | Base schema via Better Auth generator (user, session, account, verification) + audit_log table | 3.8-flash | deps: P0-12
 - [ ] P0-14 | Schema: roles, user_roles, organizations, memberships (additive roles per D4) | 3.8-flash | deps: P0-13
 - [ ] P0-57 | `env.ts` cross-field validation (DB_DRIVER vs host; SSLCZ_IS_LIVE iff production; no fake providers or Turnstile test keys in production) + `env:example` generator with drift test; settle env-name drift (docs/28 §18.2: 10 wins) | 3.8-flash | deps: P0-07
@@ -578,6 +577,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-06 | e34e600 | 3.8-flash | Core UI primitives in packages/ui with Vitest unit tests |
 | 2026-11-11 | P0-09 | 18fc0a5 | 3.8-flash | Canonical App Shells (Marketing, Learner, GRE CBT Exam) |
 | 2026-11-11 | P0-10 | fb14ae5 | 3.8-flash | next-intl localization (en/bn) + Bangla digits/currency utilities |
+| 2026-11-12 | P0-12 | 6c386cd | 3.8-flash | Drizzle ORM + Neon driver, D13 pedagogy schema (hints, traps, Socratic steps), and FSRS vocab decks |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
