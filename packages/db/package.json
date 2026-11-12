@@ -6,15 +6,22 @@
   "types": "./src/index.ts",
   "scripts": {
     "build": "tsc --incremental",
+    "db:generate": "drizzle-kit generate",
+    "db:check": "drizzle-kit check",
     "lint": "eslint src",
-    "test": "echo \"db:test stub\"",
+    "test": "vitest run --pool=forks --maxWorkers=2 --no-file-parallelism",
     "typecheck": "tsc --noEmit --incremental"
   },
   "dependencies": {
-    "@lumen/config": "workspace:*"
+    "@lumen/config": "workspace:*",
+    "@neondatabase/serverless": "^1.2.0",
+    "drizzle-orm": "^0.45.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/node": "^22.10.1",
-    "typescript": "^5.7.2"
+    "@types/node": "^22.20.5",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^5.7.2",
+    "vitest": "^5.1.0"
   }
 }
