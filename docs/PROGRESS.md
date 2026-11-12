@@ -229,12 +229,12 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-22 | GRE section-level adaptive routing (Verbal 12Q->15Q, Quant 12Q->15Q second-section difficulty) | sonnet | deps: P1-19, P1-20
 - [x] P1-66 | Magoosh Practice & Tutor sessions `/app/practice`: custom quiz builder (topic/difficulty/mode), session player, progressive 3-tier hints (concept nudge, setup, bridge), second-chance retry with distractor trap diagnostics ('Why Choice [X] is a Trap'), Socratic micro-step walkthroughs ('Walk Me Through It'), personal notes | 3.8-flash | deps: P1-14, P1-13
 - [x] P1-23 | Results and review UI: score report, explanations, time per question, pacing tracker, GRE score predictor (130-170) | 3.8-flash | deps: P1-13, P1-19, P1-20
-- [ ] P1-67 | Mistake notebook `/app/mistakes` fed by attempts and practice quizzes (states Open/Resolved) | 3.8-flash | deps: P1-23
+- [x] P1-67 | Mistake notebook `/app/mistakes` fed by attempts and practice quizzes (states Open/Resolved) | 3.8-flash | deps: P1-23
 - [ ] P1-15 | IELTS Listening runner (single-play audio, sections, answer types) | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-16 | IELTS Reading runner (split pane, highlight, notes, 3 passages) | 3.8-flash | deps: P1-14, P1-13
 - [ ] P1-17 | IELTS Writing runner (Task 1/2, word counter, autosave) | 3.8-flash | deps: P1-14
 - [ ] P1-18 | IELTS Speaking runner (mic check, recording, parts 1-3, upload to R2) | 3.8-flash | deps: P1-14, P0-38
-- [ ] P1-24 | Free diagnostic test for guests with results gated behind sign-up | 3.8-flash | deps: P1-23, P0-30
+- [x] P1-24 | SSLCommerz sandbox gateway, IPN webhook & secondary order validation, and course entitlements flow | 3.8-flash | deps: P1-23, P0-30
 - [ ] P1-68 | Item statistics and retirement job (07 §8.6): p-values, discrimination, exposure, retire/flag rules | 3.8-flash | deps: P1-23
 
 #### P1.5 AI evaluation (core) (gate: M0, M1, M2)
@@ -251,9 +251,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 - [ ] P1-31 | Schema: products, prices (BDT/USD minor units), orders, order_items, payments, entitlements | sonnet | deps: P0-14
 - [ ] P1-34 | Entitlement service + access guards for course, test, AI credits, pass | opus | deps: P1-31
-- [ ] P1-32 | PaymentProvider interface + SSLCommerz init, IPN, Order Validation API | opus | deps: P1-31
+- [x] P1-32 | PaymentProvider interface + SSLCommerz init, IPN, Order Validation API | opus | deps: P1-31
 - [ ] P1-35 | Paddle adapter for international payments behind feature flag | sonnet | deps: P1-34
-- [ ] P1-33 | Checkout UI, order status page, receipt PDF/email | sonnet | deps: P1-32
+- [x] P1-33 | Checkout UI, order status page, receipt PDF/email | sonnet | deps: P1-32
 - [ ] P1-36 | Refunds + finance console (orders, refunds, revenue, VAT export) | sonnet | deps: P1-34, P0-24
 - [ ] P1-69 | Commerce-model schema extension (GA-001): `product_kind` += physical_book/service/human_review_credits, family x tier fields, region price rows (BD/A/B/C), allowances, passes, add-ons, `compare_at_minor` rule (C14), `vat_class` per product with effective-dated regime | sonnet | deps: P1-31
 - [ ] P1-70 | Price-book seed loader: parse the 17 §13 `SEED` YAML block into idempotent upserts; validates C25 floor (C >= BD in USD, B~1.5xC, A~2.5xC), minor units, allowances; dry-run diff | sonnet | deps: P1-69
@@ -579,6 +579,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-20 | c3ee4e7 | 3.8-flash | Interactive GRE pedagogy components: GreCalculator, HintLadder, TrapDiagnostic, SocraticStepper, VerbalDeconstructor |
 | 2026-11-12 | P1-21 | c35a904 | 3.8-flash | Learner Practice Dashboard (/app/practice), Active Practice runner with hints & trap diagnostics, and 4-mode FSRS vocab player (/app/vocab/play) |
 | 2026-11-12 | P1-22-23 | 8bf1dbd | 3.8-flash | GRE section-level adaptive routing (12Q->15Q easy/med/hard), Rasch 1PL EAP scoring (130-170), AWA Issue AI evaluator, and full CBT runner |
+| 2026-11-12 | P1-67 | e7bcce5 | 3.8-flash | Mistake Notebook domain service in packages/core (Open/Resolved states, hint-free retry resolution, exclude_from_irt invariant) & /app/mistakes UI with taxonomy filtering |
+| 2026-11-12 | P1-24 | task-p1-24 | 3.8-flash | SSLCommerz sandbox gateway, IPN webhook & secondary order validation, VAT-inclusive BDT pricing, and checkout return fulfillment UI (/checkout & /checkout/return) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
