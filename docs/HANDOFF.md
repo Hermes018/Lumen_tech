@@ -5,50 +5,54 @@
 
 ## Baton
 
-- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 13:20:00
-- Reason: batch completed (P1-22, P1-23)
+- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 13:50:00
+- Reason: batch completed (P1-67, P1-24)
 - Branch: main                      Last commit SHA: (see git log)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-mock-exam-adaptive-ai-eval.md
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-mistake-notebook-and-commerce-batch.md
 - Pushed to origin? authorized (`ALLOW_GIT_PUSH=1`)   Usage at handoff (5h / weekly %): nominal
 - Working tree clean? yes
-- Task: P1-67 - Mistake Notebook (/app/mistakes) - status: ready
-- Milestone gate in progress: M0 / M1 (GRE Adaptive Prototype & Magoosh Engine)
+- Task: P1-68 - Item statistics & retirement job (or P1-25 packages/ai LLM adapter) - status: ready
+- Milestone gate in progress: M0 / M1 (GRE Adaptive Prototype & Magoosh Engine + Commerce)
 - Baseline `pnpm verify` at handoff: PASS (29/29 turbo tasks cached/green, build 100% green)
 
 ## Done so far (this batch)
 
-1. P1-22: GRE section-level adaptive routing (`packages/core/src/exam/adaptive.ts`): Section 1 (12Q) -> Section 2 (15Q) routing to Easier/Standard/Harder panel with raw percentage & calibrated theta upgrade rules.
-2. P1-23: Rasch 1PL EAP ability estimator & scaled scoring (`packages/core/src/exam/scoring.ts`): worked example verified (20/27 at b=0 -> Verbal 158 [154-161]). Complete CBT Exam Runner (`apps/web/app/[locale]/(exam)/exam/[attemptId]/ExamRunnerClient.tsx`) with timer, autosave, calculator, and 130-170 score report.
-3. AI Evaluation Pipeline (`packages/ai/src/evaluation/awa.ts`): GRE AWA Analyze an Issue essay grading with Zod schema validation on 0.5 grid, PII redaction (email, phone, URL, ID, names), substring grounding verification, and deterministic length/off-topic rubric caps.
+1. P1-67: Mistake Notebook domain service (`packages/core/src/exam/mistakes.ts`): Open/Resolved states, D13 error taxonomy (careless_math, vocab_gap, concept_gap, trap_answer, misread_prompt, time_pressure), retry loop with hint-free resolution, and `exclude_from_irt: true` invariant. Full client UI at `/app/mistakes`.
+2. P1-24 (P1-32/P1-33): Commerce & SSLCommerz pipeline:
+   - Money arithmetic (`packages/core/src/commerce/money.ts`) with VAT-inclusive 5% breakdown.
+   - Gateway adapter (`packages/core/src/commerce/sslcommerz.ts`): transaction ID <= 30 chars, localVerifySign cryptographic hash verification, and secondary Order Validation API check (`validationserverAPI.php`).
+   - IPN webhook (`apps/web/app/api/webhooks/sslcommerz/route.ts`).
+   - Order checkout actions & UI at `/checkout` and `/checkout/return`.
+   - Entitlements engine (`packages/core/src/commerce/entitlements.ts`) activating course features immediately upon verified fulfillment.
 
 ## Remaining steps (numbered, in order)
 
-1. Switch to `task/P1-67-mistake-notebook`.
-2. Implement Mistake Notebook domain service in `packages/core/src/exam/practice.ts` with Open and Resolved states.
-3. Build `/app/mistakes` UI with taxonomy filters (Careless Math, Vocab Gap, Trap Answer, Misread Prompt).
-4. Run `pnpm verify:fast`, merge to `main`, push to origin with `ALLOW_GIT_PUSH=1`.
+1. Push `main` to `origin` with `ALLOW_GIT_PUSH=1 git push origin main`.
+2. Pick next task card: `P1-68` (Item statistics and retirement job) or `P1-25` (packages/ai multi-provider LLM adapter).
+3. Switch to task branch `gemini/<ID>-<slug>`.
+4. Implement, verify with `pnpm verify:fast`, merge to `main`.
 
 ## Exact next command / first action
 
-`git switch -c task/P1-67-mistake-notebook`
+`ALLOW_GIT_PUSH=1 git push origin main`
 
 ## Decisions made (and why)
 
-- Rasch 1PL EAP implementation uses 81-point Gauss-Hermite numerical quadrature grid `[-4, 4]` strictly adhering to `docs/07-TEST-ENGINE.md` §3.3.6.
-- AWA AI Evaluation output is validated with Zod `.strict()` matching ETS 4-dimension criteria and 0.5 step grading.
-- Next.js dynamic exam route `/[locale]/exam/[attemptId]` prerenders cleanly with interactive client runner and server actions.
+- SSLCommerz raw IPN is strictly unauthenticated until secondary order validation server call succeeds (`validationserverAPI.php`) per docs/10 §3.2.
+- Mistake retries carry `exclude_from_irt: true` so repeated attempts do not distort IRT question item difficulty estimation.
+- 5% educational VAT is included in retail BDT prices with breakdowns displayed at checkout and return.
 
 ## Known issues / failing tests
 
-- None (all 29 tasks across 8 packages passing).
+- None (all 29 tasks across 8 packages passing; 81 unit tests green in @lumen/core).
 
 ## Read first (max 5 paths or doc sections)
 
-- `docs/07-TEST-ENGINE.md#§3.4`
-- `docs/12-BUILD-PLAN-AGENTS.md#P1-67`
-- `packages/core/src/exam/scoring.ts`
-- `packages/core/src/exam/adaptive.ts`
-- `packages/ai/src/evaluation/awa.ts`
+- `docs/10-PAYMENTS-VIDEO-INTEGRATIONS.md#§3`
+- `docs/00-DECISIONS.md#D5`
+- `packages/core/src/commerce/checkout.ts`
+- `packages/core/src/commerce/sslcommerz.ts`
+- `apps/web/app/[locale]/(checkout)/checkout/return/page.tsx`
 
 ## Do NOT touch
 
@@ -56,4 +60,4 @@
 
 ## Needs Opus review (security-critical paths touched)
 
-- [ ] none (scoring math & adaptive routing fully verified with deterministic tests; authz unchanged).
+- [ ] `packages/core/src/commerce/sslcommerz.ts` & `apps/web/app/api/webhooks/sslcommerz/route.ts` (Payment gateway & IPN validation - flagged for low/med review).
