@@ -7,7 +7,8 @@ export type ErrorTag =
   | 'vocab_gap'
   | 'careless_math'
   | 'misread_prompt'
-  | 'time_pressure';
+  | 'time_pressure'
+  | 'trap_answer';
 
 export interface SocraticSessionState {
   active: boolean;
