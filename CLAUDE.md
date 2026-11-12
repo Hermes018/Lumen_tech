@@ -55,10 +55,12 @@ Nothing is done until `pnpm verify` is green and its output shown.
 ## Model routing (details: docs/12 section 2)
 | Model | Subagents |
 |---|---|
-| Opus (lead) | `architect-reviewer`; plans, task cards, critical-path review, security sign-off |
+| 3.8 Flash (high) | Daily Lead Orchestrator, architecture, task cards, core features, L1/L2 reviewer |
+| Argon (low/med) | Default mechanical/volume workhorse (seeds, i18n, docs, logs, lint, CRUD, UI) |
+| Opus (low/med only) | Two-key review on <250-line diffs; Opus (high) STRICTLY BANNED |
 | Sonnet | `backend-engineer`, `frontend-engineer`, `db-engineer`, `test-engine-engineer`, `payments-integrator`, `security-auditor`, `qa-engineer`, `ui-polisher` |
 | Haiku | `i18n-copywriter`, `docs-scribe`, `seed-data-maker`, `lint-fixer` |
-Escalate: Haiku fails twice -> Sonnet; Sonnet fails twice or touches a security-critical path -> Opus review. Subagents reply in <=150 words + files changed + last 15 lines of verify.
+Escalate: Argon fails -> 3.8 Flash; 3.8 Flash fails twice -> Sonnet 5.5; Sonnet fails twice -> ask Founder before Opus (low/med only). Subagents reply in <=150 words + files changed + last 15 lines of verify.
 
 ## Resilience, logs, multi-device (docs/22 sections 7-9)
 - Commit WIP on the task branch at least every 30 min and after each green `pnpm verify:fast`; `git push` after every green `pnpm verify`. `/checkpoint` before risky steps and at >=70% plan usage; `/handoff` at ~85%.
@@ -67,7 +69,7 @@ Escalate: Haiku fails twice -> Sonnet; Sonnet fails twice or touches a security-
 - One device works on one branch at a time; always `git pull --rebase` at session start. Never copy `.env` between machines or into chat.
 - Logs: session log in `docs/logs/sessions/`; non-trivial failures via `/log-error`; ADR-lite in `docs/logs/decisions/`; `docs/FILEMAP.md` is generated; give every new file a one-line `@purpose` header.
 - Evidence rule: no claim without `file:line` or pasted command output. Unknown is a valid answer. Package/env/API names must exist (docs/10 section 15.3, installed types, `docs/approved-deps.txt`); never invent them.
-- Reviewer is never the author; critical paths need the two-key rule (Opus architect-reviewer + auditor). Stop and ask the founder per docs/22 section 12.2.
+- Reviewer is never the author; critical paths need the two-key rule (Sonnet/Opus low/med architect-reviewer + auditor; Opus high is banned). Stop and ask the founder per docs/22 section 12.2.
 - Hooks enforce: guard-paths (protected files), guard-bash (curl|sh, force/main push, unapproved deps). A BLOCKED message means stop and ask, not work around.
 - 8 GB RAM Guardrails (Intel i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44): `NODE_OPTIONS="--max-old-space-size=2048"`, `turbo --concurrency=2`, Vitest `--pool=forks --maxWorkers=2 --no-file-parallelism`, `tsc --noEmit --incremental`, zero local containers (no Docker/Podman, Neon + Upstash only), no local Playwright swarms (run L0/L1 locally, full E2E in CI). Dual-boot OS switch via git commit -> boot -> pull --rebase -> `pnpm install --prefer-offline`.
 

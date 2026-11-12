@@ -25,5 +25,5 @@ You are continuing a build orchestrated with Claude Code. Do this now:
 - Confirm the sandbox/approval mode before commands that write outside the repo; never disable safety prompts for `rm`, `git push --force`, or network downloads.
 - Use plan-then-act: write a 5-line plan to PROGRESS.md "Current task > notes" for tasks touching more than 5 files.
 - Antigravity: if it creates artifacts/browser recordings, keep them out of git (`/tmp`), and treat "agent manager" parallel agents as unsafe unless `touch` globs are disjoint.
-- Branches: continue the handoff branch; new tasks use `gemini/<ID>-<slug>`. Security-critical paths: implement to the card and flag `needs-opus-review` in HANDOFF.md.
+- Branches: continue the handoff branch; new tasks use `gemini/<ID>-<slug>`. Security-critical paths: implement to the card and flag `needs-two-key-review` in HANDOFF.md (Sonnet/Opus low/med only; Opus high banned).
 - Before limits end or work completes: rewrite `docs/HANDOFF.md`, tick PROGRESS.md, commit and push.

@@ -136,22 +136,24 @@ Gates as git tags: `m0-prototype`, `m1-alpha`, `m2-pilot` (= `v0.1.0-pilot`) and
 ## 2. Model routing, cost, caching and limits (Google AI Pro subscription realigned)
 
 ### 2.1 Quota reality & model roles
-Opus 5.5 is severely rate-limited on our weekly quota and MUST NOT be used as the daily lead orchestrator, task-card writer, or routine reviewer. Instead, 90%+ of all work runs on 3.8 Flash and Argon:
-- **3.8 Flash (high)**: Daily Lead Orchestrator (plans sub-steps, writes task cards, reviews diffs, builds complex frontend/backend features, Drizzle schemas, Exam Shell UI, and Magoosh practice flows).
-- **3.8 Flash (med)**: Standard feature implementation (`frontend-engineer`, `backend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher`).
-- **3.8 Flash (low)**: Fast exploration, Tier B/C doc indexing, pre-commit self-checks.
-- **Argon (high)**: Standard CRUD routes, UI scaffolding from tokens, Vitest unit test suites, seed scripts, Zod schema wiring.
-- **Argon (med)**: `i18n-copywriter` (Bangla/English strings), `seed-data-maker` (GRE vocab decks, sample questions), `docs-scribe` (session logs, PROGRESS updates, FILEMAP).
-- **Argon (low)**: `lint-fixer`, formatting, boilerplate files, git hook checks, directory scaffolding.
-- **Sonnet 5.5 (med)**: Specialist escalation: complex algorithmic tasks, intricate GRE section-adaptive scoring (`test-engine-engineer`), RBAC `assertCan` policies, and payment webhook signature verification (`payments-integrator`).
-- **Sonnet 5.5 (high)**: Replaces Opus 5.5 as default Two-Key Reviewer (`architect-reviewer`, `security-auditor`) for auth, payments, DB migrations, and scoring PRs.
-- **Opus 5.5 (high only)**: Break-Glass / Milestone Sign-Off Only (<2% of tasks, strictly locked, Founder permission required, compact diff <250 lines).
+Opus 5.5 is severely rate-limited on our weekly quota and MUST NOT be used as the daily lead orchestrator, task-card writer, or routine reviewer. Furthermore, `Opus (high)` is STRICTLY BANNED. Instead, 90%+ of all work runs on 3.8 Flash and Argon:
+- **3.8 Flash (low | med | high — primarily high)**: Primary Lead Orchestrator and core engineering builder (plans sub-steps, writes task cards, default L1/L2 reviewer, builds complex frontend/backend features, Drizzle schemas, Exam Shell UI, and Magoosh practice flows).
+  - `3.8 Flash (high)`: Primary lead and complex implementation/architecture.
+  - `3.8 Flash (med)`: Standard features (`frontend-engineer`, `backend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher`).
+  - `3.8 Flash (low)`: Fast exploration, Tier B/C doc indexing, pre-commit self-checks.
+- **Argon (low | med)**: Default mechanical and volume workhorse:
+  - `Argon (med)`: Default mechanical/volume tier (seeds, i18n, docs, logs, standard CRUD routes, UI scaffolding, unit tests, Zod wiring).
+  - `Argon (low)`: `lint-fixer`, formatting, boilerplate files, git hook checks, directory scaffolding.
+- **Sonnet 5.5 (low | med | high)**: Specialist escalation & critical paths:
+  - `Sonnet 5.5 (med)`: Complex algorithmic tasks, intricate GRE section-adaptive scoring, RBAC `assertCan` policies, webhook signature verification.
+  - `Sonnet 5.5 (high)`: Two-Key Reviewer (`architect-reviewer`, `security-auditor`) for auth, payments, DB migrations, and scoring PRs.
+- **Opus 5.5 (low | med ONLY — high is STRICTLY BANNED)**: Two-Key Reviewer & Break-Glass Escalation (<2% of tasks, strictly locked, Founder permission required, compact diff <250 lines). Never invoke `Opus (high)`.
 
 **Strict Escalation Ladder:**
-1. Argon (low/med) fails once -> retry on Argon (high) or 3.8 Flash (med).
+1. Argon (low/med) fails once -> retry on 3.8 Flash (med).
 2. 3.8 Flash (med) fails once -> escalate to 3.8 Flash (high).
 3. 3.8 Flash (high) fails twice -> escalate to Sonnet 5.5 (med).
-4. Sonnet 5.5 (med/high) fails twice -> log to `docs/logs/errors/ERROR-LOG.md` and ask Founder before touching Opus 5.5.
+4. Sonnet 5.5 (med/high) fails twice -> log to `docs/logs/errors/ERROR-LOG.md` and ask Founder before touching Opus 5.5 (low/med only).
 
 **Quiet Output Rule:** All test/lint/build commands must pipe output to a log file and print only the exit code and first 25 error lines so context windows stay tiny.
 
