@@ -7,50 +7,56 @@
 
 ## Status
 
-- Date updated: 2026-11-11
+- Date updated: 2026-11-12
 - Active tool: 3.8 Flash (High) / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: P0.1 Repo & tooling (P0-51, P0-45, P0-46 completed; ready for P0-01); next delivery gate: M0 (GRE Priority)
-- Last session log: docs/logs/sessions/2026-11-11-onboarding-and-realignment.md
+- Current milestone: P0 Foundation & M0 Clickable Prototype (P0-12 to P0-16 completed); next delivery gate: M0 (GRE Priority)
+- Last session log: docs/logs/sessions/2026-11-12-data-auth-rbac-gre-seed.md
 - Active branch: main
-- Last green `pnpm verify`: P0-01, P0-02, P0-03 (32 tasks in turbo pipeline green)
-- Phase in progress: P0
+- Last green `pnpm verify`: P0-12, P0-13, P0-14, P0-15, P0-16, P0-22 (29 tasks in turbo pipeline green)
+- Phase in progress: P0 / P1-prep
 
 ## Current task
 
 ```yaml
-id: P0-15-16
-title: "Canonical Price Book Seed (docs/17) + Original GRE Magoosh-Parity Demo Seed (packages/db/src/seed/)"
-status: in_progress
-branch: task/P0-15-16-seeds-gre-pedagogy
+id: P1-19-20-21
+title: "Interactive GRE Practice & Magoosh/Brilliant Engine (Hint Ladder, Trap Diagnostics UI, Socratic Solver, Predict-First & 4-Mode FSRS Player)"
+status: ready
+branch: task/P1-19-gre-practice-engine
 owner_model: "3.8-flash"
-subagent: seed-data-maker
-depends_on: [P0-12, P0-13-14]
+subagent: frontend-engineer
+depends_on: [P0-12, P0-13-14, P0-15-16]
 read:
-  - "docs/17-PRICING-MASTER.md#§13"
-  - "docs/15-CURRICULUM-GRE-AND-OTHER-TESTS.md#§1-§5"
+  - "docs/00-DECISIONS.md#D13"
+  - "docs/03-PRODUCT-SPEC.md#§11"
+  - "docs/07-TEST-ENGINE.md#§1-§3"
+  - "docs/34-AI-LEARNING-FEATURES.md#§1-§4"
 touch:
-  - packages/db/src/seed/pricing-seed.ts
-  - packages/db/src/seed/gre-magoosh-seed.ts
-  - packages/db/src/seed/gre-vocab-seed.ts
-  - packages/db/src/seed/index.ts
-  - packages/db/src/__tests__/seed.test.ts
+  - packages/core/src/exam/practice.ts
+  - packages/core/src/exam/fsrs.ts
+  - packages/core/src/exam/index.ts
+  - packages/core/src/__tests__/practice.test.ts
+  - packages/core/src/__tests__/fsrs.test.ts
+  - apps/web/app/[locale]/(learner)/app/practice/page.tsx
+  - apps/web/app/[locale]/(learner)/app/practice/[sessionId]/page.tsx
+  - apps/web/app/[locale]/(learner)/app/vocab/page.tsx
 do:
-  - Parse the canonical pricing YAML block from docs/17 into pricing-seed.ts
-  - Create rich original 12-question GRE Magoosh-Parity demo pack in gre-magoosh-seed.ts with hints_json, choice_explanations_json with trap_tag, steps_json, and verbal_deconstructor_json
-  - Create 30 high-frequency GRE Vocab cards in gre-vocab-seed.ts with bn_meaning, mnemonics, SE pairs, and cloze
-  - Unit test offline validation of all seeds against Zod/Drizzle schemas
+  - Implement practice session runner in packages/core/src/exam/practice.ts (timed vs untimed tutor mode, hint budget tracking, second-chance scoring, error log tagging)
+  - Implement FSRS v4 algorithm scheduler in packages/core/src/exam/fsrs.ts (spaced repetition interval calculations for flip, cloze, se_pair_drill, and quant_formula)
+  - Build interactive UI in apps/web for Hint Ladder (3 progressive tiers), Trap Diagnostics Drawer, Socratic Step-by-Step Solver, Predict-First choice blurring, and on-screen 4-function GRE calculator with Transfer Display
+  - Build 4-mode FSRS vocab flashcard player with Bangla audio/text glosses and keyboard shortcuts (1: Again, 2: Hard, 3: Good, 4: Easy)
 acceptance:
-  - "All price minor units, regions BD/A/B/C, and allowances match docs/17"
-  - "All 12 GRE question types populated with D13 hints, trap tags, Socratic steps, and verbal deconstructor"
-  - "30 GRE vocab items validate cleanly with Bangla glosses and FSRS state"
+  - "Interactive GRE practice session loads sample questions from seed pack"
+  - "Hint ladder reveals Tier 1, 2, and 3 with budget deductions"
+  - "Trap diagnostics render explaining why each incorrect choice is a distractor"
+  - "FSRS card state transitions calculate correct next due dates"
   - "pnpm verify:fast is 100% green"
 verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
-reviewer: "Argon (med)"
+reviewer: "Sonnet 5.5 (high)"
 out_of_scope:
-  - "Live DB network connection during unit tests"
-notes: "100% original content per D6. Offline deterministic validation."
+  - "Live speech recording for speaking drills (P2)"
+notes: "Zero local Docker containers. Real-time client state with server-authoritative submission."
 ```
 
 ## Decisions needing the founder
@@ -148,8 +154,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P0.4 Identity & access (gate: M0, M1)
 
-- [ ] P0-15 | packages/auth: Better Auth core, Drizzle adapter, hardened cookies and session lifetimes | sonnet | deps: P0-13
-- [ ] P0-16 | Google OAuth sign-in | sonnet | deps: P0-15
+- [x] P0-15 | packages/auth: Better Auth core, Drizzle adapter, hardened cookies and session lifetimes | 3.8-flash | deps: P0-13
+- [x] P0-16 | Google OAuth sign-in + canonical pricing & GRE seeds | 3.8-flash | deps: P0-15
 - [ ] P0-17 | Email OTP + magic link via Resend/React Email | sonnet | deps: P0-15
 - [ ] P0-18 | SmsProvider interface + one BD gateway adapter + phone OTP login | sonnet | deps: P0-15
 - [ ] P0-19 | Cloudflare Turnstile + per-IP/per-user rate limits on signup/OTP/contact | sonnet | deps: P0-15
@@ -576,6 +582,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-11 | P0-10 | fb14ae5 | 3.8-flash | next-intl localization (en/bn) + Bangla digits/currency utilities |
 | 2026-11-12 | P0-12 | 6c386cd | 3.8-flash | Drizzle ORM + Neon driver, D13 pedagogy schema (hints, traps, Socratic steps), and FSRS vocab decks |
 | 2026-11-12 | P0-13-14 | e089c3c | 3.8-flash | Better Auth server/client, 11 additive roles, mandatory 2FA, assertCan policy engine |
+| 2026-11-12 | P0-15-16 | 22a01a4 | 3.8-flash | Canonical price book seed (147 products) & original GRE Magoosh-parity demo pack (12 questions + 30 vocab) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
