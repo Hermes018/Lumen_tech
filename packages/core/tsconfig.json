@@ -3,7 +3,9 @@
   "extends": "../config/tsconfig/library.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/__tests__/**/*", "dist", "node_modules"]
