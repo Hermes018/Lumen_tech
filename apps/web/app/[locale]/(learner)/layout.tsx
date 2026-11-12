@@ -41,6 +41,13 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
             <span>Dashboard</span>
           </Link>
           <Link
+            href="/app/progress"
+            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
+          >
+            <Award className="h-4 w-4" />
+            <span>Mastery & Analytics</span>
+          </Link>
+          <Link
             href="/app/practice"
             className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
           >
@@ -48,11 +55,11 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
             <span>Practice & Drills</span>
           </Link>
           <Link
-            href="/app/mocks"
+            href="/app/mistakes"
             className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
           >
-            <Award className="h-4 w-4" />
-            <span>Mock Tests (CBT)</span>
+            <AlertTriangle className="h-4 w-4" />
+            <span>Mistake Notebook</span>
           </Link>
           <Link
             href="/app/flashcards"
