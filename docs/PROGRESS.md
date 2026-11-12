@@ -19,47 +19,36 @@
 ## Current task
 
 ```yaml
-id: P1-25
-title: "Learner Dashboard & Analytics UI (/app, /app/progress) with Streaks, XP/Level, Score Predictor"
+id: P1-68
+title: "Item Statistics & Retirement Job (07 §8.6): p-values, Point-Biserial Discrimination, Exposure, Flag/Retire Rules"
 status: in_progress
-branch: task/P1-25-learner-dashboard
+branch: task/P1-68-item-statistics
 owner_model: "3.8-flash"
-subagent: fullstack-engineer
-depends_on: [P1-23, P1-21, P1-67]
+subagent: core-engineer
+depends_on: [P1-23]
 read:
-  - "docs/03-PRODUCT-SPEC.md#§5.2"
-  - "docs/08-UI-UX-DESIGN-SYSTEM.md#§5.1.9"
+  - "docs/07-TEST-ENGINE.md#§8.6"
 touch:
-  - packages/core/src/analytics/progress.ts
-  - packages/core/src/analytics/index.ts
-  - packages/core/src/index.ts
-  - packages/core/src/__tests__/analytics.test.ts
-  - packages/ui/src/components/streak-pill.tsx
-  - packages/ui/src/components/level-progress-bar.tsx
-  - packages/ui/src/components/score-predictor-chart.tsx
-  - packages/ui/src/index.ts
-  - packages/ui/src/__tests__/analytics-components.test.tsx
-  - apps/web/app/actions/analytics.ts
-  - apps/web/app/[locale]/(learner)/app/page.tsx
-  - apps/web/app/[locale]/(learner)/app/progress/page.tsx
-  - apps/web/app/[locale]/(learner)/layout.tsx
+  - packages/core/src/exam/statistics.ts
+  - packages/core/src/exam/index.ts
+  - packages/core/src/__tests__/statistics.test.ts
+  - apps/web/app/api/inngest/route.ts
 do:
-  - In packages/core/src/analytics/progress.ts, implement data aggregation for study streaks (consecutive active days), Khan Academy style XP/levels, and 130-170 GRE score predictor
-  - Create reusable UI components in packages/ui: StreakPill, LevelProgressBar, ScorePredictorChart
-  - Build main Learner Dashboard page at apps/web/app/[locale]/(learner)/app/page.tsx and Progress view at /app/progress/page.tsx
-  - Ensure server actions securely scope data fetches to authenticated user with assertCan
+  - In packages/core/src/exam/statistics.ts, implement classical p-value (difficulty/success rate), corrected point-biserial discrimination (item-rest correlation), distractor analysis, and exposure tracking
+  - Implement flagging and auto-retirement rules from 07 §8.6 (too hard/easy, weak/negative discrimination, key-suspected, over-exposed)
+  - Expose background job handler in apps/web/app/api/inngest/route.ts
+  - Write unit tests validating math against standard response matrices
 acceptance:
-  - "Study streak logic correctly computes consecutive active days and freeze states"
-  - "XP level logic calculates Khan Academy style progress and mastery thresholds"
-  - "Estimated GRE score predictor stays bounded in 130-170 range with confidence ratings"
-  - "Reusable UI components render cleanly and pass unit tests"
-  - "Dashboard /app and /app/progress pages render responsive, accessible views"
+  - "p-value accurately matches proportion correct among scored responses"
+  - "Point-biserial accurately computes corrected item-rest Pearson correlation"
+  - "Negative point-biserial flags item as 'key-suspected' and underperforming items trigger warnings or auto-retirement"
+  - "Inngest job route stub triggers recalculation asynchronously"
   - "pnpm verify:fast is 100% green"
 verify: "pnpm turbo run build typecheck lint test --concurrency=2"
 verify_ladder: L0
 reviewer: "Sonnet 5.5 (high)"
 out_of_scope:
-  - "Batch item retirement background cron (P1-68)"
+  - "Full JMLE/CMLE Rasch calibration Python worker (offline tooling/irt/calibrate.py)"
 notes: "Zero local Docker containers. Strict 8 GB RAM constraints."
 ```
 
