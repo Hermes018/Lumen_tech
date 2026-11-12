@@ -11,46 +11,14 @@
 - Active tool: 3.8 Flash (High) / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
 - Current milestone: P0 Foundation & M0 Clickable Prototype (P0-12 to P0-16 completed); next delivery gate: M0 (GRE Priority)
-- Last session log: docs/logs/sessions/2026-11-12-data-auth-rbac-gre-seed.md
+- Last session log: docs/logs/sessions/2026-11-12-learner-dashboard-and-item-stats-batch.md
 - Active branch: main
-- Last green `pnpm verify`: P0-12, P0-13, P0-14, P0-15, P0-16, P0-22, P1-19, P1-20, P1-21, P1-22, P1-23 (29 tasks in turbo pipeline green)
+- Last green `pnpm verify`: P0-12 to P0-16, P0-22, P1-19, P1-20, P1-21, P1-22, P1-23, P1-24, P1-25, P1-66, P1-67, P1-68 (29 tasks in turbo pipeline green)
 - Phase in progress: P1 Core
 
 ## Current task
 
-```yaml
-id: P1-68
-title: "Item Statistics & Retirement Job (07 §8.6): p-values, Point-Biserial Discrimination, Exposure, Flag/Retire Rules"
-status: in_progress
-branch: task/P1-68-item-statistics
-owner_model: "3.8-flash"
-subagent: core-engineer
-depends_on: [P1-23]
-read:
-  - "docs/07-TEST-ENGINE.md#§8.6"
-touch:
-  - packages/core/src/exam/statistics.ts
-  - packages/core/src/exam/index.ts
-  - packages/core/src/__tests__/statistics.test.ts
-  - apps/web/app/api/inngest/route.ts
-do:
-  - In packages/core/src/exam/statistics.ts, implement classical p-value (difficulty/success rate), corrected point-biserial discrimination (item-rest correlation), distractor analysis, and exposure tracking
-  - Implement flagging and auto-retirement rules from 07 §8.6 (too hard/easy, weak/negative discrimination, key-suspected, over-exposed)
-  - Expose background job handler in apps/web/app/api/inngest/route.ts
-  - Write unit tests validating math against standard response matrices
-acceptance:
-  - "p-value accurately matches proportion correct among scored responses"
-  - "Point-biserial accurately computes corrected item-rest Pearson correlation"
-  - "Negative point-biserial flags item as 'key-suspected' and underperforming items trigger warnings or auto-retirement"
-  - "Inngest job route stub triggers recalculation asynchronously"
-  - "pnpm verify:fast is 100% green"
-verify: "pnpm turbo run build typecheck lint test --concurrency=2"
-verify_ladder: L0
-reviewer: "Sonnet 5.5 (high)"
-out_of_scope:
-  - "Full JMLE/CMLE Rasch calibration Python worker (offline tooling/irt/calibrate.py)"
-notes: "Zero local Docker containers. Strict 8 GB RAM constraints."
-```
+<!-- Cleared: batch P1-25 and P1-68 complete. Next task card ready to pick. -->
 
 ## Decisions needing the founder
 
@@ -236,7 +204,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-17 | IELTS Writing runner (Task 1/2, word counter, autosave) | 3.8-flash | deps: P1-14
 - [ ] P1-18 | IELTS Speaking runner (mic check, recording, parts 1-3, upload to R2) | 3.8-flash | deps: P1-14, P0-38
 - [x] P1-24 | SSLCommerz sandbox gateway, IPN webhook & secondary order validation, and course entitlements flow | 3.8-flash | deps: P1-23, P0-30
-- [ ] P1-68 | Item statistics and retirement job (07 §8.6): p-values, discrimination, exposure, retire/flag rules | 3.8-flash | deps: P1-23
+- [x] P1-68 | Item statistics and retirement job (07 §8.6): p-values, discrimination, exposure, retire/flag rules | 3.8-flash | deps: P1-23
 
 #### P1.5 AI evaluation (core) (gate: M0, M1, M2)
 
@@ -583,6 +551,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-67 | e7bcce5 | 3.8-flash | Mistake Notebook domain service in packages/core (Open/Resolved states, hint-free retry resolution, exclude_from_irt invariant) & /app/mistakes UI with taxonomy filtering |
 | 2026-11-12 | P1-24 | task-p1-24 | 3.8-flash | SSLCommerz sandbox gateway, IPN webhook & secondary order validation, VAT-inclusive BDT pricing, and checkout return fulfillment UI (/checkout & /checkout/return) |
 | 2026-11-12 | P1-25 | f3af667 | 3.8-flash | Learner Dashboard & Analytics UI (/app, /app/progress) with StreakPill, LevelProgressBar, and ScorePredictorChart |
+| 2026-11-12 | P1-68 | 27e513c | 3.8-flash | Item statistics & retirement engine in packages/core (p-value, corrected point-biserial, distractor analysis, exposure limits) & background Inngest cron route |
 
 ## Parking lot (not scheduled, add a task ID before work)
 

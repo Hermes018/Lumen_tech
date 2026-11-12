@@ -5,31 +5,34 @@
 
 ## Baton
 
-- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 13:50:00
-- Reason: batch completed (P1-67, P1-24)
+- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 15:52:00
+- Reason: Founder Override batch completed (P1-25, P1-68)
 - Branch: main                      Last commit SHA: (see git log)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-mistake-notebook-and-commerce-batch.md
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-learner-dashboard-and-item-stats-batch.md
 - Pushed to origin? authorized (`ALLOW_GIT_PUSH=1`)   Usage at handoff (5h / weekly %): nominal
 - Working tree clean? yes
-- Task: P1-68 - Item statistics & retirement job (or P1-25 packages/ai LLM adapter) - status: ready
-- Milestone gate in progress: M0 / M1 (GRE Adaptive Prototype & Magoosh Engine + Commerce)
+- Task: Next backlog task (e.g. P1-15 IELTS Listening runner or P1-56 Deepgram STT adapter) - status: ready
+- Milestone gate in progress: M0 / M1 (GRE Priority & Learner Analytics)
 - Baseline `pnpm verify` at handoff: PASS (29/29 turbo tasks cached/green, build 100% green)
 
 ## Done so far (this batch)
 
-1. P1-67: Mistake Notebook domain service (`packages/core/src/exam/mistakes.ts`): Open/Resolved states, D13 error taxonomy (careless_math, vocab_gap, concept_gap, trap_answer, misread_prompt, time_pressure), retry loop with hint-free resolution, and `exclude_from_irt: true` invariant. Full client UI at `/app/mistakes`.
-2. P1-24 (P1-32/P1-33): Commerce & SSLCommerz pipeline:
-   - Money arithmetic (`packages/core/src/commerce/money.ts`) with VAT-inclusive 5% breakdown.
-   - Gateway adapter (`packages/core/src/commerce/sslcommerz.ts`): transaction ID <= 30 chars, localVerifySign cryptographic hash verification, and secondary Order Validation API check (`validationserverAPI.php`).
-   - IPN webhook (`apps/web/app/api/webhooks/sslcommerz/route.ts`).
-   - Order checkout actions & UI at `/checkout` and `/checkout/return`.
-   - Entitlements engine (`packages/core/src/commerce/entitlements.ts`) activating course features immediately upon verified fulfillment.
+1. P1-25: Learner Dashboard & Analytics UI:
+   - Aggregation service (`packages/core/src/analytics/progress.ts`) with study streaks (consecutive active days, freeze tracking, 30-day calendar), Khan Academy style XP levels (10 tiers), and estimated GRE score predictor (strictly 130-170 bounds, section breakdown, target gap, confidence rating).
+   - Reusable UI primitives (`packages/ui`): `StreakPill`, `LevelProgressBar`, `ScorePredictorChart` (accessible SVG, zero heavy dependencies).
+   - Server action `apps/web/app/actions/analytics.ts` with `assertCan(actor, 'user:view_own')` security check.
+   - Learner Dashboard at `/app` and full analytics & mastery view at `/app/progress`.
+2. P1-68: Item Statistics & Retirement Engine (07 §8.6):
+   - Math engine (`packages/core/src/exam/statistics.ts`): classical p-values, corrected item-rest point-biserial correlation ($r_{pbis}$), option-level distractor analysis, and exposure limits.
+   - Flagging and retirement rules: too hard (<0.15), too easy (>0.95), weak discrimination (<0.15), key-suspected (negative $r_{pbis}$ or distractor beats key), over-exposed (>rMax), and auto-retirement for defective items.
+   - Background job stub in `apps/web/app/api/inngest/route.ts` (`analytics.refresh-question-stats`).
+   - 14 comprehensive unit tests in `packages/core/src/__tests__/statistics.test.ts`.
 
 ## Remaining steps (numbered, in order)
 
 1. Push `main` to `origin` with `ALLOW_GIT_PUSH=1 git push origin main`.
-2. Pick next task card: `P1-68` (Item statistics and retirement job) or `P1-25` (packages/ai multi-provider LLM adapter).
-3. Switch to task branch `gemini/<ID>-<slug>`.
+2. Pick next task card from `docs/PROGRESS.md`.
+3. Switch to task branch `gemini/<ID>-<slug>` or `task/<ID>-<slug>`.
 4. Implement, verify with `pnpm verify:fast`, merge to `main`.
 
 ## Exact next command / first action
@@ -38,21 +41,20 @@
 
 ## Decisions made (and why)
 
-- SSLCommerz raw IPN is strictly unauthenticated until secondary order validation server call succeeds (`validationserverAPI.php`) per docs/10 §3.2.
-- Mistake retries carry `exclude_from_irt: true` so repeated attempts do not distort IRT question item difficulty estimation.
-- 5% educational VAT is included in retail BDT prices with breakdowns displayed at checkout and return.
+- Zero new dependencies: used lightweight, highly responsive, WCAG 2.2 AA accessible SVG components for score predictor and streak tracking.
+- Classical psychometric formulas implemented with corrected item-rest calculations to prevent spurious inflation of item-total correlations.
 
 ## Known issues / failing tests
 
-- None (all 29 tasks across 8 packages passing; 81 unit tests green in @lumen/core).
+- None (all 29 tasks across 8 packages passing; 107 unit tests green in @lumen/core, 17 in @lumen/ui).
 
 ## Read first (max 5 paths or doc sections)
 
-- `docs/10-PAYMENTS-VIDEO-INTEGRATIONS.md#§3`
-- `docs/00-DECISIONS.md#D5`
-- `packages/core/src/commerce/checkout.ts`
-- `packages/core/src/commerce/sslcommerz.ts`
-- `apps/web/app/[locale]/(checkout)/checkout/return/page.tsx`
+- `docs/07-TEST-ENGINE.md#§8.6`
+- `docs/03-PRODUCT-SPEC.md#§5.2`
+- `packages/core/src/analytics/progress.ts`
+- `packages/core/src/exam/statistics.ts`
+- `apps/web/app/[locale]/(learner)/app/page.tsx`
 
 ## Do NOT touch
 
