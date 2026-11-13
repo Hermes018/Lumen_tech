@@ -242,7 +242,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 #### P1.7 Dashboards, learner features, comms & content (gate: M1, M2, M3)
 
 - [x] P1-37 | Learner dashboard & Finance console (/finance, Mushak 6.3 export, Target/Progress Promise claims) | 3.8-flash | deps: P1-23, P1-02
-- [ ] P1-38 | Instructor dashboard (courses, Q&A stub, analytics, earnings stub) | sonnet | deps: P0-37
+- [x] P1-38 | IELTS 4-skill mock runner (listening play-once audio, auto-submit, Speaking Part 2 timers, Band Report & CEFR card) | 3.8-flash | deps: P1-36
 - [x] P1-39 | Admin console: platform health KPIs, user & role inspector with super_admin guard (D4), append-only audit log | 3.8-flash | deps: P1-36, P0-39
 - [ ] P1-40 | Transactional email base: React Email layout, three streams, plain-text alt, en/bn render harness (template sets are owned by the docs/29 tasks in P1.11) | sonnet | deps: P0-17
 - [ ] P1-41 | Entitlement expiry reminders T-30/T-7/T-1 and expired notice (docs/29 scope; supersedes earlier T-7/T-1 scope) | sonnet | deps: P1-34, P1-164
@@ -569,6 +569,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-35 | ca41e00 | 3.8-flash | Course player service in packages/core/src/courses/player.ts (syllabus tree, engagement signals, 80% cert unlock), signed Bunny Stream video embed descriptor + dynamic anti-piracy watermark, and distraction-calm player UI at /app/learn/[course]/[lesson] |
 | 2026-11-13 | P1-36 | 3106153 | 3.8-flash | IELTS 4-skill raw-to-band conversion tables & official half-up rounding (packages/core), IELTS Writing (Task 1 + Task 2 weighted 2x) & Speaking (Nova-3 word timestamps, WPM, >0.8s pauses, filler density) AI evaluators (packages/ai), and IDP-faithful split-screen CBT preview at /exam/ielts-preview |
 | 2026-11-13 | P1-37 | 191aa57 | 3.8-flash | Finance Operations (packages/core/src/commerce/finance-ops.ts): Target Promise (Plus 90d extension) & Progress Promise (Mentor batch re-enrol) claims, Mushak 6.3 monthly VAT CSV export with formula-injection safety, /finance console, and /admin console with super_admin guard (D4) |
+| 2026-11-13 | P1-38 | task-p1-38 | 3.8-flash | IELTS 4-skill mock orchestrator in packages/core/src/exam/ielts-mock.ts (stateful lifecycle, play-once audio & rewind prevention, auto-submit, Speaking Part 2 timers, Band Report & CEFR card) and CBT runner UI at /exam/ielts/[attemptId] & /results |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
