@@ -5,60 +5,64 @@
 
 ## Baton
 
-- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-12 17:15:00
-- Reason: Autonomous Batch completed (P1-26, P1-27, P1-28)
-- Branch: main                      Last commit SHA: 8ab19e9
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-12-studio-ai-tutor-grader-batch.md
-- Pushed to origin? executing now (`ALLOW_GIT_PUSH=1`)   Usage at handoff: nominal
+- From: gemini   To: claude | gemini   Date/time (UTC): 2026-11-13 10:05:00
+- Reason: Autonomous Batch P1-29..P1-31 complete & Milestone M0 Clickable Prototype 100% Ready
+- Branch: main                      Last commit SHA: a349ba9
+- Device (hostname) / session log path: docs/logs/progress/2026-11-13-m0-prototype-readiness.md
+- Pushed to origin? Yes (synced with origin/main)   Usage at handoff: nominal
 - Working tree clean? yes
-- Task: Next backlog task (e.g. P1-15 IELTS Listening runner or P1-56 Deepgram STT adapter) - status: ready
-- Milestone gate in progress: M0 / M1 (Internal Alpha)
-- Baseline `pnpm verify` at handoff: PASS (30/30 turbo tasks cached/green, build 100% green)
+- Task: Next backlog task (e.g. P1-34 Entitlements or Content/Vocab Expansion) - status: ready
+- Milestone gate in progress: M0 Complete -> M1 Internal Alpha (GRE Core + Magoosh Engine)
+- Baseline `pnpm verify` at handoff: PASS (30/30 turbo tasks cached & green, 217 unit tests, 57 compiled routes)
 
-## Done so far (this batch)
+## Done so far (this batch: P1-29, P1-30, P1-31)
 
-1. P1-26: Question Authoring Studio & Immutable Versioning (/studio, /studio/questions/new):
-   - Domain service (`packages/core/src/studio/authoring.ts`): RBAC & mandatory 2FA enforcement via `assertCan`, D6 immutable versioning for published questions (incrementing `version_number` while pinning past attempts), and strict D13 interactive pedagogy validation (hints ladder, trap tags, Socratic steps, verbal deconstructor).
-   - Studio UI: Question bank authoring table with status/flag filters and interactive multi-tab D13 question editor with live learner preview.
-   - 13 comprehensive unit tests in `packages/core/src/__tests__/studio.test.ts`.
-2. P1-27: Grounded GRE AI Tutor Drawer & Study Plan Engine (/app/plan):
-   - Grounded AI Tutor (`packages/ai/src/tutor/socratic-tutor.ts`): daily tier quotas (Free 10, Core 30, Plus 150), PII redaction, Socratic spoiler guards protecting active answers, and grounded citations.
-   - Study Plan Engine (`packages/core/src/analytics/study-plan.ts`): week-by-week schedule based on target exam date and weak topics, with one-click Adaptive Rescheduling for Plus/Live tiers.
-   - UI: Slide-over "Ask AI Tutor" drawer in Practice Runner and full `/app/plan` view.
-   - Unit tests in `packages/ai/src/__tests__/socratic-tutor.test.ts` and `packages/core/src/__tests__/study-plan.test.ts`.
-3. P1-28: Human Grader Queue, AI Score Override & Append-Only Audit Log (/grader):
-   - Domain service (`packages/core/src/grader/queue.ts`): queue assignment for `grader` role with 2FA, 4-dimension 0-6 rubric scoring (0.5 step), mandatory 20-char rationale for overrides, human-vs-AI agreement delta KPI tracking (target &ge; 80%), and append-only `audit_log` event protocol per D7.
-   - UI: Split-pane Human Grader Workstation at `/grader` with live KPI header.
-   - 9 unit tests in `packages/core/src/__tests__/grader.test.ts`.
+1. P1-29: Flagship GRE/IELTS conversion pages & SEO tools:
+   - Flagship `/gre`, `/ielts`, `/courses` showcases highlighting Magoosh + GregMat + Brilliant parity suite.
+   - Live interactive GRE mini-widget directly on `/gre` (Quant QC with 3-tier Hint Ladder & Trap Diagnostics).
+   - Interactive SEO lead magnets: `/tools/gre-score-calculator` and `/tools/ielts-band-calculator`.
+2. P1-30: Honest pricing engine, regional PPP & coupon caps:
+   - Domain service (`packages/core/src/commerce/pricing.ts`): regional PPP resolution (BD in BDT VAT-inclusive, A/B/C in USD).
+   - D12 C14 honest `compare_at` validator requiring >= 28 consecutive days in past 90 days.
+   - Coupon discount caps & anti-cannibalization invariant (3-month pass >= 74.9% of Core).
+   - Interactive `/pricing` matrix with bKash 2/3-part installment breakdowns and checkout routing.
+   - Unit tests in `packages/core/src/__tests__/pricing.test.ts`.
+3. P1-31: Guest GRE Express Diagnostic & Public Certificate Verification:
+   - Domain services: `packages/core/src/exam/diagnostic.ts` and `packages/core/src/certificates/verify.ts`.
+   - Guest CBT runner (`/exam/diagnostic`, `/diagnostic`) with Rasch 1PL EAP scoring, trap diagnostics, and sign-up claim gate (`claimDiagnosticAttempt`).
+   - Public certificate verification (`/verify/[certId]`) with refund revocation rules.
+   - Unit tests in `packages/core/src/__tests__/diagnostic-and-certificates.test.ts`.
+4. Milestone M0 Audit: Completed in `docs/logs/progress/2026-11-13-m0-prototype-readiness.md`.
 
 ## Remaining steps (numbered, in order)
 
-1. Push `main` to `origin` with `$env:ALLOW_GIT_PUSH="1"; git push origin main`.
-2. Pick next task card from `docs/PROGRESS.md` (e.g. P1-15 IELTS Listening runner or P1-56 Deepgram STT adapter).
+1. Commit and push docs update (`docs/PROGRESS.md`, `docs/HANDOFF.md`, and `docs/logs/progress/2026-11-13-m0-prototype-readiness.md`).
+2. Pick next backlog task from `docs/PROGRESS.md` (e.g. P1-34 Entitlement service or Content/Vocab expansion).
 3. Switch to task branch `gemini/<ID>-<slug>` or `task/<ID>-<slug>`.
 4. Implement, verify with `pnpm verify:fast`, merge to `main`.
 
 ## Exact next command / first action
 
-`$env:ALLOW_GIT_PUSH="1"; git push origin main`
+`git status -sb`
 
 ## Decisions made (and why)
 
-- D6 immutable versioning strictly preserves historical exam attempt integrity by minting fresh version records on published item edits while drafts mutate in place.
-- Socratic spoiler guard enforces that active questions never disclose correct answer options or values before item submission.
-- Grade overrides mandate at least 20 characters of justification and permanently append to the audit log per D7.
+- D12 C14 honest pricing strictly prohibits fake strike-through discounts; `resolveCompareAtPrice` demands proof of >= 28 consecutive days at the higher price within the past 90 days.
+- 3-month pass (`pass-3m`: BDT 2,990) maintains 74.94% of IELTS Core (BDT 3,990), strictly adhering to the >= 74.9% anti-cannibalization threshold.
+- Guest diagnostics allow full 8-item CBT execution and initial Rasch scoring, but full breakdown and study plan generation require sign-up claim per D4.
+- Certificate verification immediately reflects `REVOKED` if an enrollment is refunded.
 
 ## Known issues / failing tests
 
-- None (all 30 turbo tasks cached & green, 134 core tests passing, 18 ai tests passing, 17 ui tests passing).
+- None (30/30 turbo tasks cached & green, 217 unit tests passing, 57 Next.js static routes compiled).
 
 ## Read first (max 5 paths or doc sections)
 
-- `docs/00-DECISIONS.md#D4-D7`
-- `packages/core/src/studio/authoring.ts`
-- `packages/ai/src/tutor/socratic-tutor.ts`
-- `packages/core/src/grader/queue.ts`
-- `apps/web/app/[locale]/(grader)/grader/page.tsx`
+- `docs/00-DECISIONS.md#D2-D5`
+- `docs/logs/progress/2026-11-13-m0-prototype-readiness.md`
+- `packages/core/src/commerce/pricing.ts`
+- `packages/core/src/exam/diagnostic.ts`
+- `packages/core/src/certificates/verify.ts`
 
 ## Do NOT touch
 
@@ -66,4 +70,5 @@
 
 ## Needs Opus review (security-critical paths touched)
 
-- [ ] `packages/core/src/studio/authoring.ts` & `packages/core/src/grader/queue.ts` (Staff RBAC & Audit log protocol - low/med review).
+- [ ] `packages/core/src/commerce/pricing.ts` (pricing resolution, coupon caps, compare_at validator - low/med review).
+- [ ] `packages/core/src/certificates/verify.ts` (certificate issuance & revocation rules - low/med review).

@@ -7,18 +7,18 @@
 
 ## Status
 
-- Date updated: 2026-11-12
+- Date updated: 2026-11-13
 - Active tool: 3.8 Flash (High) / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: P0 Foundation & M0 Clickable Prototype (P0-12 to P0-16 completed); next delivery gate: M0 (GRE Priority)
-- Last session log: docs/logs/sessions/2026-11-12-learner-dashboard-and-item-stats-batch.md
+- Current milestone: M0 Clickable Prototype COMPLETE (Audit 100% Green); Next delivery gate: M1 Internal Alpha (GRE Core + Magoosh Engine)
+- Last session log: docs/logs/progress/2026-11-13-m0-prototype-readiness.md
 - Active branch: main
-- Last green `pnpm verify`: P0-12 to P0-16, P0-22, P1-19, P1-20, P1-21, P1-22, P1-23, P1-24, P1-25, P1-66, P1-67, P1-68 (29 tasks in turbo pipeline green)
+- Last green `pnpm verify`: P1-29, P1-30, P1-31 (30 turbo tasks cached & green across monorepo, 217 unit tests, 57 compiled routes)
 - Phase in progress: P1 Core
 
 ## Current task
 
-<!-- Cleared: task P1-26 complete. Ready for P1-27. -->
+<!-- Cleared: batch P1-29 to P1-31 complete. Milestone M0 verified and merged to main. -->
 
 ## Decisions needing the founder
 
@@ -555,6 +555,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-12 | P1-26 | 9b71a2e | 3.8-flash | Question Authoring Studio (/studio), D6 immutable versioning for published questions, D13 pedagogy editor & preview |
 | 2026-11-12 | P1-27 | 71a82bc | 3.8-flash | Grounded GRE AI Tutor drawer with tier message quotas, spoiler guards, PII redaction, and adaptive study plan engine (/app/plan) |
 | 2026-11-12 | P1-28 | 4a21e0f | 3.8-flash | Human Grader Workstation (/grader), mandatory 20-char rationale for AI score overrides, agreement KPI tracker, and append-only audit log protocol |
+| 2026-11-13 | P1-29 | 38d22e1 | 3.8-flash | GRE-first marketing pages (/gre, /ielts, /courses), interactive live QC widget with hint ladder & trap diagnostics, and SEO score calculators |
+| 2026-11-13 | P1-30 | 546a572 | 3.8-flash | Honest pricing engine (D12 C14 28-of-90-day compare_at rule), regional PPP (BD/A/B/C), coupon discount caps, bKash 2/3-part installment schedules, and /pricing comparison matrix |
+| 2026-11-13 | P1-31 | ff28331 | 3.8-flash | Guest GRE Express Diagnostic CBT runner with Rasch EAP scoring & gated results claim, public certificate verification & refund revocation (/verify/[certId]) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
