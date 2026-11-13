@@ -7,3 +7,4 @@ export * from './adaptive';
 export * from './mistakes';
 export * from './statistics';
 export * from './diagnostic';
+export * from './ielts-scoring';
