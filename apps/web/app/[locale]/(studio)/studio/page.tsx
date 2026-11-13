@@ -17,20 +17,21 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { listStudioQuestionsAction } from '../../../actions/studio';
-import { GRE_MAGOOSH_SEED_QUESTIONS } from '@lumen/db';
+import { GRE_MAGOOSH_SEED_QUESTIONS, type SeedGreQuestion } from '@lumen/db';
+import type { QuestionListItem } from '@lumen/core';
 
 export default async function StudioOverviewPage() {
   const existingQuestions = await listStudioQuestionsAction();
 
   // Combine with seed questions for initial exploration
-  const questions = existingQuestions.length > 0 ? existingQuestions : GRE_MAGOOSH_SEED_QUESTIONS.map((q, idx) => ({
+  const questions: QuestionListItem[] = existingQuestions.length > 0 ? existingQuestions : GRE_MAGOOSH_SEED_QUESTIONS.map((q: SeedGreQuestion, idx: number) => ({
     id: q.id,
     examType: 'gre',
     section: (q.questionType.includes('qc') || q.questionType.includes('numeric') || q.topicSlug.includes('algebra') || q.topicSlug.includes('geometry') || q.topicSlug.includes('arithmetic') || q.topicSlug.includes('statistics') ? 'quant' : 'verbal') as 'quant' | 'verbal',
     topicSlug: q.topicSlug,
     questionType: q.questionType,
     promptSnippet: q.promptMd.slice(0, 90) + '...',
-    status: (idx % 4 === 0 ? 'in_review' : idx % 5 === 0 ? 'draft' : 'published') as 'draft' | 'in_review' | 'published' | 'retired',
+    status: (idx % 4 === 0 ? 'review' : idx % 5 === 0 ? 'draft' : 'published') as QuestionListItem['status'],
     versionNumber: idx === 1 ? 2 : 1, // sample v2 to show D6 versioning
     authorId: 'staff-editor-01',
     updatedAt: new Date().toISOString(),

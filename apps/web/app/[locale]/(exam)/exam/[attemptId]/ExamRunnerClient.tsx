@@ -601,7 +601,7 @@ export function ExamRunnerClient({
             <p className="font-serif text-base leading-relaxed">{currentQ.promptMd}</p>
 
             <div className="space-y-3 pt-2">
-              {currentQ.options.map((choice, idx) => {
+              {currentQ.options.map((choice: { id: string; text: string }, idx: number) => {
                 const isSelected = userAnswers[currentQ.id] === choice.id;
                 return (
                   <label

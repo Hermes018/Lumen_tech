@@ -48,9 +48,9 @@ export default function PracticeSessionRunnerPage() {
   const [questions] = React.useState<SeedGreQuestion[]>(() => {
     // If session ID specifies an item, put that item first
     const specificId = sessionId.replace('sess-item-', '');
-    const found = GRE_MAGOOSH_SEED_QUESTIONS.find((q) => q.id === specificId);
+    const found = GRE_MAGOOSH_SEED_QUESTIONS.find((q: SeedGreQuestion) => q.id === specificId);
     if (found) {
-      return [found, ...GRE_MAGOOSH_SEED_QUESTIONS.filter((q) => q.id !== specificId)];
+      return [found, ...GRE_MAGOOSH_SEED_QUESTIONS.filter((q: SeedGreQuestion) => q.id !== specificId)];
     }
     return GRE_MAGOOSH_SEED_QUESTIONS.slice(0, 5);
   });
@@ -226,13 +226,13 @@ export default function PracticeSessionRunnerPage() {
           correctAnswers: activeQuestion.correctAnswers,
           userSelectedAnswer: selectedChoices[0] || numericEntryValue,
           revealedHintTiers: activeQState.revealedHintTiers,
-          hints: activeQuestion.hints.map((h) => ({
+          hints: activeQuestion.hints.map((h: { tier: 1 | 2 | 3; label: string; content_md: string }) => ({
             tier: h.tier,
             label: h.label,
             content: h.content_md,
           })),
           writtenExplanationMd: activeQuestion.writtenExplanationMd,
-          steps: activeQuestion.steps.map((s) => ({
+          steps: activeQuestion.steps.map((s: { step_index: number; prompt_md: string; takeaway_md: string }) => ({
             stepNumber: s.step_index,
             prompt: s.prompt_md,
             takeaway: s.takeaway_md,
@@ -385,7 +385,7 @@ export default function PracticeSessionRunnerPage() {
             >
               {/* Choices wrapped inside deconstructor */}
               <div className="space-y-2 pt-2">
-                {activeQuestion.options.map((opt) => {
+                {activeQuestion.options.map((opt: { id: string; text: string }) => {
                   const isSelected = selectedChoices.includes(opt.id);
                   const isCorrectAnswer = activeQuestion.correctAnswers.includes(opt.id);
 
@@ -451,7 +451,7 @@ export default function PracticeSessionRunnerPage() {
                 </div>
               ) : (
                 <div className="space-y-2 pt-2">
-                  {activeQuestion.options.map((opt) => {
+                  {activeQuestion.options.map((opt: { id: string; text: string }) => {
                     const isSelected = selectedChoices.includes(opt.id);
                     const isCorrectAnswer = activeQuestion.correctAnswers.includes(opt.id);
 

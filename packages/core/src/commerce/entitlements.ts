@@ -2,6 +2,11 @@
 
 import { assertCan, type Actor } from '../auth/policy';
 import { CANONICAL_PRODUCTS, type ProductDefinition } from './products';
+import {
+  getRepositories,
+  resetRepositories,
+  type EntitlementRecord as DbEntitlementRecord,
+} from '@lumen/db';
 
 export type EntitlementTier = 'free' | 'core' | 'pass' | 'plus' | 'live' | 'mentor';
 
@@ -114,6 +119,11 @@ export function resetEntitlementLedgerState(): void {
   appendOnlyLedger.length = 0;
   ledgerByIdempotencyKey.clear();
   activeUserLocks.clear();
+  try {
+    resetRepositories();
+  } catch {
+    // testing
+  }
 }
 
 function appendLedgerEntry(
@@ -138,6 +148,21 @@ function appendLedgerEntry(
 
   appendOnlyLedger.push(frozen);
   ledgerByIdempotencyKey.set(frozen.idempotencyKey, frozen);
+  try {
+    void getRepositories().ledger.save({
+      id: frozen.id,
+      userId: frozen.userId,
+      kind: frozen.kind,
+      delta: frozen.delta,
+      balanceAfter: frozen.delta,
+      reason: frozen.reason,
+      sourceRef: frozen.sourceRef,
+      idempotencyKey: frozen.idempotencyKey,
+      createdAt: frozen.createdAt,
+    });
+  } catch {
+    // repository persistence
+  }
   return { entry: frozen, idempotentReplay: false };
 }
 
@@ -233,6 +258,12 @@ export function grantEntitlement(
 
   if (meta?.idempotencyKey) {
     entitlementByIdempotencyKey.set(meta.idempotencyKey, record);
+  }
+
+  try {
+    void getRepositories().entitlements.save(record as unknown as DbEntitlementRecord);
+  } catch {
+    // repository persistence
   }
 
   // Append initial positive grants into the append-only ledger
