@@ -207,6 +207,12 @@ export function startIeltsSection(
   if (attempt.status === 'completed') {
     throw new Error('Attempt is already completed.');
   }
+  if (attempt.currentSection !== section) {
+    throw new Error(`Cannot start "${section}" while attempt is at "${attempt.currentSection}".`);
+  }
+  if (attempt.sectionTimers[section].submittedAt) {
+    throw new Error(`Section "${section}" was already submitted.`);
+  }
 
   const updated: IeltsMockAttempt = {
     ...attempt,
@@ -357,10 +363,18 @@ export function submitSectionAnswers(
   answers: IeltsMockAttemptAnswers[IeltsSectionType],
   now: Date = new Date()
 ): IeltsMockAttempt {
-  if (attempt.currentSection !== section && attempt.status !== section) {
+  if (attempt.currentSection !== section) {
     throw new Error(
       `Cannot submit answers for "${section}" while attempt is at "${attempt.currentSection}".`
     );
+  }
+  if (attempt.sectionTimers[section].submittedAt) {
+    throw new Error(`Section "${section}" was already submitted.`);
+  }
+
+  const sync = checkAndEnforceSectionExpiry(attempt, section, now);
+  if (sync.isExpired) {
+    throw new Error(`Section "${section}" has expired; answers rejected.`);
   }
 
   const nextSection = getNextIeltsSection(section);
@@ -526,4 +540,20 @@ export function aggregateIeltsBandReport(params: {
       },
     },
   };
+}
+
+// In-memory store for active IELTS mock attempts (server-authoritative ownership & completion state)
+const ieltsMockAttemptsMap = new Map<string, IeltsMockAttempt>();
+
+export function saveIeltsMockAttempt(attempt: IeltsMockAttempt): IeltsMockAttempt {
+  ieltsMockAttemptsMap.set(attempt.id, attempt);
+  return attempt;
+}
+
+export function getIeltsMockAttempt(attemptId: string): IeltsMockAttempt | null {
+  return ieltsMockAttemptsMap.get(attemptId) ?? null;
+}
+
+export function resetIeltsMockAttempts(): void {
+  ieltsMockAttemptsMap.clear();
 }

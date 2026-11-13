@@ -134,6 +134,8 @@ describe('IELTS Mock Orchestrator & Lifecycle', () => {
         userId: 'usr_timer',
         track: 'ielts_academic',
       });
+      attempt = startIeltsSection(attempt, 'listening', now);
+      attempt = submitSectionAnswers(attempt, 'listening', {}, now);
       attempt = startIeltsSection(attempt, 'reading', now);
 
       const checkTime = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes later (allowed 60 mins)

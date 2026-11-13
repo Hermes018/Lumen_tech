@@ -5,10 +5,20 @@ import { z } from '@lumen/config';
 import {
   requireServerActor,
   assertCan,
+  AuthorizationError,
   aggregateIeltsBandReport,
+  createIeltsMockAttempt,
+  getIeltsMockAttempt,
+  saveIeltsMockAttempt,
+  consumeAiCredit,
   type IeltsTrack,
   type IeltsBandReport,
 } from '@lumen/core';
+import {
+  redactIeltsPii,
+  applyWritingLengthPenalties,
+  evaluateIeltsSpeakingFromMetrics,
+} from '@lumen/ai';
 
 export interface IeltsMockExamData {
   attemptId: string;
@@ -85,6 +95,17 @@ export async function fetchIeltsMockExamData(
 ): Promise<IeltsMockExamData> {
   const actor = await requireServerActor();
   assertCan(actor, 'exam:take', { ownerId: actor.id });
+
+  if (!getIeltsMockAttempt(attemptId)) {
+    saveIeltsMockAttempt(
+      createIeltsMockAttempt({
+        id: attemptId,
+        userId: actor.id,
+        track,
+        strictMockMode: true,
+      })
+    );
+  }
 
   return {
     attemptId,
@@ -240,50 +261,88 @@ export async function completeIeltsMockAction(
   const actor = await requireServerActor();
   assertCan(actor, 'exam:take', { ownerId: actor.id });
 
-  // Calculate Listening raw score
-  // Model answer key simulation:
+  // 1. Load stored attempt, verify ownership, and prevent duplicate scoring
+  const attempt = getIeltsMockAttempt(input.attemptId);
+  if (!attempt) {
+    throw new Error(`IELTS mock attempt '${input.attemptId}' not found`);
+  }
+  if (attempt.userId !== actor.id) {
+    throw new AuthorizationError('Cannot complete an IELTS mock attempt owned by another user');
+  }
+  if (attempt.report) {
+    throw new Error(`IELTS mock attempt '${input.attemptId}' has already been scored`);
+  }
+
+  // 2. Deterministic Listening & Reading scoring from 0 against stored section answer keys
   const listeningKey: Record<string, string> = {
     l1: 'Single studio apartment',
     l2: '15 September',
     l3: 'Laundry room',
     l4: '25',
   };
-  let listeningRaw = 28; // base baseline
+  let listeningRaw = 0;
   for (const [k, v] of Object.entries(input.listeningAnswers)) {
-    if (listeningKey[k] && v.toLowerCase().includes(listeningKey[k]!.toLowerCase().slice(0, 4))) {
-      listeningRaw = Math.min(40, listeningRaw + 3);
+    if (listeningKey[k] && v.trim().toLowerCase() === listeningKey[k]!.toLowerCase()) {
+      listeningRaw = Math.min(40, listeningRaw + 1);
     }
   }
 
-  // Calculate Reading raw score
   const readingKey: Record<string, string> = {
     r1: 'FALSE',
     r2: 'TRUE',
     r3: 'Directing food and nutrients toward the mounds',
     r4: 'FALSE',
   };
-  let readingRaw = 29;
+  let readingRaw = 0;
   for (const [k, v] of Object.entries(input.readingAnswers)) {
-    if (readingKey[k] && v.toUpperCase() === readingKey[k]!.toUpperCase()) {
-      readingRaw = Math.min(40, readingRaw + 3);
+    if (readingKey[k] && v.trim().toUpperCase() === readingKey[k]!.toUpperCase()) {
+      readingRaw = Math.min(40, readingRaw + 1);
     }
   }
 
-  // Assess Writing word count & estimated bands
-  const t1Words = input.writingAnswers.task1.trim().split(/\s+/).filter(Boolean).length;
-  const t2Words = input.writingAnswers.task2.trim().split(/\s+/).filter(Boolean).length;
+  // 3. Idempotent AI credit deduction (D12 C1)
+  consumeAiCredit(actor, {
+    userId: actor.id,
+    evaluationType: 'writing_task',
+    idempotencyKey: `${input.attemptId}:writing`,
+    ref: input.attemptId,
+  });
+  consumeAiCredit(actor, {
+    userId: actor.id,
+    evaluationType: 'speaking_full',
+    idempotencyKey: `${input.attemptId}:speaking`,
+    ref: input.attemptId,
+  });
 
-  let task1Band = 6.5;
-  if (t1Words >= 150) task1Band = 7.0;
-  if (t1Words < 100) task1Band = 5.5;
+  // 4. Redact PII before evaluation
+  const candidateNames = actor.name ? [actor.name] : [];
+  const redactedTask1 = redactIeltsPii(input.writingAnswers.task1, candidateNames);
+  const redactedTask2 = redactIeltsPii(input.writingAnswers.task2, candidateNames);
+  const redactedTranscript = redactIeltsPii(input.speakingData.part2Transcript, candidateNames);
 
-  let task2Band = 7.0;
-  if (t2Words >= 250) task2Band = 7.5;
-  if (t2Words < 180) task2Band = 5.5;
+  // 5. Evaluate Writing & Speaking via @lumen/ai
+  const t1Words = redactedTask1.trim().split(/\s+/).filter(Boolean).length;
+  const t2Words = redactedTask2.trim().split(/\s+/).filter(Boolean).length;
+  const task1Type = input.track === 'ielts_gt' ? 'task1_gt' : 'task1_academic';
+  const task1Band = applyWritingLengthPenalties(task1Type, t1Words, t1Words === 0 ? 0 : 7.0);
+  const task2Band = applyWritingLengthPenalties('task2', t2Words, t2Words === 0 ? 0 : 7.0);
 
-  // Assess Speaking estimated criteria
-  const speakingWords = input.speakingData.part2Transcript.trim().split(/\s+/).filter(Boolean).length;
-  const fluency = speakingWords >= 180 ? 7.5 : speakingWords >= 100 ? 7.0 : 6.0;
+  const speakingWords = redactedTranscript.trim().split(/\s+/).filter(Boolean).length;
+  const speakingEval = evaluateIeltsSpeakingFromMetrics(
+    {
+      wordsCount: speakingWords,
+      totalDurationSeconds: 120,
+      speakingDurationSeconds: speakingWords > 0 ? 105 : 0,
+      wpm: speakingWords > 0 ? Math.round((speakingWords / 120) * 60) : 0,
+      pausesCount: 0,
+      hesitationsCount: 0,
+      hesitationsPerMinute: 1.0,
+      fillerCount: 0,
+      fillerDensity: 0.01,
+      meanConfidence: speakingWords > 0 ? 0.92 : 0.5,
+    },
+    redactedTranscript
+  );
 
   const report = aggregateIeltsBandReport({
     attemptId: input.attemptId,
@@ -298,12 +357,20 @@ export async function completeIeltsMockAction(
     },
     speaking: {
       criteria: {
-        fluencyAndCoherence: fluency,
-        lexicalResource: 7.0,
-        grammaticalRangeAndAccuracy: 7.0,
-        pronunciation: 7.5,
+        fluencyAndCoherence: speakingEval.dimensions.fluency_coherence.band,
+        lexicalResource: speakingEval.dimensions.lexical_resource.band,
+        grammaticalRangeAndAccuracy: speakingEval.dimensions.grammar_range_accuracy.band,
+        pronunciation: speakingEval.dimensions.pronunciation.band,
       },
     },
+  });
+
+  saveIeltsMockAttempt({
+    ...attempt,
+    status: 'completed',
+    currentSection: 'completed',
+    completedAt: report.completedAt,
+    report,
   });
 
   return report;
