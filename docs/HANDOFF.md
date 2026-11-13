@@ -5,47 +5,57 @@
 
 ## Baton
 
-- From: gemini (Gemini 3.8 Flash High)   To: next agent / founder review   Date/time (UTC): 2026-11-13 17:01:00
-- Reason: Stage 6 (P1-38 IELTS 4-Skill Mock Runner + P1-39 Notifications & PDPO Consent + P1-40 SEO/Bilingual/Load-test Harness) complete & merged to `main`
+- From: gemini (Gemini 3.8 Flash High)   To: next agent / founder review   Date/time (UTC): 2026-11-13 17:38:00
+- Reason: Stage 7 (Lint fix + P1-41 Manual bKash/Nagad Fallback + P1-42 Playwright E2E Suite + P1-43 Prod Security & Edge Middleware) complete & merged to `main`
 - Branch: main                      Last commit SHA: (main merged)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-13-gemini-stage6.md
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-13-gemini-stage7.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict anti-polling rule)
 - Working tree clean? yes
-- Task: Stage 6 (P1-38, P1-39, P1-40) - status: complete
+- Task: Stage 7 (Lint fix, P1-41, P1-42, P1-43) - status: complete
 - Milestone gate in progress: M1 Internal Alpha / M2 Closed Pilot
-- Tests passing: 261 total unit tests in `@lumen/core` (24/24 test files green)
-- TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental` clean)
+- Tests passing: 269 total unit tests in `@lumen/core` (25/25 test files green); 30/30 turbo tasks green in `pnpm verify:fast`
+- TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental` and `tsconfig.e2e.json` clean)
 
-## Done so far (Stage 6)
+## Done so far (Stage 7)
 
-1. Branch 1 (`task/P1-38-ielts-full-mock-runner` -> `main`):
-   - Built `packages/core/src/exam/ielts-mock.ts` with stateful 4-section lifecycle (`listening -> reading -> writing -> speaking -> completed`), strict play-once audio & rewind prevention, auto-submit on timer expiry, Speaking Part 2 timers (1-min prep + 2-min recording), and Band Report aggregation (raw Listening/Reading + AI Writing/Speaking + CEFR A1-C2).
-   - Built full IELTS CBT Mock Runner UI (`/exam/ielts/[attemptId]`) and Score Report card (`/exam/ielts/[attemptId]/results`).
-2. Branch 2 (`task/P1-39-notifications-and-pdpo-consent` -> `main`):
-   - Built `packages/core/src/notifications/dispatcher.ts` with transactional notification templates (Order Receipt + Mushak 6.3 summary, Refund Confirmation, AI Essay Graded, Streak Risk Nudge, Live Class T-60m Reminder), user opt-out checks, and Asia/Dhaka quiet-hours suppression (22:00–08:00 UTC+6).
-   - Implemented Bangladesh PDPO 2025 Under-18 Guardian Consent State Machine (`unverified -> consent_requested -> verified -> revoked`), feature access guards for minors, and data portability/erasure controls.
-   - Wired Guardian Consent and PDPO controls into `/app/settings` via `GuardianConsentAndPdpoPanel`.
-3. Branch 3 (`task/P1-40-seo-i18n-and-concurrency-bench` -> `main`):
-   - Created localized (`en` & `bn`) `apps/web/app/sitemap.ts` and `apps/web/app/robots.ts` covering all public routes.
-   - Synchronized `apps/web/messages/en.json` and `bn.json` with 100% key parity, verified by fast unit test.
-   - Built deterministic concurrency stress harness in `packages/core/src/__tests__/pilot-concurrency.test.ts` firing 50 concurrent `consumeAiCredit` debits and 50 duplicate SSLCommerz IPN webhooks against 5 credits, mathematically proving zero negative balances and zero double-fulfillments under load.
-   - Added in-flight concurrency lock in `packages/core/src/commerce/checkout.ts`.
+1. Branch 0 (`task/fix-lint-pdpo-test` -> `main`):
+   - Removed unused `isMandatoryNotification` import in `packages/core/src/__tests__/notifications-pdpo.test.ts` to ensure 100% clean ESLint run.
+2. Branch 1 (`task/P1-41-manual-bkash-fallback` -> `main`):
+   - Implemented `submitManualPayment(orderId, method, trxId, senderNumber)` in `packages/core/src/commerce/manual-pay.ts` (transitions order to `pending_verification`).
+   - Implemented `approveManualPayment(orderId, staffId)` guarded by `assertCan(actor, 'finance:write')` + 2FA, fulfilling standard entitlements and updating ledger/order. Added `rejectManualPayment` and `listPendingManualPayments`.
+   - Wired fallback "Manual bKash / Nagad" tab into `/checkout` (displaying merchant numbers `01894928001`/`01894928002` + TrxID form) and "Pending Approvals" queue into `/finance` console for 1-click staff approvals.
+3. Branch 2 (`task/P1-42-playwright-e2e-suite` -> `main`):
+   - Created `apps/web/playwright.config.ts` targeting Chromium, Firefox, WebKit (`baseURL: http://127.0.0.1:3000`, 8GB RAM worker: 1).
+   - Wrote E2E specs in `apps/web/tests/e2e/`: `checkout.spec.ts` (pricing -> checkout -> manual bKash/Nagad form) and `exam-runner.spec.ts` (IELTS mock preview -> split-screen reading passage -> highlighter & notes tools).
+   - Installed Chromium binary and validated syntax with `tsconfig.e2e.json`.
+4. Branch 3 (`task/P1-43-prod-config-and-security` -> `main`):
+   - Implemented strict production HTTP security headers in `apps/web/next.config.ts`: CSP blocking `unsafe-inline` scripts, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security` (HSTS), and Bunny Stream iframe allowlist.
+   - Created `apps/web/vercel.json` with 1-year immutable caching for static assets.
+   - Created Edge Runtime compliant `apps/web/middleware.ts` combining next-intl locale routing, Better Auth session guards, and PDPO minor consent verification with zero Node.js built-ins.
+   - Cleared all unused ESLint warnings across `@lumen/web` and confirmed `pnpm verify:fast` green (30/30 tasks).
 
 ## Remaining steps (numbered, in order)
 
-1. Founder review and push: `pnpm verify:fast && ALLOW_GIT_PUSH=1 git push origin main`.
+1. Founder review and push: `ALLOW_GIT_PUSH=1 git push origin main` in Konsole.
 2. Continue next backlog items in `docs/PROGRESS.md`.
 
 ## Exact next command / first action
 
-`pnpm verify:fast && ALLOW_GIT_PUSH=1 git push origin main`
+`ALLOW_GIT_PUSH=1 git push origin main`
 
 ## Decisions made (and why)
 
-- Enforced in-flight promise locking in `fulfillOrder` to eliminate concurrent webhook double-fulfillment race conditions before database/memory state commits.
-- Suppressed non-mandatory notifications during Bangladesh quiet hours (22:00–08:00 Asia/Dhaka) while allowing mandatory order receipts and OTPs to bypass immediately.
-- Enforced strict PDPO 2025 minor safeguards: blocked public posting and commercial 3rd-party analytics for minor accounts until guardian consent is verified.
+- Added `finance:write` permission to `@lumen/auth` with mandatory 2FA enforcement to secure manual payment ledger approvals.
+- Maintained strict Edge Runtime compatibility in `middleware.ts` by reading standard request cookies without importing Node.js `crypto` or `fs`.
+- Set `workers: 1` in Playwright config and skipped headless execution locally to protect 8GB RAM constraint while guaranteeing full type and syntax validity.
+
+## Security-critical files touched (needs two-key review)
+
+- `packages/auth/src/permissions.ts`
+- `packages/core/src/commerce/manual-pay.ts`
+- `apps/web/next.config.ts`
+- `apps/web/middleware.ts`
 
 ## Known issues / failing tests
 
-- None. 261/261 unit tests passing in `@lumen/core`. 0 type errors.
+- None. 269/269 unit tests passing in `@lumen/core`. 30/30 turbo tasks passed.

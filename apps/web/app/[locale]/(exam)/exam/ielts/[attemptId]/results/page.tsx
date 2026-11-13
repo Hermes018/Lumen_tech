@@ -2,8 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Award, CheckCircle2, ChevronRight, FileText, Info } from 'lucide-react';
-import { aggregateIeltsBandReport, OFFICIAL_IELTS_DISCLAIMER } from '@lumen/core';
+import { Award, Info } from 'lucide-react';
+import { aggregateIeltsBandReport } from '@lumen/core';
 
 export default async function IeltsMockResultsPage({
   params,

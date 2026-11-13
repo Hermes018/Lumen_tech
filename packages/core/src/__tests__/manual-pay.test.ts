@@ -10,7 +10,6 @@ import {
   isValidBdPhoneNumber,
   isValidTrxId,
   createOrder,
-  getOrderByRef,
   resetEntitlementLedgerState,
   getUserEntitlements,
   AuthorizationError,

@@ -4,21 +4,13 @@
 import React, { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Volume2,
-  VolumeX,
   Play,
   Clock,
   ChevronRight,
-  ChevronLeft,
   Eye,
   EyeOff,
-  AlertTriangle,
   Mic,
-  MicOff,
-  CheckCircle2,
-  FileText,
   Award,
-  Sparkles,
   Info,
   ShieldAlert,
 } from 'lucide-react';

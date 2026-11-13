@@ -55,9 +55,9 @@ export async function requestGuardianConsentAction(rawInput: {
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
 
-  let state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
+  const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
 
-  const { state: nextState, otpNotification } = requestGuardianConsent(state, {
+  const { state: nextState, otpNotification: _otpNotification } = requestGuardianConsent(state, {
     guardianEmail: input.guardianEmail,
     guardianPhone: input.guardianPhone,
     studentName: actor.id.slice(0, 8),

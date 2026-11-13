@@ -44,7 +44,7 @@ export function GuardianConsentAndPdpoPanel() {
       try {
         const state = await getGuardianConsentStatusAction();
         setConsentState(state);
-      } catch (e) {
+      } catch {
         // Fallback for unauthenticated dev view
         setConsentState({
           studentId: 'guest_or_dev',

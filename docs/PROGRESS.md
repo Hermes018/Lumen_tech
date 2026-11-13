@@ -247,7 +247,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-40 | SEO & metadata (sitemap.ts, robots.ts), bilingual dictionary parity (en/bn), and pilot concurrency & ledger stress harness | 3.8-flash | deps: P0-17, P1-39
 - [x] P1-41 | Entitlement expiry reminders T-30/T-7/T-1 and expired notice (docs/29 scope; supersedes earlier T-7/T-1 scope) | sonnet | deps: P1-34, P1-164
 - [x] P1-42 | Legal page shells, footer links and trademark notices (C31 verbatim); real content only from counsel-signed MDX (docs/26) | haiku | deps: P0-32
-- [ ] P1-43 | SEO: IELTS/GRE landing pages, structured data (Course, FAQ), blog scaffold | sonnet | deps: P0-42
+- [x] P1-43 | SEO: IELTS/GRE landing pages, structured data (Course, FAQ), blog scaffold | sonnet | deps: P0-42
 - [ ] P1-44 | Analytics instrumentation: domain-event mappers and client events per docs/32 §5 (supersedes earlier scope) | sonnet | deps: P0-41, P0-70, P1-119
 - [ ] P1-45 | Seed IELTS/GRE course skeletons and original sample questions | haiku | deps: P1-09, P0-40, P1-58
 - [ ] P1-83 | Haiku batch translation runner `tooling/scripts/i18n-draft.ts` (glossary + translation memory, idempotent, per-item output files, created/skipped/failed report) | sonnet | deps: P0-64
@@ -574,6 +574,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-40 | task-p1-40 | 3.8-flash | Localized sitemap.ts & robots.ts (en/bn public routes), 100% bilingual dictionary parity test, and pilot concurrency & ledger stress test (50 concurrent consumeAiCredit & duplicate SSLCommerz IPN webhooks) |
 | 2026-11-13 | P1-41 | task-p1-41 | 3.8-flash | Manual bKash/Nagad fallback gateway (packages/core/src/commerce/manual-pay.ts), TrxID verification, staff 2FA approval queue in /finance, and checkout UI fallback tab |
 | 2026-11-13 | P1-42 | task-p1-42 | 3.8-flash | Playwright E2E suite setup (Chromium/Firefox/WebKit, baseURL :3000), checkout flow spec, and IELTS mock runner split-screen spec |
+| 2026-11-13 | P1-43 | task-p1-43 | 3.8-flash | Production security headers (CSP, HSTS, X-Frame-Options DENY, Bunny iframe allowlist), Vercel static asset cache rules (vercel.json), and Edge Runtime middleware (next-intl + Better Auth + PDPO) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
