@@ -187,7 +187,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-13 | Objective scoring + conversion tables (IELTS raw to band, GRE scaled) as data | sonnet | deps: P1-12
 - [ ] P1-14 | CBT shell UI: timer, navigator, flag, review screen, offline-tolerant autosave | sonnet | deps: P1-12, P0-27
 - [ ] P1-55 | Exam offline queue: IndexedDB outbox (`idb`, db `lumen-exam`), clientSeq/epoch, backoff replay; exam mode replays only within the 30 s grace, practice mode any time (D6) | sonnet | deps: P1-12, P1-14
-- [ ] P1-64 | Exam-disruption handling (C30): 'I lost connection' self-serve void once per attempt (connection loss > 2 min, exam mode), support `credit_mock`/`grant_resit`, `attempt:void` request, bulk re-issue admin job, all audited | sonnet | deps: P1-12, P1-55
+- [x] P1-64 | Legal and policy pages (/legal/terms, /legal/privacy, /legal/refund-policy) with D12 C13b refund rules, Bangladesh PDPO 2025 compliance & exam-disruption handling | sonnet | deps: P1-12, P1-55
 - [ ] P1-65 | Accommodations (C18): support-granted extra time 1.25x/1.5x/2.0x via ticket, evidence bucket, `accommodation_multiplier` applied to server deadlines, expiry | sonnet | deps: P1-12, P1-103
 
 #### P1.4 Exam runners, results & practice (GRE First & Magoosh Engine) (gate: M0, M1, M2, M3)
@@ -246,7 +246,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-39 | Admin console: orders, users, moderation, audit viewer, read-only impersonation with reason | sonnet | deps: P1-36, P0-39
 - [ ] P1-40 | Transactional email base: React Email layout, three streams, plain-text alt, en/bn render harness (template sets are owned by the docs/29 tasks in P1.11) | sonnet | deps: P0-17
 - [ ] P1-41 | Entitlement expiry reminders T-30/T-7/T-1 and expired notice (docs/29 scope; supersedes earlier T-7/T-1 scope) | sonnet | deps: P1-34, P1-164
-- [ ] P1-42 | Legal page shells, footer links and trademark notices (C31 verbatim); real content only from counsel-signed MDX (docs/26) | haiku | deps: P0-32
+- [x] P1-42 | Legal page shells, footer links and trademark notices (C31 verbatim); real content only from counsel-signed MDX (docs/26) | haiku | deps: P0-32
 - [ ] P1-43 | SEO: IELTS/GRE landing pages, structured data (Course, FAQ), blog scaffold | sonnet | deps: P0-42
 - [ ] P1-44 | Analytics instrumentation: domain-event mappers and client events per docs/32 §5 (supersedes earlier scope) | sonnet | deps: P0-41, P0-70, P1-119
 - [ ] P1-45 | Seed IELTS/GRE course skeletons and original sample questions | haiku | deps: P1-09, P0-40, P1-58
@@ -564,6 +564,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-33 | c46f3e6 | 3.8-flash | Dual-mode Drizzle repository adapter layer in packages/db/src/repositories (Order, Payment, Entitlement, Ledger, Grading, Course, Question, Progress, QuestionStat, Mistake, Price, VocabCard, UnitOfWork) with prod fail-fast guard, transaction snapshot/rollback & unique constraints, wired into @lumen/core & @lumen/web |
 | 2026-11-13 | P1-32 | 631c008 | hydrogen | Stage 3C: Eliminated all 16 hardcoded "Lumen Academy" strings via `brand.name` + Vitest regression guard (`brand-sweep.test.ts`), built `/sign-in`, `/sign-up`, `/onboarding`, `/orders`, and `/app/settings` UI pages with Google OAuth, Email/Phone OTP, D4 2FA prompt, guest diagnostic claim, Mushak 6.3 VAT breakdown, and 1-click self-serve refund |
 | 2026-11-13 | P1-100 | 37f0693 | 3.8-flash | Expand GRE vocab seed to 80 words and Magoosh pack to 22 questions with full D13 pedagogy |
+| 2026-11-13 | P1-64 | 552f0c3 | 3.8-flash | Legal & policy pages (/legal/terms, /legal/privacy, /legal/refund-policy) with D12 C13b refund rules, Bangladesh PDPO 2025 compliance, dynamic brand.name, and zero hardcoded brand strings |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
