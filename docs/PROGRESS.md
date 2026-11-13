@@ -8,13 +8,13 @@
 ## Status
 
 - Date updated: 2026-11-13
-- Active tool: Gemini 3.8 Flash (High) / Antigravity
+- Active tool: Gemini 4 Hydrogen (Medium) / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Stage 3B Complete (Branch 3 Dual-Mode Drizzle Repositories P1-33 merged to main); Next: Stage 3C
-- Last session log: docs/logs/reviews/opus-audit-and-action-plan.md
+- Current milestone: Stage 3C Complete (Brand sweep, Auth/Onboarding, Orders & Self-Serve Refund UI merged to main)
+- Last session log: docs/logs/sessions/2026-11-13-gemini-stage3c.md
 - Active branch: main
-- Last green `pnpm verify`: P1-33 (30/30 turbo tasks green, 221 unit tests passing across db/core/auth/ui)
-- Phase in progress: P1 Core (Stage 3B Complete)
+- Last green `pnpm verify`: Stage 3C (`pnpm verify:fast` 30/30 turbo tasks green, 180 core + 16 auth + 26 db + 18 ai + 17 ui tests passing; `pnpm --filter @lumen/web build` 65/65 pages green)
+- Phase in progress: P1 Core (Stage 3C Complete)
 
 ## Current task
 
@@ -562,6 +562,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-34 | c49ba7e | argon | Server-authoritative append-only entitlement & credit ledger, D12 C1 credit costs (1/1/2/1), daily evaluation ceilings (1/3/4/6), `assertHasEntitlement`, `consumeAiCredit`, `consumeMockAttempt` |
 | 2026-11-13 | P1-147 | c49ba7e | argon | Finance refund eligibility (`<20%` content, `<=1` mock, 7d/72h/before_class_3/before_class_2), non-refundable consumed AI credit deduction, automatic certificate revocation, and 15% BD VAT integer minor-unit engine |
 | 2026-11-13 | P1-33 | c46f3e6 | 3.8-flash | Dual-mode Drizzle repository adapter layer in packages/db/src/repositories (Order, Payment, Entitlement, Ledger, Grading, Course, Question, Progress, QuestionStat, Mistake, Price, VocabCard, UnitOfWork) with prod fail-fast guard, transaction snapshot/rollback & unique constraints, wired into @lumen/core & @lumen/web |
+| 2026-11-13 | P1-32 | 631c008 | hydrogen | Stage 3C: Eliminated all 16 hardcoded "Lumen Academy" strings via `brand.name` + Vitest regression guard (`brand-sweep.test.ts`), built `/sign-in`, `/sign-up`, `/onboarding`, `/orders`, and `/app/settings` UI pages with Google OAuth, Email/Phone OTP, D4 2FA prompt, guest diagnostic claim, Mushak 6.3 VAT breakdown, and 1-click self-serve refund |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
