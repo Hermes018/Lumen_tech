@@ -8,3 +8,4 @@ export * from './entitlements';
 export * from './checkout';
 export * from './refunds';
 export * from './finance-ops';
+export * from './manual-pay';

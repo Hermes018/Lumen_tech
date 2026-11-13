@@ -18,13 +18,24 @@ export interface OrderRecord {
   productName: string;
   amountMinor: number;
   currency: Currency;
-  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'held_review' | 'refunded';
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'held_review' | 'refunded' | 'pending_verification';
   customer: CheckoutCustomer;
   providerSessionId?: string;
   valId?: string;
   entitlementId?: string;
   paidAt?: string;
   refundedAt?: string;
+  manualPayment?: {
+    method: 'bkash' | 'nagad';
+    trxId: string;
+    senderNumber: string;
+    submittedAt: string;
+    approvedByStaffId?: string;
+    approvedAt?: string;
+    rejectedByStaffId?: string;
+    rejectedAt?: string;
+    rejectionReason?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

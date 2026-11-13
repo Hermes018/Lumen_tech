@@ -18,6 +18,9 @@ import {
   formatCurrency,
   calculateTaxInclusive,
   CANONICAL_PRODUCTS,
+  submitManualPayment,
+  approveManualPayment,
+  rejectManualPayment,
   type OrderRecord,
   type EntitlementRecord,
   type VatBreakdown,
@@ -259,3 +262,80 @@ export async function requestSelfServeRefundAction(rawInput: {
     auditId: auditEntry.id,
   };
 }
+
+const submitManualCheckoutSchema = z.object({
+  productSlug: z.string().min(1).max(100),
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  phone: z.string().min(6).max(30),
+  address: z.string().max(250).optional(),
+  city: z.string().max(100).optional(),
+  method: z.enum(['bkash', 'nagad']),
+  trxId: z.string().min(6).max(30),
+  senderNumber: z.string().min(10).max(20),
+});
+
+export async function submitManualCheckoutAction(rawInput: z.infer<typeof submitManualCheckoutSchema>) {
+  const input = submitManualCheckoutSchema.parse(rawInput);
+  const actor = await requireServerActor();
+  assertCan(actor, 'order:create', { ownerId: actor.id });
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const userId = actor.id;
+
+  const res = await createOrder({
+    userId,
+    productSlug: input.productSlug,
+    customer: {
+      userId,
+      name: input.name,
+      email: input.email,
+      phoneE164: input.phone,
+      address1: input.address,
+      city: input.city || 'Dhaka',
+      country: 'BD',
+    },
+    appUrl,
+  });
+
+  const updatedOrder = submitManualPayment(
+    res.order.id,
+    input.method,
+    input.trxId,
+    input.senderNumber
+  );
+
+  return {
+    ok: true as const,
+    orderId: updatedOrder.id,
+    status: updatedOrder.status,
+    method: input.method,
+    trxId: input.trxId,
+  };
+}
+
+export async function approveManualPaymentAction(orderId: string) {
+  const actor = await requireServerActor();
+  assertCan(actor, 'finance:write');
+
+  const result = await approveManualPayment(orderId, actor.id, actor);
+  return {
+    ok: true as const,
+    orderId: result.order.id,
+    status: result.order.status,
+    entitlementId: result.entitlement?.id,
+  };
+}
+
+export async function rejectManualPaymentAction(orderId: string, reason?: string) {
+  const actor = await requireServerActor();
+  assertCan(actor, 'finance:write');
+
+  const result = await rejectManualPayment(orderId, actor.id, reason, actor);
+  return {
+    ok: true as const,
+    orderId: result.order.id,
+    status: result.order.status,
+  };
+}
+

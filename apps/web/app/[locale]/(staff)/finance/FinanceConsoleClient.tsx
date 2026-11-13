@@ -22,6 +22,8 @@ import {
   TrendingUp,
   Receipt,
   Search,
+  CreditCard,
+  Clock,
 } from 'lucide-react';
 import {
   sanitizeCsvField,
@@ -121,6 +123,42 @@ export function FinanceConsoleClient({ actor }: FinanceConsoleProps) {
       status: 'pending_approval',
     },
   ]);
+
+  // Pending Manual bKash / Nagad payment approvals queue (P1-41)
+  const [manualPayments, setManualPayments] = useState([
+    {
+      id: 'ord_manual_101',
+      orderId: 'ORD-BK-9801',
+      customerName: 'Siam Chowdhury',
+      phone: '01711223344',
+      productName: 'GRE Quant Mastery Core',
+      amount: 'BDT 4,990',
+      method: 'bkash' as const,
+      trxId: 'BL54A92K1M',
+      senderNumber: '01711223344',
+      submittedAt: '2026-11-13 22:15',
+      status: 'pending_verification' as 'pending_verification' | 'approved' | 'rejected',
+    },
+    {
+      id: 'ord_manual_102',
+      orderId: 'ORD-NG-9802',
+      customerName: 'Nusrat Jahan',
+      phone: '01899112233',
+      productName: 'IELTS Academic Plus Tier',
+      amount: 'BDT 3,990',
+      method: 'nagad' as const,
+      trxId: 'NG98K1M22',
+      senderNumber: '01899112233',
+      submittedAt: '2026-11-13 22:45',
+      status: 'pending_verification' as 'pending_verification' | 'approved' | 'rejected',
+    },
+  ]);
+
+  const handleManualPaymentAction = (id: string, action: 'approved' | 'rejected') => {
+    setManualPayments((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status: action } : p))
+    );
+  };
 
   const handleClaimAction = (id: string, action: 'approved' | 'rejected') => {
     setClaims((prev) =>
@@ -279,6 +317,9 @@ export function FinanceConsoleClient({ actor }: FinanceConsoleProps) {
           </TabsTrigger>
           <TabsTrigger value="refunds" className="text-xs font-medium">
             <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Refund Queue
+          </TabsTrigger>
+          <TabsTrigger value="manual" className="text-xs font-medium">
+            <CreditCard className="mr-1.5 h-3.5 w-3.5" /> Pending bKash/Nagad ({manualPayments.filter(p => p.status === 'pending_verification').length})
           </TabsTrigger>
         </TabsList>
 
@@ -498,6 +539,102 @@ export function FinanceConsoleClient({ actor }: FinanceConsoleProps) {
                               variant="outline"
                               size="sm"
                               onClick={() => handleRefundAction(ref.id, 'declined')}
+                              className="h-7 border-red-200 px-2 text-[11px] text-red-600 hover:bg-red-50"
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Pending Manual bKash / Nagad Approvals Tab (P1-41) */}
+        <TabsContent value="manual" className="mt-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-2xs">
+            <div className="mb-4">
+              <h2 className="text-base font-bold text-gray-900">
+                Pending Manual bKash & Nagad Payment Approvals
+              </h2>
+              <p className="text-xs text-gray-500">
+                Verify student-submitted TrxIDs against the bKash/Nagad merchant statement. 1-click approval triggers standard entitlement grants and Mushak receipt issuance.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-gray-200 bg-gray-50 text-gray-600 uppercase">
+                  <tr>
+                    <th className="py-2.5 px-3">Order ID</th>
+                    <th className="py-2.5 px-3">Student</th>
+                    <th className="py-2.5 px-3">Course / Package</th>
+                    <th className="py-2.5 px-3">Method</th>
+                    <th className="py-2.5 px-3">Sender Phone</th>
+                    <th className="py-2.5 px-3">TrxID</th>
+                    <th className="py-2.5 px-3">Amount</th>
+                    <th className="py-2.5 px-3">Submitted</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {manualPayments.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50/80">
+                      <td className="py-3 px-3 font-mono font-medium text-gray-900">
+                        {item.orderId}
+                      </td>
+                      <td className="py-3 px-3 font-semibold text-gray-900">
+                        {item.customerName}
+                      </td>
+                      <td className="py-3 px-3 text-gray-700">{item.productName}</td>
+                      <td className="py-3 px-3">
+                        <Badge
+                          variant="outline"
+                          className={
+                            item.method === 'bkash'
+                              ? 'border-pink-300 bg-pink-50 text-pink-700'
+                              : 'border-orange-300 bg-orange-50 text-orange-700'
+                          }
+                        >
+                          {item.method.toUpperCase()}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-3 font-mono text-gray-600">{item.senderNumber}</td>
+                      <td className="py-3 px-3 font-mono font-bold text-gray-900">{item.trxId}</td>
+                      <td className="py-3 px-3 font-semibold text-gray-900">{item.amount}</td>
+                      <td className="py-3 px-3 text-gray-500">{item.submittedAt}</td>
+                      <td className="py-3 px-3">
+                        <Badge
+                          className={
+                            item.status === 'approved'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : item.status === 'rejected'
+                              ? 'bg-red-100 text-red-800'
+                              : 'bg-amber-100 text-amber-800'
+                          }
+                        >
+                          {item.status}
+                        </Badge>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        {item.status === 'pending_verification' && (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <Button
+                              size="sm"
+                              onClick={() => handleManualPaymentAction(item.id, 'approved')}
+                              className="h-7 bg-emerald-600 px-2.5 text-[11px] text-white hover:bg-emerald-500"
+                            >
+                              Approve TrxID
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleManualPaymentAction(item.id, 'rejected')}
                               className="h-7 border-red-200 px-2 text-[11px] text-red-600 hover:bg-red-50"
                             >
                               Reject
