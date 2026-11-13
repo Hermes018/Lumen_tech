@@ -33,6 +33,7 @@ export interface MistakeEntry {
    * Invariant: Mistake retries are STRICTLY excluded from the adaptive IRT calibration pool
    * so that practicing errors does not artificially depress the difficulty b parameter.
    */
+  isMistakeRetry: true;
   excludeFromIrt: true;
   createdAt: string;
   updatedAt: string;
@@ -73,6 +74,7 @@ export interface RetryMistakeResult {
   isCorrect: boolean;
   resolved: boolean;
   message: string;
+  isMistakeRetry: true;
   excludeFromIrt: true;
 }
 
@@ -115,6 +117,7 @@ export function recordMistake(
         attemptsCount: existing.attemptsCount + 1,
         lastAttemptAt: nowIso,
         updatedAt: nowIso,
+        isMistakeRetry: true,
         excludeFromIrt: true,
       }
     : {
@@ -135,6 +138,7 @@ export function recordMistake(
         status: 'open',
         attemptsCount: 1,
         lastAttemptAt: nowIso,
+        isMistakeRetry: true,
         excludeFromIrt: true,
         createdAt: nowIso,
         updatedAt: nowIso,
@@ -176,6 +180,7 @@ export function retryMistake(params: RetryMistakeParams): RetryMistakeResult {
     attemptsCount: entry.attemptsCount + 1,
     lastAttemptAt: nowIso,
     updatedAt: nowIso,
+    isMistakeRetry: true,
     excludeFromIrt: true,
   };
 
@@ -199,6 +204,7 @@ export function retryMistake(params: RetryMistakeParams): RetryMistakeResult {
     isCorrect,
     resolved,
     message,
+    isMistakeRetry: true,
     excludeFromIrt: true,
   };
 }

@@ -20,6 +20,8 @@ export const GRE_SCALE: Record<'verbal' | 'quant', ScaledConfig> = {
 export interface ScoredItem {
   b: number; // Rasch difficulty parameter (logits)
   correct: boolean;
+  isMistakeRetry?: boolean;
+  excludeFromIrt?: boolean;
 }
 
 export interface ThetaEstimate {
@@ -44,12 +46,13 @@ const p1 = (theta: number, b: number): number => 1 / (1 + Math.exp(-(theta - b))
  * Formulated in docs/07 §3.3.6.
  */
 export function eapTheta(items: ScoredItem[], prior = { mu: 0, sd: 1 }): ThetaEstimate {
+  const eligibleItems = items.filter((it) => !it.isMistakeRetry && !it.excludeFromIrt);
   let wSum = 0;
   let tSum = 0;
 
   const w: number[] = GRID.map((t) => {
     let ll = -0.5 * ((t - prior.mu) / prior.sd) ** 2;
-    for (const it of items) {
+    for (const it of eligibleItems) {
       const prob = p1(t, it.b);
       ll += Math.log(it.correct ? prob : 1 - prob);
     }
@@ -70,7 +73,7 @@ export function eapTheta(items: ScoredItem[], prior = { mu: 0, sd: 1 }): ThetaEs
   return {
     theta,
     sem: wSum === 0 ? prior.sd : Math.sqrt(v / wSum),
-    n: items.length,
+    n: eligibleItems.length,
   };
 }
 

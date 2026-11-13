@@ -9,6 +9,8 @@ export interface StudentItemResponse {
   isCorrect: boolean;
   sectionTotalScore: number; // Raw total score for the section including this item
   timeSpentMs?: number;
+  isMistakeRetry?: boolean;
+  excludeFromIrt?: boolean;
 }
 
 export type ItemFlag =
@@ -69,24 +71,34 @@ export interface ComputeItemStatisticsInput {
  * Calculates classical p-value (item difficulty / success rate).
  * Higher p-value indicates an easier question; lower indicates a harder question.
  */
-export function calculatePValue(responses: { isCorrect: boolean }[]): number {
-  if (responses.length === 0) return 0;
-  const correctCount = responses.filter((r) => r.isCorrect).length;
-  return Number((correctCount / responses.length).toFixed(4));
+export function calculatePValue(
+  responses: { isCorrect: boolean; isMistakeRetry?: boolean; excludeFromIrt?: boolean }[]
+): number {
+  const clean = responses.filter((r) => !r.isMistakeRetry && !r.excludeFromIrt);
+  if (clean.length === 0) return 0;
+  const correctCount = clean.filter((r) => r.isCorrect).length;
+  return Number((correctCount / clean.length).toFixed(4));
 }
 
 /**
  * Calculates the corrected item-rest point-biserial discrimination ($r_{pbis}$).
  * Correlates item performance with total section score excluding the item itself.
+ * Strictly filters out Mistake Notebook retry attempts (`isMistakeRetry: true`).
  * 
  * Formula:
  *   Y_j = sectionTotalScore_j - (isCorrect ? 1 : 0)
  *   r_{pbis} = ((mean(Y_correct) - mean(Y_incorrect)) / SD(Y)) * sqrt(p * (1 - p))
  */
 export function calculatePointBiserial(
-  responses: { isCorrect: boolean; sectionTotalScore: number }[]
+  responses: {
+    isCorrect: boolean;
+    sectionTotalScore: number;
+    isMistakeRetry?: boolean;
+    excludeFromIrt?: boolean;
+  }[]
 ): number {
-  const n = responses.length;
+  const clean = responses.filter((r) => !r.isMistakeRetry && !r.excludeFromIrt);
+  const n = clean.length;
   if (n < 2) return 0;
 
   let correctCount = 0;
@@ -97,7 +109,7 @@ export function calculatePointBiserial(
   let sumRest = 0;
 
   for (let i = 0; i < n; i++) {
-    const r = responses[i]!;
+    const r = clean[i]!;
     const itemScore = r.isCorrect ? 1 : 0;
     const rest = r.sectionTotalScore - itemScore;
     restScores[i] = rest;
@@ -148,12 +160,13 @@ export function calculateDistractorStats(
   responses: StudentItemResponse[],
   correctOptionId: string
 ): DistractorStat[] {
-  const n = responses.length;
+  const clean = responses.filter((r) => !r.isMistakeRetry && !r.excludeFromIrt);
+  const n = clean.length;
   if (n === 0) return [];
 
   // Group responses by option
   const optionMap = new Map<string, StudentItemResponse[]>();
-  for (const r of responses) {
+  for (const r of clean) {
     const opt = r.selectedOption || 'omitted';
     const group = optionMap.get(opt) || [];
     group.push(r);
@@ -168,7 +181,7 @@ export function calculateDistractorStats(
     const isKey = optionId === correctOptionId;
 
     // Treat choosing this option as 1 and all others as 0
-    const optionBiserialResponses = responses.map((r) => ({
+    const optionBiserialResponses = clean.map((r) => ({
       isCorrect: r.selectedOption === optionId,
       sectionTotalScore: r.sectionTotalScore,
     }));
@@ -298,8 +311,12 @@ export function evaluateItemFlags(input: {
 export function computeItemStatistics(
   input: ComputeItemStatisticsInput
 ): ItemStatistics {
-  const responses = input.responses;
-  const attempts = input.totalAttempts ?? responses.length;
+  // Strictly exclude Mistake Notebook retry attempts from IRT/CTT item statistics
+  const responses = input.responses.filter((r) => !r.isMistakeRetry && !r.excludeFromIrt);
+  const attempts =
+    input.totalAttempts !== undefined && input.responses.length === responses.length
+      ? input.totalAttempts
+      : responses.length;
   const correct = responses.filter((r) => r.isCorrect).length;
 
   const pValue = calculatePValue(responses);

@@ -65,6 +65,8 @@ export const GRE_ADAPTIVE_RULES_V1: AdaptiveRulesV1 = {
 
 export interface S1Item extends ScoredItem {
   calibrated: boolean;
+  isMistakeRetry?: boolean;
+  excludeFromIrt?: boolean;
 }
 
 export interface RoutingBasis {
@@ -109,11 +111,17 @@ export function routeSection(
     throw new Error(`No adaptive route found for source section position ${fromPosition}`);
   }
 
-  const s1Raw = s1.filter((i) => i.correct).length;
-  const calibratedShare = s1.length > 0 ? s1.filter((i) => i.calibrated).length / s1.length : 0;
+  // Strictly exclude Mistake Notebook retry attempts from IRT ability & routing calculations
+  const eligibleS1 = s1.filter((i) => !i.isMistakeRetry && !i.excludeFromIrt);
+
+  const s1Raw = eligibleS1.filter((i) => i.correct).length;
+  const calibratedShare =
+    eligibleS1.length > 0
+      ? eligibleS1.filter((i) => i.calibrated).length / eligibleS1.length
+      : 0;
   const useTheta = Boolean(rule.theta && calibratedShare >= rule.theta.minCalibratedShare);
 
-  const value = useTheta ? eapTheta(s1).theta : s1Raw / Math.max(1, s1.length);
+  const value = useTheta ? eapTheta(eligibleS1).theta : s1Raw / Math.max(1, eligibleS1.length);
   const tier = pickTier(value, useTheta && rule.theta ? rule.theta.thresholds : rule.thresholds);
 
   return {
@@ -125,9 +133,42 @@ export function routeSection(
       value,
       ruleIndex,
       s1Raw,
-      s1Count: s1.length,
+      s1Count: eligibleS1.length,
       calibratedShare,
     },
+  };
+}
+
+/**
+ * Calibrates Rasch 1PL difficulty parameter `b` from item responses,
+ * strictly excluding any response carrying `isMistakeRetry: true` or `excludeFromIrt: true`.
+ */
+export function calibrateItemDifficultyB(
+  responses: Array<{
+    isCorrect: boolean;
+    theta?: number;
+    isMistakeRetry?: boolean;
+    excludeFromIrt?: boolean;
+  }>,
+  fallbackB = 0
+): { b: number; calibratedSampleSize: number; calibrated: boolean } {
+  const clean = responses.filter((r) => !r.isMistakeRetry && !r.excludeFromIrt);
+  const n = clean.length;
+  if (n === 0) {
+    return { b: fallbackB, calibratedSampleSize: 0, calibrated: false };
+  }
+  const correctCount = clean.filter((r) => r.isCorrect).length;
+  // Laplace-smoothed proportion to avoid +/- Infinity on all-correct or all-wrong
+  const p = (correctCount + 0.5) / (n + 1);
+  const meanTheta =
+    clean.reduce((acc, r) => acc + (r.theta ?? 0), 0) / n;
+  // Rasch log-odds difficulty: b = mean(theta) - ln(p / (1 - p))
+  const rawB = meanTheta - Math.log(p / (1 - p));
+  const clampedB = Number(Math.max(-3.5, Math.min(3.5, rawB)).toFixed(4));
+  return {
+    b: clampedB,
+    calibratedSampleSize: n,
+    calibrated: n >= 30,
   };
 }
 

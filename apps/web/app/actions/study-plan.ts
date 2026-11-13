@@ -1,9 +1,10 @@
 /** @purpose Server actions for GRE Study Plan and Adaptive Rescheduling */
 'use server';
 
-import { headers } from 'next/headers';
-import { getAuth } from '@lumen/auth';
+import { z } from '@lumen/config';
 import {
+  requireServerActor,
+  assertCan,
   generateStudyPlan,
   rescheduleStudyPlan,
   type StudyPlan,
@@ -11,22 +12,28 @@ import {
   type RescheduleResult,
 } from '@lumen/core';
 
+const getStudyPlanSchema = z
+  .object({
+    userId: z.string().optional(),
+  })
+  .optional();
+
+const asOfDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional();
+const taskIdSchema = z.string().min(1).max(120);
+
 // In-memory study plan store for demonstration and prototype session
 const userStudyPlans = new Map<string, StudyPlan>();
 
-export async function getStudyPlanAction(): Promise<StudyPlan> {
-  let userId = 'learner-current';
-  const tier: PlanTier = 'plus'; // Plus tier default to demonstrate adaptive features
+export async function getStudyPlanAction(rawOpts?: { userId?: string }): Promise<StudyPlan> {
+  const opts = getStudyPlanSchema.parse(rawOpts);
+  const actor = await requireServerActor();
+  const targetUserId = opts?.userId ?? actor.id;
 
-  try {
-    const reqHeaders = await headers();
-    const session = await getAuth().api.getSession({ headers: reqHeaders });
-    if (session?.user) {
-      userId = session.user.id;
-    }
-  } catch {
-    // Dev fallback
-  }
+  assertCan(actor, 'user:view_own', { ownerId: targetUserId });
+  assertCan(actor, 'practice:session', { ownerId: targetUserId });
+
+  const userId = targetUserId;
+  const tier: PlanTier = 'plus'; // Plus tier default to demonstrate adaptive features
 
   const existing = userStudyPlans.get(userId);
   if (existing) {
@@ -53,41 +60,27 @@ export async function getStudyPlanAction(): Promise<StudyPlan> {
   return newPlan;
 }
 
-export async function rescheduleStudyPlanAction(asOfDate?: string): Promise<RescheduleResult> {
-  let userId = 'learner-current';
-
-  try {
-    const reqHeaders = await headers();
-    const session = await getAuth().api.getSession({ headers: reqHeaders });
-    if (session?.user) {
-      userId = session.user.id;
-    }
-  } catch {
-    // Dev fallback
-  }
+export async function rescheduleStudyPlanAction(rawAsOfDate?: string): Promise<RescheduleResult> {
+  const asOfDate = asOfDateSchema.parse(rawAsOfDate);
+  const actor = await requireServerActor();
+  assertCan(actor, 'user:view_own', { ownerId: actor.id });
+  assertCan(actor, 'practice:session', { ownerId: actor.id });
 
   const currentPlan = await getStudyPlanAction();
 
   const result = rescheduleStudyPlan(currentPlan, asOfDate);
   if (result.success) {
-    userStudyPlans.set(userId, result.plan);
+    userStudyPlans.set(actor.id, result.plan);
   }
 
   return result;
 }
 
-export async function toggleTaskCompletionAction(taskId: string): Promise<StudyPlan> {
-  let userId = 'learner-current';
-
-  try {
-    const reqHeaders = await headers();
-    const session = await getAuth().api.getSession({ headers: reqHeaders });
-    if (session?.user) {
-      userId = session.user.id;
-    }
-  } catch {
-    // Dev fallback
-  }
+export async function toggleTaskCompletionAction(rawTaskId: string): Promise<StudyPlan> {
+  const taskId = taskIdSchema.parse(rawTaskId);
+  const actor = await requireServerActor();
+  assertCan(actor, 'user:view_own', { ownerId: actor.id });
+  assertCan(actor, 'practice:session', { ownerId: actor.id });
 
   const currentPlan = await getStudyPlanAction();
 
@@ -110,6 +103,6 @@ export async function toggleTaskCompletionAction(taskId: string): Promise<StudyP
     completionRatePercent: completionRate,
   };
 
-  userStudyPlans.set(userId, updatedPlan);
+  userStudyPlans.set(actor.id, updatedPlan);
   return updatedPlan;
 }

@@ -1,10 +1,10 @@
 /** @purpose Server action for fetching authenticated learner dashboard analytics and progress */
 'use server';
 
-import { headers } from 'next/headers';
+import { z } from '@lumen/config';
 import {
+  requireServerActor,
   assertCan,
-  type Actor,
   calculateStudyStreak,
   calculateLevelInfo,
   calculateSkillMastery,
@@ -14,7 +14,12 @@ import {
   type SkillMastery,
   type GreScorePredictionResult,
 } from '@lumen/core';
-import { getAuth, type Role } from '@lumen/auth';
+
+const dashboardOptionsSchema = z
+  .object({
+    userId: z.string().optional(),
+  })
+  .optional();
 
 export interface NextBestActionDTO {
   id: string;
@@ -53,54 +58,20 @@ export interface LearnerDashboardData {
 }
 
 /**
- * Resolves current actor from Better Auth session or fallback for dev prototype.
+ * Server action to fetch authenticated learner analytics with requireServerActor, Zod validation, and assertCan check.
  */
-async function resolveCurrentActor(): Promise<Actor & { name: string; email: string }> {
-  try {
-    const reqHeaders = await headers();
-    const session = await getAuth().api.getSession({ headers: reqHeaders });
-    if (session?.user) {
-      const userObj = session.user as {
-        id: string;
-        role?: string;
-        name?: string;
-        email: string;
-        twoFactorEnabled?: boolean | null;
-      };
-      const role = (userObj.role as Role) || 'student';
-      return {
-        id: userObj.id,
-        roles: [role],
-        name: userObj.name || 'Learner',
-        email: userObj.email,
-        hasTwoFactorEnabled: userObj.twoFactorEnabled ?? false,
-      };
-    }
-  } catch {
-    // Better auth session lookup fallback in development
-  }
+export async function getLearnerDashboardData(rawOptions?: {
+  userId?: string;
+}): Promise<LearnerDashboardData> {
+  const options = dashboardOptionsSchema.parse(rawOptions);
+  const currentActor = await requireServerActor();
+  const targetUserId = options?.userId ?? currentActor.id;
 
-  // Prototype demo learner
-  return {
-    id: 'demo-learner-01',
-    roles: ['student'],
-    name: 'Ayman Rahman',
-    email: 'ayman@lumen.academy',
-    hasTwoFactorEnabled: false,
-  };
-}
-
-/**
- * Server action to fetch authenticated learner analytics with assertCan security check.
- */
-export async function getLearnerDashboardData(): Promise<LearnerDashboardData> {
-  const currentActor = await resolveCurrentActor();
-
-  // Enforce server-authoritative authorization
+  // Enforce server-authoritative authorization (rejects cross-user IDOR)
   assertCan(
     currentActor,
     'user:view_own',
-    { ownerId: currentActor.id }
+    { ownerId: targetUserId }
   );
 
   // Target exam details
