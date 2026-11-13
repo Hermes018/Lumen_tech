@@ -6,6 +6,7 @@ import {
   getRepositories,
   resetRepositories,
   type EntitlementRecord as DbEntitlementRecord,
+  type CreditLedgerEntry,
 } from '@lumen/db';
 
 export type EntitlementTier = 'free' | 'core' | 'pass' | 'plus' | 'live' | 'mentor';
@@ -109,6 +110,7 @@ const entitlementByIdempotencyKey = new Map<string, EntitlementRecord>();
 const appendOnlyLedger: EntitlementLedgerEntry[] = [];
 const ledgerByIdempotencyKey = new Map<string, EntitlementLedgerEntry>();
 const activeUserLocks = new Set<string>();
+const pendingRepoSaves: Promise<unknown>[] = [];
 
 /**
  * Clears in-memory entitlement and ledger state (for deterministic unit tests).
@@ -119,6 +121,7 @@ export function resetEntitlementLedgerState(): void {
   appendOnlyLedger.length = 0;
   ledgerByIdempotencyKey.clear();
   activeUserLocks.clear();
+  pendingRepoSaves.length = 0;
   try {
     resetRepositories();
   } catch {
@@ -129,7 +132,8 @@ export function resetEntitlementLedgerState(): void {
 function appendLedgerEntry(
   entry: Omit<EntitlementLedgerEntry, 'id'>
 ): { entry: EntitlementLedgerEntry; idempotentReplay: boolean } {
-  const existing = ledgerByIdempotencyKey.get(entry.idempotencyKey);
+  const scopedKey = `${entry.userId}:${entry.idempotencyKey}`;
+  const existing = ledgerByIdempotencyKey.get(scopedKey);
   if (existing) {
     return { entry: existing, idempotentReplay: true };
   }
@@ -147,9 +151,9 @@ function appendLedgerEntry(
   });
 
   appendOnlyLedger.push(frozen);
-  ledgerByIdempotencyKey.set(frozen.idempotencyKey, frozen);
+  ledgerByIdempotencyKey.set(scopedKey, frozen);
   try {
-    void getRepositories().ledger.save({
+    const savePromise = getRepositories().ledger.save({
       id: frozen.id,
       userId: frozen.userId,
       kind: frozen.kind,
@@ -157,11 +161,14 @@ function appendLedgerEntry(
       balanceAfter: frozen.delta,
       reason: frozen.reason,
       sourceRef: frozen.sourceRef,
-      idempotencyKey: frozen.idempotencyKey,
+      idempotencyKey: scopedKey,
       createdAt: frozen.createdAt,
     });
-  } catch {
-    // repository persistence
+    pendingRepoSaves.push(savePromise);
+  } catch (err) {
+    if (process.env.NODE_ENV === 'production') {
+      throw err;
+    }
   }
   return { entry: frozen, idempotentReplay: false };
 }
@@ -200,8 +207,9 @@ export function grantEntitlement(
     durationDaysOverride?: number;
   }
 ): EntitlementRecord {
-  if (meta?.idempotencyKey) {
-    const existingByKey = entitlementByIdempotencyKey.get(meta.idempotencyKey);
+  const scopedEntKey = meta?.idempotencyKey ? `${userId}:${meta.idempotencyKey}` : undefined;
+  if (scopedEntKey) {
+    const existingByKey = entitlementByIdempotencyKey.get(scopedEntKey);
     if (existingByKey) {
       return existingByKey;
     }
@@ -256,14 +264,20 @@ export function grantEntitlement(
   const existing = userEntitlementsMap.get(userId) ?? [];
   userEntitlementsMap.set(userId, [...existing, record]);
 
-  if (meta?.idempotencyKey) {
-    entitlementByIdempotencyKey.set(meta.idempotencyKey, record);
+  if (scopedEntKey) {
+    entitlementByIdempotencyKey.set(scopedEntKey, record);
   }
 
   try {
-    void getRepositories().entitlements.save(record as unknown as DbEntitlementRecord);
-  } catch {
-    // repository persistence
+    const savePromise = getRepositories().entitlements.save({
+      ...record,
+      idempotencyKey: scopedEntKey,
+    } as unknown as DbEntitlementRecord);
+    pendingRepoSaves.push(savePromise);
+  } catch (err) {
+    if (process.env.NODE_ENV === 'production') {
+      throw err;
+    }
   }
 
   // Append initial positive grants into the append-only ledger
@@ -560,7 +574,8 @@ export function consumeAiCredit(
   }
 
   // 1. Idempotency check first: if already debited with this key, return idempotent result without re-debiting
-  const existingEntry = ledgerByIdempotencyKey.get(input.idempotencyKey);
+  const scopedKey = `${targetUserId}:${input.idempotencyKey}`;
+  const existingEntry = ledgerByIdempotencyKey.get(scopedKey);
   if (existingEntry) {
     const remaining = getLedgerBalance(targetUserId, 'ai_credit', now);
     const dailyUsed = getDailyAiEvaluationsUsed(targetUserId, now);
@@ -668,7 +683,8 @@ export function consumeMockAttempt(
 
   const now = input.now ?? new Date();
 
-  const existingEntry = ledgerByIdempotencyKey.get(input.idempotencyKey);
+  const scopedKey = `${targetUserId}:${input.idempotencyKey}`;
+  const existingEntry = ledgerByIdempotencyKey.get(scopedKey);
   if (existingEntry) {
     return {
       ledgerEntry: existingEntry,
@@ -755,6 +771,7 @@ export function revokeEntitlementOnRefund(params: {
   productSlug?: string;
   reason?: string;
   now?: Date;
+  dryRun?: boolean;
 }): {
   revokedEntitlements: EntitlementRecord[];
   consumedAiCredits: number;
@@ -788,7 +805,9 @@ export function revokeEntitlementOnRefund(params: {
     return ent;
   });
 
-  userEntitlementsMap.set(params.userId, updatedList);
+  if (!params.dryRun) {
+    userEntitlementsMap.set(params.userId, updatedList);
+  }
 
   let consumedAiCredits = 0;
   let consumedMockAttempts = 0;
@@ -813,7 +832,7 @@ export function revokeEntitlementOnRefund(params: {
     consumedMockAttempts += usedMocks;
 
     const remainingEntCredits = Math.max(0, incCredits - usedCredits);
-    if (remainingEntCredits > 0) {
+    if (!params.dryRun && remainingEntCredits > 0) {
       appendLedgerEntry({
         userId: params.userId,
         entitlementId: rev.id,
@@ -827,7 +846,7 @@ export function revokeEntitlementOnRefund(params: {
     }
 
     const remainingEntMocks = Math.max(0, incMocks - usedMocks);
-    if (remainingEntMocks > 0) {
+    if (!params.dryRun && remainingEntMocks > 0) {
       appendLedgerEntry({
         userId: params.userId,
         entitlementId: rev.id,
@@ -848,4 +867,38 @@ export function revokeEntitlementOnRefund(params: {
     includedAiCredits,
     includedMockAttempts,
   };
+}
+
+/**
+ * Persists an entitlement record directly to the database repository.
+ */
+export async function persistEntitlement(record: EntitlementRecord): Promise<DbEntitlementRecord> {
+  return await getRepositories().entitlements.save(record as unknown as DbEntitlementRecord);
+}
+
+/**
+ * Persists a ledger entry directly to the database repository with user-scoped idempotency key.
+ */
+export async function persistLedgerEntry(entry: EntitlementLedgerEntry): Promise<CreditLedgerEntry> {
+  const scopedKey = `${entry.userId}:${entry.idempotencyKey}`;
+  return await getRepositories().ledger.save({
+    id: entry.id,
+    userId: entry.userId,
+    kind: entry.kind,
+    delta: entry.delta,
+    balanceAfter: entry.delta,
+    reason: entry.reason,
+    sourceRef: entry.sourceRef,
+    idempotencyKey: scopedKey,
+    createdAt: entry.createdAt,
+  });
+}
+
+/**
+ * Awaits all pending repository persistence writes.
+ */
+export async function flushLedgerPersistence(): Promise<void> {
+  const pending = [...pendingRepoSaves];
+  pendingRepoSaves.length = 0;
+  await Promise.all(pending);
 }
