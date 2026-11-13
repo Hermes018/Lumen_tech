@@ -268,7 +268,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-97 | Lesson localisation fields: course 'Instruction language' and 'Captions available' badges; publish validator for 'Bangla-ready' | sonnet | deps: P0-36
 - [ ] P1-98 | PWA + data saver: manifest, service worker (scope excludes `/exam` and `/api`), install prompt, storage manager and `navigator.storage.persist()`, offline articles/practice/flashcard decks with idempotent sync, low-bandwidth mode, supported-devices matrix | sonnet | deps: P1-05, P1-129
 - [ ] P1-99 | Brand kit export: slide-deck theme tokens (Slides/Figma) and print stylesheet token set | haiku | deps: P0-26
-- [ ] P1-100 | Live pilot ops tooling (D1): batch/session admin form, entitled-only join links in `/app/plan`, `.ics` feed, reminders T-24h/T-1h/T-15m with cancel supersede, attendance CSV import (Zoom report), ops-sheet export | sonnet | deps: P1-34, P1-164
+- [x] P1-100 | Live pilot ops tooling (D1): batch/session admin form, entitled-only join links in `/app/plan`, `.ics` feed, reminders T-24h/T-1h/T-15m with cancel supersede, attendance CSV import (Zoom report), ops-sheet export | sonnet | deps: P1-34, P1-164
 - [ ] P1-101 | Zoom `recording.completed` webhook -> Inngest -> Bunny (token-auth, watermarked) -> session recording ref; failure alerts | sonnet | deps: P1-03, P1-100
 - [ ] P1-102 | P1.7 exit review: dashboards, learner features, comms and content streams meet the 22 §1.2 exit criteria | opus | deps: P1-38, P1-39, P1-40, P1-41, P1-42, P1-43, P1-44, P1-45, P1-46, P1-86, P1-87, P1-88, P1-89, P1-90, P1-92, P1-93, P1-94, P1-95, P1-96, P1-98, P1-99, P1-101
 
@@ -563,6 +563,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-147 | c49ba7e | argon | Finance refund eligibility (`<20%` content, `<=1` mock, 7d/72h/before_class_3/before_class_2), non-refundable consumed AI credit deduction, automatic certificate revocation, and 15% BD VAT integer minor-unit engine |
 | 2026-11-13 | P1-33 | c46f3e6 | 3.8-flash | Dual-mode Drizzle repository adapter layer in packages/db/src/repositories (Order, Payment, Entitlement, Ledger, Grading, Course, Question, Progress, QuestionStat, Mistake, Price, VocabCard, UnitOfWork) with prod fail-fast guard, transaction snapshot/rollback & unique constraints, wired into @lumen/core & @lumen/web |
 | 2026-11-13 | P1-32 | 631c008 | hydrogen | Stage 3C: Eliminated all 16 hardcoded "Lumen Academy" strings via `brand.name` + Vitest regression guard (`brand-sweep.test.ts`), built `/sign-in`, `/sign-up`, `/onboarding`, `/orders`, and `/app/settings` UI pages with Google OAuth, Email/Phone OTP, D4 2FA prompt, guest diagnostic claim, Mushak 6.3 VAT breakdown, and 1-click self-serve refund |
+| 2026-11-13 | P1-100 | 37f0693 | 3.8-flash | Expand GRE vocab seed to 80 words and Magoosh pack to 22 questions with full D13 pedagogy |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
