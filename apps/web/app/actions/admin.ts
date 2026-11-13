@@ -4,8 +4,11 @@
 import { z } from '@lumen/config';
 import {
   requireServerActor,
+  assertCan,
   assertCanGrantRole,
   recordAuditEvent,
+  getUserRoles,
+  setUserRoles,
   ROLES,
   type Role,
   type AuditLogEntry,
@@ -55,6 +58,8 @@ export async function changeUserRoleAction(rawInput: {
     };
   }
 
+  setUserRoles(parsed.userId, [parsed.targetRole]);
+
   const auditEntry = recordAuditEvent({
     actorId: actor.id,
     action: 'user:role_update',
@@ -73,4 +78,11 @@ export async function changeUserRoleAction(rawInput: {
     targetRole: parsed.targetRole,
     auditEntry,
   };
+}
+
+export async function getUserRoleAction(userId: string): Promise<Role> {
+  const actor = await requireServerActor();
+  assertCan(actor, 'user:view_all');
+  const roles = getUserRoles(userId);
+  return roles[0] ?? 'student';
 }

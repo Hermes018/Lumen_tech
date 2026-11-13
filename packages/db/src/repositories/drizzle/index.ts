@@ -16,6 +16,7 @@ import { DrizzleQuestionStatRepo } from './question-stats';
 import { DrizzleMistakeRepo } from './mistakes';
 import { DrizzlePriceRepo } from './prices';
 import { DrizzleVocabCardRepo } from './vocab-cards';
+import { DrizzleAttemptRepo } from './attempts';
 
 interface TransactionalDbClient {
   transaction<R>(fn: (tx: DbClient) => Promise<R>): Promise<R>;
@@ -43,6 +44,7 @@ export function createDrizzleRepositories(dbClient: DbClient): Repositories {
   const mistakes = new DrizzleMistakeRepo(dbClient);
   const prices = new DrizzlePriceRepo(dbClient);
   const vocabCards = new DrizzleVocabCardRepo(dbClient);
+  const attempts = new DrizzleAttemptRepo(dbClient);
 
   const unitOfWork: UnitOfWork = {
     async transaction<T>(fn: (repos: Repositories) => Promise<T>): Promise<T> {
@@ -70,6 +72,7 @@ export function createDrizzleRepositories(dbClient: DbClient): Repositories {
     mistakes,
     prices,
     vocabCards,
+    attempts,
     unitOfWork,
   };
 }

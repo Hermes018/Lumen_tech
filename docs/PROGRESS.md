@@ -10,11 +10,11 @@
 - Date updated: 2026-11-14
 - Active tool: Gemini / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Stage 9 Complete (Full Remediation of Sonnet Stage-8 Preflight Audit: all 10 P0s + 8 P1s merged to main)
+- Current milestone: Stage 11 Complete (All residual Stage-10 audit gaps closed: P0-9, P1-E, P1-F, P1-G, dot-path hardening; unconditional sign-off pass; 30/30 turbo tasks green)
 - Last session log: docs/logs/reviews/sonnet-full-preflight-audit.md
 - Active branch: main
-- Last green `pnpm verify`: Stage 9 (`pnpm verify:fast` 30/30 turbo tasks green, 278 `@lumen/core` tests passing across 26 files)
-- Phase in progress: P1 Core (Stage 9 Security & Audit Remediation Complete)
+- Last green `pnpm verify`: Stage 11 (`pnpm verify:fast` 30/30 turbo tasks green, 287 `@lumen/core` tests passing across 27 files)
+- Phase in progress: P1 Core (Stage 11 Residual Audit Gaps Remediated & Merged to main)
 
 ## Current task
 
@@ -575,6 +575,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-41 | task-p1-41 | 3.8-flash | Manual bKash/Nagad fallback gateway (packages/core/src/commerce/manual-pay.ts), TrxID verification, staff 2FA approval queue in /finance, and checkout UI fallback tab |
 | 2026-11-13 | P1-42 | task-p1-42 | 3.8-flash | Playwright E2E suite setup (Chromium/Firefox/WebKit, baseURL :3000), checkout flow spec, and IELTS mock runner split-screen spec |
 | 2026-11-13 | P1-43 | task-p1-43 | 3.8-flash | Production security headers (CSP, HSTS, X-Frame-Options DENY, Bunny iframe allowlist), Vercel static asset cache rules (vercel.json), and Edge Runtime middleware (next-intl + Better Auth + PDPO) |
+| 2026-11-14 | P1-47 | task-p1-47 | 3.8-flash | Stage 11: Close all 4 residual Stage-10 audit gaps (P0-9 real @lumen/ai evaluators & IELTS state machine, P1-E/P1-F HMAC-signed PDPO cookies & real data export & AttemptRepo, P1-G support refund cap in executeRefund & role persistence & impersonation cookie, proxy dot-path hardening & crypto.randomUUID) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 

@@ -1,4 +1,5 @@
 export * from './policy';
+export * from './signed-cookies';
 export {
   getServerActor,
   requireServerActor,

@@ -17,6 +17,7 @@ import type {
   PriceRecord,
   PriceHistoryRecord,
   VocabCardRecord,
+  AttemptRecord,
 } from '../types';
 
 export interface MemoryDataState {
@@ -41,6 +42,7 @@ export interface MemoryDataState {
   prices: Map<string, PriceRecord>;
   priceHistory: Map<string, PriceHistoryRecord[]>;
   vocabCards: Map<string, VocabCardRecord>;
+  attempts: Map<string, AttemptRecord>;
 }
 
 export function createInitialState(): MemoryDataState {
@@ -66,6 +68,7 @@ export function createInitialState(): MemoryDataState {
     prices: new Map(),
     priceHistory: new Map(),
     vocabCards: new Map(),
+    attempts: new Map(),
   };
 }
 
@@ -112,6 +115,7 @@ export function cloneState(state: MemoryDataState): MemoryDataState {
     prices: new Map(state.prices),
     priceHistory: clonedPriceHistory,
     vocabCards: new Map(state.vocabCards),
+    attempts: new Map(state.attempts),
   };
 }
 
@@ -149,4 +153,5 @@ export function copyState(src: MemoryDataState, dest: MemoryDataState): void {
     dest.priceHistory.set(k, [...v]);
   }
   dest.vocabCards = new Map(src.vocabCards);
+  dest.attempts = new Map(src.attempts);
 }

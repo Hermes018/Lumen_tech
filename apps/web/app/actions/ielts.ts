@@ -1,6 +1,7 @@
 /** @purpose Server actions for IELTS 4-Skill Mock Attempt runner, section submissions, and band report generation */
 'use server';
 
+import { cookies } from 'next/headers';
 import { z } from '@lumen/config';
 import {
   requireServerActor,
@@ -10,14 +11,22 @@ import {
   createIeltsMockAttempt,
   getIeltsMockAttempt,
   saveIeltsMockAttempt,
+  startIeltsSection,
+  submitSectionAnswers,
   consumeAiCredit,
+  canMinorAccessFeature,
+  getGuardianConsentState,
+  getMinorStatus,
+  verifyPdpoCookie,
   type IeltsTrack,
   type IeltsBandReport,
+  type IeltsMockAttempt,
 } from '@lumen/core';
+import { getRepositories } from '@lumen/db';
 import {
   redactIeltsPii,
-  applyWritingLengthPenalties,
-  evaluateIeltsSpeakingFromMetrics,
+  evaluateIeltsWriting,
+  evaluateIeltsSpeaking,
 } from '@lumen/ai';
 
 export interface IeltsMockExamData {
@@ -96,7 +105,12 @@ export async function fetchIeltsMockExamData(
   const actor = await requireServerActor();
   assertCan(actor, 'exam:take', { ownerId: actor.id });
 
-  if (!getIeltsMockAttempt(attemptId)) {
+  const existing = getIeltsMockAttempt(attemptId);
+  if (existing && existing.userId !== actor.id) {
+    throw new AuthorizationError('Cannot access an IELTS mock attempt owned by another user');
+  }
+
+  if (!existing) {
     saveIeltsMockAttempt(
       createIeltsMockAttempt({
         id: attemptId,
@@ -273,6 +287,58 @@ export async function completeIeltsMockAction(
     throw new Error(`IELTS mock attempt '${input.attemptId}' has already been scored`);
   }
 
+  // 1b. Server-Side Minor Feature Gate under Bangladesh PDPO 2025 (P1-E)
+  const cookieStore = await cookies();
+  const minorCookie = cookieStore.get('lumen_is_minor')?.value;
+  const isMinorVerifiedCookie = (await verifyPdpoCookie(minorCookie)) === 'true';
+  const isMinor = getMinorStatus(actor.id) || isMinorVerifiedCookie;
+  if (isMinor) {
+    const consent = getGuardianConsentState(actor.id);
+    const access = canMinorAccessFeature(consent, 'ai_speaking_upload');
+    if (!access.allowed) {
+      throw new AuthorizationError(
+        access.reason ??
+          'Minor learners must have verified guardian consent to evaluate speaking audio.'
+      );
+    }
+  }
+
+  // 1c. Forward-only state transition: require sections to be submitted/completed
+  let currentAttempt = attempt;
+  if (currentAttempt.status === 'not_started') {
+    const hasAnyAnswers =
+      Object.keys(input.listeningAnswers).length > 0 ||
+      Object.keys(input.readingAnswers).length > 0 ||
+      Boolean(input.writingAnswers.task1 || input.writingAnswers.task2) ||
+      Boolean(input.speakingData.part2Transcript);
+    if (!hasAnyAnswers) {
+      throw new Error(
+        `Cannot finalize an unstarted empty IELTS mock attempt '${input.attemptId}' without section submissions`
+      );
+    }
+    currentAttempt = startIeltsSection(currentAttempt, 'listening');
+    currentAttempt = submitSectionAnswers(currentAttempt, 'listening', input.listeningAnswers);
+    currentAttempt = startIeltsSection(currentAttempt, 'reading');
+    currentAttempt = submitSectionAnswers(currentAttempt, 'reading', input.readingAnswers);
+    currentAttempt = startIeltsSection(currentAttempt, 'writing');
+    currentAttempt = submitSectionAnswers(currentAttempt, 'writing', input.writingAnswers);
+    currentAttempt = startIeltsSection(currentAttempt, 'speaking');
+    currentAttempt = submitSectionAnswers(currentAttempt, 'speaking', input.speakingData);
+  } else if (currentAttempt.status !== 'completed') {
+    if (currentAttempt.status === 'listening') {
+      currentAttempt = submitSectionAnswers(currentAttempt, 'listening', input.listeningAnswers);
+    }
+    if (currentAttempt.status === 'reading') {
+      currentAttempt = submitSectionAnswers(currentAttempt, 'reading', input.readingAnswers);
+    }
+    if (currentAttempt.status === 'writing') {
+      currentAttempt = submitSectionAnswers(currentAttempt, 'writing', input.writingAnswers);
+    }
+    if (currentAttempt.status === 'speaking') {
+      currentAttempt = submitSectionAnswers(currentAttempt, 'speaking', input.speakingData);
+    }
+  }
+
   // 2. Deterministic Listening & Reading scoring from 0 against stored section answer keys
   const listeningKey: Record<string, string> = {
     l1: 'Single studio apartment',
@@ -320,29 +386,17 @@ export async function completeIeltsMockAction(
   const redactedTask2 = redactIeltsPii(input.writingAnswers.task2, candidateNames);
   const redactedTranscript = redactIeltsPii(input.speakingData.part2Transcript, candidateNames);
 
-  // 5. Evaluate Writing & Speaking via @lumen/ai
-  const t1Words = redactedTask1.trim().split(/\s+/).filter(Boolean).length;
-  const t2Words = redactedTask2.trim().split(/\s+/).filter(Boolean).length;
-  const task1Type = input.track === 'ielts_gt' ? 'task1_gt' : 'task1_academic';
-  const task1Band = applyWritingLengthPenalties(task1Type, t1Words, t1Words === 0 ? 0 : 7.0);
-  const task2Band = applyWritingLengthPenalties('task2', t2Words, t2Words === 0 ? 0 : 7.0);
+  // 5. Evaluate Writing & Speaking via real @lumen/ai evaluators
+  const writingEval = evaluateIeltsWriting({
+    task1: redactedTask1,
+    task2: redactedTask2,
+    track: input.track,
+  });
 
-  const speakingWords = redactedTranscript.trim().split(/\s+/).filter(Boolean).length;
-  const speakingEval = evaluateIeltsSpeakingFromMetrics(
-    {
-      wordsCount: speakingWords,
-      totalDurationSeconds: 120,
-      speakingDurationSeconds: speakingWords > 0 ? 105 : 0,
-      wpm: speakingWords > 0 ? Math.round((speakingWords / 120) * 60) : 0,
-      pausesCount: 0,
-      hesitationsCount: 0,
-      hesitationsPerMinute: 1.0,
-      fillerCount: 0,
-      fillerDensity: 0.01,
-      meanConfidence: speakingWords > 0 ? 0.92 : 0.5,
-    },
-    redactedTranscript
-  );
+  const speakingEval = evaluateIeltsSpeaking({
+    transcript: redactedTranscript,
+    part2Notes: input.speakingData.part2Notes,
+  });
 
   const report = aggregateIeltsBandReport({
     attemptId: input.attemptId,
@@ -350,10 +404,10 @@ export async function completeIeltsMockAction(
     listeningRaw,
     readingRaw,
     writing: {
-      task1Band,
-      task2Band,
-      task1Words: t1Words,
-      task2Words: t2Words,
+      task1Band: writingEval.task1Band,
+      task2Band: writingEval.task2Band,
+      task1Words: writingEval.task1Words,
+      task2Words: writingEval.task2Words,
     },
     speaking: {
       criteria: {
@@ -365,12 +419,32 @@ export async function completeIeltsMockAction(
     },
   });
 
-  saveIeltsMockAttempt({
-    ...attempt,
+  const completedAttempt: IeltsMockAttempt = {
+    ...currentAttempt,
     status: 'completed',
     currentSection: 'completed',
     completedAt: report.completedAt,
+    answers: {
+      listening: input.listeningAnswers,
+      reading: input.readingAnswers,
+      writing: input.writingAnswers,
+      speaking: input.speakingData,
+    },
     report,
+  };
+
+  saveIeltsMockAttempt(completedAttempt);
+
+  // 6. Persist updated attempt via repository adapter
+  void getRepositories().attempts?.save({
+    id: completedAttempt.id,
+    userId: completedAttempt.userId,
+    examType: completedAttempt.track,
+    status: completedAttempt.status,
+    startedAt: completedAttempt.startedAt ?? new Date().toISOString(),
+    completedAt: completedAttempt.completedAt,
+    data: completedAttempt as unknown as Record<string, unknown>,
+    report: report as unknown as Record<string, unknown>,
   });
 
   return report;

@@ -1,6 +1,7 @@
 /** @purpose Server actions for Staff Support Desk, Masked PII lookup, and Macro responses (docs/27 §16) */
 'use server';
 
+import { cookies } from 'next/headers';
 import { z } from '@lumen/config';
 import {
   requireServerActor,
@@ -107,7 +108,45 @@ export async function startSupportImpersonationAction(rawInput: {
 }): Promise<SupportImpersonationSession> {
   const parsed = impersonateSchema.parse(rawInput);
   const actor = await resolveSupportActor();
-  return startSupportImpersonation(actor, parsed.targetUserId, parsed.reason);
+  const session = startSupportImpersonation(actor, parsed.targetUserId, parsed.reason);
+
+  const cookieStore = await cookies();
+  cookieStore.set('lumen_impersonate_target', session.targetUserId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 15 * 60, // 15-minute time-limited session
+  });
+
+  return session;
+}
+
+export async function stopSupportImpersonationAction(): Promise<{ ok: true }> {
+  const cookieStore = await cookies();
+  cookieStore.delete('lumen_impersonate_target');
+  return { ok: true };
+}
+
+export async function getImpersonationContext(): Promise<{
+  isImpersonating: boolean;
+  targetUserId: string | null;
+  readOnly: boolean;
+}> {
+  const cookieStore = await cookies();
+  const target = cookieStore.get('lumen_impersonate_target')?.value;
+  if (!target) {
+    return {
+      isImpersonating: false,
+      targetUserId: null,
+      readOnly: false,
+    };
+  }
+  return {
+    isImpersonating: true,
+    targetUserId: target,
+    readOnly: true,
+  };
 }
 
 const supportRefundSchema = z.object({

@@ -1,11 +1,15 @@
 /** @purpose Server actions for Bangladesh PDPO 2025 Guardian Consent and Data Portability / Erasure controls */
 'use server';
 
+import { cookies } from 'next/headers';
 import { z } from '@lumen/config';
 import {
   requireServerActor,
   assertCan,
-  createMinorGuardianConsentState,
+  getGuardianConsentState,
+  saveGuardianConsentState,
+  getMinorStatus,
+  setMinorStatus,
   requestGuardianConsent,
   verifyGuardianOtp,
   revokeGuardianConsent,
@@ -13,6 +17,10 @@ import {
   exportUserDataBundle,
   requestDataDeletion,
   recordAuditEvent,
+  signPdpoCookie,
+  listUserOrders,
+  getUserEntitlements,
+  getUserLedgerEntries,
   type GuardianConsentState,
   type UserDataBundleExport,
 } from '@lumen/core';
@@ -34,19 +42,28 @@ const requestDeletionSchema = z.object({
   reason: z.string().min(5, 'Please provide a reason for account deletion'),
 });
 
-// In-memory session store simulation for dev / runtime state
-const consentStates = new Map<string, GuardianConsentState>();
-
 export async function getGuardianConsentStatusAction(): Promise<GuardianConsentState> {
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
+  return getGuardianConsentState(actor.id);
+}
 
-  let state = consentStates.get(actor.id);
-  if (!state) {
-    state = createMinorGuardianConsentState(actor.id);
-    consentStates.set(actor.id, state);
-  }
-  return state;
+export async function setMinorStatusAction(isMinor: boolean) {
+  const actor = await requireServerActor();
+  assertCan(actor, 'user:view_own', { ownerId: actor.id });
+
+  setMinorStatus(actor.id, isMinor);
+  const cookieStore = await cookies();
+  const signed = await signPdpoCookie(isMinor ? 'true' : 'false');
+  cookieStore.set('lumen_is_minor', signed, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 365 * 24 * 60 * 60,
+  });
+
+  return { ok: true as const, isMinor };
 }
 
 export async function requestGuardianConsentAction(rawInput: {
@@ -57,7 +74,7 @@ export async function requestGuardianConsentAction(rawInput: {
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
 
-  const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
+  const state = getGuardianConsentState(actor.id);
 
   const { state: nextState, otpNotification: _otpNotification } = requestGuardianConsent(state, {
     guardianEmail: input.guardianEmail,
@@ -66,7 +83,7 @@ export async function requestGuardianConsentAction(rawInput: {
     ...(process.env.NODE_ENV === 'test' ? { mockOtp: '482910' } : {}),
   });
 
-  consentStates.set(actor.id, nextState);
+  saveGuardianConsentState(nextState);
   recordAuditEvent({
     actorId: actor.id,
     action: 'staff_action',
@@ -92,12 +109,22 @@ export async function verifyGuardianOtpAction(rawInput: { otp: string }) {
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
 
-  const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
+  const state = getGuardianConsentState(actor.id);
 
   try {
     const nextState = verifyGuardianOtp(state, input.otp);
-    consentStates.set(actor.id, nextState);
+    saveGuardianConsentState(nextState);
     if (nextState.status === 'verified') {
+      const cookieStore = await cookies();
+      const signedConsent = await signPdpoCookie('verified');
+      cookieStore.set('lumen_guardian_consent', signedConsent, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 365 * 24 * 60 * 60,
+      });
+
       recordAuditEvent({
         actorId: actor.id,
         action: 'staff_action',
@@ -126,9 +153,13 @@ export async function revokeGuardianConsentAction(rawInput: { reason: string }) 
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
 
-  const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
+  const state = getGuardianConsentState(actor.id);
   const nextState = revokeGuardianConsent(state, input.reason);
-  consentStates.set(actor.id, nextState);
+  saveGuardianConsentState(nextState);
+
+  const cookieStore = await cookies();
+  cookieStore.delete('lumen_guardian_consent');
+
   recordAuditEvent({
     actorId: actor.id,
     action: 'staff_action',
@@ -150,7 +181,7 @@ export async function checkMinorFeatureAccessAction(
 ): Promise<{ allowed: boolean; reason?: string }> {
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
-  const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
+  const state = getGuardianConsentState(actor.id);
   return canMinorAccessFeature(state, feature);
 }
 
@@ -158,13 +189,41 @@ export async function exportUserDataBundleAction(): Promise<UserDataBundleExport
   const actor = await requireServerActor();
   assertCan(actor, 'user:view_own', { ownerId: actor.id });
 
-  const consent = consentStates.get(actor.id);
+  const consent = getGuardianConsentState(actor.id);
+  const isMinor = getMinorStatus(actor.id);
+
+  // Aggregate user's actual orders, entitlements, and credit ledger
+  const rawOrders = listUserOrders(actor.id);
+  const rawEntitlements = getUserEntitlements(actor.id);
+  const rawLedger = getUserLedgerEntries(actor.id);
+
+  const transactions = rawOrders.map((o) => ({
+    orderId: o.id,
+    amountPaid: `${o.currency} ${(o.amountMinor / 100).toFixed(2)}`,
+    mushak63Invoice: `MUSHAK-${o.id.slice(0, 8).toUpperCase()}`,
+    date: o.createdAt,
+  }));
+
+  const entitlements = rawEntitlements.map((e) => e.productSlug);
+
+  const creditLedger = rawLedger.map((l) => ({
+    kind: l.kind,
+    delta: l.delta,
+    reason: l.reason,
+    createdAt: l.createdAt,
+  }));
+
   return exportUserDataBundle({
     userId: actor.id,
-    email: `${actor.id}@example.com`,
+    email: `${actor.id}@lumen.academy`,
     name: 'Authenticated Learner',
-    isMinor: true,
+    isMinor,
     guardianConsent: consent,
+    orders: transactions,
+    entitlements,
+    creditLedgerEntries: creditLedger,
+    totalMockAttempts: rawLedger.filter((l) => l.kind === 'mock_attempt' && l.delta < 0).length,
+    studySessionsCount: rawOrders.length * 5,
   });
 }
 

@@ -7,6 +7,8 @@ import {
   combineIeltsWriting,
   analyzeSpeakingTimestamps,
   evaluateIeltsSpeakingFromMetrics,
+  evaluateIeltsWriting,
+  evaluateIeltsSpeaking,
   type Nova3WordTimestamp,
   type IeltsWritingTaskEvalOutput,
 } from '../evaluation/ielts';
@@ -127,6 +129,43 @@ describe('IELTS AI Evaluator (Writing & Speaking)', () => {
       expect(evaluation.label).toBe('estimated');
       expect(evaluation.overallSpeakingBand).toBeGreaterThanOrEqual(5.0);
       expect(evaluation.speechMetrics.hesitationsCount).toBe(1);
+    });
+  });
+
+  describe('Real evaluateIeltsWriting & evaluateIeltsSpeaking Pipelines', () => {
+    it('evaluates authentic Task 1 and Task 2 submissions with rubric-derived bands and labels', () => {
+      const task1Essay = `The chart illustrates energy consumption patterns in Bangladesh from 2010 to 2025 across industrial, commercial, and residential sectors.
+Overall, industrial consumption showed a substantial and significant upward trend throughout the period, whereas commercial usage fluctuated moderately.
+In 2010, the industrial sector accounted for the predominant proportion of energy usage. Furthermore, residential demand accelerated steadily because of urban expansion.
+Consequently, total energy requirements reached unprecedented levels by the end of the forecast timeframe.`;
+
+      const task2Essay = `Some educators argue that higher education should focus exclusively on practical employment skills, whereas others maintain that universities must provide theoretical foundations.
+In recent decades, the transition toward vocational competence has gained significant momentum. For instance, technical proficiencies enable graduates to contribute immediately to the workforce.
+However, theoretical understanding remains fundamental because it fosters analytical problem-solving and critical perspective. Although vocational training prepares students for existing industries, conceptual mastery allows them to navigate technological disruption.
+In conclusion, while practical expertise is valuable, higher education institutions must balance theoretical foundations with hands-on applications to prepare students comprehensively for future leadership.`;
+
+      const result = evaluateIeltsWriting({
+        task1: task1Essay,
+        task2: task2Essay,
+        track: 'ielts_academic',
+      });
+
+      expect(result.task1Band).toBeGreaterThanOrEqual(4.5);
+      expect(result.task2Band).toBeGreaterThanOrEqual(4.5);
+      expect(result.overallWritingBand).toBeGreaterThanOrEqual(4.5);
+      expect(result.label).toBe('estimated');
+      expect(result.task1.dimensions.task_response.evidence.length).toBeGreaterThan(0);
+      expect(result.feedbackSummary).toContain('estimated');
+    });
+
+    it('evaluates speaking transcript with real metric derivation when timestamps are omitted', () => {
+      const transcript =
+        'I would like to describe a challenging project I completed at university. Although it was difficult, we worked diligently and succeeded.';
+      const result = evaluateIeltsSpeaking({ transcript });
+
+      expect(result.overallSpeakingBand).toBeGreaterThanOrEqual(5.0);
+      expect(result.label).toBe('estimated');
+      expect(result.dimensions.fluency_coherence.band).toBeGreaterThanOrEqual(5.0);
     });
   });
 });

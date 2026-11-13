@@ -180,6 +180,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'course:view',
     'exam:review',
     'order:view_all',
+    'order:refund',
     'user:view_all',
     'user:view_own',
     'support:read',

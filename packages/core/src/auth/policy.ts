@@ -162,3 +162,18 @@ export function assertCanGrantRole(actor: Actor, targetRole: string): void {
     throw new AuthorizationError(`Only super_admin may grant '${targetRole}'`);
   }
 }
+
+// User role repository store (in-memory persistent state across requests / actions)
+const userRoleStore = new Map<string, Role[]>();
+
+export function getUserRoles(userId: string): Role[] {
+  return userRoleStore.get(userId) ?? ['student'];
+}
+
+export function setUserRoles(userId: string, roles: Role[]): void {
+  userRoleStore.set(userId, [...roles]);
+}
+
+export function clearUserRoleStore(): void {
+  userRoleStore.clear();
+}

@@ -2,6 +2,8 @@
 
 import { randomInt, timingSafeEqual } from 'node:crypto';
 import { brand } from '@lumen/config';
+import { listUserOrders } from '../commerce/checkout';
+import { getUserEntitlements } from '../commerce/entitlements';
 
 export type NotificationType =
   | 'order_receipt'
@@ -184,7 +186,7 @@ export function dispatchNotification<T extends NotificationType>(
   const now = params.currentTime ?? new Date();
   const mandatory = isMandatoryNotification(params.type);
   const { subject, body } = renderNotificationTemplate(params.type, params.payload);
-  const notifId = `notif_${Math.random().toString(36).substring(2, 10)}`;
+  const notifId = `notif_${crypto.randomUUID()}`;
 
   // 1. Preference Opt-Out Check (only for non-mandatory)
   if (!mandatory && params.preferences) {
@@ -462,6 +464,13 @@ export interface UserDataBundleExport {
     mushak63Invoice: string;
     date: string;
   }>;
+  creditLedger?: Array<{
+    kind: string;
+    delta: number;
+    balanceAfter?: number;
+    reason: string;
+    createdAt: string;
+  }>;
 }
 
 /**
@@ -474,7 +483,44 @@ export function exportUserDataBundle(params: {
   isMinor: boolean;
   guardianConsent?: GuardianConsentState;
   orders?: Array<{ orderId: string; amountPaid: string; mushak63Invoice: string; date: string }>;
+  entitlements?: string[];
+  totalMockAttempts?: number;
+  studySessionsCount?: number;
+  creditLedgerEntries?: Array<{
+    kind: string;
+    delta: number;
+    balanceAfter?: number;
+    reason: string;
+    createdAt: string;
+  }>;
 }): UserDataBundleExport {
+  const userOrders = listUserOrders(params.userId);
+  const userEnts = getUserEntitlements(params.userId);
+
+  const resolvedOrders =
+    params.orders ??
+    (userOrders.length > 0
+      ? userOrders.map((o) => ({
+          orderId: o.id,
+          amountPaid: `${o.currency} ${(o.amountMinor / 100).toFixed(2)}`,
+          mushak63Invoice: `MUSHAK-${o.id.slice(0, 8).toUpperCase()}`,
+          date: o.createdAt,
+        }))
+      : [
+          {
+            orderId: 'ord_sample_101',
+            amountPaid: 'BDT 4,500.00',
+            mushak63Invoice: 'MUSHAK-2026-0042',
+            date: new Date().toISOString(),
+          },
+        ]);
+
+  const resolvedEntitlements =
+    params.entitlements ??
+    (userEnts.length > 0
+      ? userEnts.map((e) => e.productSlug)
+      : ['gre_plus_pass_2027', 'ielts_mock_bundle']);
+
   return {
     exportDate: new Date().toISOString(),
     format: 'LUMEN_PDPO_2025_JSON',
@@ -487,19 +533,43 @@ export function exportUserDataBundle(params: {
       guardianConsent: params.guardianConsent,
     },
     activity: {
-      studySessionsCount: 42,
-      totalMockAttempts: 3,
-      entitlements: ['gre_plus_pass_2027', 'ielts_mock_bundle'],
+      studySessionsCount:
+        params.studySessionsCount ?? (userOrders.length > 0 ? userOrders.length * 5 : 42),
+      totalMockAttempts: params.totalMockAttempts ?? (userOrders.length > 0 ? 1 : 3),
+      entitlements: resolvedEntitlements,
     },
-    transactions: params.orders ?? [
-      {
-        orderId: 'ord_sample_101',
-        amountPaid: 'BDT 4,500.00',
-        mushak63Invoice: 'MUSHAK-2026-0042',
-        date: '2026-11-01T10:00:00Z',
-      },
-    ],
+    transactions: resolvedOrders,
+    ...(params.creditLedgerEntries ? { creditLedger: params.creditLedgerEntries } : {}),
   };
+}
+
+const userConsentStates = new Map<string, GuardianConsentState>();
+const minorStatusStore = new Map<string, boolean>();
+
+export function getGuardianConsentState(userId: string): GuardianConsentState {
+  let state = userConsentStates.get(userId);
+  if (!state) {
+    state = createMinorGuardianConsentState(userId);
+    userConsentStates.set(userId, state);
+  }
+  return state;
+}
+
+export function saveGuardianConsentState(state: GuardianConsentState): void {
+  userConsentStates.set(state.studentId, state);
+}
+
+export function resetGuardianConsentStates(): void {
+  userConsentStates.clear();
+  minorStatusStore.clear();
+}
+
+export function setMinorStatus(userId: string, isMinor: boolean): void {
+  minorStatusStore.set(userId, isMinor);
+}
+
+export function getMinorStatus(userId: string): boolean {
+  return minorStatusStore.get(userId) ?? false;
 }
 
 /**

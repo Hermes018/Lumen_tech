@@ -3,6 +3,7 @@
 import { assertCan, type Actor } from '../auth/policy';
 import { revokeCertificate, type CertificateRecord } from '../certificates/verify';
 import { recordAuditEvent, type AuditLogEntry } from '../grader/queue';
+import { assertSupportRefundTierCap } from '../support/service';
 import { getOrderByRef, updateOrderRecord, type OrderRecord } from './checkout';
 import {
   revokeEntitlementOnRefund,
@@ -307,6 +308,16 @@ export function executeRefund(
   const order = getOrderByRef(params.orderId);
   if (!order) {
     throw new Error(`Order '${params.orderId}' not found`);
+  }
+
+  // 1b. Enforce support self-serve / tier cap inside executeRefund (P1-G, Stage 11)
+  const isFinanceOrAdmin =
+    actor.roles.includes('finance') ||
+    actor.roles.includes('admin') ||
+    actor.roles.includes('super_admin');
+  if (actor.roles.includes('support') && !isFinanceOrAdmin) {
+    const currency = (order.currency as 'BDT' | 'USD') || 'BDT';
+    assertSupportRefundTierCap(actor, order.amountMinor, currency);
   }
 
   if (order.status === 'refunded') {

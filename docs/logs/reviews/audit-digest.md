@@ -1,6 +1,6 @@
 # M0 Codebase Audit Digest (for Claude Opus 5.5)
 
-Generated: 2026-11-13T06:19:14.097Z | Scope: `packages/*` + `apps/web` (216 files scanned)
+Generated: 2026-11-13T17:57:51.965Z | Scope: `packages/*` + `apps/web` (269 files scanned)
 
 ## 1. Hardcoded & Code Smell Scan
 
@@ -25,10 +25,13 @@ Generated: 2026-11-13T06:19:14.097Z | Scope: `packages/*` + `apps/web` (216 file
 | `apps/web/app/actions/checkout.ts` | Caller-passed | Yes | Yes |
 | `apps/web/app/actions/exam.ts` | None/Public | Yes | Yes |
 | `apps/web/app/actions/grader.ts` | None/Public | Yes | Yes |
+| `apps/web/app/actions/ielts.ts` | None/Public | Yes | Yes |
 | `apps/web/app/actions/mistakes.ts` | Caller-passed | Yes | Yes |
+| `apps/web/app/actions/pdpo.ts` | Caller-passed | Yes | Yes |
 | `apps/web/app/actions/practice.ts` | Caller-passed | Yes | Yes |
 | `apps/web/app/actions/studio.ts` | None/Public | Yes | Yes |
 | `apps/web/app/actions/study-plan.ts` | Caller-passed | Yes | Yes |
+| `apps/web/app/actions/support.ts` | None/Public | Yes | Yes |
 | `apps/web/app/actions/tutor.ts` | Caller-passed | Yes | Yes |
 | `apps/web/app/api/health/route.ts` | None/Public | No | No |
 | `apps/web/app/api/inngest/route.ts` | None/Public | No | Yes |
@@ -37,7 +40,7 @@ Generated: 2026-11-13T06:19:14.097Z | Scope: `packages/*` + `apps/web` (216 file
 ## 3. Persistence Gap Audit (In-Memory `Map` in `packages/core`)
 
 - `packages/core/src/analytics/progress.ts`: 1 `new Map<` store(s) (uses `@lumen/db`: No)
-- `packages/core/src/commerce/checkout.ts`: 2 `new Map<` store(s) (uses `@lumen/db`: Yes)
+- `packages/core/src/commerce/checkout.ts`: 3 `new Map<` store(s) (uses `@lumen/db`: Yes)
 - `packages/core/src/commerce/entitlements.ts`: 4 `new Map<` store(s) (uses `@lumen/db`: Yes)
 - `packages/core/src/commerce/refunds.ts`: 1 `new Map<` store(s) (uses `@lumen/db`: No)
 - `packages/core/src/exam/statistics.ts`: 1 `new Map<` store(s) (uses `@lumen/db`: No)

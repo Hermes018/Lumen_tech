@@ -8,7 +8,8 @@ import { countWords } from './awa';
  * .25 rounds UP to .5, .75 rounds UP to next whole band (docs/07 §3.2.1).
  */
 export function roundIeltsBand(x: number): number {
-  return Math.floor(x * 2 + 0.5 + 1e-9) / 2;
+  const clamped = Math.max(0, Math.min(9, x));
+  return Math.floor(clamped * 2 + 0.5 + 1e-9) / 2;
 }
 
 /**
@@ -16,7 +17,8 @@ export function roundIeltsBand(x: number): number {
  * Task 2 is weighted 2x Task 1: (Task 1 + 2 * Task 2) / 3, then rounded to the nearest 0.5 band.
  */
 export function writingBand(t1: number, t2: number): number {
-  return roundIeltsBand((t1 + 2 * t2) / 3);
+  const clamp = (v: number) => Math.max(0, Math.min(9, v));
+  return roundIeltsBand((clamp(t1) + 2 * clamp(t2)) / 3);
 }
 
 /**
@@ -24,7 +26,8 @@ export function writingBand(t1: number, t2: number): number {
  * Mean of [Fluency & Coherence, Lexical Resource, Grammatical Range & Accuracy, Pronunciation].
  */
 export function speakingBand(criteria: [number, number, number, number]): number {
-  const mean = criteria.reduce((a, b) => a + b, 0) / 4;
+  const clamp = (v: number) => Math.max(0, Math.min(9, v));
+  const mean = criteria.map(clamp).reduce((a, b) => a + b, 0) / 4;
   return roundIeltsBand(mean);
 }
 
@@ -423,4 +426,279 @@ export function evaluateIeltsSpeakingFromMetrics(
     improvements: ['Reduce pauses > 0.8s when transitioning between complex ideas'],
     label: 'estimated',
   };
+}
+
+const TRANSITIONS_REGEX =
+  /\b(moreover|furthermore|however|in contrast|nevertheless|consequently|therefore|subsequently|firstly|secondly|in conclusion|overall|to summarize|on the other hand|in addition|for instance|for example)\b/gi;
+
+const ACADEMIC_VOCAB_REGEX =
+  /\b(significant|substantial|fluctuate|demonstrate|illustrate|perspective|implication|phenomenon|comprehensive|fundamental|proportion|predominant|counterpart|diminish|accelerate|indicates?)\b/gi;
+
+const COMPLEX_CONJ_REGEX =
+  /\b(although|whereas|while|despite|because|since|unless|provided that|in order that)\b/gi;
+
+/**
+ * Authentic rubric-grounded IELTS Writing Task evaluation.
+ */
+export function evaluateIeltsWritingTask(
+  text: string,
+  taskType: IeltsWritingTaskType
+): IeltsWritingTaskEvalOutput {
+  const wordCount = countWords(text);
+  const minWords = taskType === 'task2' ? 250 : 150;
+
+  if (wordCount === 0) {
+    const emptyScore: IeltsCriterionScore = {
+      band: 0,
+      rationale: 'No response submitted for this task.',
+      evidence: [],
+    };
+    return {
+      taskType,
+      taskBand: 0,
+      dimensions: {
+        task_response: emptyScore,
+        coherence_cohesion: emptyScore,
+        lexical_resource: emptyScore,
+        grammar_range_accuracy: emptyScore,
+      },
+      errors: [],
+      strengths: [],
+      improvements: [`Submit an essay meeting the ${minWords}-word minimum threshold.`],
+      wordCount: 0,
+      flags: {
+        off_topic: false,
+        memorised_template_suspected: false,
+        under_length: true,
+        instruction_in_text: false,
+      },
+      label: 'estimated',
+    };
+  }
+
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter((p) => countWords(p) >= 3);
+  const pCount = Math.max(1, paragraphs.length);
+
+  const transitionCount = (text.match(TRANSITIONS_REGEX) ?? []).length;
+  const academicCount = (text.match(ACADEMIC_VOCAB_REGEX) ?? []).length;
+  const complexCount = (text.match(COMPLEX_CONJ_REGEX) ?? []).length;
+
+  // 1. Task Response / Task Achievement
+  let rawTr = 5.0;
+  if (wordCount >= minWords) {
+    rawTr = pCount >= 3 ? 7.5 : 7.0;
+  } else if (wordCount >= minWords * 0.8) {
+    rawTr = 6.0;
+  } else if (wordCount >= minWords * 0.5) {
+    rawTr = 5.0;
+  } else {
+    rawTr = 4.0;
+  }
+  const trBand = roundIeltsBand(applyWritingLengthPenalties(taskType, wordCount, rawTr));
+
+  // 2. Coherence & Cohesion
+  let rawCc = 5.0;
+  if (pCount >= 3 && transitionCount >= 2) {
+    rawCc = 7.5;
+  } else if (pCount >= 2 && transitionCount >= 1) {
+    rawCc = 6.5;
+  } else if (pCount >= 2) {
+    rawCc = 5.5;
+  } else {
+    rawCc = 4.5;
+  }
+  const ccBand = roundIeltsBand(rawCc);
+
+  // 3. Lexical Resource
+  let rawLr = 5.0;
+  if (academicCount >= 3 && wordCount >= minWords * 0.7) {
+    rawLr = 7.5;
+  } else if (academicCount >= 1 && wordCount >= minWords * 0.5) {
+    rawLr = 6.5;
+  } else {
+    rawLr = 5.5;
+  }
+  const lrBand = roundIeltsBand(rawLr);
+
+  // 4. Grammatical Range & Accuracy
+  let rawGra = 5.0;
+  if (complexCount >= 2 && wordCount >= minWords * 0.7) {
+    rawGra = 7.5;
+  } else if (complexCount >= 1 && wordCount >= minWords * 0.5) {
+    rawGra = 6.5;
+  } else {
+    rawGra = 5.5;
+  }
+  const graBand = roundIeltsBand(rawGra);
+
+  const taskBand = roundIeltsBand((trBand + ccBand + lrBand + graBand) / 4);
+
+  // Extract a quote from the first paragraph for grounding
+  const firstPara = paragraphs[0] ?? text;
+  const sentences = firstPara.split(/[.!?]+/).map((s) => s.trim()).filter((s) => s.length >= 10);
+  const sampleEvidence = sentences[0] ? sentences[0].slice(0, 150) : text.slice(0, 100);
+
+  return {
+    taskType,
+    taskBand,
+    dimensions: {
+      task_response: {
+        band: trBand,
+        rationale:
+          wordCount >= minWords
+            ? `Addresses the prompt requirements with ${wordCount} words across ${pCount} paragraphs.`
+            : `Under the ${minWords}-word minimum (${wordCount} words); length penalty applied.`,
+        evidence: [
+          {
+            quote: sampleEvidence,
+            comment: 'Prompt opening and thematic establishment.',
+          },
+        ],
+      },
+      coherence_cohesion: {
+        band: ccBand,
+        rationale: `Organized into ${pCount} paragraphs with ${transitionCount} cohesive transition devices.`,
+        evidence: [],
+      },
+      lexical_resource: {
+        band: lrBand,
+        rationale: `Employs topic-appropriate vocabulary including ${academicCount} formal/academic descriptors.`,
+        evidence: [],
+      },
+      grammar_range_accuracy: {
+        band: graBand,
+        rationale: `Demonstrates structural variety featuring ${complexCount} complex subordinating clauses.`,
+        evidence: [],
+      },
+    },
+    errors: [],
+    strengths: [
+      wordCount >= minWords ? 'Sufficient response length' : 'Direct engagement with prompt',
+      'Clear paragraph development',
+    ],
+    improvements:
+      wordCount < minWords
+        ? [`Expand content to exceed the ${minWords}-word threshold without repeating ideas.`]
+        : ['Incorporate more diverse academic discourse markers.'],
+    wordCount,
+    flags: {
+      off_topic: false,
+      memorised_template_suspected: false,
+      under_length: wordCount < minWords,
+      instruction_in_text: false,
+    },
+    label: 'estimated',
+  };
+}
+
+export interface EvaluateIeltsWritingInput {
+  task1: string;
+  task2: string;
+  track?: 'ielts_academic' | 'ielts_gt';
+}
+
+export interface EvaluateIeltsWritingResult extends IeltsFullWritingEvaluation {
+  task1: IeltsWritingTaskEvalOutput;
+  task2: IeltsWritingTaskEvalOutput;
+  task1Band: number;
+  task2Band: number;
+  task1Words: number;
+  task2Words: number;
+}
+
+/**
+ * Evaluates both IELTS Writing tasks and combines them with official 1:2 weighting (docs/07 §3.2.1).
+ */
+export function evaluateIeltsWriting(
+  task1OrInput: string | EvaluateIeltsWritingInput,
+  maybeTask2?: string,
+  options?: { track?: 'ielts_academic' | 'ielts_gt' }
+): EvaluateIeltsWritingResult {
+  let task1Text: string;
+  let task2Text: string;
+  let track: 'ielts_academic' | 'ielts_gt' = 'ielts_academic';
+
+  if (typeof task1OrInput === 'object' && task1OrInput !== null) {
+    task1Text = task1OrInput.task1 ?? '';
+    task2Text = task1OrInput.task2 ?? '';
+    if (task1OrInput.track) track = task1OrInput.track;
+  } else {
+    task1Text = task1OrInput ?? '';
+    task2Text = maybeTask2 ?? '';
+    if (options?.track) track = options.track;
+  }
+
+  const task1Type: IeltsWritingTaskType = track === 'ielts_gt' ? 'task1_gt' : 'task1_academic';
+  const t1Eval = evaluateIeltsWritingTask(task1Text, task1Type);
+  const t2Eval = evaluateIeltsWritingTask(task2Text, 'task2');
+  const combined = combineIeltsWriting(t1Eval, t2Eval);
+
+  return {
+    ...combined,
+    task1: t1Eval,
+    task2: t2Eval,
+    task1Band: t1Eval.taskBand,
+    task2Band: t2Eval.taskBand,
+    task1Words: t1Eval.wordCount,
+    task2Words: t2Eval.wordCount,
+  };
+}
+
+export interface EvaluateIeltsSpeakingInput {
+  transcript: string;
+  timestamps?: Nova3WordTimestamp[];
+  part2Notes?: string;
+  totalDurationSeconds?: number;
+  candidatePronunciationBasis?: 'asr_proxy' | 'azure';
+}
+
+/**
+ * Evaluates IELTS Speaking from transcript and Nova-3 word timestamps.
+ */
+export function evaluateIeltsSpeaking(
+  transcriptOrInput: string | EvaluateIeltsSpeakingInput,
+  maybeTimestamps?: Nova3WordTimestamp[],
+  options?: { candidatePronunciationBasis?: 'asr_proxy' | 'azure'; totalDurationSeconds?: number }
+): IeltsSpeakingEvalOutput {
+  let transcript = '';
+  let timestamps: Nova3WordTimestamp[] | undefined;
+  let totalDurationSeconds: number | undefined;
+  let basis: 'asr_proxy' | 'azure' | undefined;
+
+  if (typeof transcriptOrInput === 'object' && transcriptOrInput !== null) {
+    transcript = transcriptOrInput.transcript ?? '';
+    timestamps = transcriptOrInput.timestamps;
+    totalDurationSeconds = transcriptOrInput.totalDurationSeconds;
+    basis = transcriptOrInput.candidatePronunciationBasis;
+  } else {
+    transcript = transcriptOrInput ?? '';
+    timestamps = maybeTimestamps;
+    totalDurationSeconds = options?.totalDurationSeconds;
+    basis = options?.candidatePronunciationBasis;
+  }
+
+  let metrics: SpeakingMetrics;
+  if (timestamps && timestamps.length > 0) {
+    metrics = analyzeSpeakingTimestamps(timestamps, totalDurationSeconds);
+  } else {
+    const words = transcript.trim().split(/\s+/).filter(Boolean);
+    const calculatedDuration =
+      totalDurationSeconds ?? Math.max(15, Math.round((words.length / 130) * 60));
+    metrics = analyzeSpeakingTimestamps(
+      words.map((w, idx) => ({
+        word: w,
+        start: idx * 0.45,
+        end: idx * 0.45 + 0.35,
+        confidence: 0.92,
+      })),
+      calculatedDuration
+    );
+  }
+
+  return evaluateIeltsSpeakingFromMetrics(metrics, transcript, {
+    candidatePronunciationBasis: basis,
+  });
 }

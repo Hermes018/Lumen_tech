@@ -16,6 +16,7 @@ import { MemoryQuestionStatRepo } from './question-stats';
 import { MemoryMistakeRepo } from './mistakes';
 import { MemoryPriceRepo } from './prices';
 import { MemoryVocabCardRepo } from './vocab-cards';
+import { MemoryAttemptRepo } from './attempts';
 
 export { createInitialState, type MemoryDataState } from './state';
 
@@ -32,6 +33,7 @@ export function createMemoryRepositories(state: MemoryDataState = createInitialS
   const mistakes = new MemoryMistakeRepo(state);
   const prices = new MemoryPriceRepo(state);
   const vocabCards = new MemoryVocabCardRepo(state);
+  const attempts = new MemoryAttemptRepo(state);
 
   const unitOfWork: UnitOfWork = {
     async transaction<T>(fn: (repos: Repositories) => Promise<T>): Promise<T> {
@@ -61,6 +63,7 @@ export function createMemoryRepositories(state: MemoryDataState = createInitialS
     mistakes,
     prices,
     vocabCards,
+    attempts,
     unitOfWork,
   };
 }

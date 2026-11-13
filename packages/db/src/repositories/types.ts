@@ -353,6 +353,27 @@ export interface VocabCardRepo {
   saveCard(card: VocabCardRecord): Promise<VocabCardRecord>;
 }
 
+export interface AttemptRecord {
+  id: string;
+  userId: string;
+  examType: string;
+  status: string;
+  startedAt: string;
+  completedAt?: string;
+  totalScore?: number;
+  sectionScoresJson?: Record<string, unknown>;
+  data?: Record<string, unknown>;
+  report?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AttemptRepo {
+  findById(id: string): Promise<AttemptRecord | null>;
+  save(attempt: AttemptRecord): Promise<AttemptRecord>;
+  listByUser(userId: string): Promise<AttemptRecord[]>;
+}
+
 export interface Repositories {
   orders: OrderRepo;
   payments: PaymentRepo;
@@ -366,6 +387,7 @@ export interface Repositories {
   mistakes: MistakeRepo;
   prices: PriceRepo;
   vocabCards: VocabCardRepo;
+  attempts: AttemptRepo;
   unitOfWork: UnitOfWork;
 }
 
