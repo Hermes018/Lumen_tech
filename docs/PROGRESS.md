@@ -244,7 +244,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-37 | Learner dashboard & Finance console (/finance, Mushak 6.3 export, Target/Progress Promise claims) | 3.8-flash | deps: P1-23, P1-02
 - [x] P1-38 | IELTS 4-skill mock runner (listening play-once audio, auto-submit, Speaking Part 2 timers, Band Report & CEFR card) | 3.8-flash | deps: P1-36
 - [x] P1-39 | Notifications & PDPO 2025 Guardian Consent (quiet hours, minor state machine, data export/erasure) & Admin console | 3.8-flash | deps: P1-36, P0-39
-- [ ] P1-40 | Transactional email base: React Email layout, three streams, plain-text alt, en/bn render harness (template sets are owned by the docs/29 tasks in P1.11) | sonnet | deps: P0-17
+- [x] P1-40 | SEO & metadata (sitemap.ts, robots.ts), bilingual dictionary parity (en/bn), and pilot concurrency & ledger stress harness | 3.8-flash | deps: P0-17, P1-39
 - [ ] P1-41 | Entitlement expiry reminders T-30/T-7/T-1 and expired notice (docs/29 scope; supersedes earlier T-7/T-1 scope) | sonnet | deps: P1-34, P1-164
 - [x] P1-42 | Legal page shells, footer links and trademark notices (C31 verbatim); real content only from counsel-signed MDX (docs/26) | haiku | deps: P0-32
 - [ ] P1-43 | SEO: IELTS/GRE landing pages, structured data (Course, FAQ), blog scaffold | sonnet | deps: P0-42
@@ -571,6 +571,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-37 | 191aa57 | 3.8-flash | Finance Operations (packages/core/src/commerce/finance-ops.ts): Target Promise (Plus 90d extension) & Progress Promise (Mentor batch re-enrol) claims, Mushak 6.3 monthly VAT CSV export with formula-injection safety, /finance console, and /admin console with super_admin guard (D4) |
 | 2026-11-13 | P1-38 | task-p1-38 | 3.8-flash | IELTS 4-skill mock orchestrator in packages/core/src/exam/ielts-mock.ts (stateful lifecycle, play-once audio & rewind prevention, auto-submit, Speaking Part 2 timers, Band Report & CEFR card) and CBT runner UI at /exam/ielts/[attemptId] & /results |
 | 2026-11-13 | P1-39 | task-p1-39 | 3.8-flash | Notifications dispatcher (templates, user opt-outs, 22:00-08:00 Asia/Dhaka quiet hours) and Bangladesh PDPO 2025 Under-18 Guardian Consent state machine (request, OTP verify, revoke, data export & erasure) |
+| 2026-11-13 | P1-40 | task-p1-40 | 3.8-flash | Localized sitemap.ts & robots.ts (en/bn public routes), 100% bilingual dictionary parity test, and pilot concurrency & ledger stress test (50 concurrent consumeAiCredit & duplicate SSLCommerz IPN webhooks) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 

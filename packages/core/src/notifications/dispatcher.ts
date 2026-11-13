@@ -1,5 +1,7 @@
 /** @purpose Transactional Notification Dispatcher with Quiet-Hours Suppression (Asia/Dhaka) & Bangladesh PDPO 2025 Under-18 Guardian Consent State Machine (docs/00 D7, docs/02 §463, docs/29) */
 
+import { brand } from '@lumen/config';
+
 export type NotificationType =
   | 'order_receipt'
   | 'refund_confirmation'
@@ -154,7 +156,7 @@ export function renderNotificationTemplate<T extends NotificationType>(
     case 'guardian_consent_otp': {
       const p = payload as GuardianConsentOtpPayload;
       return {
-        subject: `Lumen Academy: Guardian Consent Verification OTP`,
+        subject: `${brand.name}: Guardian Consent Verification OTP`,
         body: `Your child ${p.studentName} has requested guardian consent for their under-18 account under the Bangladesh PDPO 2025. Verification OTP: ${p.otp}. Valid for ${p.expiresInMinutes} minutes. Never share this OTP with anyone.`,
       };
     }

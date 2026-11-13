@@ -56,5 +56,38 @@
     "aiCreditsRemaining": "বাকি এআই ক্রেডিট",
     "mockAttemptsRemaining": "বাকি মক টেস্ট",
     "requestRefund": "রিফান্ড অনুরোধ করুন"
+  },
+  "coursePlayer": {
+    "syllabus": "সিলেবাস",
+    "lectureNotes": "লেকচার নোটস",
+    "drills": "অনুশীলন ড্রিল",
+    "communityQa": "প্রশ্নোত্তর ফোরাম",
+    "markComplete": "সম্পন্ন হিসেবে চিহ্নিত করুন",
+    "nextLesson": "পরবর্তী পাঠ",
+    "prevLesson": "পূর্ববর্তী পাঠ",
+    "playbackSpeed": "প্লেব্যাক গতি"
+  },
+  "ieltsRunner": {
+    "listeningTitle": "লিসেনিং",
+    "readingTitle": "রিডিং",
+    "writingTitle": "রাইটিং",
+    "speakingTitle": "স্পিকিং",
+    "cueCardPrep": "১ মিনিট প্রস্তুতি",
+    "speakingRecording": "২ মিনিট রেকর্ডিং",
+    "overallBand": "সামগ্রিক ব্যান্ড",
+    "cefrLevel": "সিইএফআর লেভেল",
+    "aiEstimated": "এআই প্রাক্কলিত"
+  },
+  "financeAdmin": {
+    "mushakSummary": "এনবিআর মূসক ৬.৩ সারসংক্ষেপ",
+    "vatRate": "১৫% ভ্যাট অন্তর্ভুক্ত",
+    "targetPromise": "টার্গেট প্রমিজ মেয়াদকরণ",
+    "progressPromise": "প্রগ্রেস প্রমিজ পুনঃভর্তি"
+  },
+  "pdpo": {
+    "guardianConsent": "অভিভাবকের সম্মতি",
+    "dataExport": "ডাটা ডাউনলোড",
+    "rightToErasure": "একাউন্ট মোছার অধিকার",
+    "quietHoursActive": "নিস্তব্ধ সময় কার্যকর"
   }
 }

@@ -56,5 +56,38 @@
     "aiCreditsRemaining": "AI Credits Remaining",
     "mockAttemptsRemaining": "Mock Attempts Remaining",
     "requestRefund": "Request Refund"
+  },
+  "coursePlayer": {
+    "syllabus": "Syllabus",
+    "lectureNotes": "Lecture Notes",
+    "drills": "Practice Drills",
+    "communityQa": "Q&A Discussion",
+    "markComplete": "Mark Completed",
+    "nextLesson": "Next Lesson",
+    "prevLesson": "Previous Lesson",
+    "playbackSpeed": "Playback Speed"
+  },
+  "ieltsRunner": {
+    "listeningTitle": "Listening",
+    "readingTitle": "Reading",
+    "writingTitle": "Writing",
+    "speakingTitle": "Speaking",
+    "cueCardPrep": "1-Minute Preparation",
+    "speakingRecording": "2-Minute Recording",
+    "overallBand": "Overall Band",
+    "cefrLevel": "CEFR Level",
+    "aiEstimated": "AI Estimated"
+  },
+  "financeAdmin": {
+    "mushakSummary": "NBR Mushak 6.3 Summary",
+    "vatRate": "15% BD VAT Inclusive",
+    "targetPromise": "Target Promise Extension",
+    "progressPromise": "Progress Promise Re-enrolment"
+  },
+  "pdpo": {
+    "guardianConsent": "Guardian Consent",
+    "dataExport": "Export My Data",
+    "rightToErasure": "Right to Erasure",
+    "quietHoursActive": "Quiet Hours Active"
   }
 }

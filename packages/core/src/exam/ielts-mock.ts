@@ -1,5 +1,6 @@
 /** @purpose IELTS 4-Skill Mock Attempt Lifecycle, strict play-once listening enforcement, auto-submit, and unified band report aggregation (docs/07 §3.2, docs/14 §1.2) */
 
+import { brand } from '@lumen/config';
 import {
   LISTENING_TABLE,
   ACADEMIC_READING_TABLE,
@@ -120,7 +121,7 @@ export interface IeltsMockAttempt {
 }
 
 export const OFFICIAL_IELTS_DISCLAIMER =
-  'Scores provided by Lumen Academy are diagnostic estimates intended for prep purposes. Official IELTS scores are issued exclusively by IDP Education, British Council, and Cambridge English Assessment.';
+  `Scores provided by ${brand.name} are diagnostic estimates intended for prep purposes. Official IELTS scores are issued exclusively by IDP Education, British Council, and Cambridge English Assessment.`;
 
 /**
  * Maps an official overall IELTS Band score to the CEFR scale per Cambridge / IELTS guidelines (docs/14 §1.2).

@@ -32,6 +32,16 @@ export interface OrderRecord {
 // In-memory order repository and idempotency guards
 const ordersMap = new Map<string, OrderRecord>();
 const processedIpnEvents = new Map<string, { order: OrderRecord; payment: VerifiedPayment; entitlement?: EntitlementRecord }>();
+const inFlightFulfillments = new Map<
+  string,
+  Promise<{
+    success: boolean;
+    idempotentReplay?: boolean;
+    order: OrderRecord | null;
+    payment: VerifiedPayment;
+    entitlement?: EntitlementRecord;
+  }>
+>();
 
 export interface CreateOrderParams {
   userId: string;
@@ -156,6 +166,37 @@ export async function fulfillOrder(
     };
   }
 
+  // 1b. In-flight Concurrency Guard: if another webhook is concurrently fulfilling this order, await and return as replay
+  const inFlight = inFlightFulfillments.get(providerRef);
+  if (inFlight) {
+    const res = await inFlight;
+    return {
+      ...res,
+      idempotentReplay: true,
+    };
+  }
+
+  const executionPromise = fulfillOrderDirect(providerRef, valId, provider, hint);
+  inFlightFulfillments.set(providerRef, executionPromise);
+  try {
+    return await executionPromise;
+  } finally {
+    inFlightFulfillments.delete(providerRef);
+  }
+}
+
+async function fulfillOrderDirect(
+  providerRef: string,
+  valId: string,
+  provider: SslcommerzProvider,
+  hint?: Record<string, string>
+): Promise<{
+  success: boolean;
+  idempotentReplay?: boolean;
+  order: OrderRecord | null;
+  payment: VerifiedPayment;
+  entitlement?: EntitlementRecord;
+}> {
   let order = ordersMap.get(providerRef);
   if (!order) {
     try {

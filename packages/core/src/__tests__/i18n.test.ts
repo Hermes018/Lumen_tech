@@ -45,4 +45,42 @@ describe('Bangla i18n utilities', () => {
       expect(formatBdt(0, { locale: 'bn' })).toBe('৳ ০');
     });
   });
+
+  describe('Bilingual Dictionary 100% Key Parity (en.json <-> bn.json)', () => {
+    it('asserts 100% key parity between English and Bangla message catalogs', async () => {
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+
+      const messagesDir = path.resolve(__dirname, '../../../../apps/web/messages');
+      const enRaw = fs.readFileSync(path.join(messagesDir, 'en.json'), 'utf-8');
+      const bnRaw = fs.readFileSync(path.join(messagesDir, 'bn.json'), 'utf-8');
+
+      const enJson = JSON.parse(enRaw);
+      const bnJson = JSON.parse(bnRaw);
+
+      function getLeafKeys(obj: Record<string, unknown>, prefix = ''): string[] {
+        let keys: string[] = [];
+        for (const [key, value] of Object.entries(obj)) {
+          const fullKey = prefix ? `${prefix}.${key}` : key;
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            keys = keys.concat(getLeafKeys(value as Record<string, unknown>, fullKey));
+          } else {
+            keys.push(fullKey);
+          }
+        }
+        return keys.sort();
+      }
+
+      const enKeys = getLeafKeys(enJson);
+      const bnKeys = getLeafKeys(bnJson);
+
+      const missingInBn = enKeys.filter((k) => !bnKeys.includes(k));
+      const missingInEn = bnKeys.filter((k) => !enKeys.includes(k));
+
+      expect(missingInBn, `Keys present in en.json but missing in bn.json: ${missingInBn.join(', ')}`).toEqual([]);
+      expect(missingInEn, `Keys present in bn.json but missing in en.json: ${missingInEn.join(', ')}`).toEqual([]);
+      expect(enKeys.length).toBe(bnKeys.length);
+      expect(enKeys.length).toBeGreaterThan(40);
+    });
+  });
 });
