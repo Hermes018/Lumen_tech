@@ -1,8 +1,10 @@
 /** @purpose Server actions for Question Authoring Studio and D13 pedagogy versioning */
 'use server';
 
-import { headers } from 'next/headers';
+import { z } from '@lumen/config';
 import {
+  requireServerActor,
+  assertCan,
   createQuestionDraft,
   updateQuestion,
   submitQuestionForReview,
@@ -10,6 +12,8 @@ import {
   retireQuestion,
   listStudioQuestions,
   getQuestionWithVersions,
+  CreateQuestionSchema,
+  UpdateQuestionSchema,
   type CreateQuestionInput,
   type UpdateQuestionInput,
   type QuestionRecord,
@@ -18,60 +22,59 @@ import {
   type QuestionStatus,
   type Actor,
 } from '@lumen/core';
-import { getAuth, type Role } from '@lumen/auth';
+
+const studioFilterSchema = z
+  .object({
+    status: z.enum(['draft', 'in_review', 'published', 'key_suspected', 'retired']).optional(),
+    section: z.string().optional(),
+    examType: z.string().optional(),
+  })
+  .optional();
+
+const questionIdSchema = z.string().min(1).max(120);
+const retireReasonSchema = z.string().min(1).max(500);
+
+const createQuestionInputSchema = CreateQuestionSchema;
+const updateQuestionInputSchema = UpdateQuestionSchema;
 
 /**
- * Resolves current actor from Better Auth session or fallback for dev prototype.
+ * Resolves current actor via requireServerActor({ requireTwoFactor: true }) per D4.
  */
 async function resolveStudioActor(): Promise<Actor & { name: string; email: string }> {
-  try {
-    const reqHeaders = await headers();
-    const session = await getAuth().api.getSession({ headers: reqHeaders });
-    if (session?.user) {
-      const userObj = session.user as {
-        id: string;
-        role?: string;
-        name?: string;
-        email: string;
-        twoFactorEnabled?: boolean | null;
-      };
-      const role = (userObj.role as Role) || 'content_editor';
-      return {
-        id: userObj.id,
-        roles: [role],
-        name: userObj.name || 'Editorial Staff',
-        email: userObj.email,
-        hasTwoFactorEnabled: true, // 2FA active for staff
-      };
-    }
-  } catch {
-    // Session fallback in dev
+  if (
+    process.env.NODE_ENV === 'development' &&
+    process.env.LUMEN_STRICT_AUTH !== '1'
+  ) {
+    return {
+      id: 'staff-editor-01',
+      roles: ['content_editor', 'instructor'],
+      name: 'Ayman Rahman',
+      email: 'ayman@lumen.academy',
+      hasTwoFactorEnabled: true,
+    };
   }
-
-  // Default prototype staff actor with 2FA enabled
-  return {
-    id: 'staff-editor-01',
-    roles: ['content_editor', 'instructor'],
-    name: 'Ayman Rahman',
-    email: 'ayman@lumen.academy',
-    hasTwoFactorEnabled: true,
-  };
+  const actor = await requireServerActor({ requireTwoFactor: true });
+  return actor;
 }
 
-export async function listStudioQuestionsAction(filter?: {
+export async function listStudioQuestionsAction(rawFilter?: {
   status?: QuestionStatus;
   section?: string;
   examType?: string;
 }): Promise<QuestionListItem[]> {
+  const filter = studioFilterSchema.parse(rawFilter);
   const actor = await resolveStudioActor();
+  assertCan(actor, 'question:create');
   return listStudioQuestions(actor, filter);
 }
 
 export async function createQuestionAction(
-  input: CreateQuestionInput
+  rawInput: CreateQuestionInput
 ): Promise<{ success: boolean; question?: QuestionRecord; error?: string }> {
   try {
+    const input = createQuestionInputSchema.parse(rawInput);
     const actor = await resolveStudioActor();
+    assertCan(actor, 'question:create');
     const question = createQuestionDraft(actor, input);
     return { success: true, question };
   } catch (err) {
@@ -83,11 +86,14 @@ export async function createQuestionAction(
 }
 
 export async function updateQuestionAction(
-  questionId: string,
-  input: UpdateQuestionInput
+  rawQuestionId: string,
+  rawInput: UpdateQuestionInput
 ): Promise<{ success: boolean; question?: QuestionDetailRecord; error?: string }> {
   try {
+    const questionId = questionIdSchema.parse(rawQuestionId);
+    const input = updateQuestionInputSchema.parse(rawInput);
     const actor = await resolveStudioActor();
+    assertCan(actor, 'question:edit');
     const question = updateQuestion(actor, questionId, input);
     return { success: true, question };
   } catch (err) {
@@ -99,10 +105,12 @@ export async function updateQuestionAction(
 }
 
 export async function submitForReviewAction(
-  questionId: string
+  rawQuestionId: string
 ): Promise<{ success: boolean; question?: QuestionRecord; error?: string }> {
   try {
+    const questionId = questionIdSchema.parse(rawQuestionId);
     const actor = await resolveStudioActor();
+    assertCan(actor, 'question:edit');
     const question = submitQuestionForReview(actor, questionId);
     return { success: true, question };
   } catch (err) {
@@ -114,10 +122,12 @@ export async function submitForReviewAction(
 }
 
 export async function publishQuestionAction(
-  questionId: string
+  rawQuestionId: string
 ): Promise<{ success: boolean; question?: QuestionRecord; error?: string }> {
   try {
+    const questionId = questionIdSchema.parse(rawQuestionId);
     const actor = await resolveStudioActor();
+    assertCan(actor, 'question:publish');
     const question = publishQuestion(actor, questionId);
     return { success: true, question };
   } catch (err) {
@@ -129,11 +139,14 @@ export async function publishQuestionAction(
 }
 
 export async function retireQuestionAction(
-  questionId: string,
-  reason: string
+  rawQuestionId: string,
+  rawReason: string
 ): Promise<{ success: boolean; question?: QuestionRecord; error?: string }> {
   try {
+    const questionId = questionIdSchema.parse(rawQuestionId);
+    const reason = retireReasonSchema.parse(rawReason);
     const actor = await resolveStudioActor();
+    assertCan(actor, 'question:publish');
     const question = retireQuestion(actor, questionId, reason);
     return { success: true, question };
   } catch (err) {
@@ -145,10 +158,12 @@ export async function retireQuestionAction(
 }
 
 export async function getQuestionDetailAction(
-  questionId: string
+  rawQuestionId: string
 ): Promise<{ success: boolean; detail?: QuestionDetailRecord; error?: string }> {
   try {
+    const questionId = questionIdSchema.parse(rawQuestionId);
     const actor = await resolveStudioActor();
+    assertCan(actor, 'question:create');
     const detail = getQuestionWithVersions(actor, questionId);
     return { success: true, detail };
   } catch (err) {

@@ -17,16 +17,20 @@ export interface OrderRecord {
   productName: string;
   amountMinor: number;
   currency: Currency;
-  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'held_review';
+  status: 'pending' | 'paid' | 'failed' | 'cancelled' | 'held_review' | 'refunded';
   customer: CheckoutCustomer;
   providerSessionId?: string;
   valId?: string;
+  entitlementId?: string;
+  paidAt?: string;
+  refundedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-// In-memory order repository
+// In-memory order repository and idempotency guards
 const ordersMap = new Map<string, OrderRecord>();
+const processedIpnEvents = new Map<string, { order: OrderRecord; payment: VerifiedPayment; entitlement?: EntitlementRecord }>();
 
 export interface CreateOrderParams {
   userId: string;
@@ -120,17 +124,32 @@ export async function createOrder(
 
 /**
  * Authoritatively fulfills an order after secondary server-side order validation.
+ * Enforces strict idempotency on providerRef (tran_id) so duplicate IPNs never double-grant entitlements.
  */
 export async function fulfillOrder(
   providerRef: string,
   valId: string,
-  provider = new SslcommerzProvider()
+  provider = new SslcommerzProvider(),
+  hint?: Record<string, string>
 ): Promise<{
   success: boolean;
+  idempotentReplay?: boolean;
   order: OrderRecord | null;
   payment: VerifiedPayment;
   entitlement?: EntitlementRecord;
 }> {
+  // 1. Idempotency Guard: if this transaction reference was already fulfilled, return cached result without re-granting
+  const existingFulfillment = processedIpnEvents.get(providerRef);
+  if (existingFulfillment) {
+    return {
+      success: true,
+      idempotentReplay: true,
+      order: existingFulfillment.order,
+      payment: existingFulfillment.payment,
+      entitlement: existingFulfillment.entitlement,
+    };
+  }
+
   let order = ordersMap.get(providerRef);
   if (!order && providerRef.startsWith('LA')) {
     const nowIso = new Date().toISOString();
@@ -159,29 +178,66 @@ export async function fulfillOrder(
     throw new Error(`Order with reference ${providerRef} not found`);
   }
 
+  // Secondary check if order status is already paid
+  if (order.status === 'paid') {
+    const paidPayment: VerifiedPayment = {
+      status: 'paid',
+      providerRef,
+      providerTxnId: `BANK_${order.valId ?? valId}`,
+      amountMinor: order.amountMinor,
+      currency: order.currency,
+      paidAt: order.paidAt ? new Date(order.paidAt) : new Date(),
+      raw: { idempotent: true },
+    };
+    return {
+      success: true,
+      idempotentReplay: true,
+      order,
+      payment: paidPayment,
+    };
+  }
+
   const payment = await provider.verifyPayment({
     providerRef,
-    hint: { val_id: valId },
+    hint: { ...hint, val_id: valId },
     expected: {
       amountMinor: order.amountMinor,
       currency: order.currency,
     },
   });
 
-  if (payment.status === 'paid') {
+  if (
+    payment.status === 'paid' &&
+    payment.amountMinor === order.amountMinor &&
+    payment.currency === order.currency
+  ) {
+    const nowIso = new Date().toISOString();
+    // Grant access entitlements exactly once per orderId/providerRef
+    const entitlement = grantEntitlement(order.userId, order.productSlug, 'purchase', new Date(), {
+      orderId: order.id,
+      idempotencyKey: `purchase:${providerRef}`,
+      amountPaidMinor: order.amountMinor,
+      currency: order.currency,
+    });
+
     const updatedOrder: OrderRecord = {
       ...order,
       status: 'paid',
       valId,
-      updatedAt: new Date().toISOString(),
+      entitlementId: entitlement.id,
+      paidAt: nowIso,
+      updatedAt: nowIso,
     };
     ordersMap.set(providerRef, updatedOrder);
-
-    // Grant access entitlements
-    const entitlement = grantEntitlement(order.userId, order.productSlug, 'purchase');
+    processedIpnEvents.set(providerRef, {
+      order: updatedOrder,
+      payment,
+      entitlement,
+    });
 
     return {
       success: true,
+      idempotentReplay: false,
       order: updatedOrder,
       payment,
       entitlement,
@@ -197,14 +253,28 @@ export async function fulfillOrder(
 
   return {
     success: false,
+    idempotentReplay: false,
     order: failedOrder,
     payment,
   };
 }
 
 /**
- * Fetches an order by its unique transaction reference.
+ * Fetches an order by its unique transaction reference or order ID.
  */
-export function getOrderByRef(providerRef: string): OrderRecord | null {
-  return ordersMap.get(providerRef) ?? null;
+export function getOrderByRef(providerRefOrOrderId: string): OrderRecord | null {
+  const byRef = ordersMap.get(providerRefOrOrderId);
+  if (byRef) return byRef;
+  for (const ord of ordersMap.values()) {
+    if (ord.id === providerRefOrOrderId) return ord;
+  }
+  return null;
+}
+
+/**
+ * Updates an order record in the store (used by refund engine).
+ */
+export function updateOrderRecord(order: OrderRecord): OrderRecord {
+  ordersMap.set(order.providerRef, order);
+  return order;
 }

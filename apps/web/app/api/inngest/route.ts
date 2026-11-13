@@ -4,6 +4,8 @@
  */
 
 import { NextResponse } from 'next/server';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { env, z } from '@lumen/config';
 import {
   computeItemStatistics,
   processItemBatchRetirement,
@@ -13,6 +15,55 @@ import {
 import { GRE_MAGOOSH_SEED_QUESTIONS } from '@lumen/db';
 
 export const dynamic = 'force-dynamic';
+
+const inngestEventSchema = z.object({
+  event: z.string().default('analytics.refresh-question-stats'),
+  questionIds: z.array(z.string()).optional(),
+});
+
+/**
+ * Verifies the Inngest signing-key header (x-inngest-signature or Authorization Bearer) in non-test environments.
+ */
+export function verifyInngestRequest(req: Request, rawBody: string): boolean {
+  if (process.env.NODE_ENV === 'test' && !req.headers.get('x-enforce-inngest-sig')) {
+    return true;
+  }
+
+  const configuredKey = env.INNGEST_SIGNING_KEY || process.env.INNGEST_SIGNING_KEY;
+  const sigHeader = req.headers.get('x-inngest-signature') || req.headers.get('authorization');
+
+  if (!sigHeader) {
+    return false;
+  }
+
+  if (!configuredKey) {
+    return false;
+  }
+
+  // Support Bearer token or Inngest HMAC t=<ts>&s=<hmac> format
+  if (sigHeader === `Bearer ${configuredKey}` || sigHeader === configuredKey) {
+    return true;
+  }
+
+  const params = new URLSearchParams(sigHeader.replace(/^;\s*/, ''));
+  const ts = params.get('t');
+  const sig = params.get('s');
+  if (ts && sig) {
+    const cleanKey = configuredKey.replace(/^signkey-\w+-/, '');
+    const expectedHmac = createHmac('sha256', cleanKey)
+      .update(`${rawBody}${ts}`)
+      .digest('hex');
+    try {
+      const a = Buffer.from(sig, 'hex');
+      const b = Buffer.from(expectedHmac, 'hex');
+      return a.length === b.length && timingSafeEqual(a, b);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
 
 export async function GET() {
   return NextResponse.json({
@@ -35,13 +86,28 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    let body: { event?: string; questionIds?: string[] } = {};
-    try {
-      body = await req.json();
-    } catch {
-      // Body may be empty on standard cron trigger
+    const rawBody = await req.text();
+
+    if (!verifyInngestRequest(req, rawBody)) {
+      return NextResponse.json(
+        { ok: false, error: 'Unauthorized: invalid or missing Inngest signing key header' },
+        { status: 401 }
+      );
     }
 
+    let rawJson: unknown = {};
+    if (rawBody.trim().length > 0) {
+      try {
+        rawJson = JSON.parse(rawBody);
+      } catch {
+        return NextResponse.json(
+          { ok: false, error: 'Malformed JSON body' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const body = inngestEventSchema.parse(rawJson);
     const event = body.event || 'analytics.refresh-question-stats';
 
     if (event !== 'analytics.refresh-question-stats') {

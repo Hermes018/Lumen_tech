@@ -1,14 +1,20 @@
 /** @purpose Server actions for Grounded Socratic AI Tutor drawer */
 'use server';
 
-import { headers } from 'next/headers';
-import { getAuth } from '@lumen/auth';
+import { z } from '@lumen/config';
+import { requireServerActor, assertCan } from '@lumen/core';
 import {
   generateTutorResponse,
+  TutorQuerySchema,
   type TutorQuery,
   type TutorResponse,
   type UserSubscriptionTier,
 } from '@lumen/ai';
+
+const askTutorSchema = TutorQuerySchema.omit({ tier: true, currentDailyCount: true }).extend({
+  preferredTier: z.enum(['free', 'core', 'pass', 'plus', 'live', 'mentor']).optional(),
+  userId: z.string().optional(),
+});
 
 // In-memory daily message counter per user for dev / prototype
 const userDailyMessageCounts = new Map<string, { date: string; count: number }>();
@@ -34,23 +40,21 @@ function incrementUserDailyCount(userId: string): number {
 }
 
 export async function askTutorAction(
-  input: Omit<TutorQuery, 'tier' | 'currentDailyCount'> & {
+  rawInput: Omit<TutorQuery, 'tier' | 'currentDailyCount'> & {
     preferredTier?: UserSubscriptionTier;
+    userId?: string;
   }
 ): Promise<TutorResponse> {
-  let userId = 'learner-current';
-  const tier: UserSubscriptionTier = input.preferredTier ?? 'plus'; // Plus default for interactive practice demo
+  const input = askTutorSchema.parse(rawInput);
+  const actor = await requireServerActor();
 
-  try {
-    const reqHeaders = await headers();
-    const session = await getAuth().api.getSession({ headers: reqHeaders });
-    if (session?.user) {
-      userId = session.user.id;
-    }
-  } catch {
-    // Session fallback in dev
+  if (input.userId && input.userId !== actor.id) {
+    assertCan(actor, 'user:view_own', { ownerId: input.userId });
   }
+  assertCan(actor, 'practice:session', { ownerId: actor.id });
 
+  const userId = actor.id;
+  const tier: UserSubscriptionTier = input.preferredTier ?? 'plus';
   const currentDailyCount = getUserDailyCount(userId);
 
   const response = generateTutorResponse({

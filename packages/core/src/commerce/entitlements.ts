@@ -8,7 +8,11 @@ export interface EntitlementRecord {
   productId: string;
   productSlug: string;
   productName: string;
-  source: 'purchase' | 'manual_grant' | 'trial';
+  source: 'purchase' | 'manual_grant' | 'trial' | 'refund';
+  orderId?: string;
+  idempotencyKey?: string;
+  amountPaidMinor?: number;
+  currency?: string;
   startsAt: string;
   endsAt: string | null;
   allowancesJson: Record<string, unknown>;
@@ -16,19 +20,33 @@ export interface EntitlementRecord {
   createdAt: string;
 }
 
-// In-memory registry for user entitlements
+// In-memory registry for user entitlements and idempotency keys
 const userEntitlementsMap = new Map<string, EntitlementRecord[]>();
+const entitlementByIdempotencyKey = new Map<string, EntitlementRecord>();
 
 /**
  * Grants an entitlement to a user upon verified purchase or manual grant.
- * Follows D5 & docs/10 specification.
+ * Follows D5 & docs/10 specification. Enforces idempotency when idempotencyKey is provided.
  */
 export function grantEntitlement(
   userId: string,
   productSlug: string,
   source: 'purchase' | 'manual_grant' | 'trial' = 'purchase',
-  now = new Date()
+  now = new Date(),
+  meta?: {
+    orderId?: string;
+    idempotencyKey?: string;
+    amountPaidMinor?: number;
+    currency?: string;
+  }
 ): EntitlementRecord {
+  if (meta?.idempotencyKey) {
+    const existingByKey = entitlementByIdempotencyKey.get(meta.idempotencyKey);
+    if (existingByKey) {
+      return existingByKey;
+    }
+  }
+
   const productDef: ProductDefinition | undefined = CANONICAL_PRODUCTS.find(
     (p) => p.slug === productSlug
   );
@@ -44,12 +62,16 @@ export function grantEntitlement(
   };
 
   const record: EntitlementRecord = {
-    id: `ent-${userId}-${productSlug}-${Date.now()}`,
+    id: `ent-${userId}-${productSlug}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     userId,
     productId: productDef?.slug ?? productSlug,
     productSlug,
     productName: productDef?.name ?? productSlug,
     source,
+    orderId: meta?.orderId,
+    idempotencyKey: meta?.idempotencyKey,
+    amountPaidMinor: meta?.amountPaidMinor,
+    currency: meta?.currency,
     startsAt,
     endsAt,
     allowancesJson: allowances,
@@ -59,6 +81,10 @@ export function grantEntitlement(
 
   const existing = userEntitlementsMap.get(userId) ?? [];
   userEntitlementsMap.set(userId, [...existing, record]);
+
+  if (meta?.idempotencyKey) {
+    entitlementByIdempotencyKey.set(meta.idempotencyKey, record);
+  }
 
   return record;
 }

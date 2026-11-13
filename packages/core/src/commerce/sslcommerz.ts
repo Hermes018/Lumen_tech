@@ -47,12 +47,16 @@ export interface ParsedWebhook {
   eventType: string;
   providerRef: string;
   authenticated: boolean; // always false for raw IPN; server verifyPayment is mandatory
+  signatureValid: boolean;
   payload: {
     tran_id: string;
     val_id?: string;
     status?: string;
     risk_level?: string;
     amount?: string;
+    currency?: string;
+    verify_sign?: string;
+    verify_key?: string;
   };
 }
 
@@ -193,10 +197,29 @@ export class SslcommerzProvider {
     };
   }
 
-  async parseWebhook({ rawBody }: { rawBody: string }): Promise<ParsedWebhook> {
+  getStorePassword(): string {
+    return this.storePassword;
+  }
+
+  async parseWebhook({
+    rawBody,
+    requireSignature = false,
+  }: {
+    rawBody: string;
+    requireSignature?: boolean;
+  }): Promise<ParsedWebhook> {
     const f = Object.fromEntries(new URLSearchParams(rawBody));
     if (!f.tran_id) {
       throw new ProviderPermanentError('SSLCommerz IPN payload missing tran_id');
+    }
+
+    const hasSignatureFields = Boolean(f.verify_sign || f.verify_key);
+    const signatureValid = hasSignatureFields
+      ? localVerifySign(f, this.storePassword)
+      : !requireSignature && !this.isLive;
+
+    if ((requireSignature || hasSignatureFields) && !signatureValid) {
+      throw new ProviderPermanentError('SSLCommerz IPN signature (verify_sign) verification failed');
     }
 
     return {
@@ -205,12 +228,16 @@ export class SslcommerzProvider {
       eventType: `IPN:${f.status ?? 'UNKNOWN'}`,
       providerRef: f.tran_id,
       authenticated: false, // Invariant: Raw IPN is NEVER treated as authenticated; secondary verifyPayment is mandatory
+      signatureValid,
       payload: {
         tran_id: f.tran_id,
         val_id: f.val_id,
         status: f.status,
         risk_level: f.risk_level,
         amount: f.amount,
+        currency: f.currency_type ?? f.currency,
+        verify_sign: f.verify_sign,
+        verify_key: f.verify_key,
       },
     };
   }
@@ -242,6 +269,30 @@ export class SslcommerzProvider {
 
     // In unit test sandbox environments where simulated val_id is used:
     if (valId.startsWith('SANDBOX_VAL_')) {
+      const hintAmountMinor =
+        args.hint?.amount !== undefined
+          ? parseMajorToMinor(args.hint.amount)
+          : args.expected.amountMinor;
+      const hintCurrency = (args.hint?.currency || 'BDT') as Currency;
+
+      if (hintCurrency !== args.expected.currency) {
+        return {
+          ...base,
+          amountMinor: hintAmountMinor,
+          status: 'failed',
+          failureReason: 'currency_mismatch',
+        };
+      }
+
+      if (hintAmountMinor !== args.expected.amountMinor) {
+        return {
+          ...base,
+          amountMinor: hintAmountMinor,
+          status: 'failed',
+          failureReason: 'amount_mismatch',
+        };
+      }
+
       return {
         status: 'paid',
         providerRef: args.providerRef,

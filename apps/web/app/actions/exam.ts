@@ -1,7 +1,10 @@
 /** @purpose Server actions for GRE CBT exam execution, section-level adaptive routing, AWA evaluation, and scaled score calculation */
 'use server';
 
+import { z } from '@lumen/config';
 import {
+  requireServerActor,
+  assertCan,
   routeSection,
   tierToLearnerLabel,
   GRE_ADAPTIVE_RULES_V1,
@@ -13,10 +16,51 @@ import {
 import { evaluateAwaIssueEssay, type EvaluateAwaResult } from '@lumen/ai';
 import { GRE_MAGOOSH_SEED_QUESTIONS, type SeedGreQuestion } from '@lumen/db';
 
+const s1ItemSchema = z.object({
+  b: z.number(),
+  correct: z.boolean(),
+  calibrated: z.boolean(),
+  isMistakeRetry: z.boolean().optional(),
+  excludeFromIrt: z.boolean().optional(),
+});
+
+const routeSectionActionSchema = z.object({
+  fromPosition: z.number().int().min(1).max(5),
+  attemptSectionId: z.string().min(1),
+  responses: z.array(s1ItemSchema),
+  ownerId: z.string().optional(),
+});
+
+const evaluateAwaEssaySchema = z.object({
+  essayText: z.string().min(1).max(20000),
+  promptText: z.string().min(1).max(5000),
+  accountName: z.string().optional(),
+  ownerId: z.string().optional(),
+});
+
+const scoredItemSchema = z.object({
+  b: z.number(),
+  correct: z.boolean(),
+  isMistakeRetry: z.boolean().optional(),
+  excludeFromIrt: z.boolean().optional(),
+});
+
+const examScoreActionSchema = z.object({
+  verbalItems: z.array(scoredItemSchema),
+  quantItems: z.array(scoredItemSchema),
+  ownerId: z.string().optional(),
+});
+
+const fetchExamSectionSchema = z.object({
+  sectionIndex: z.number().int().min(1).max(5),
+  tier: z.enum(['low', 'medium', 'high']).default('medium'),
+});
+
 export interface RouteSectionActionInput {
   fromPosition: number;
   attemptSectionId: string;
   responses: S1Item[];
+  ownerId?: string;
 }
 
 export interface RouteSectionActionResult {
@@ -35,8 +79,16 @@ export interface RouteSectionActionResult {
  * Executes server-authoritative GRE adaptive section routing (docs/07 §4.3).
  */
 export async function routeExamSectionAction(
-  input: RouteSectionActionInput
+  rawInput: RouteSectionActionInput
 ): Promise<RouteSectionActionResult> {
+  const input = routeSectionActionSchema.parse(rawInput);
+  const actor = await requireServerActor();
+
+  if (input.ownerId && input.ownerId !== actor.id) {
+    assertCan(actor, 'exam:view_own', { ownerId: input.ownerId });
+  }
+  assertCan(actor, 'exam:take', { ownerId: actor.id });
+
   const { fromPosition, attemptSectionId, responses } = input;
 
   const result = routeSection(
@@ -62,17 +114,27 @@ export async function routeExamSectionAction(
 /**
  * Submits GRE Analytical Writing Analyze an Issue essay to the AI evaluation pipeline (docs/07 §7.4).
  */
-export async function evaluateAwaEssayAction(input: {
+export async function evaluateAwaEssayAction(rawInput: {
   essayText: string;
   promptText: string;
   accountName?: string;
+  ownerId?: string;
 }): Promise<EvaluateAwaResult> {
+  const input = evaluateAwaEssaySchema.parse(rawInput);
+  const actor = await requireServerActor();
+
+  if (input.ownerId && input.ownerId !== actor.id) {
+    assertCan(actor, 'exam:view_own', { ownerId: input.ownerId });
+  }
+  assertCan(actor, 'exam:take', { ownerId: actor.id });
+
   return evaluateAwaIssueEssay(input);
 }
 
 export interface ExamScoreActionInput {
   verbalItems: ScoredItem[];
   quantItems: ScoredItem[];
+  ownerId?: string;
 }
 
 export interface ExamScoreActionResult {
@@ -96,8 +158,16 @@ export interface ExamScoreActionResult {
  * Calculates official-style 130-170 scaled scores via Rasch EAP ability estimation (docs/07 §3.3).
  */
 export async function calculateFinalScoreAction(
-  input: ExamScoreActionInput
+  rawInput: ExamScoreActionInput
 ): Promise<ExamScoreActionResult> {
+  const input = examScoreActionSchema.parse(rawInput);
+  const actor = await requireServerActor();
+
+  if (input.ownerId && input.ownerId !== actor.id) {
+    assertCan(actor, 'exam:view_own', { ownerId: input.ownerId });
+  }
+  assertCan(actor, 'exam:take', { ownerId: actor.id });
+
   const result = calculateExamScore([
     { measure: 'verbal', items: input.verbalItems },
     { measure: 'quant', items: input.quantItems },
@@ -139,9 +209,15 @@ export interface ExamSectionData {
  * Loads the authentic test form section items from seed pools based on position and adaptive tier.
  */
 export async function fetchExamSectionData(
-  sectionIndex: number,
-  tier: Tier = 'medium'
+  rawSectionIndex: number,
+  rawTier: Tier = 'medium'
 ): Promise<ExamSectionData> {
+  const { sectionIndex, tier } = fetchExamSectionSchema.parse({
+    sectionIndex: rawSectionIndex,
+    tier: rawTier,
+  });
+  const actor = await requireServerActor();
+  assertCan(actor, 'exam:take', { ownerId: actor.id });
   if (sectionIndex === 1) {
     return {
       sectionIndex: 1,
