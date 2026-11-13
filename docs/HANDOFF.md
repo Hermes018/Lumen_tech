@@ -5,35 +5,35 @@
 
 ## Baton
 
-- From: gemini (Argon Low/Med)   To: gemini (3.8 Flash High)   Date/time (UTC): 2026-11-13 05:00:00
-- Reason: Stage 3A (Branches 1 & 2) complete & merged to `main`; pausing at mandatory model switch gate for Stage 3B
-- Branch: main                      Last commit SHA: c49ba7e
+- From: gemini (3.8 Flash High)   To: next model (Gemini 4 Hydrogen Med / 3.8 Flash Med)   Date/time (UTC): 2026-11-13 05:50:00
+- Reason: Stage 3B (Branch 3: P1-33 Dual-Mode Repositories) complete & merged to `main`; pausing at mandatory model switch gate for Stage 3C
+- Branch: main                      Last commit SHA: (main merge commit)
 - Device (hostname) / session log path: docs/logs/reviews/opus-audit-and-action-plan.md
-- Pushed to origin? Local commits on `main`   Usage at handoff: Stage 3A complete
+- Pushed to origin? Local commits on `main`   Usage at handoff: Stage 3B complete
 - Working tree clean? yes
-- Task: Stage 3B (Auth UI pages, Dual-mode repository adapter P1-33, Brand sweep) - status: ready
+- Task: Stage 3C (P1-32 Auth UI pages & P1-8 Brand sweep / i18n) - status: ready
 - Milestone gate in progress: M1 Internal Alpha (GRE Core + Magoosh Engine)
-- Baseline `pnpm verify:fast` at handoff: PASS (30/30 turbo tasks green, 179 core tests + 16 auth tests passing)
+- Baseline `pnpm verify:fast` at handoff: PASS (30/30 turbo tasks green, 221 tests passing across db/core/auth/ui)
 
-## Done so far (Stage 3A: Branches 1 & 2)
+## Done so far (Stage 3A & Stage 3B)
 
-1. Branch 1 (`task/P1-32-security-and-session-guard` -> merged to `main`):
-   - Implemented `requireServerActor(options?: { requireTwoFactor?: boolean })` and `getServerActor()` in `packages/auth/src/server.ts` (re-exported via `@lumen/auth` and `@lumen/core`), with deterministic `__setTestServerActor` hook restricted strictly to `NODE_ENV === 'test'`.
-   - Enforced mandatory D4 2FA (`requiresTwoFactor`) for `instructor`, `grader`, `content_editor`, `support`, `finance`, `org_admin`, `admin`, and `super_admin`.
-   - Remediated SSLCommerz IPN webhook (`apps/web/app/api/webhooks/sslcommerz/route.ts` & `packages/core/src/commerce/sslcommerz.ts`): enforced `localVerifySign` hash check, secondary Order Validation API check, exact `amount_minor` + currency match, and `tran_id` idempotency guard.
-   - Enforced Inngest signing-key header verification in `apps/web/app/api/inngest/route.ts`.
-   - Hardened all 9 Server Action modules (`checkout`, `exam`, `mistakes`, `practice`, `grader`, `studio`, `study-plan`, `tutor`, `analytics`) with `requireServerActor()`, `assertCan()`, and strict Zod `.parse()` validation (`grader.ts` and `studio.ts` enforce `{ requireTwoFactor: true }`).
-   - Added `isMistakeRetry: true` and strict IRT calibration / item-rest exclusion in `mistakes.ts`, `adaptive.ts`, `scoring.ts`, and `statistics.ts`.
-   - Added unit tests in `packages/auth/src/__tests__/auth.test.ts` and `packages/core/src/__tests__/security-remediation.test.ts`.
-2. Branch 2 (`task/P1-34-147-ledger-and-refunds` -> merged to `main`):
-   - Implemented server-authoritative append-only entitlement & credit ledger in `packages/core/src/commerce/entitlements.ts` (`P1-34`): D12 C1 credit costs (`1/1/2/1`), daily evaluation ceilings (`Free=1`, `Core=3`, `Pass=4`, `Plus/Live/Mentor=6`), `assertHasEntitlement`, `consumeAiCredit`, and `consumeMockAttempt`.
-   - Implemented Finance Refund & 15% BD VAT Engine in `packages/core/src/commerce/refunds.ts` (`P1-147`): 7-day window (`< 20%` content AND `<= 1` full mock; `72h` for 1-month pass; `before_class_3` for Live; `before_class_2` for Crash), non-refundable consumed AI credit deduction, automatic `revokeCertificate`, and integer minor-unit 15% BD VAT breakdown (`net_minor`, `vat_minor`, `gross_minor`).
-   - Added 12 exhaustive unit tests in `packages/core/src/__tests__/entitlements-refunds.test.ts` (including Rasch EAP, FSRS, and 28-of-90-day `compare_at` invariants).
+1. Stage 3A: P0 Security remediation (`P1-32`), server session guard (`requireServerActor` + D4 2FA), SSLCommerz IPN verification & idempotency, append-only credit ledger (`P1-34`), refund & 15% BD VAT engine (`P1-147`).
+2. Stage 3B (`task/P1-33-drizzle-repositories` -> merged to `main`):
+   - Implemented Dual-Mode Repository Adapter Layer in `packages/db/src/repositories/`:
+     - Interfaces: `OrderRepo`, `PaymentRepo`, `EntitlementRepo`, `LedgerRepo`, `GradingRepo`, `CourseRepo`, `QuestionRepo`, `ProgressRepo`, `QuestionStatRepo`, `MistakeRepo`, `PriceRepo`, `VocabCardRepo`, and `UnitOfWork` (`transaction<T>`).
+     - Neon Serverless Drizzle implementation (`drizzle/*.ts`) querying Neon Postgres when `DATABASE_URL` is set.
+     - Deterministic in-memory implementation (`memory/*.ts`) with transaction snapshot/rollback and unique constraint enforcement (`providerRef`, `idempotencyKey`).
+     - Production fail-fast guard throwing fatal error if `NODE_ENV === 'production'` and `DATABASE_URL` is missing.
+     - Added Drizzle schema tables in `schema/commerce.ts`, `schema/grading.ts`, `schema/mistakes.ts`, `schema/progress.ts`.
+   - Wired repository persistence into `@lumen/core` and `@lumen/web`:
+     - Replaced 6 in-memory Map stores: `commerce/checkout.ts`, `commerce/entitlements.ts`, `grader/queue.ts`, `studio/authoring.ts`, and `actions/mistakes.ts`.
+   - Added repository contract tests in `packages/db/src/__tests__/repositories.test.ts` (7 passing tests).
+   - All 30 turbo tasks green, 221 unit tests passing.
 
 ## Remaining steps (numbered, in order)
 
-1. Run `/clear` and switch model to `Gemini 3.8 Flash (High)` for Stage 3B.
-2. Execute Stage 3B tasks per `docs/logs/reviews/opus-audit-and-action-plan.md` (P1-33 dual-mode repository wiring, Auth UI pages, Brand sweep).
+1. Run `/clear`, switch model to `Gemini 4 Hydrogen (Medium)` or `Gemini 3.8 Flash (Medium)`.
+2. Execute Stage 3C tasks: Auth UI pages (login, register, verify, reset, 2FA prompt) + Brand sweep (D0 / brand.ts name & i18n keys).
 
 ## Exact next command / first action
 
@@ -41,9 +41,9 @@
 
 ## Decisions made (and why)
 
-- `requireServerActor` rejects unauthenticated calls and enforces D4 2FA in both the session resolver and `assertCan` (defence in depth).
-- Append-only ledger entries are frozen and keyed by unique `idempotencyKey` to prevent double-spend race conditions.
-- Consumed AI credits are never refunded (`refundableMinor = amountPaidMinor - deductedCreditValueMinor`), and `executeRefund` automatically revokes course certificates.
+- Repositories fail fast at boot in production if `DATABASE_URL` is absent, preventing silent data loss in serverless environments.
+- Memory UnitOfWork snapshots store state before running transactions and restores state on failure to guarantee atomic rollback in tests.
+- Replaced in-memory Map stores across core domain services with transparent repository adapters preserving sync/async backward compatibility.
 
 ## Known issues / failing tests
 
@@ -52,18 +52,18 @@
 ## Read first (max 5 paths or doc sections)
 
 - `docs/logs/reviews/opus-audit-and-action-plan.md`
-- `packages/auth/src/server.ts`
+- `packages/db/src/repositories/index.ts`
+- `packages/db/src/repositories/types.ts`
+- `packages/core/src/commerce/checkout.ts`
 - `packages/core/src/commerce/entitlements.ts`
-- `packages/core/src/commerce/refunds.ts`
-- `packages/core/src/__tests__/entitlements-refunds.test.ts`
 
 ## Do NOT touch
 
-- `pnpm-lock.yaml`, `.env*`, `docs/00-DECISIONS.md`, committed DB migrations.
+- `pnpm-lock.yaml`, `.env*`, `docs/00-DECISIONS.md`, committed DB migrations in `packages/db/drizzle/`.
 
 ## Needs two-key review (security-critical paths touched)
 
-- [ ] `packages/auth/src/server.ts` (`requireServerActor`, D4 2FA guard - Sonnet 5.5 / Opus Low-Med review)
+- [ ] `packages/auth/src/server.ts` (`requireServerActor`, D4 2FA guard)
 - [ ] `apps/web/app/api/webhooks/sslcommerz/route.ts` & `packages/core/src/commerce/sslcommerz.ts` (IPN signature + secondary validation + idempotency)
-- [ ] `apps/web/app/api/inngest/route.ts` (Inngest signing key verification)
 - [ ] `packages/core/src/commerce/entitlements.ts` & `packages/core/src/commerce/refunds.ts` (append-only credit ledger, refund deductions, 15% BD VAT)
+- [ ] `packages/db/src/repositories/**` (dual-mode persistence adapter layer)

@@ -8,13 +8,13 @@
 ## Status
 
 - Date updated: 2026-11-13
-- Active tool: Gemini 4 Argon (Low/Med) / Antigravity
+- Active tool: Gemini 3.8 Flash (High) / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Stage 3A Complete (Branches 1 & 2 merged to main); Next: Stage 3B (P1-32 Auth UI & P1-33 Dual-Mode Repositories)
+- Current milestone: Stage 3B Complete (Branch 3 Dual-Mode Drizzle Repositories P1-33 merged to main); Next: Stage 3C
 - Last session log: docs/logs/reviews/opus-audit-and-action-plan.md
 - Active branch: main
-- Last green `pnpm verify`: P1-32, P1-34, P1-147 (30/30 turbo tasks green, 195 unit tests passing across auth/core/ui)
-- Phase in progress: P1 Core (Stage 3A Complete)
+- Last green `pnpm verify`: P1-33 (30/30 turbo tasks green, 221 unit tests passing across db/core/auth/ui)
+- Phase in progress: P1 Core (Stage 3B Complete)
 
 ## Current task
 
@@ -561,6 +561,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-32 | 561f17e | argon | P0 security remediation, `requireServerActor()` with mandatory D4 2FA, SSLCommerz IPN signature + Order Validation API + idempotency guard, Inngest signing-key check, Server Action Zod + `assertCan`, and IRT retry exclusion |
 | 2026-11-13 | P1-34 | c49ba7e | argon | Server-authoritative append-only entitlement & credit ledger, D12 C1 credit costs (1/1/2/1), daily evaluation ceilings (1/3/4/6), `assertHasEntitlement`, `consumeAiCredit`, `consumeMockAttempt` |
 | 2026-11-13 | P1-147 | c49ba7e | argon | Finance refund eligibility (`<20%` content, `<=1` mock, 7d/72h/before_class_3/before_class_2), non-refundable consumed AI credit deduction, automatic certificate revocation, and 15% BD VAT integer minor-unit engine |
+| 2026-11-13 | P1-33 | c46f3e6 | 3.8-flash | Dual-mode Drizzle repository adapter layer in packages/db/src/repositories (Order, Payment, Entitlement, Ledger, Grading, Course, Question, Progress, QuestionStat, Mistake, Price, VocabCard, UnitOfWork) with prod fail-fast guard, transaction snapshot/rollback & unique constraints, wired into @lumen/core & @lumen/web |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
