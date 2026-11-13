@@ -68,6 +68,7 @@ export const PERMISSIONS = [
   // Audit & Finance
   'audit:view',
   'finance:view',
+  'finance:read',
   'finance:export',
 
   // Support & Trust
@@ -189,6 +190,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'order:view_all',
     'order:refund',
     'finance:view',
+    'finance:read',
     'finance:export',
     'user:view_own',
   ],
@@ -235,6 +237,7 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'user:manage',
     'audit:view',
     'finance:view',
+    'finance:read',
     'finance:export',
     'support:read',
     'support:manage',
