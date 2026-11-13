@@ -1,5 +1,6 @@
 /** @purpose Staff Support Console Service and Masked PII Display (docs/27 §16, D4) */
-import { assertCan, type Actor } from '../auth/index';
+import { assertCan, AuthorizationError, can, type Actor } from '../auth/index';
+import { recordAuditEvent, type AuditLogEntry } from '../grader/queue';
 import { maskEmail, maskPhone } from './masking';
 import type {
   SupportTicket,
@@ -236,4 +237,100 @@ export function applySupportMacro(
   ticket.updatedAt = new Date().toISOString();
 
   return getStaffSupportTicket(actor, ticketId);
+}
+
+export interface SupportImpersonationSession {
+  impersonationId: string;
+  actorId: string;
+  targetUserId: string;
+  reason: string;
+  readOnly: true;
+  startedAt: string;
+  expiresAt: string;
+  auditEntry: AuditLogEntry;
+}
+
+/**
+ * Starts a read-only support impersonation session with mandatory reason (>= 10 chars)
+ * and an immutable audit log entry (docs/27, P1-G).
+ */
+export function startSupportImpersonation(
+  actor: Actor,
+  targetUserId: string,
+  reason: string,
+  now = new Date()
+): SupportImpersonationSession {
+  if (!can(actor, 'user:impersonate')) {
+    assertCan(actor, 'support:manage');
+  }
+
+  const trimmedTarget = targetUserId.trim();
+  if (!trimmedTarget) {
+    throw new Error('Target user ID is required for impersonation');
+  }
+
+  const trimmedReason = reason.trim();
+  if (trimmedReason.length < 10) {
+    throw new Error('Impersonation reason must be at least 10 characters');
+  }
+
+  const auditEntry = recordAuditEvent({
+    actorId: actor.id,
+    action: 'support:impersonation_started',
+    targetType: 'user',
+    targetId: trimmedTarget,
+    reason: trimmedReason,
+    metadataJson: {
+      actorRole: actor.roles[0] ?? 'support',
+      readOnly: true,
+    },
+  });
+
+  const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
+
+  return {
+    impersonationId: `imp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    actorId: actor.id,
+    targetUserId: trimmedTarget,
+    reason: trimmedReason,
+    readOnly: true,
+    startedAt: now.toISOString(),
+    expiresAt,
+    auditEntry,
+  };
+}
+
+export const SUPPORT_REFUND_TIER_CAP_MINOR: Readonly<Record<'BDT' | 'USD', number>> = {
+  BDT: 200_000, // 2,000 BDT
+  USD: 2_500,   // $25.00 USD
+};
+
+/**
+ * Enforces the support refund tier cap (P1-G).
+ * Support agents can approve up to 2,000 BDT / $25 USD; higher amounts must escalate to Finance.
+ */
+export function assertSupportRefundTierCap(
+  actor: Actor,
+  amountMinor: number,
+  currency: 'BDT' | 'USD' = 'BDT'
+): void {
+  assertCan(actor, 'support:manage');
+
+  if (!Number.isFinite(amountMinor) || amountMinor <= 0) {
+    throw new Error('Refund amount must be a positive finite integer');
+  }
+
+  const isFinanceOrAdmin =
+    actor.roles.includes('finance') ||
+    actor.roles.includes('admin') ||
+    actor.roles.includes('super_admin');
+
+  if (!isFinanceOrAdmin) {
+    const cap = SUPPORT_REFUND_TIER_CAP_MINOR[currency];
+    if (amountMinor > cap) {
+      throw new AuthorizationError(
+        `Support refund tier cap exceeded (${amountMinor} > ${cap} ${currency}); escalate to Finance`
+      );
+    }
+  }
 }

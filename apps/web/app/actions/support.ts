@@ -8,12 +8,15 @@ import {
   listStaffSupportTickets,
   getStaffSupportTicket,
   applySupportMacro,
+  startSupportImpersonation,
+  assertSupportRefundTierCap,
   SUPPORT_MACROS,
   type Actor,
   type MaskedSupportTicket,
   type SupportMacro,
   type SupportTicketStatus,
   type SupportPriority,
+  type SupportImpersonationSession,
 } from '@lumen/core';
 
 const filterSchema = z
@@ -91,4 +94,40 @@ export async function listAvailableMacrosAction(): Promise<SupportMacro[]> {
   const actor = await resolveSupportActor();
   assertCan(actor, 'support:read');
   return SUPPORT_MACROS;
+}
+
+const impersonateSchema = z.object({
+  targetUserId: z.string().min(1).max(64),
+  reason: z.string().trim().min(10).max(500),
+});
+
+export async function startSupportImpersonationAction(rawInput: {
+  targetUserId: string;
+  reason: string;
+}): Promise<SupportImpersonationSession> {
+  const parsed = impersonateSchema.parse(rawInput);
+  const actor = await resolveSupportActor();
+  return startSupportImpersonation(actor, parsed.targetUserId, parsed.reason);
+}
+
+const supportRefundSchema = z.object({
+  ticketId: z.string().min(1).max(64),
+  amountMinor: z.number().int().positive(),
+  currency: z.enum(['BDT', 'USD']).default('BDT'),
+});
+
+export async function approveSupportTierRefundAction(rawInput: {
+  ticketId: string;
+  amountMinor: number;
+  currency?: 'BDT' | 'USD';
+}): Promise<{ ok: true; ticketId: string; amountMinor: number; currency: 'BDT' | 'USD' }> {
+  const parsed = supportRefundSchema.parse(rawInput);
+  const actor = await resolveSupportActor();
+  assertSupportRefundTierCap(actor, parsed.amountMinor, parsed.currency);
+  return {
+    ok: true,
+    ticketId: parsed.ticketId,
+    amountMinor: parsed.amountMinor,
+    currency: parsed.currency,
+  };
 }

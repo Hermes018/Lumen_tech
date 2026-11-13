@@ -26,10 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/courses/ielts-academic', changeFrequency: 'weekly', priority: 0.8 },
     { path: '/courses/ielts-general', changeFrequency: 'weekly', priority: 0.8 },
 
-    // Public CBT Diagnostics & Previews
-    { path: '/exam/diagnostic', changeFrequency: 'monthly', priority: 0.8 },
-    { path: '/exam/ielts-preview', changeFrequency: 'monthly', priority: 0.8 },
-
     // Auth Public Shells
     { path: '/sign-in', changeFrequency: 'monthly', priority: 0.5 },
     { path: '/sign-up', changeFrequency: 'monthly', priority: 0.6 },

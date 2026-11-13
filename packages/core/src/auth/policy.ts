@@ -146,3 +146,19 @@ export function assertCan(actor: Actor, permission: Permission, resource?: Resou
     );
   }
 }
+
+const PRIVILEGED_GRANT_ROLES = ['admin', 'super_admin'] as const;
+
+/**
+ * D4: Only super_admin may grant admin or super_admin roles.
+ * All other role grants require 'user:manage' permission.
+ */
+export function assertCanGrantRole(actor: Actor, targetRole: string): void {
+  assertCan(actor, 'user:manage');
+  if (
+    (PRIVILEGED_GRANT_ROLES as readonly string[]).includes(targetRole) &&
+    !actor.roles.includes('super_admin')
+  ) {
+    throw new AuthorizationError(`Only super_admin may grant '${targetRole}'`);
+  }
+}

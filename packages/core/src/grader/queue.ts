@@ -28,7 +28,15 @@ export type RubricDimensions = z.infer<typeof RubricDimensionsSchema>;
 export interface AuditLogEntry {
   id: string;
   actorId: string;
-  action: 'grade_override' | 'grade_submitted' | 'queue_assigned' | 'role_change' | 'staff_action';
+  action:
+    | 'grade_override'
+    | 'grade_submitted'
+    | 'queue_assigned'
+    | 'role_change'
+    | 'staff_action'
+    | 'support:impersonation_started'
+    | 'user:role_update'
+    | 'security:role_escalation_blocked';
   targetType: string;
   targetId: string;
   reason: string;
