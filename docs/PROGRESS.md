@@ -221,7 +221,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-31 | Guest GRE express diagnostic with CBT runner & gated results claim + public certificate verification /verify/[certId] | 3.8-flash | deps: P1-30
 - [x] P1-34 | Entitlement service + access guards for course, test, AI credits, pass | argon | deps: P1-31
 - [x] P1-32 | PaymentProvider interface + SSLCommerz init, IPN, Order Validation API | opus | deps: P1-31
-- [ ] P1-35 | Paddle adapter for international payments behind feature flag | sonnet | deps: P1-34
+- [x] P1-35 | Course player & dynamic anti-piracy watermark (Bunny signed embed, syllabus tree, 80% cert unlock) | 3.8-flash | deps: P1-34
 - [x] P1-33 | Checkout UI, order status page, receipt PDF/email | sonnet | deps: P1-32
 - [ ] P1-36 | Refunds + finance console (orders, refunds, revenue, VAT export) | sonnet | deps: P1-34, P0-24
 - [ ] P1-69 | Commerce-model schema extension (GA-001): `product_kind` += physical_book/service/human_review_credits, family x tier fields, region price rows (BD/A/B/C), allowances, passes, add-ons, `compare_at_minor` rule (C14), `vat_class` per product with effective-dated regime | sonnet | deps: P1-31
