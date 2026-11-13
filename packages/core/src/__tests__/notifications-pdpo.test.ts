@@ -11,7 +11,6 @@ import {
   canMinorAccessFeature,
   exportUserDataBundle,
   requestDataDeletion,
-  isMandatoryNotification,
 } from '../notifications/dispatcher';
 
 describe('Notification Dispatcher & Quiet Hours', () => {
