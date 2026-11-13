@@ -219,6 +219,10 @@ export function evaluateRefundEligibility(
 
   deductedCreditValueMinor = Math.min(input.amountPaidMinor, Math.max(0, deductedCreditValueMinor));
 
+  if ((input.amountPaidMinor - deductedCreditValueMinor) <= 0) {
+    reasons.push('net_refundable_amount_zero_or_negative_after_credit_deduction');
+  }
+
   const eligible = reasons.length === 0;
   const refundableMinor = eligible
     ? Math.max(0, input.amountPaidMinor - deductedCreditValueMinor)
@@ -305,9 +309,18 @@ export function executeRefund(
     throw new Error(`Order '${params.orderId}' not found`);
   }
 
+  if (order.status === 'refunded') {
+    throw new Error(`Order '${order.id}' has already been refunded`);
+  }
+  if (order.status !== 'paid') {
+    throw new Error(
+      `Order '${order.id}' cannot be refunded because its status is '${order.status}' (expected 'paid')`
+    );
+  }
+
   const now = params.now ?? new Date();
 
-  // Inspect entitlement ledger usage if not explicitly provided
+  // Inspect entitlement ledger usage in dry-run mode before mutating entitlement or ledger
   const revokePreview = revokeEntitlementOnRefund({
     userId: order.userId,
     orderId: order.id,
@@ -315,6 +328,7 @@ export function executeRefund(
     productSlug: order.productSlug,
     reason: params.reason,
     now,
+    dryRun: true,
   });
 
   const aiCreditsUsed = params.aiCreditsUsed ?? revokePreview.consumedAiCredits;
@@ -349,6 +363,17 @@ export function executeRefund(
       `Order '${order.id}' is not eligible for refund: ${eligibility.reasons.join(', ')}`
     );
   }
+
+  // 3. Perform authoritative entitlement revocation and unconsumed credit zeroing
+  const revoked = revokeEntitlementOnRefund({
+    userId: order.userId,
+    orderId: order.id,
+    entitlementId: order.entitlementId,
+    productSlug: order.productSlug,
+    reason: params.reason,
+    now,
+    dryRun: false,
+  });
 
   // 3. Automatically revoke any certificates issued for this user & course
   const revokedCertificates: CertificateRecord[] = [];
@@ -421,7 +446,7 @@ export function executeRefund(
     },
     refundedMinor: eligibility.refundableMinor,
     vatReversal,
-    revokedEntitlements: revokePreview.revokedEntitlements,
+    revokedEntitlements: revoked.revokedEntitlements,
     revokedCertificates,
     auditEntry,
     idempotentReplay: false,

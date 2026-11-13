@@ -18,9 +18,16 @@ export interface CreateAuthOptions {
 }
 
 export function createAuth(options: CreateAuthOptions = {}) {
+  const devFallbackSecret = 'dev_secret_at_least_32_characters_long_lumen_auth';
+  const secret = options.secret || process.env.BETTER_AUTH_SECRET;
+
+  if ((process.env.NODE_ENV as string) === 'production' && (!secret || secret === devFallbackSecret)) {
+    throw new Error('FATAL: BETTER_AUTH_SECRET is required and must not be default in production');
+  }
+
   return betterAuth({
     baseURL: options.baseURL || process.env.BETTER_AUTH_URL || 'http://localhost:3000',
-    secret: options.secret || process.env.BETTER_AUTH_SECRET || 'dev_secret_at_least_32_characters_long_lumen_auth',
+    secret: secret || devFallbackSecret,
     database: drizzleAdapter(db, {
       provider: 'pg',
       schema: {
@@ -209,12 +216,18 @@ export async function getServerActor(
           twoFactorEnabled?: boolean | null;
           locale?: string;
         };
+        const s = sessionData.session as {
+          id: string;
+          twoFactorVerified?: boolean | null;
+          twoFactor?: boolean | null;
+        };
         const rawRoles: Role[] = Array.isArray(u.roles)
           ? (u.roles as Role[])
           : u.role
             ? [u.role as Role]
             : ['student'];
-        const twoFactor = Boolean(u.twoFactorEnabled);
+        const twoFactorEnabled = Boolean(u.twoFactorEnabled);
+        const twoFactorVerified = twoFactorEnabled && Boolean(s?.twoFactorVerified ?? s?.twoFactor);
 
         return {
           id: u.id,
@@ -222,8 +235,8 @@ export async function getServerActor(
           roles: rawRoles,
           orgId: u.orgId,
           orgIds: u.orgId ? [u.orgId] : [],
-          hasTwoFactorEnabled: twoFactor,
-          twoFactorVerified: twoFactor,
+          hasTwoFactorEnabled: twoFactorEnabled,
+          twoFactorVerified,
           sessionId: sessionData.session.id,
           locale: u.locale === 'bn' ? 'bn' : 'en',
           name: u.name || 'Learner',

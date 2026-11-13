@@ -1,6 +1,6 @@
 /** @purpose SSLCommerz payment gateway adapter, IPN validation, and cryptographic signature verification */
 
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { formatMinorToMajor, parseMajorToMinor, type Currency } from './money';
 
 export interface CheckoutCustomer {
@@ -176,9 +176,29 @@ export class SslcommerzProvider {
           };
         }
       }
-    } catch {
+      if (this.isLive || process.env.NODE_ENV === 'production') {
+        throw new ProviderTransientError('SSLCommerz gateway session initiation failed');
+      }
+    } catch (err) {
+      if (err instanceof ProviderTransientError || err instanceof ProviderPermanentError) {
+        throw err;
+      }
+      if (this.isLive || process.env.NODE_ENV === 'production') {
+        throw new ProviderTransientError(
+          `SSLCommerz gateway unavailable: ${err instanceof Error ? err.message : String(err)}`
+        );
+      }
       // In offline / unit test sandbox mode without active gateway connection,
       // fallback to standard sandbox simulation URL
+    }
+
+    const isProduction = (process.env.NODE_ENV as string) === 'production';
+    const isTest = (process.env.NODE_ENV as string) === 'test';
+    const isSandboxEnv = process.env.SSLCOMMERZ_SANDBOX === 'true';
+    const allowSandboxSimulation = isTest || (!isProduction && isSandboxEnv);
+
+    if (this.isLive || isProduction || !allowSandboxSimulation) {
+      throw new ProviderTransientError('SSLCommerz gateway unavailable');
     }
 
     // Deterministic Sandbox Simulation for testing / development
@@ -267,8 +287,20 @@ export class SslcommerzProvider {
       };
     }
 
+    const isProduction = (process.env.NODE_ENV as string) === 'production';
+    const isTest = (process.env.NODE_ENV as string) === 'test';
+    const isSandboxEnv = process.env.SSLCOMMERZ_SANDBOX === 'true';
+    const allowSandbox = isTest || (!isProduction && isSandboxEnv);
+
     // In unit test sandbox environments where simulated val_id is used:
     if (valId.startsWith('SANDBOX_VAL_')) {
+      if (this.isLive || isProduction || !allowSandbox) {
+        return {
+          ...base,
+          status: 'failed',
+          failureReason: 'sandbox_val_id_forbidden_in_production',
+        };
+      }
       const hintAmountMinor =
         args.hint?.amount !== undefined
           ? parseMajorToMinor(args.hint.amount)
@@ -422,5 +454,7 @@ export function localVerifySign(f: Record<string, string>, storePasswd: string):
   parts.sort();
 
   const computedHash = createHash('md5').update(parts.join('&')).digest('hex');
-  return computedHash.toLowerCase() === f.verify_sign.toLowerCase();
+  const a = Buffer.from(computedHash.toLowerCase());
+  const b = Buffer.from(f.verify_sign.toLowerCase());
+  return a.length === b.length && timingSafeEqual(a, b);
 }

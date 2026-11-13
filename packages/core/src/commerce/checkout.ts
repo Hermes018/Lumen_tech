@@ -157,7 +157,24 @@ export async function fulfillOrder(
   }
 
   let order = ordersMap.get(providerRef);
-  if (!order && providerRef.startsWith('LA')) {
+  if (!order) {
+    try {
+      const dbOrder = await getRepositories().orders.findByProviderRef(providerRef);
+      if (dbOrder) {
+        order = dbOrder as unknown as OrderRecord;
+        ordersMap.set(providerRef, order);
+      }
+    } catch {
+      // repository lookup
+    }
+  }
+
+  const isProduction = (process.env.NODE_ENV as string) === 'production';
+  const isTest = (process.env.NODE_ENV as string) === 'test';
+  const isSandboxEnv = process.env.SSLCOMMERZ_SANDBOX === 'true';
+  const allowSandboxFallback = isTest || (!isProduction && isSandboxEnv);
+
+  if (!order && allowSandboxFallback && providerRef.startsWith('LA')) {
     const nowIso = new Date().toISOString();
     const fallbackOrder: OrderRecord = {
       id: `ord-fallback-${providerRef}`,
