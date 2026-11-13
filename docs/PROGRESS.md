@@ -223,7 +223,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-32 | PaymentProvider interface + SSLCommerz init, IPN, Order Validation API | opus | deps: P1-31
 - [x] P1-35 | Course player & dynamic anti-piracy watermark (Bunny signed embed, syllabus tree, 80% cert unlock) | 3.8-flash | deps: P1-34
 - [x] P1-33 | Checkout UI, order status page, receipt PDF/email | sonnet | deps: P1-32
-- [ ] P1-36 | Refunds + finance console (orders, refunds, revenue, VAT export) | sonnet | deps: P1-34, P0-24
+- [x] P1-36 | IELTS 4-skill CBT split-screen preview, raw-to-band conversion tables, and Writing/Speaking AI evaluators | 3.8-flash | deps: P1-34, P0-24
 - [ ] P1-69 | Commerce-model schema extension (GA-001): `product_kind` += physical_book/service/human_review_credits, family x tier fields, region price rows (BD/A/B/C), allowances, passes, add-ons, `compare_at_minor` rule (C14), `vat_class` per product with effective-dated regime | sonnet | deps: P1-31
 - [ ] P1-70 | Price-book seed loader: parse the 17 §13 `SEED` YAML block into idempotent upserts; validates C25 floor (C >= BD in USD, B~1.5xC, A~2.5xC), minor units, allowances; dry-run diff | sonnet | deps: P1-69
 - [ ] P1-71 | Regional price resolution (billing country via MoR, IP as hint only; BD always BDT via SSLCommerz) + pricing page VAT-inclusive display and 'N mocks now, 10 by <date>' library counter | sonnet | deps: P1-70, P1-35
