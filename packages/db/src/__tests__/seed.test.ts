@@ -43,8 +43,8 @@ describe('Seed Data Validation (00-DECISIONS.md D5, D6, D13 & docs/17)', () => {
   });
 
   describe('Original GRE Magoosh-Parity Seed Pack', () => {
-    it('contains all 12 canonical GRE CBT question types', () => {
-      expect(GRE_MAGOOSH_SEED_QUESTIONS.length).toBe(12);
+    it('contains all 12 canonical GRE CBT question types across 22 seeded questions', () => {
+      expect(GRE_MAGOOSH_SEED_QUESTIONS.length).toBe(22);
 
       const expectedTypes = [
         'gre_qc',
@@ -106,9 +106,9 @@ describe('Seed Data Validation (00-DECISIONS.md D5, D6, D13 & docs/17)', () => {
     });
   });
 
-  describe('GRE Vocabulary 30-Word Seed Deck', () => {
-    it('contains 30 words with Bangla meanings and mnemonics', () => {
-      expect(GRE_VOCAB_SEED_WORDS.length).toBe(30);
+  describe('GRE Vocabulary Seed Deck (80 Words Expanded)', () => {
+    it('contains 80 words with Bangla meanings and mnemonics', () => {
+      expect(GRE_VOCAB_SEED_WORDS.length).toBe(80);
 
       const wordSchema = z.object({
         headword: z.string().min(2),
