@@ -1,6 +1,7 @@
-/** @purpose Learner account settings, 2FA status, entitlements, AI credit & mock allowances, and self-serve refund page */
+/** @purpose Learner account settings, 2FA status, entitlements, AI credit & mock allowances, PDPO 2025 guardian consent, and self-serve refund page */
 import { brand } from '@lumen/config';
 import { OrdersAndRefundsPanel } from '../../../_components/OrdersAndRefundsPanel';
+import { GuardianConsentAndPdpoPanel } from '../../../_components/GuardianConsentAndPdpoPanel';
 
 export const metadata = {
   title: `Account Settings & Billing | ${brand.name}`,
@@ -14,10 +15,11 @@ export default function LearnerSettingsPage() {
         <h1 className="text-2xl font-bold">Settings &amp; Allowances</h1>
         <p className="text-fg-muted text-sm">
           View your active entitlements, remaining AI evaluation &amp; mock balances, Mushak VAT
-          receipts, and self-serve refund options.
+          receipts, guardian consent (PDPO 2025), and self-serve refund options.
         </p>
       </div>
       <OrdersAndRefundsPanel showAccountSecurity />
+      <GuardianConsentAndPdpoPanel />
     </div>
   );
 }
