@@ -1,8 +1,13 @@
-/** @purpose Distraction-calm course player page with dynamic anti-piracy watermark overlay and syllabus tree navigation */
+/** @purpose Distraction-calm course player page with server-side auth, entitlement check, dynamic anti-piracy watermark overlay, and syllabus tree navigation */
 
 import React from 'react';
+import { notFound } from 'next/navigation';
 import {
+  requireServerActor,
+  assertCan,
+  getUserEntitlements,
   resolveSyllabusTree,
+  findLessonInSyllabus,
   createSignedVideoEmbed,
   SAMPLE_GRE_QUANT_SYLLABUS,
 } from '@lumen/core';
@@ -15,23 +20,37 @@ export default async function CourseLessonPage({
 }) {
   const { course, lesson } = await params;
 
-  // Resolve syllabus tree for the requested course
-  const syllabus = resolveSyllabusTree(course, SAMPLE_GRE_QUANT_SYLLABUS);
+  const actor = await requireServerActor();
+  assertCan(actor, 'course:view');
 
-  // Authenticated learner context (or fallback demo learner profile)
-  const user = {
-    id: 'usr_learner_prod_01',
-    name: 'Ayman Rahman',
-    email: 'aymanrahman30@gmail.com',
-    phone: '+8801712345678',
-  };
+  // Resolve syllabus tree and verify lesson existence
+  const syllabus = resolveSyllabusTree(course, SAMPLE_GRE_QUANT_SYLLABUS);
+  const found = findLessonInSyllabus(syllabus, lesson);
+  if (!found) {
+    notFound();
+  }
+
+  // Verify free preview or active course entitlement before signing Bunny embed
+  const isFreePreview = found.lesson.isFreePreview === true;
+  const entitled = getUserEntitlements(actor.id).some(
+    (e) =>
+      e.isActive &&
+      (e.productSlug === course ||
+        e.productSlug === 'lumen-annual-pass' ||
+        (Array.isArray(e.allowancesJson.courseSlugs) &&
+          e.allowancesJson.courseSlugs.includes(course)))
+  );
+
+  if (!isFreePreview && !entitled) {
+    notFound();
+  }
 
   // Generate signed Bunny Stream playback descriptor and anti-piracy watermark payload (docs/00 D3)
-  const videoId = `bny_vid_${course}_${lesson}`;
+  const videoId = found.lesson.videoId ?? `bny_vid_${course}_${lesson}`;
   const signedEmbed = createSignedVideoEmbed(
-    user.id,
-    user.email,
-    user.phone,
+    actor.id,
+    actor.email ?? '',
+    '',
     videoId
   );
 
@@ -41,7 +60,7 @@ export default async function CourseLessonPage({
       lessonSlug={lesson}
       syllabus={syllabus}
       signedEmbed={signedEmbed}
-      user={user}
+      user={{ id: actor.id, name: actor.name ?? 'Learner' }}
     />
   );
 }

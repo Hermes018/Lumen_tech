@@ -26,6 +26,7 @@ export interface Lesson {
   notes?: string;
   practiceDrillId?: string;
   formulaList?: string[];
+  isFreePreview?: boolean;
 }
 
 export interface CourseModule {
@@ -105,8 +106,18 @@ export function createSignedVideoEmbed(
     nowUnix?: number;
   }
 ): SignedVideoEmbed {
-  const tokenKey = options?.tokenKey ?? process.env.BUNNY_TOKEN_KEY ?? 'lumen_default_sec_key_2026';
-  const libraryId = options?.libraryId ?? process.env.BUNNY_STREAM_LIBRARY_ID ?? '329182';
+  const tokenKey =
+    options?.tokenKey ??
+    process.env.BUNNY_TOKEN_KEY ??
+    (process.env.NODE_ENV === 'production' ? undefined : 'lumen_dev_only_token_key');
+  const libraryId =
+    options?.libraryId ??
+    process.env.BUNNY_STREAM_LIBRARY_ID ??
+    (process.env.NODE_ENV === 'production' ? undefined : '329182');
+
+  if (!tokenKey || !libraryId) {
+    throw new Error('Bunny Stream signing is not configured (BUNNY_TOKEN_KEY / BUNNY_STREAM_LIBRARY_ID)');
+  }
 
   // Clamp TTL between 10 minutes (600s) and 6 hours (21600s), default 4 hours (14400s) per docs/10 §8.4
   const ttl = Math.min(Math.max(options?.ttlSeconds ?? 14400, 600), 21600);

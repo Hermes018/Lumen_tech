@@ -24,6 +24,7 @@ import {
   Server,
 } from 'lucide-react';
 import { type Role, ROLES, ROLES_REQUIRING_2FA } from '@lumen/auth';
+import { changeUserRoleAction } from '../../../actions/admin';
 
 interface AdminConsoleProps {
   currentActor: {
@@ -133,22 +134,23 @@ export function AdminConsoleClient({ currentActor }: AdminConsoleProps) {
 
   const [roleChangeNotice, setRoleChangeNotice] = useState<string | null>(null);
 
-  const handleRoleChange = (userId: string, newRole: Role) => {
-    // 00-DECISIONS.md D4 Security Guard:
-    // Only super_admin can grant admin or super_admin roles!
-    if ((newRole === 'admin' || newRole === 'super_admin') && currentActor.role !== 'super_admin') {
-      const msg = `Security Violation: Only super_admin can grant administrative roles (${newRole}). Attempt blocked.`;
+  const handleRoleChange = async (userId: string, newRole: Role) => {
+    const result = await changeUserRoleAction({ userId, targetRole: newRole });
+
+    if (!result.ok) {
+      const msg =
+        result.error ??
+        `Security Violation: Only super_admin can grant administrative roles (${newRole}). Attempt blocked.`;
       setRoleChangeNotice(msg);
 
-      // Record in audit log
       setAuditLogs((prev) => [
         {
-          id: `log_${Date.now()}`,
-          timestamp: new Date().toISOString(),
+          id: result.auditEntry.id,
+          timestamp: result.auditEntry.createdAt,
           actorId: currentActor.id,
           actorRole: currentActor.role,
-          action: 'security:role_escalation_blocked',
-          ipHash: 'ip_h_local',
+          action: result.auditEntry.action,
+          ipHash: 'server-verified',
           status: 'denied',
           details: `Blocked attempt by ${currentActor.role} to grant ${newRole} to ${userId}`,
         },
@@ -164,15 +166,14 @@ export function AdminConsoleClient({ currentActor }: AdminConsoleProps) {
     const successMsg = `Successfully updated role of user ${userId} to ${newRole}.`;
     setRoleChangeNotice(successMsg);
 
-    // Record in audit log
     setAuditLogs((prev) => [
       {
-        id: `log_${Date.now()}`,
-        timestamp: new Date().toISOString(),
+        id: result.auditEntry.id,
+        timestamp: result.auditEntry.createdAt,
         actorId: currentActor.id,
         actorRole: currentActor.role,
-        action: 'user:role_update',
-        ipHash: 'ip_h_local',
+        action: result.auditEntry.action,
+        ipHash: 'server-verified',
         status: 'success',
         details: `Updated role of user ${userId} to ${newRole}`,
       },

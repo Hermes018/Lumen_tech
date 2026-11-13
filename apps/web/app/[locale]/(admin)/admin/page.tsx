@@ -1,20 +1,19 @@
 /** @purpose Admin platform overview, user role management with super_admin guard (D4), and audit logging */
 
 import React from 'react';
+import { requireServerActor, assertCan } from '@lumen/core';
 import { AdminConsoleClient } from './AdminConsoleClient';
-import type { Role } from '@lumen/auth';
 
 export default async function AdminOverviewPage() {
-  const currentActor: {
-    id: string;
-    name: string;
-    role: Role;
-    hasTwoFactor: boolean;
-  } = {
-    id: 'usr_super_admin_01',
-    name: 'Ayman Rahman',
-    role: 'super_admin',
-    hasTwoFactor: true,
+  const srv = await requireServerActor({ requireTwoFactor: true, roles: ['admin'] });
+  assertCan(srv, 'user:manage');
+  assertCan(srv, 'audit:view');
+
+  const currentActor = {
+    id: srv.id,
+    name: srv.name ?? 'Admin',
+    role: srv.roles.includes('super_admin') ? ('super_admin' as const) : ('admin' as const),
+    hasTwoFactor: srv.twoFactorVerified === true,
   };
 
   return <AdminConsoleClient currentActor={currentActor} />;

@@ -4,9 +4,11 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 const cspHeader = `
   default-src 'self';
-  script-src 'self' 'unsafe-eval' https://challenges.cloudflare.com https://cdn.paddle.com;
+  script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://cdn.paddle.com;
   style-src 'self' 'unsafe-inline';
   img-src 'self' blob: data: https:;
   font-src 'self' data:;
