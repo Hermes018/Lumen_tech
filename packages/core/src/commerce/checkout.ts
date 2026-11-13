@@ -211,9 +211,14 @@ export async function fulfillOrder(
     payment.amountMinor === order.amountMinor &&
     payment.currency === order.currency
   ) {
-    const nowIso = new Date().toISOString();
+    const orderCreatedMs = new Date(order.createdAt).getTime();
+    const effectiveNow =
+      Number.isFinite(orderCreatedMs) && orderCreatedMs < Date.now()
+        ? new Date(orderCreatedMs)
+        : new Date();
+    const nowIso = effectiveNow.toISOString();
     // Grant access entitlements exactly once per orderId/providerRef
-    const entitlement = grantEntitlement(order.userId, order.productSlug, 'purchase', new Date(), {
+    const entitlement = grantEntitlement(order.userId, order.productSlug, 'purchase', effectiveNow, {
       orderId: order.id,
       idempotencyKey: `purchase:${providerRef}`,
       amountPaidMinor: order.amountMinor,
