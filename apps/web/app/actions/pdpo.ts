@@ -9,8 +9,10 @@ import {
   requestGuardianConsent,
   verifyGuardianOtp,
   revokeGuardianConsent,
+  canMinorAccessFeature,
   exportUserDataBundle,
   requestDataDeletion,
+  recordAuditEvent,
   type GuardianConsentState,
   type UserDataBundleExport,
 } from '@lumen/core';
@@ -61,10 +63,18 @@ export async function requestGuardianConsentAction(rawInput: {
     guardianEmail: input.guardianEmail,
     guardianPhone: input.guardianPhone,
     studentName: actor.id.slice(0, 8),
-    mockOtp: '482910', // Consistent OTP for dev/testing
+    ...(process.env.NODE_ENV === 'test' ? { mockOtp: '482910' } : {}),
   });
 
   consentStates.set(actor.id, nextState);
+  recordAuditEvent({
+    actorId: actor.id,
+    action: 'staff_action',
+    targetType: 'guardian_consent',
+    targetId: actor.id,
+    reason: 'Guardian consent OTP requested',
+    metadataJson: { status: nextState.status },
+  });
 
   const maskedEmail = `${input.guardianEmail[0]}***@${input.guardianEmail.split('@')[1]}`;
   const maskedPhone = `${input.guardianPhone.slice(0, 4)}****${input.guardianPhone.slice(-2)}`;
@@ -73,7 +83,7 @@ export async function requestGuardianConsentAction(rawInput: {
     ok: true as const,
     maskedEmail,
     maskedPhone,
-    devHint: process.env.NODE_ENV !== 'production' ? 'Dev OTP: 482910' : undefined,
+    devHint: undefined,
   };
 }
 
@@ -87,6 +97,16 @@ export async function verifyGuardianOtpAction(rawInput: { otp: string }) {
   try {
     const nextState = verifyGuardianOtp(state, input.otp);
     consentStates.set(actor.id, nextState);
+    if (nextState.status === 'verified') {
+      recordAuditEvent({
+        actorId: actor.id,
+        action: 'staff_action',
+        targetType: 'guardian_consent',
+        targetId: actor.id,
+        reason: 'Guardian consent OTP verified',
+        metadataJson: { status: nextState.status, verifiedAt: nextState.verifiedAt },
+      });
+    }
     return {
       ok: true as const,
       status: nextState.status,
@@ -109,12 +129,29 @@ export async function revokeGuardianConsentAction(rawInput: { reason: string }) 
   const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
   const nextState = revokeGuardianConsent(state, input.reason);
   consentStates.set(actor.id, nextState);
+  recordAuditEvent({
+    actorId: actor.id,
+    action: 'staff_action',
+    targetType: 'guardian_consent',
+    targetId: actor.id,
+    reason: input.reason,
+    metadataJson: { status: nextState.status, revokedAt: nextState.revokedAt },
+  });
 
   return {
     ok: true as const,
     status: nextState.status,
     revokedAt: nextState.revokedAt,
   };
+}
+
+export async function checkMinorFeatureAccessAction(
+  feature: 'ai_speaking_upload' | 'public_profile' | 'community_post' | 'third_party_analytics'
+): Promise<{ allowed: boolean; reason?: string }> {
+  const actor = await requireServerActor();
+  assertCan(actor, 'user:view_own', { ownerId: actor.id });
+  const state = consentStates.get(actor.id) ?? createMinorGuardianConsentState(actor.id);
+  return canMinorAccessFeature(state, feature);
 }
 
 export async function exportUserDataBundleAction(): Promise<UserDataBundleExport> {

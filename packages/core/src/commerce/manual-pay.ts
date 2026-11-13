@@ -5,6 +5,7 @@
 import { assertCan, type Actor } from '../auth/policy';
 import {
   getOrderByRef,
+  listAllOrders,
   updateOrderRecord,
   type OrderRecord,
 } from './checkout';
@@ -63,13 +64,13 @@ export function isValidTrxId(trxId: string): boolean {
 /**
  * Submits a manual bKash/Nagad payment for an order, transitioning status to 'pending_verification'.
  */
-export function submitManualPayment(
+export async function submitManualPayment(
   orderId: string,
   method: ManualPaymentMethod,
   trxId: string,
   senderNumber: string,
   now = new Date()
-): OrderRecord {
+): Promise<OrderRecord> {
   if (method !== 'bkash' && method !== 'nagad') {
     throw new Error(`Invalid manual payment method '${method}'. Must be 'bkash' or 'nagad'`);
   }
@@ -93,6 +94,17 @@ export function submitManualPayment(
     throw new Error(`Order '${orderId}' has already been fulfilled and marked as paid`);
   }
 
+  if (order.status !== 'pending' && order.status !== 'pending_verification') {
+    throw new Error(`Order '${orderId}' cannot accept a manual payment in status '${order.status}'`);
+  }
+
+  // TrxID must be globally unique across all orders (replay / multi-account reuse guard)
+  for (const other of listAllOrders()) {
+    if (other.id !== order.id && other.manualPayment?.trxId === cleanTrxId) {
+      throw new Error('This Transaction ID has already been submitted for another order');
+    }
+  }
+
   const nowIso = now.toISOString();
   const updatedOrder: OrderRecord = {
     ...order,
@@ -109,12 +121,14 @@ export function submitManualPayment(
   updateOrderRecord(updatedOrder);
 
   try {
-    void getRepositories().orders.update(order.id, {
+    await getRepositories().orders.update(order.id, {
       status: 'pending_verification',
       updatedAt: nowIso,
     });
-  } catch {
-    // repository update
+  } catch (err) {
+    throw new Error(`Manual payment submission for order ${order.id} failed to persist to repository`, {
+      cause: err,
+    });
   }
 
   return updatedOrder;
@@ -127,24 +141,10 @@ export function submitManualPayment(
  */
 export async function approveManualPayment(
   orderId: string,
-  staffOrActor: string | Actor,
-  explicitActor?: Actor,
+  actor: Actor,
   now = new Date()
 ): Promise<ManualPaymentResult> {
-  let actor: Actor;
-  let staffId: string;
-
-  if (typeof staffOrActor === 'string') {
-    staffId = staffOrActor;
-    actor = explicitActor ?? {
-      id: staffId,
-      roles: ['finance'],
-      hasTwoFactorEnabled: true,
-    };
-  } else {
-    actor = staffOrActor;
-    staffId = actor.id;
-  }
+  const staffId = actor.id;
 
   // 1. Authorization & 2FA Enforcement
   assertCan(actor, 'finance:write');
@@ -167,6 +167,9 @@ export async function approveManualPayment(
   // 4. Verification Check
   if (!order.manualPayment?.trxId) {
     throw new Error(`Cannot approve order '${orderId}': No manual TrxID has been submitted`);
+  }
+  if (order.status !== 'pending_verification') {
+    throw new Error(`Order '${orderId}' is '${order.status}', not 'pending_verification'`);
   }
 
   const nowIso = now.toISOString();
@@ -232,8 +235,10 @@ export async function approveManualPayment(
       validatedAt: nowIso,
       createdAt: nowIso,
     });
-  } catch {
-    // repository persistence
+  } catch (err) {
+    throw new Error(`Manual payment ${order.id} approved in memory but DB persistence failed`, {
+      cause: err,
+    });
   }
 
   return {
@@ -249,25 +254,11 @@ export async function approveManualPayment(
  */
 export async function rejectManualPayment(
   orderId: string,
-  staffOrActor: string | Actor,
+  actor: Actor,
   reason = 'Transaction ID could not be verified with bKash/Nagad statement',
-  explicitActor?: Actor,
   now = new Date()
 ): Promise<ManualPaymentResult> {
-  let actor: Actor;
-  let staffId: string;
-
-  if (typeof staffOrActor === 'string') {
-    staffId = staffOrActor;
-    actor = explicitActor ?? {
-      id: staffId,
-      roles: ['finance'],
-      hasTwoFactorEnabled: true,
-    };
-  } else {
-    actor = staffOrActor;
-    staffId = actor.id;
-  }
+  const staffId = actor.id;
 
   assertCan(actor, 'finance:write');
 
@@ -298,8 +289,10 @@ export async function rejectManualPayment(
       status: 'failed',
       updatedAt: nowIso,
     });
-  } catch {
-    // repository persistence
+  } catch (err) {
+    throw new Error(`Manual payment ${order.id} rejected in memory but DB persistence failed`, {
+      cause: err,
+    });
   }
 
   return {

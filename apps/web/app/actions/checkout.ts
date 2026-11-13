@@ -298,7 +298,7 @@ export async function submitManualCheckoutAction(rawInput: z.infer<typeof submit
     appUrl,
   });
 
-  const updatedOrder = submitManualPayment(
+  const updatedOrder = await submitManualPayment(
     res.order.id,
     input.method,
     input.trxId,
@@ -310,7 +310,7 @@ export async function submitManualCheckoutAction(rawInput: z.infer<typeof submit
     orderId: updatedOrder.id,
     status: updatedOrder.status,
     method: input.method,
-    trxId: input.trxId,
+    trxId: updatedOrder.manualPayment?.trxId ?? input.trxId,
   };
 }
 
@@ -318,7 +318,7 @@ export async function approveManualPaymentAction(orderId: string) {
   const actor = await requireServerActor();
   assertCan(actor, 'finance:write');
 
-  const result = await approveManualPayment(orderId, actor.id, actor);
+  const result = await approveManualPayment(orderId, actor);
   return {
     ok: true as const,
     orderId: result.order.id,
@@ -331,7 +331,7 @@ export async function rejectManualPaymentAction(orderId: string, reason?: string
   const actor = await requireServerActor();
   assertCan(actor, 'finance:write');
 
-  const result = await rejectManualPayment(orderId, actor.id, reason, actor);
+  const result = await rejectManualPayment(orderId, actor, reason);
   return {
     ok: true as const,
     orderId: result.order.id,
