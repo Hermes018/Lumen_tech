@@ -5,54 +5,47 @@
 
 ## Baton
 
-- From: gemini (Gemini 3.8 Flash High)   To: next agent / founder review   Date/time (UTC): 2026-11-13 15:22:00
-- Reason: Stage 5 (P1-35 Course Player & Watermark + P1-36 IELTS CBT & AI Scoring + P1-37 Finance & Admin Consoles) complete & merged to `main`
+- From: gemini (Gemini 3.8 Flash High)   To: next agent / founder review   Date/time (UTC): 2026-11-13 17:01:00
+- Reason: Stage 6 (P1-38 IELTS 4-Skill Mock Runner + P1-39 Notifications & PDPO Consent + P1-40 SEO/Bilingual/Load-test Harness) complete & merged to `main`
 - Branch: main                      Last commit SHA: (main merged)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-13-gemini-stage5.md
-- Pushed to origin? Yes (`origin/main`)
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-13-gemini-stage6.md
+- Pushed to origin? No (Founder pushes directly from Konsole per strict anti-polling rule)
 - Working tree clean? yes
-- Task: Stage 5 (P1-35, P1-36, P1-37) - status: complete
+- Task: Stage 6 (P1-38, P1-39, P1-40) - status: complete
 - Milestone gate in progress: M1 Internal Alpha / M2 Closed Pilot
-- Baseline `pnpm verify:fast`: PASS (30/30 turbo tasks green; 311 total unit tests: `@lumen/core` 230, `@lumen/db` 26, `@lumen/ai` 22, `@lumen/ui` 17, `@lumen/auth` 16)
-- Next.js Production Build: 81 static/SSG and dynamic routes compiled cleanly.
+- Tests passing: 261 total unit tests in `@lumen/core` (24/24 test files green)
+- TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental` clean)
 
-## Done so far (Stage 5)
+## Done so far (Stage 6)
 
-1. Branch 1 (`task/P1-35-course-player-and-watermark` -> `main`):
-   - Built `packages/core/src/courses/player.ts` with syllabus tree resolution (modules -> lessons -> video/quiz/flashcard nodes), lecture progress tracking (`watchedSeconds`, `completed`, `droppedAtSecond` engagement signals), and 80% mastery certificate unlock via `verify.ts`.
-   - Built `createSignedVideoEmbed` with time-limited Bunny Stream SHA256 embed tokens and dynamic anti-piracy watermark (`maskedEmail`, `maskedPhone`, `sessionFingerprint`, `positionSeed`).
-   - Built distraction-calm player UI at `/app/learn/[course]/[lesson]` with moving visible watermark overlay, 0.75x–2.0x playback speed, bookmarking, and notes/drill/Q&A tabs.
-2. Branch 2 (`task/P1-36-ielts-cbt-and-ai-scoring` -> `main`):
-   - Implemented IELTS 4-skill raw-to-band conversion tables (Listening, Academic Reading 30-32=7.0, GT Reading) and official half-up rounding on the 0.5 grid (`.25 -> .5`, `.75 -> next whole band`) in `packages/core/src/exam/ielts-scoring.ts`.
-   - Built IELTS Writing (Task 1 + Task 2 weighted 2x) & Speaking AI evaluators with Deepgram Nova-3 word timestamps (WPM, >0.8s pauses, filler density) and PII redaction in `packages/ai/src/evaluation/ielts.ts`.
-   - Built IDP-faithful IELTS on Computer split-screen CBT preview at `/exam/ielts-preview` with resizable split panes, text highlighter, inline sticky notepad drawer, text-size toggle, and live word counter.
-3. Branch 3 (`task/P1-37-admin-finance-and-promises` -> `main`):
-   - Implemented Target Promise (Plus 90-day library extension) & Progress Promise (Mentor live batch re-enrolment) claim evaluators (`docs/17` §2.2a) in `packages/core/src/commerce/finance-ops.ts`.
-   - Built NBR Mushak 6.3 monthly VAT CSV export with spreadsheet formula-injection defense (`=`, `+`, `-`, `@`, `\t`, `\r` prepended with `'`).
-   - Built `/finance` console (revenue/VAT ledger, refund queue, Mushak 6.3 preview, guarantee claims approval).
-   - Built `/admin` console (platform health KPIs, user/role inspector with `super_admin` guard for admin grants per D4, append-only audit log).
+1. Branch 1 (`task/P1-38-ielts-full-mock-runner` -> `main`):
+   - Built `packages/core/src/exam/ielts-mock.ts` with stateful 4-section lifecycle (`listening -> reading -> writing -> speaking -> completed`), strict play-once audio & rewind prevention, auto-submit on timer expiry, Speaking Part 2 timers (1-min prep + 2-min recording), and Band Report aggregation (raw Listening/Reading + AI Writing/Speaking + CEFR A1-C2).
+   - Built full IELTS CBT Mock Runner UI (`/exam/ielts/[attemptId]`) and Score Report card (`/exam/ielts/[attemptId]/results`).
+2. Branch 2 (`task/P1-39-notifications-and-pdpo-consent` -> `main`):
+   - Built `packages/core/src/notifications/dispatcher.ts` with transactional notification templates (Order Receipt + Mushak 6.3 summary, Refund Confirmation, AI Essay Graded, Streak Risk Nudge, Live Class T-60m Reminder), user opt-out checks, and Asia/Dhaka quiet-hours suppression (22:00–08:00 UTC+6).
+   - Implemented Bangladesh PDPO 2025 Under-18 Guardian Consent State Machine (`unverified -> consent_requested -> verified -> revoked`), feature access guards for minors, and data portability/erasure controls.
+   - Wired Guardian Consent and PDPO controls into `/app/settings` via `GuardianConsentAndPdpoPanel`.
+3. Branch 3 (`task/P1-40-seo-i18n-and-concurrency-bench` -> `main`):
+   - Created localized (`en` & `bn`) `apps/web/app/sitemap.ts` and `apps/web/app/robots.ts` covering all public routes.
+   - Synchronized `apps/web/messages/en.json` and `bn.json` with 100% key parity, verified by fast unit test.
+   - Built deterministic concurrency stress harness in `packages/core/src/__tests__/pilot-concurrency.test.ts` firing 50 concurrent `consumeAiCredit` debits and 50 duplicate SSLCommerz IPN webhooks against 5 credits, mathematically proving zero negative balances and zero double-fulfillments under load.
+   - Added in-flight concurrency lock in `packages/core/src/commerce/checkout.ts`.
 
 ## Remaining steps (numbered, in order)
 
-1. Review Next.js compiled routes and run end-to-end user journeys in staging.
-2. Continue next scheduled backlog items in `docs/PROGRESS.md`.
+1. Founder review and push: `pnpm verify:fast && ALLOW_GIT_PUSH=1 git push origin main`.
+2. Continue next backlog items in `docs/PROGRESS.md`.
 
 ## Exact next command / first action
 
-`git status -sb`
+`pnpm verify:fast && ALLOW_GIT_PUSH=1 git push origin main`
 
 ## Decisions made (and why)
 
-- Aligned public help center to `/[locale]/(marketing)/help` matching `docs/00-DECISIONS.md` D2 (`/help`), reserving `/support` exclusively for the internal staff support console (`/[locale]/(staff)/support`).
-- Protected Mushak 6.3 CSV exports against spreadsheet formula injection by prepending dangerous prefixes with an apostrophe.
-- Enforced `super_admin` role guard for promoting any user to `admin` or `super_admin` per D4.
+- Enforced in-flight promise locking in `fulfillOrder` to eliminate concurrent webhook double-fulfillment race conditions before database/memory state commits.
+- Suppressed non-mandatory notifications during Bangladesh quiet hours (22:00–08:00 Asia/Dhaka) while allowing mandatory order receipts and OTPs to bypass immediately.
+- Enforced strict PDPO 2025 minor safeguards: blocked public posting and commercial 3rd-party analytics for minor accounts until guardian consent is verified.
 
 ## Known issues / failing tests
 
-- None (`pnpm verify:fast` 30/30 green, 311/311 unit tests passing, Next.js build 81 routes compiled).
-
-## Read first (max 5 paths or doc sections)
-
-- `docs/10-PAYMENTS-VIDEO-INTEGRATIONS.md` §8 (Bunny Stream & Watermark)
-- `docs/07-TEST-ENGINE.md` §3.2 (IELTS 4-skill scoring) & §7.4-§7.5 (AI evaluation)
-- `docs/17-PRICING-MASTER.md` §2.2a (Target & Progress Promises)
+- None. 261/261 unit tests passing in `@lumen/core`. 0 type errors.
