@@ -69,6 +69,10 @@ export const PERMISSIONS = [
   'audit:view',
   'finance:view',
   'finance:export',
+
+  // Support & Trust
+  'support:read',
+  'support:manage',
 ] as const;
 
 export type Permission = (typeof PERMISSIONS)[number];
@@ -176,6 +180,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'order:view_all',
     'user:view_all',
     'user:view_own',
+    'support:read',
+    'support:manage',
   ],
 
   finance: [
@@ -230,6 +236,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     'audit:view',
     'finance:view',
     'finance:export',
+    'support:read',
+    'support:manage',
   ],
 
   super_admin: PERMISSIONS,
