@@ -5,32 +5,35 @@
 
 ## Baton
 
-- From: gemini (Gemini 4 Hydrogen Med)   To: next agent / founder review   Date/time (UTC): 2026-11-13 06:20:00
-- Reason: Stage 3C (Branch 4: Hardcoded Brand Sweep, Auth/Onboarding, Orders & Self-Serve Refund UI) complete, merged to `main`, and pushed to `origin/main`
-- Branch: main                      Last commit SHA: 631c008 (merged to main)
-- Device (hostname) / session log path: docs/logs/sessions/2026-11-13-gemini-stage3c.md
+- From: gemini (Gemini 3.8 Flash High)   To: next agent / founder review   Date/time (UTC): 2026-11-13 10:25:00
+- Reason: Stage 4B (Sonnet Two-Key Security Fixes + P1-100 GRE Expansion + P1-64 Legal Pages + P1-65 Support & Trust Ops) complete & merged to `main`
+- Branch: main                      Last commit SHA: (main merged)
+- Device (hostname) / session log path: docs/logs/sessions/2026-11-13-gemini-stage4b.md
 - Pushed to origin? Yes (`origin/main`)
 - Working tree clean? yes
-- Task: Stage 3C (`P1-32` UI & brand sweep) - status: complete
+- Task: Stage 4B (Sonnet fixes, P1-100, P1-64, P1-65) - status: complete
 - Milestone gate in progress: M1 Internal Alpha (GRE Core + Magoosh Engine)
-- Baseline `pnpm verify:fast`: PASS (30/30 turbo tasks green; `@lumen/core` 180 tests, `@lumen/db` 26, `@lumen/ai` 18, `@lumen/ui` 17, `@lumen/auth` 16)
-- Baseline `pnpm --filter @lumen/web build`: PASS (65/65 static pages + all dynamic routes green)
+- Baseline `pnpm verify:fast`: PASS (30/30 turbo tasks green; 276 total unit tests: `@lumen/core` 199, `@lumen/db` 26, `@lumen/ai` 18, `@lumen/ui` 17, `@lumen/auth` 16)
 
-## Done so far (Stages 3A, 3B, 3C)
+## Done so far (Stage 4B)
 
-1. Stage 3A: P0 Security remediation (`P1-32` backend), `requireServerActor()` + D4 2FA, SSLCommerz IPN + validation, append-only credit ledger (`P1-34`), refund & 15% BD VAT engine (`P1-147`).
-2. Stage 3B (`P1-33`): Dual-Mode Drizzle & In-Memory Repository Adapter Layer in `packages/db/src/repositories/`.
-3. Stage 3C (`task/P1-32-ui-and-brand-sweep` -> merged to `main`):
-   - Eliminated all 16 hardcoded `"Lumen Academy"` strings across `packages/` and `apps/web/` in favor of `brand.name` from `@lumen/config`.
-   - Added `packages/core/src/__tests__/brand-sweep.test.ts` asserting zero hardcoded `"Lumen Academy"` strings outside `packages/config/src/brand.ts`; verified `audit-digest.md` reports `0` hits.
-   - Built `apps/web/app/[locale]/(auth)/sign-in/page.tsx`, `sign-up/page.tsx`, and `onboarding/page.tsx` (Google OAuth, Email OTP, Phone OTP stub, D4 2FA prompt, guest diagnostic token claim, 2 free AI credits).
-   - Built `apps/web/app/[locale]/(checkout)/orders/page.tsx` and `apps/web/app/[locale]/(learner)/app/settings/page.tsx` (active entitlements, AI credit & mock balances, Mushak 6.3 / 15% BD VAT receipt breakdown, 1-click self-serve refund request wired to `refunds.ts`).
-   - Added `export const dynamic = 'force-dynamic'` to authenticated route group layouts so `next build` succeeds cleanly.
+1. Branch 0 (`task/P1-sonnet-review-fixes` -> `main`):
+   - Remediated Critical 1: Strictly gated SSLCommerz sandbox bypass and simulated checkouts behind non-prod test/sandbox flags. Production always hits the Order Validation API and throws explicit gateway errors.
+   - Remediated Critical 2: Evaluated refund eligibility before mutating entitlements/credits. Consumed AI credits deducted from refund minor amount; if net <= 0, refund is rejected while state remains untouched.
+   - Remediated 4 Mediums: Session-level 2FA check (`session.twoFactorVerified`), constant-time signature comparison (`crypto.timingSafeEqual`), user-scoped idempotency keys (`${userId}:${idempKey}`) with persisted ledger records, fatal production `BETTER_AUTH_SECRET` guard. Added regression tests in `sonnet-review-fixes.test.ts`.
+2. Branch 1 (`task/P1-100-gre-content-expansion` -> `main`):
+   - Expanded `gre-vocab-seed.ts` with 50 new high-frequency GRE words (total 80) with 4-mode FSRS fields (Bangla gloss, mnemonic, synonyms, example).
+   - Expanded `gre-magoosh-seed.ts` with 10 new questions (total 22) with 3-tier hints, trap tags, Socratic steps, and typed verbal deconstructors.
+3. Branch 2 (`task/P1-64-legal-and-policy-pages` -> `main`):
+   - Built `/legal/terms`, `/legal/privacy`, `/legal/refund-policy` using dynamic `{brand.name}`, D12 C13b refund rules (7d, <20%, <=1 mock), and Bangladesh PDPO 2025 youth protections.
+4. Branch 3 (`task/P1-65-support-and-trust-ops` -> `main`):
+   - Built `/support` Help Center with searchable FAQs across 5 categories and tier SLA badges (Mentor 4h, Live 12h, Plus 24h, Core 48h).
+   - Built staff support console (`apps/web/app/[locale]/(staff)/support/page.tsx`) enforcing `assertCan(actor, 'support:read')`, mandatory 2FA, masked PII display, and support macro response dispatcher.
 
 ## Remaining steps (numbered, in order)
 
-1. Run two-key review (Sonnet 5.5 or Opus Low/Med) on security-critical paths listed below.
-2. Continue next unchecked M1 task in `docs/PROGRESS.md`.
+1. Run next scheduled M1 task in `docs/PROGRESS.md` (e.g. CBT exam shell offline sync or adaptive engine).
+2. Continue rigorous verify ladder before any major milestone merge.
 
 ## Exact next command / first action
 
@@ -38,25 +41,15 @@
 
 ## Decisions made (and why)
 
-- Authenticated route group layouts (`(learner)`, `(studio)`, `(grader)`, `(admin)`, `(staff)`, `(org)`) export `dynamic = 'force-dynamic'` so Next.js 16 production build does not attempt static prerendering of session-protected pages.
-- Self-serve refund requests in `apps/web/app/actions/checkout.ts` evaluate eligibility via `evaluateRefundEligibility` (`refunds.ts`) and record an append-only audit event while preserving `executeRefund`'s finance+2FA gate (`order:refund`).
+- Support console and server actions enforce `assertCan(actor, 'support:read')` and mandatory D4 2FA server-side.
+- PII (email, phone, name) is masked by default on all staff listings to adhere to Bangladesh PDPO 2025 and privacy controls.
 
 ## Known issues / failing tests
 
-- None (`pnpm verify:fast` 30/30 green, `@lumen/web build` green).
+- None (`pnpm verify:fast` 30/30 green, 276/276 unit tests passing).
 
 ## Read first (max 5 paths or doc sections)
 
-- `docs/logs/reviews/opus-audit-and-action-plan.md`
-- `docs/PROGRESS.md`
-
-## Do NOT touch
-
-- `pnpm-lock.yaml`, `.env*`, `docs/00-DECISIONS.md`, committed DB migrations in `packages/db/drizzle/`.
-
-## Needs two-key review (security-critical paths touched)
-
-- [ ] `packages/auth/src/server.ts` (`requireServerActor`, D4 2FA guard)
-- [ ] `apps/web/app/api/webhooks/sslcommerz/route.ts` & `packages/core/src/commerce/sslcommerz.ts` (IPN signature + secondary validation + idempotency)
-- [ ] `packages/core/src/commerce/entitlements.ts` & `packages/core/src/commerce/refunds.ts` (append-only credit ledger, refund deductions, 15% BD VAT)
-- [ ] `packages/db/src/repositories/**` (dual-mode persistence adapter layer)
+- `docs/logs/reviews/sonnet-two-key-review.md`
+- `docs/27-SUPPORT-AND-TRUST-OPERATIONS.md`
+- `docs/26-LEGAL-AND-POLICY-DRAFTS.md`

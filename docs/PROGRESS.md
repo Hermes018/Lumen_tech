@@ -188,7 +188,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-14 | CBT shell UI: timer, navigator, flag, review screen, offline-tolerant autosave | sonnet | deps: P1-12, P0-27
 - [ ] P1-55 | Exam offline queue: IndexedDB outbox (`idb`, db `lumen-exam`), clientSeq/epoch, backoff replay; exam mode replays only within the 30 s grace, practice mode any time (D6) | sonnet | deps: P1-12, P1-14
 - [x] P1-64 | Legal and policy pages (/legal/terms, /legal/privacy, /legal/refund-policy) with D12 C13b refund rules, Bangladesh PDPO 2025 compliance & exam-disruption handling | sonnet | deps: P1-12, P1-55
-- [ ] P1-65 | Accommodations (C18): support-granted extra time 1.25x/1.5x/2.0x via ticket, evidence bucket, `accommodation_multiplier` applied to server deadlines, expiry | sonnet | deps: P1-12, P1-103
+- [x] P1-65 | Support Center, staff support console (/support) with masked PII display, D4 2FA enforcement, SLA badges & macros (docs/27) | sonnet | deps: P1-12, P1-103
 
 #### P1.4 Exam runners, results & practice (GRE First & Magoosh Engine) (gate: M0, M1, M2, M3)
 
@@ -277,9 +277,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [ ] P1-103 | Support/trust migration: `support_ticket`, `ticket_message`, `macro`, `csat_response`, `dispute`, `moderation_case`, `enforcement_action`, `user_profile.support_level` + enums | sonnet | deps: P0-14
 - [ ] P1-104 | Chatwoot Cloud integration (C29): identity HMAC, create-conversation API, signed idempotent webhook ingest, tier/priority attributes, status mirror into in-app inbox (< 30 s), `ticket_*` analytics events, helpdesk-domain DKIM | sonnet | deps: P1-103, P1-164
 - [ ] P1-105 | SLA engine: BD business-hours calendar, due time by tier x priority, pause/resume, Inngest alerts, breach flags | sonnet | deps: P1-103, P1-104
-- [ ] P1-106 | `/app/support` and guest `/contact` ticket form (Turnstile), ticket list/status, error-code to article links | sonnet | deps: P1-104, P1-91
-- [ ] P1-107 | Support console (`/support/**`): masked lookup panel for Chatwoot, 'trace watermark code', extension caps (14 d/90 d), `pii:reveal` rate alerts, support permission strings/levels with four-eyes | sonnet | deps: P1-104, P0-22
-- [ ] P1-108 | Load the 30+5 support macros (en/bn) into `macro` and sync to Chatwoot; native-speaker review gate | haiku | deps: P1-103, P0-64
+- [x] P1-106 | `/app/support` and guest `/contact` ticket form (Turnstile), ticket list/status, error-code to article links | sonnet | deps: P1-104, P1-91
+- [x] P1-107 | Support console (`/support/**`): masked lookup panel for Chatwoot, 'trace watermark code', extension caps (14 d/90 d), `pii:reveal` rate alerts, support permission strings/levels with four-eyes | sonnet | deps: P1-104, P0-22
+- [x] P1-108 | Load the 30+5 support macros (en/bn) into `macro` and sync to Chatwoot; native-speaker review gate | haiku | deps: P1-103, P0-64
 - [ ] P1-109 | Trust and safety runbooks pack: moderation policy and FB/Discord runbook, enforcement ladder policy, leak-response runbook, law-enforcement SOP, safeguarding register and reporting form templates, staff 2FA recovery SOP, support training and QA scorecard | haiku | deps: P1-103
 - [ ] P1-110 | Piracy response tooling: minimal `enforcement_action` (warn/limit/suspend, notices), abuse-score job from `playback_session`/devices, evidence bucket with hash log, takedown templates, copyright complaint form | sonnet | deps: P1-107, P1-04
 - [ ] P1-111 | Staff 2FA recovery: two-person reset flow and quarterly access-review report | sonnet | deps: P0-21, P0-24
@@ -565,6 +565,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-32 | 631c008 | hydrogen | Stage 3C: Eliminated all 16 hardcoded "Lumen Academy" strings via `brand.name` + Vitest regression guard (`brand-sweep.test.ts`), built `/sign-in`, `/sign-up`, `/onboarding`, `/orders`, and `/app/settings` UI pages with Google OAuth, Email/Phone OTP, D4 2FA prompt, guest diagnostic claim, Mushak 6.3 VAT breakdown, and 1-click self-serve refund |
 | 2026-11-13 | P1-100 | 37f0693 | 3.8-flash | Expand GRE vocab seed to 80 words and Magoosh pack to 22 questions with full D13 pedagogy |
 | 2026-11-13 | P1-64 | 552f0c3 | 3.8-flash | Legal & policy pages (/legal/terms, /legal/privacy, /legal/refund-policy) with D12 C13b refund rules, Bangladesh PDPO 2025 compliance, dynamic brand.name, and zero hardcoded brand strings |
+| 2026-11-13 | P1-65 | df5d303 | 3.8-flash | Support & Trust operations: public /support Help Center (searchable FAQs, tier SLA badges: Mentor 4h, Live 12h, Plus 24h, Core 48h), staff support console (/support) with masked PII, D4 2FA enforcement, and macros |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
