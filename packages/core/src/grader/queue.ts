@@ -5,6 +5,7 @@
 
 import { z } from '@lumen/config';
 import { assertCan, type Actor } from '../auth/policy';
+import { getRepositories, type GraderQueueItem as DbGraderQueueItem } from '@lumen/db';
 
 /** 0.5 grid validator for GRE AWA 0–6 scoring */
 export const AwaHalfGridSchema = z
@@ -78,6 +79,11 @@ export function recordAuditEvent(entry: Omit<AuditLogEntry, 'id' | 'createdAt'>)
     createdAt: new Date().toISOString(),
   };
   auditLogProtocol.push(Object.freeze(fullEntry));
+  try {
+    void getRepositories().grading.saveAuditEvent(fullEntry);
+  } catch {
+    // repository persistence
+  }
   return fullEntry;
 }
 
@@ -226,6 +232,12 @@ export function submitHumanGradeOverride(
   item.assignedGraderId = actor.id;
   item.humanEvaluation = humanEvaluation;
   queueStore.set(item.id, item);
+
+  try {
+    void getRepositories().grading.saveQueueItem(item as unknown as DbGraderQueueItem);
+  } catch {
+    // repository persistence
+  }
 
   // 7. Emit Append-Only Audit Log Event (D7)
   const auditEntry = recordAuditEvent({

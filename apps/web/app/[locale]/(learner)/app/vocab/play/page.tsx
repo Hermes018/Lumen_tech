@@ -325,7 +325,7 @@ function VocabPlayerContent() {
                 {activeWord.synonyms.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
                     <span className="text-xs font-semibold text-fg-muted">Synonyms:</span>
-                    {activeWord.synonyms.map((syn) => (
+                    {activeWord.synonyms.map((syn: string) => (
                       <span
                         key={syn}
                         className="rounded px-2 py-0.5 text-xs bg-surface-2 border border-control/40 font-mono text-fg"

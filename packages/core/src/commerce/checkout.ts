@@ -8,6 +8,7 @@ import {
 } from './sslcommerz';
 import { grantEntitlement, type EntitlementRecord } from './entitlements';
 import type { Currency } from './money';
+import { getRepositories, type OrderRecord as DbOrderRecord } from '@lumen/db';
 
 export interface OrderRecord {
   id: string;
@@ -114,6 +115,11 @@ export async function createOrder(
   };
 
   ordersMap.set(providerRef, order);
+  try {
+    await getRepositories().orders.save(order as unknown as DbOrderRecord);
+  } catch {
+    // Repository write
+  }
 
   return {
     order,
@@ -240,6 +246,36 @@ export async function fulfillOrder(
       entitlement,
     });
 
+    try {
+      await getRepositories().orders.update(order.id, {
+        status: 'paid',
+        valId,
+        entitlementId: entitlement.id,
+        paidAt: nowIso,
+        updatedAt: nowIso,
+      });
+      const paymentStatus: 'VALID' | 'VALIDATED' | 'FAILED' | 'CANCELLED' =
+        payment.status === 'paid' ? 'VALIDATED' : payment.status === 'cancelled' ? 'CANCELLED' : 'FAILED';
+
+      await getRepositories().payments.save({
+        id: `pay-${order.id}`,
+        orderId: order.id,
+        provider: 'sslcommerz',
+        providerRef,
+        valId,
+        amountMinor: payment.amountMinor,
+        currency: payment.currency,
+        status: paymentStatus,
+        bankTranId: payment.providerTxnId,
+        cardType: payment.method,
+        rawPayload: typeof payment.raw === 'object' && payment.raw !== null ? (payment.raw as Record<string, unknown>) : undefined,
+        validatedAt: payment.paidAt ? payment.paidAt.toISOString() : nowIso,
+        createdAt: nowIso,
+      });
+    } catch {
+      // Repository write
+    }
+
     return {
       success: true,
       idempotentReplay: false,
@@ -281,5 +317,10 @@ export function getOrderByRef(providerRefOrOrderId: string): OrderRecord | null 
  */
 export function updateOrderRecord(order: OrderRecord): OrderRecord {
   ordersMap.set(order.providerRef, order);
+  try {
+    void getRepositories().orders.save(order as unknown as DbOrderRecord);
+  } catch {
+    // Repository write
+  }
   return order;
 }

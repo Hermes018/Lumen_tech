@@ -14,7 +14,11 @@ import {
   type MistakeFilterParams,
   type ErrorTaxonomy,
 } from '@lumen/core';
-import { GRE_MAGOOSH_SEED_QUESTIONS } from '@lumen/db';
+import {
+  GRE_MAGOOSH_SEED_QUESTIONS,
+  getRepositories,
+  type MistakeEntry as DbMistakeEntry,
+} from '@lumen/db';
 
 const errorTaxonomySchema = z.enum([
   'careless_math',
@@ -175,6 +179,14 @@ export async function retryMistakeAction(rawInput: {
   userNotebooks.set(targetUserId, result.notebook);
   const updatedEntry = result.notebook.entries[input.questionId] ?? null;
 
+  if (updatedEntry) {
+    try {
+      void getRepositories().mistakes.saveEntry(targetUserId, updatedEntry as unknown as DbMistakeEntry);
+    } catch {
+      // repository persistence
+    }
+  }
+
   return {
     isCorrect: result.isCorrect,
     resolved: result.resolved,
@@ -219,5 +231,10 @@ export async function updateMistakeTaxonomyAction(rawInput: {
   };
 
   userNotebooks.set(targetUserId, nextNotebook);
+  try {
+    void getRepositories().mistakes.saveEntry(targetUserId, updated as unknown as DbMistakeEntry);
+  } catch {
+    // repository persistence
+  }
   return updated;
 }

@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@lumen/auth": "workspace:*",
-    "@lumen/config": "workspace:*"
+    "@lumen/config": "workspace:*",
+    "@lumen/db": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.1",

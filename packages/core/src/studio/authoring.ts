@@ -5,6 +5,11 @@
 
 import { z } from '@lumen/config';
 import { assertCan, type Actor } from '../auth/policy';
+import {
+  getRepositories,
+  type QuestionRecord as DbQuestionRecord,
+  type QuestionVersionRecord as DbQuestionVersionRecord,
+} from '@lumen/db';
 
 export const TRAP_ARCHETYPES = [
   'forgot_zero_or_negative',
@@ -223,6 +228,15 @@ export function createQuestionDraft(
   questionsStore.set(questionId, questionRecord);
   versionsStore.set(questionId, [versionRecord]);
 
+  try {
+    void getRepositories().questions.saveQuestion(
+      questionRecord as unknown as DbQuestionRecord,
+      versionRecord as unknown as DbQuestionVersionRecord
+    );
+  } catch {
+    // repository persistence
+  }
+
   return questionRecord;
 }
 
@@ -313,6 +327,15 @@ export function updateQuestion(
   };
 
   questionsStore.set(questionId, updatedQuestion);
+
+  try {
+    void getRepositories().questions.saveQuestion(
+      updatedQuestion as unknown as DbQuestionRecord,
+      newVersion as unknown as DbQuestionVersionRecord
+    );
+  } catch {
+    // repository persistence
+  }
 
   return {
     ...updatedQuestion,

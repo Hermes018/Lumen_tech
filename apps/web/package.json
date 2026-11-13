@@ -15,6 +15,7 @@
     "@lumen/auth": "workspace:*",
     "@lumen/config": "workspace:*",
     "@lumen/core": "workspace:*",
+    "@lumen/db": "workspace:*",
     "@lumen/ui": "workspace:*",
     "@tailwindcss/postcss": "^4.3.5",
     "class-variance-authority": "^0.7.1",
