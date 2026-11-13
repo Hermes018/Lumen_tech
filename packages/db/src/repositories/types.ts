@@ -1,5 +1,5 @@
 /**
- * @purpose Canonical Aggregate Repository and UnitOfWork contracts for Lumen Academy (P1-33)
+ * @purpose Canonical Aggregate Repository and UnitOfWork contracts (P1-33)
  */
 
 export interface OrderRecord {

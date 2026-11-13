@@ -1,6 +1,9 @@
 /** @purpose Responsive learner portal shell with sidebar, track switcher, streak pill, and AI credit badge */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
+import { brand } from '@lumen/config';
 import { Badge, Button } from '@lumen/ui';
 import {
   LayoutDashboard,
@@ -23,10 +26,10 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
         {/* Brand Header */}
         <div className="border-border flex h-16 items-center gap-2 border-b px-6">
           <span className="bg-accent text-accent-fg flex h-8 w-8 items-center justify-center rounded-lg font-bold">
-            L
+            {brand.shortName.charAt(0)}
           </span>
           <div className="flex flex-col">
-            <span className="leading-tight font-bold">Lumen Academy</span>
+            <span className="leading-tight font-bold">{brand.name}</span>
             <span className="text-fg-muted text-xs">Learner Portal</span>
           </div>
         </div>

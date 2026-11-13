@@ -324,3 +324,18 @@ export function updateOrderRecord(order: OrderRecord): OrderRecord {
   }
   return order;
 }
+
+/**
+ * Lists all orders belonging to a specific user (ordered newest first).
+ */
+export function listUserOrders(userId: string): OrderRecord[] {
+  const results: OrderRecord[] = [];
+  for (const ord of ordersMap.values()) {
+    if (ord.userId === userId) {
+      results.push(ord);
+    }
+  }
+  return results.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}

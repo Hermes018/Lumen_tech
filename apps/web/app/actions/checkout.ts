@@ -8,11 +8,20 @@ import {
   createOrder,
   fulfillOrder,
   getOrderByRef,
+  listUserOrders,
+  getUserEntitlements,
+  getHighestActiveTier,
+  getLedgerBalance,
+  computeVatBreakdown,
+  evaluateRefundEligibility,
+  recordAuditEvent,
   formatCurrency,
   calculateTaxInclusive,
   CANONICAL_PRODUCTS,
   type OrderRecord,
   type EntitlementRecord,
+  type VatBreakdown,
+  type RefundEligibilityResult,
 } from '@lumen/core';
 
 const initiateCheckoutSchema = z.object({
@@ -150,5 +159,103 @@ export async function getProductCheckoutDetails(rawProductSlug: string) {
       totalAmount: formatCurrency(tax.totalMinor, 'BDT'),
       vatRateText: '5% Educational VAT included',
     },
+  };
+}
+
+const selfServeRefundSchema = z.object({
+  orderId: z.string().min(1).max(100),
+  reason: z.string().min(3).max(500).default('Learner self-serve refund request'),
+});
+
+export interface OrderWithVatAndRefund {
+  order: OrderRecord;
+  vatBreakdown: VatBreakdown;
+  eligibility: RefundEligibilityResult;
+}
+
+export async function getOrdersAndEntitlementsAction() {
+  const actor = await requireServerActor();
+  assertCan(actor, 'user:view_own', { ownerId: actor.id });
+
+  const orders = listUserOrders(actor.id);
+  const entitlements = getUserEntitlements(actor.id);
+  const activeTier = getHighestActiveTier(actor.id);
+  const aiCreditsRemaining = getLedgerBalance(actor.id, 'ai_credit');
+  const mockAttemptsRemaining = getLedgerBalance(actor.id, 'mock_attempt');
+
+  const ordersWithDetails: OrderWithVatAndRefund[] = orders.map((order) => {
+    const vatBreakdown = computeVatBreakdown(order.amountMinor, 1500);
+    const eligibility = evaluateRefundEligibility({
+      orderId: order.id,
+      productSlug: order.productSlug,
+      amountPaidMinor: order.amountMinor,
+      currency: order.currency,
+      paidAt: order.paidAt ?? order.createdAt,
+    });
+    return { order, vatBreakdown, eligibility };
+  });
+
+  return {
+    actorId: actor.id,
+    roles: actor.roles,
+    twoFactorVerified: actor.twoFactorVerified,
+    activeTier,
+    aiCreditsRemaining,
+    mockAttemptsRemaining,
+    entitlements,
+    orders: ordersWithDetails,
+  };
+}
+
+export async function requestSelfServeRefundAction(rawInput: {
+  orderId: string;
+  reason?: string;
+}) {
+  const { orderId, reason } = selfServeRefundSchema.parse(rawInput);
+  const actor = await requireServerActor();
+
+  const order = getOrderByRef(orderId);
+  if (!order) {
+    return { ok: false as const, error: 'Order not found' };
+  }
+
+  assertCan(actor, 'order:view_own', { ownerId: order.userId });
+
+  const eligibility = evaluateRefundEligibility({
+    orderId: order.id,
+    productSlug: order.productSlug,
+    amountPaidMinor: order.amountMinor,
+    currency: order.currency,
+    paidAt: order.paidAt ?? order.createdAt,
+  });
+
+  if (!eligibility.eligible) {
+    return {
+      ok: false as const,
+      error: `Not eligible for self-serve refund: ${eligibility.reasons.join(', ')}`,
+      eligibility,
+    };
+  }
+
+  const auditEntry = recordAuditEvent({
+    actorId: actor.id,
+    action: 'staff_action',
+    targetType: 'self_serve_refund_request',
+    targetId: order.id,
+    reason,
+    metadataJson: {
+      orderId: order.id,
+      providerRef: order.providerRef,
+      refundableMinor: eligibility.refundableMinor,
+      vatBreakdown: eligibility.vatBreakdown,
+    },
+  });
+
+  return {
+    ok: true as const,
+    orderId: order.id,
+    refundableMinor: eligibility.refundableMinor,
+    vatBreakdown: eligibility.vatBreakdown,
+    auditId: auditEntry.id,
   };
 }

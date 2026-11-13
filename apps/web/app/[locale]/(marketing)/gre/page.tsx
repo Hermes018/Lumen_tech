@@ -13,10 +13,11 @@ import {
   BarChart3,
   BookOpen,
 } from 'lucide-react';
+import { brand } from '@lumen/config';
 import { LiveGreWidget } from './live-gre-widget';
 
 export const metadata = {
-  title: 'GRE Prep Re-Engineered | Adaptive CBT Mocks & Socratic Pedagogy | Lumen Academy',
+  title: `GRE Prep Re-Engineered | Adaptive CBT Mocks & Socratic Pedagogy | ${brand.name}`,
   description:
     'Prepare for the GRE with the only platform offering authentic Section-Adaptive CBT Mocks, 3-Tier Hint Ladders, Distractor Trap Diagnostics, and 4-Mode FSRS Spaced Repetition.',
 };

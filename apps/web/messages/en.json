@@ -41,5 +41,20 @@
   "footer": {
     "trademarkDisclaimer": "GRE® is a registered trademark of ETS. IELTS® is a registered trademark of Cambridge Assessment English, British Council, and IDP Education. Lumen Academy is an independent preparation service not endorsed by or affiliated with ETS, Cambridge, British Council, or IDP.",
     "copyright": "© 2026 Lumen Academy. Built for high-ambition Bangladeshi & international scholars."
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Create your account",
+    "continueGoogle": "Continue with Google",
+    "emailOtp": "Email OTP",
+    "phoneOtp": "Phone OTP",
+    "onboardingTitle": "Set your target score"
+  },
+  "orders": {
+    "title": "Orders & VAT Receipts",
+    "activeEntitlements": "Active Entitlements",
+    "aiCreditsRemaining": "AI Credits Remaining",
+    "mockAttemptsRemaining": "Mock Attempts Remaining",
+    "requestRefund": "Request Refund"
   }
 }

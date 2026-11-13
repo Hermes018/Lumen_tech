@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Badge } from '@lumen/ui';
 import { ShieldCheck, ClipboardCheck, ArrowLeft } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function GraderLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-bg text-fg">

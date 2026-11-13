@@ -4,6 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent, Button, ProgressBar, Badge } 
 import { Brain, Play, ArrowRight } from 'lucide-react';
 import { fetchVocabCards } from '@/app/actions/practice';
 
+export const dynamic = 'force-dynamic';
+
 export default async function VocabHubPage() {
   const cards = await fetchVocabCards(20);
 

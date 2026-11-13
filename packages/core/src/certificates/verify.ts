@@ -1,5 +1,7 @@
 /** @purpose Certificate Issuance and Public Verification with refund revocation rules (docs/02 §7.1, docs/17 §11) */
 
+import { brand } from '@lumen/config';
+
 export interface CertificateRecord {
   certId: string; // e.g. "LUMEN-CERT-7B9F12A4"
   userId: string;
@@ -117,6 +119,6 @@ export function verifyCertificate(
     exists: true,
     certificate: cert,
     isValid: true,
-    message: 'Official Lumen Academy Certificate is verified and valid.',
+    message: `Official ${brand.name} Certificate is verified and valid.`,
   };
 }

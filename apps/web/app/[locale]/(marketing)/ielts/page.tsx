@@ -1,5 +1,6 @@
 /** @purpose IELTS Marketing showcase highlighting Computer-Delivered exam engine & 4-skill mastery */
 import Link from 'next/link';
+import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
   Sparkles,
@@ -13,7 +14,7 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'IELTS Academic & General Prep | Authentic Computer-Delivered Mocks | Lumen Academy',
+  title: `IELTS Academic & General Prep | Authentic Computer-Delivered Mocks | ${brand.name}`,
   description:
     'Achieve Band 7.5+ with pixel-perfect Computer-Delivered IELTS test runners, AI writing & speaking band diagnostic, and authentic Cambridge-style item banks.',
 };
