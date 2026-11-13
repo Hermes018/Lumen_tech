@@ -1,5 +1,6 @@
 /** @purpose Transactional Notification Dispatcher with Quiet-Hours Suppression (Asia/Dhaka) & Bangladesh PDPO 2025 Under-18 Guardian Consent State Machine (docs/00 D7, docs/02 §463, docs/29) */
 
+import { randomInt, timingSafeEqual } from 'node:crypto';
 import { brand } from '@lumen/config';
 
 export type NotificationType =
@@ -306,9 +307,19 @@ export function requestGuardianConsent(
   otpNotification: DispatchedNotificationResult;
 } {
   const now = params.now ?? new Date();
+  if (currentState.status === 'verified') {
+    throw new Error('Guardian consent is already verified.');
+  }
+  if (
+    currentState.status === 'consent_requested' &&
+    currentState.otpExpiresAt &&
+    new Date(currentState.otpExpiresAt).getTime() - 13 * 60 * 1000 > now.getTime()
+  ) {
+    throw new Error('Please wait before requesting another OTP.');
+  }
   const expiryMinutes = params.otpExpiryMinutes ?? 15;
   const expiresAt = new Date(now.getTime() + expiryMinutes * 60 * 1000).toISOString();
-  const otp = params.mockOtp ?? Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = params.mockOtp ?? randomInt(100000, 1000000).toString();
 
   const nextState: GuardianConsentState = {
     ...currentState,
@@ -357,7 +368,9 @@ export function verifyGuardianOtp(
     throw new Error('Guardian consent OTP has expired. Please request a new verification code.');
   }
 
-  if (currentState.otp !== otp) {
+  const expectedBuf = Buffer.from(currentState.otp ?? '');
+  const actualBuf = Buffer.from(otp);
+  if (expectedBuf.length !== actualBuf.length || !timingSafeEqual(expectedBuf, actualBuf)) {
     return {
       ...currentState,
       otpAttempts: currentState.otpAttempts + 1,

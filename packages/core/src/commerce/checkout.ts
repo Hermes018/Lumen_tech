@@ -408,3 +408,10 @@ export function listUserOrders(userId: string): OrderRecord[] {
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }
+
+/**
+ * Lists all orders in the store (used for global TrxID uniqueness checks).
+ */
+export function listAllOrders(): OrderRecord[] {
+  return Array.from(ordersMap.values());
+}

@@ -64,7 +64,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
 
       expect(order.status).toBe('pending');
 
-      const updated = submitManualPayment(
+      const updated = await submitManualPayment(
         order.id,
         'bkash',
         'BL54A92K1M',
@@ -92,13 +92,13 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
         appUrl: 'http://localhost:3000',
       });
 
-      expect(() =>
+      await expect(
         submitManualPayment(order.id, 'bkash', 'bad', '01712345678')
-      ).toThrow('Invalid Transaction ID');
+      ).rejects.toThrow('Invalid Transaction ID');
 
-      expect(() =>
+      await expect(
         submitManualPayment(order.id, 'nagad', 'NG98765432', '12345')
-      ).toThrow('Invalid Bangladesh phone number');
+      ).rejects.toThrow('Invalid Bangladesh phone number');
     });
 
     it('approves manual payment when executed by staff with finance:write and 2FA, fulfilling entitlements', async () => {
@@ -115,7 +115,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
         appUrl: 'http://localhost:3000',
       });
 
-      submitManualPayment(order.id, 'nagad', 'NGD98234KL', '01899112233');
+      await submitManualPayment(order.id, 'nagad', 'NGD98234KL', '01899112233');
 
       const financeStaffActor: Actor = {
         id: 'staff_finance_ayman',
@@ -125,7 +125,6 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
 
       const result = await approveManualPayment(
         order.id,
-        financeStaffActor.id,
         financeStaffActor
       );
 
@@ -143,7 +142,6 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
       // Idempotency: re-approving returns idempotent replay without error
       const replay = await approveManualPayment(
         order.id,
-        financeStaffActor.id,
         financeStaffActor
       );
       expect(replay.success).toBe(true);
@@ -163,7 +161,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
         appUrl: 'http://localhost:3000',
       });
 
-      submitManualPayment(order.id, 'bkash', 'BKASH99281', '01899112233');
+      await submitManualPayment(order.id, 'bkash', 'BKASH99281', '01899112233');
 
       const financeWithout2FA: Actor = {
         id: 'staff_no_2fa',
@@ -172,7 +170,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
       };
 
       await expect(
-        approveManualPayment(order.id, financeWithout2FA.id, financeWithout2FA)
+        approveManualPayment(order.id, financeWithout2FA)
       ).rejects.toThrow(TwoFactorRequiredError);
     });
 
@@ -189,7 +187,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
         appUrl: 'http://localhost:3000',
       });
 
-      submitManualPayment(order.id, 'bkash', 'BKASH77112', '01899112233');
+      await submitManualPayment(order.id, 'bkash', 'BKASH77112', '01899112233');
 
       const studentActor: Actor = {
         id: 'student_attacker',
@@ -198,7 +196,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
       };
 
       await expect(
-        approveManualPayment(order.id, studentActor.id, studentActor)
+        approveManualPayment(order.id, studentActor)
       ).rejects.toThrow(AuthorizationError);
     });
 
@@ -215,7 +213,7 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
         appUrl: 'http://localhost:3000',
       });
 
-      submitManualPayment(order.id, 'bkash', 'FAKE999999', '01711002233');
+      await submitManualPayment(order.id, 'bkash', 'FAKE999999', '01711002233');
 
       const financeActor: Actor = {
         id: 'staff_finance_ayman',
@@ -225,9 +223,8 @@ describe('Manual Payment Gateway & Ledger (P1-41)', () => {
 
       const result = await rejectManualPayment(
         order.id,
-        financeActor.id,
-        'TrxID not found on bKash merchant statement',
-        financeActor
+        financeActor,
+        'TrxID not found on bKash merchant statement'
       );
 
       expect(result.success).toBe(true);

@@ -37,12 +37,17 @@ export function evaluateTargetPromiseClaim(
 ): TargetPromiseClaimResult {
   const reasons: string[] = [];
 
+  const nums = [input.fullMocksCount, input.studyPlanCompletionPercent, input.daysSinceAccessEnd];
+  if (!nums.every((n) => Number.isFinite(n) && n >= 0)) {
+    reasons.push('Invalid numeric claim input.');
+  }
+
   if (input.tier !== 'plus') {
     reasons.push(`Target Promise is exclusive to Plus tier. Current tier: ${input.tier}.`);
   }
 
-  if (input.targetMet === true) {
-    reasons.push('Target score was achieved. Guarantee extension applies only when target is not met.');
+  if (input.targetMet !== false) {
+    reasons.push('Target score must be explicitly recorded as not met (targetMet === false).');
   }
 
   if (input.fullMocksCount < 4) {
@@ -124,12 +129,25 @@ export function evaluateProgressPromiseClaim(
 ): ProgressPromiseClaimResult {
   const reasons: string[] = [];
 
+  const nums = [
+    input.liveAttendancePercent,
+    input.homeworkSubmissionPercent,
+    input.fullMocksCount,
+    input.targetBand,
+    input.diagnosticBand,
+    input.daysSinceCourseEnd,
+    input.daysSinceResult,
+  ];
+  if (!nums.every((n) => Number.isFinite(n) && n >= 0)) {
+    reasons.push('Invalid numeric claim input.');
+  }
+
   if (input.tier !== 'mentor') {
     reasons.push(`Progress Promise is exclusive to Mentor tier. Current tier: ${input.tier}.`);
   }
 
-  if (input.targetMet === true) {
-    reasons.push('Target score was achieved. Guarantee applies only when target is not met.');
+  if (input.targetMet !== false) {
+    reasons.push('Target score must be explicitly recorded as not met (targetMet === false).');
   }
 
   if (input.liveAttendancePercent < 80) {
@@ -207,14 +225,13 @@ export interface MushakInvoiceRecord {
  */
 export function sanitizeCsvField(raw: string | number): string {
   const str = String(raw);
-  const dangerousPrefixes = ['=', '+', '-', '@', '\t', '\r'];
   let sanitized = str;
 
-  if (dangerousPrefixes.some((p) => str.startsWith(p))) {
+  if (typeof raw === 'string' && (/^[\s\u0000-\u001f]*[=+\-@]/.test(str) || /^[\t\r]/.test(str))) {
     sanitized = `'${str}`;
   }
 
-  if (sanitized.includes(',') || sanitized.includes('"') || sanitized.includes('\n')) {
+  if (/[",\r\n]/.test(sanitized)) {
     return `"${sanitized.replace(/"/g, '""')}"`;
   }
   return sanitized;
