@@ -20,6 +20,12 @@ import {
   calculateMasteryWeight,
   calculateErrorRetryDate,
 } from '../exam/practice';
+import {
+  grePercentile,
+  rawToGreScaled,
+  calculateIeltsOverallBand,
+  ieltsRawToBand,
+} from '../exam/scoring';
 
 describe('FSRS v4.5 Active-Recall Math', () => {
   it('schedules initial review correctly for all 4 ratings', () => {
@@ -295,5 +301,72 @@ describe('Interactive Practice Session State Reducers', () => {
     expect(pf?.enabled).toBe(true);
     expect(pf?.predictionText).toBe('cautious / prudent');
     expect(pf?.choicesRevealed).toBe(false);
+  });
+});
+
+describe('GRE & IELTS Scoring and Percentile Engines', () => {
+  it('looks up official GRE percentiles accurately', () => {
+    expect(grePercentile(170, 'quant')).toBe(96);
+    expect(grePercentile(160, 'quant')).toBe(67);
+    expect(grePercentile(150, 'quant')).toBe(34);
+    expect(grePercentile(130, 'quant')).toBe(0);
+
+    expect(grePercentile(170, 'verbal')).toBe(99);
+    expect(grePercentile(160, 'verbal')).toBe(85);
+    expect(grePercentile(150, 'verbal')).toBe(44);
+
+    expect(grePercentile(6.0, 'awa')).toBe(99);
+    expect(grePercentile(4.5, 'awa')).toBe(80);
+    expect(grePercentile(3.0, 'awa')).toBe(13);
+  });
+
+  it('converts raw scores to GRE 130-170 scale with Rasch monotonicity', () => {
+    const zero = rawToGreScaled(0, 27, 'quant');
+    expect(zero.scaled).toBe(130);
+    expect(zero.percentile).toBe(0);
+
+    const mid = rawToGreScaled(14, 27, 'quant');
+    expect(mid.scaled).toBeGreaterThanOrEqual(148);
+    expect(mid.scaled).toBeLessThanOrEqual(160);
+
+    const high = rawToGreScaled(22, 27, 'quant');
+    expect(high.scaled).toBeGreaterThan(mid.scaled);
+
+    const perfect = rawToGreScaled(27, 27, 'quant');
+    expect(perfect.scaled).toBe(170);
+    expect(perfect.percentile).toBe(96);
+  });
+
+  it('applies official IELTS 0.25/0.75 band rounding rules', () => {
+    // 6.25 -> 6.5
+    const r1 = calculateIeltsOverallBand({ listening: 6.5, reading: 6.5, writing: 6.0, speaking: 6.0 });
+    expect(r1.rawAverage).toBe(6.25);
+    expect(r1.overallBand).toBe(6.5);
+    expect(r1.cefrLevel).toContain('B2');
+
+    // 6.125 -> 6.0
+    const r2 = calculateIeltsOverallBand({ listening: 6.5, reading: 6.0, writing: 6.0, speaking: 6.0 });
+    expect(r2.rawAverage).toBe(6.125);
+    expect(r2.overallBand).toBe(6.0);
+
+    // 6.75 -> 7.0
+    const r3 = calculateIeltsOverallBand({ listening: 7.0, reading: 7.0, writing: 6.5, speaking: 6.5 });
+    expect(r3.rawAverage).toBe(6.75);
+    expect(r3.overallBand).toBe(7.0);
+    expect(r3.cefrLevel).toContain('C1');
+
+    // 8.75 -> 9.0
+    const r4 = calculateIeltsOverallBand({ listening: 9.0, reading: 9.0, writing: 8.5, speaking: 8.5 });
+    expect(r4.rawAverage).toBe(8.75);
+    expect(r4.overallBand).toBe(9.0);
+    expect(r4.cefrLevel).toContain('C2');
+  });
+
+  it('converts raw listening & reading scores to IELTS band', () => {
+    expect(ieltsRawToBand(40, 'listening')).toBe(9.0);
+    expect(ieltsRawToBand(30, 'listening')).toBe(7.0);
+    expect(ieltsRawToBand(23, 'listening')).toBe(6.0);
+    expect(ieltsRawToBand(16, 'listening')).toBe(5.0);
+    expect(ieltsRawToBand(30, 'reading_general')).toBe(6.0);
   });
 });
