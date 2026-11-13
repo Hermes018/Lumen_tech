@@ -214,7 +214,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 - [x] P1-27 | Grounded GRE AI Tutor Drawer & Study Plan Engine (/app/plan) with adaptive rescheduling and daily quotas | 3.8-flash | deps: P1-25, P1-26
 - [x] P1-28 | Human Grader Queue, AI Score Override (/grader) & Append-Only Audit Log with 2FA enforcement | 3.8-flash | deps: P1-26, P1-27
 - [x] P1-29 | GRE-first conversion pages (/gre, /ielts, /courses) & SEO score calculators (GRE raw-to-scaled & IELTS band) with live D13 interactive widget | 3.8-flash | deps: P1-26
-- [ ] P1-30 | Human grader queue + override with rationale (2FA role) | sonnet | deps: P1-26, P0-21
+- [x] P1-30 | Honest pricing engine, regional PPP (BD/A/B/C), coupon caps, and /pricing comparison matrix | 3.8-flash | deps: P1-29
 
 #### P1.6 Commerce, pricing model & entitlements (gate: M1, M2, M3)
 
