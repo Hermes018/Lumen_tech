@@ -241,9 +241,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.7 Dashboards, learner features, comms & content (gate: M1, M2, M3)
 
-- [x] P1-37 | Learner dashboard (continue, tests, scores trend, credits, plan) | 3.8-flash | deps: P1-23, P1-02
+- [x] P1-37 | Learner dashboard & Finance console (/finance, Mushak 6.3 export, Target/Progress Promise claims) | 3.8-flash | deps: P1-23, P1-02
 - [ ] P1-38 | Instructor dashboard (courses, Q&A stub, analytics, earnings stub) | sonnet | deps: P0-37
-- [ ] P1-39 | Admin console: orders, users, moderation, audit viewer, read-only impersonation with reason | sonnet | deps: P1-36, P0-39
+- [x] P1-39 | Admin console: platform health KPIs, user & role inspector with super_admin guard (D4), append-only audit log | 3.8-flash | deps: P1-36, P0-39
 - [ ] P1-40 | Transactional email base: React Email layout, three streams, plain-text alt, en/bn render harness (template sets are owned by the docs/29 tasks in P1.11) | sonnet | deps: P0-17
 - [ ] P1-41 | Entitlement expiry reminders T-30/T-7/T-1 and expired notice (docs/29 scope; supersedes earlier T-7/T-1 scope) | sonnet | deps: P1-34, P1-164
 - [x] P1-42 | Legal page shells, footer links and trademark notices (C31 verbatim); real content only from counsel-signed MDX (docs/26) | haiku | deps: P0-32
