@@ -7,5 +7,6 @@ export * from './commerce/index';
 export * from './analytics/index';
 export * from './studio/index';
 export * from './grader/index';
+export * from './certificates/index';
 
 export const CORE_VERSION = '0.1.0';
