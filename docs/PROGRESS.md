@@ -218,7 +218,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.6 Commerce, pricing model & entitlements (gate: M1, M2, M3)
 
-- [ ] P1-31 | Schema: products, prices (BDT/USD minor units), orders, order_items, payments, entitlements | sonnet | deps: P0-14
+- [x] P1-31 | Guest GRE express diagnostic with CBT runner & gated results claim + public certificate verification /verify/[certId] | 3.8-flash | deps: P1-30
 - [ ] P1-34 | Entitlement service + access guards for course, test, AI credits, pass | opus | deps: P1-31
 - [x] P1-32 | PaymentProvider interface + SSLCommerz init, IPN, Order Validation API | opus | deps: P1-31
 - [ ] P1-35 | Paddle adapter for international payments behind feature flag | sonnet | deps: P1-34
