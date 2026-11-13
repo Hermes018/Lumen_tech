@@ -12,7 +12,7 @@ You are continuing a build orchestrated with Claude Code. Do this now:
 - Checkpoint every <=30 min (docs/13 prompt 13): WIP commit, `git pull --rebase`, `git push`, update the session log + HANDOFF. At the start: `git fetch && git status -sb`, then `git pull --rebase`.
 - One device/OS per branch; dual-boot switch (Win11 <-> Fedora 44) via git commit -> boot -> pull --rebase -> `pnpm install --prefer-offline`; no `.env` copying; no baseline snapshot updates; no edits to protected paths (AGENTS.md 9b); no new dependencies not in `docs/approved-deps.txt`.
 - 8 GB RAM Guardrails (Intel i5-1135G7, 8GB DDR4, NVIDIA MX330): `NODE_OPTIONS="--max-old-space-size=2048"`, `turbo --concurrency=2`, Vitest `--pool=forks --maxWorkers=2 --no-file-parallelism`, `tsc --noEmit --incremental`, zero local containers (no Docker/Podman, Neon + Upstash only), no local Playwright swarms (run L0/L1 locally, full E2E in CI).
-- Cross-model review: when asked to review Claude's PR, use prompt 14 and write the verdict into the request file; you are never the sole reviewer of critical paths.
+- Cross-model review: when asked to review Claude's PR, use prompt 14 and write the verdict into the request file; you are never the sole reviewer of critical paths. Model routing follows the 8-Model Antigravity CLI 1.5.5 Matrix in `docs/00-DECISIONS.md#D9`.
 - Log work in `docs/logs/sessions/` (tool name `gemini`); log failures in `docs/logs/errors/ERROR-LOG.md`.
 
 ## Gemini-specific tips

@@ -52,15 +52,18 @@ Nothing is done until `pnpm verify` is green and its output shown.
 - Conventional commits: `feat|fix|chore|docs|test|refactor(scope): summary (P1-12)`. Small commits, no force push.
 - Tests: Vitest for logic (tests first), Playwright for user flows, axe on new pages.
 
-## Model routing (details: docs/12 section 2)
-| Model | Subagents |
-|---|---|
-| 3.8 Flash (high) | Daily Lead Orchestrator, architecture, task cards, core features, L1/L2 reviewer |
-| Argon (low/med) | Default mechanical/volume workhorse (seeds, i18n, docs, logs, lint, CRUD, UI) |
-| Opus (low/med only) | Two-key review on <250-line diffs; Opus (high) STRICTLY BANNED |
-| Sonnet | `backend-engineer`, `frontend-engineer`, `db-engineer`, `test-engine-engineer`, `payments-integrator`, `security-auditor`, `qa-engineer`, `ui-polisher` |
-| Haiku | `i18n-copywriter`, `docs-scribe`, `seed-data-maker`, `lint-fixer` |
-Escalate: Argon fails -> 3.8 Flash; 3.8 Flash fails twice -> Sonnet 5.5; Sonnet fails twice -> ask Founder before Opus (low/med only). Subagents reply in <=150 words + files changed + last 15 lines of verify.
+## Model routing (8-Model Antigravity CLI 1.5.5 Matrix; details: docs/12 section 2)
+| Model | Effort | Role |
+|---|---|---|
+| `Orchestrator (Argon)` | `Med`/`High` | Autonomous batch dispatcher & branch orchestration |
+| `Gemini 4 Argon` | `Med`/`High` | Frontier full-stack, Drizzle persistence, IRT/Rasch, RBAC, Opus fix plans |
+| `Gemini 4 Carbon` | `Med`/`High` | UI & feature workhorse (Next.js 16, React 19, Tailwind v4, Vitest) |
+| `Gemini 4 Hydrogen` | `Low`/`Med` | Mechanical/log tier (scanner scripts, PROGRESS/HANDOFF/logs, lint, i18n) |
+| `Gemini 3.8 Flash` | `Low`/`Med`/`High` | Proven high-speed fallback builder when Gemini 4 quota is conserved |
+| `Claude Sonnet 5.5` | `Low`/`Med` | Surgical specialist (TS generics, webhook crypto, Better Auth) & L2 review |
+| `Claude Opus 5.5` | `Low`/`Med` (**NEVER `High`**) | Apex principal auditor reading ONLY compact `<350 line` digests after `/clear` |
+| `GPT-OSS 120B (Medium)` | `Medium` (fixed) | Off-quota bulk content/vocab seeds, support macros, legal formatting, `/cross-check` |
+Escalate: `Hydrogen` fails -> `Carbon`/`3.8 Flash`; `Carbon`/`3.8 Flash` fails twice -> `Argon` or `Sonnet 5.5 (Med)`. Subagents reply in <=150 words + files changed + last 15 lines of verify.
 
 ## Resilience, logs, multi-device (docs/22 sections 7-9)
 - Commit WIP on the task branch at least every 30 min and after each green `pnpm verify:fast`; `git push` after every green `pnpm verify`. `/checkpoint` before risky steps and at >=70% plan usage; `/handoff` at ~85%.

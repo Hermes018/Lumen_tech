@@ -51,6 +51,7 @@
 - 3-month pass (`pass-3m`: BDT 2,990) maintains 74.94% of IELTS Core (BDT 3,990), strictly adhering to the >= 74.9% anti-cannibalization threshold.
 - Guest diagnostics allow full 8-item CBT execution and initial Rasch scoring, but full breakdown and study plan generation require sign-up claim per D4.
 - Certificate verification immediately reflects `REVOKED` if an enrollment is refunded.
+- 8-Model Antigravity CLI 1.5.5 Matrix locked in `docs/00-DECISIONS.md#D9` (`Orchestrator (Argon)`, `Gemini 4 Argon`, `Gemini 4 Carbon`, `Gemini 4 Hydrogen`, `Gemini 3.8 Flash`, `Claude Sonnet 5.5`, `Claude Opus 5.5` [Low/Med only], `GPT-OSS 120B (Medium)`).
 
 ## Known issues / failing tests
 

@@ -135,25 +135,23 @@ Gates as git tags: `m0-prototype`, `m1-alpha`, `m2-pilot` (= `v0.1.0-pilot`) and
 
 ## 2. Model routing, cost, caching and limits (Google AI Pro subscription realigned)
 
-### 2.1 Quota reality & model roles
-Opus 5.5 is severely rate-limited on our weekly quota and MUST NOT be used as the daily lead orchestrator, task-card writer, or routine reviewer. Furthermore, `Opus (high)` is STRICTLY BANNED. Instead, 90%+ of all work runs on 3.8 Flash and Argon:
-- **3.8 Flash (low | med | high — primarily high)**: Primary Lead Orchestrator and core engineering builder (plans sub-steps, writes task cards, default L1/L2 reviewer, builds complex frontend/backend features, Drizzle schemas, Exam Shell UI, and Magoosh practice flows).
-  - `3.8 Flash (high)`: Primary lead and complex implementation/architecture.
-  - `3.8 Flash (med)`: Standard features (`frontend-engineer`, `backend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher`).
-  - `3.8 Flash (low)`: Fast exploration, Tier B/C doc indexing, pre-commit self-checks.
-- **Argon (low | med)**: Default mechanical and volume workhorse:
-  - `Argon (med)`: Default mechanical/volume tier (seeds, i18n, docs, logs, standard CRUD routes, UI scaffolding, unit tests, Zod wiring).
-  - `Argon (low)`: `lint-fixer`, formatting, boilerplate files, git hook checks, directory scaffolding.
-- **Sonnet 5.5 (low | med | high)**: Specialist escalation & critical paths:
-  - `Sonnet 5.5 (med)`: Complex algorithmic tasks, intricate GRE section-adaptive scoring, RBAC `assertCan` policies, webhook signature verification.
-  - `Sonnet 5.5 (high)`: Two-Key Reviewer (`architect-reviewer`, `security-auditor`) for auth, payments, DB migrations, and scoring PRs.
-- **Opus 5.5 (low | med ONLY — high is STRICTLY BANNED)**: Two-Key Reviewer & Break-Glass Escalation (<2% of tasks, strictly locked, Founder permission required, compact diff <250 lines). Never invoke `Opus (high)`.
+### 2.1 Quota reality & 8-Model Antigravity CLI 1.5.5 Matrix
+
+| Model in Antigravity CLI | Effort Tier | Assigned Role & Tasks in Lumen Academy |
+|---|---|---|
+| **`Orchestrator (Argon)`** | `Med` / `High` | **Autonomous Batch Dispatcher:** Multi-step task card execution, branch orchestration, and automated build/test loops (primary driver before Argon weekly reset). |
+| **`Gemini 4 Argon`** | `Med` / `High` | **Frontier Full-Stack & Core Engine Builder:** Complex backend services, Drizzle DB persistence adapters, IRT/Rasch math, RBAC/entitlements, and executing Opus audit fix plans. |
+| **`Gemini 4 Carbon`** | `Med` / `High` | **UI & Feature Workhorse:** Next.js 16 App Router pages, React 19 interactive components, Tailwind v4 styling, Studio/Admin consoles, and standard Vitest suites. |
+| **`Gemini 4 Hydrogen`** | `Low` / `Med` | **Ultra-Fast Mechanical & Log Tier:** Pre-audit scanner scripts, `PROGRESS.md`/`HANDOFF.md`/session logs, lint/type fixes, i18n (`en`/`bn` dictionaries), and boilerplate. |
+| **`Gemini 3.8 Flash`** | `Low` / `Med` / `High` | **Proven High-Speed Fallback Builder:** General full-stack implementation whenever Gemini 4 Argon/Carbon quota is conserved. |
+| **`Claude Sonnet 5.5`** | `Low` / `Med` | **Surgical Specialist & Two-Key Reviewer:** Complex TypeScript generics, payment webhook cryptography, Better Auth edge cases, and L2 security diff reviews. |
+| **`Claude Opus 5.5`** | `Low` / `Med` (**NEVER `High`**) | **Apex Principal Auditor (Break-Glass / Pre-Reset Audit):** Single-turn architectural, security, and math audits reading ONLY compact digest files (`<350 lines`) after `/clear`. |
+| **`GPT-OSS 120B (Medium)`** | `Medium` (fixed) | **Off-Quota Bulk Content & Cross-Check Tier:** Bulk GRE vocab/question seed generation (`P0-16` / `P1-100+`), support macros (`docs/27`), legal page formatting, and independent `/cross-check` reviews. |
 
 **Strict Escalation Ladder:**
-1. Argon (low/med) fails once -> retry on 3.8 Flash (med).
-2. 3.8 Flash (med) fails once -> escalate to 3.8 Flash (high).
-3. 3.8 Flash (high) fails twice -> escalate to Sonnet 5.5 (med).
-4. Sonnet 5.5 (med/high) fails twice -> log to `docs/logs/errors/ERROR-LOG.md` and ask Founder before touching Opus 5.5 (low/med only).
+1. `Gemini 4 Hydrogen` fails once -> escalate to `Gemini 4 Carbon` / `Gemini 3.8 Flash`.
+2. `Gemini 4 Carbon` / `3.8 Flash` fails twice -> escalate to `Gemini 4 Argon` or `Claude Sonnet 5.5 (Med)`.
+3. `Claude Opus 5.5` is strictly capped at `Low` or `Med` (**NEVER `High`**) and used only for compact digest audits (`<350 lines`) after `/clear`.
 
 **Quiet Output Rule:** All test/lint/build commands must pipe output to a log file and print only the exit code and first 25 error lines so context windows stay tiny.
 

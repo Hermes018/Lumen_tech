@@ -16,31 +16,27 @@
 4. State lives in **files** (PROGRESS.md, HANDOFF.md, git history), never in chat memory. Any session or any tool can resume from them.
 5. One task = one branch = one PR-sized commit series. Small, verified, reversible.
 
-## 2. Model routing policy
+## 2. Model routing policy (8-Model Antigravity CLI 1.5.5 Matrix)
 
-| Work type | Model | Subagent(s) |
+| Model in Antigravity CLI | Effort Tier | Assigned Role & Tasks in Lumen Academy |
 |---|---|---|
-| Daily Lead Orchestrator, planning, task-card writing, sub-steps, complex features, Drizzle schemas, Exam Shell UI, Magoosh practice flows | **3.8 Flash (high)** | Lead / primary builder |
-| Standard feature implementation, server actions, services in `packages/core`, route handlers | **3.8 Flash (med)** | `backend-engineer`, `frontend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher` |
-| Fast exploration, Tier B/C doc indexing, pre-commit self-checks | **3.8 Flash (low)** | Lead / checker |
-| Standard CRUD routes, UI scaffolding from tokens, Vitest unit test suites, seed scripts, Zod schema wiring | **Argon (high)** | implementer |
-| Marketing/UI copy, i18n extraction, Bangla/English drafts | **Argon (med)** | `i18n-copywriter` |
-| Docs, session logs, PROGRESS updates, FILEMAP, changelog, ADR text | **Argon (med)** | `docs-scribe` |
-| Seed/fixture data, sample (original) content skeletons, GRE vocab decks | **Argon (med)** | `seed-data-maker` |
-| Lint/format fixes, boilerplate files, git hook checks, directory scaffolding | **Argon (low)** | `lint-fixer` |
-| Specialist escalation: complex algorithmic tasks, intricate GRE section-adaptive scoring, RBAC assertCan, webhook signature verification | **Sonnet 5.5 (med)** | `test-engine-engineer`, `payments-integrator`, `backend-engineer` |
-| Two-Key Reviewer for auth, payments, DB migrations, and scoring PRs | **Sonnet 5.5 (high)** | `architect-reviewer`, `security-auditor` |
-| Break-glass / Milestone M0-M3 final sign-off only (<250 lines diff; strictly locked, Founder permission required) | **Opus 5.5 (high)** | Break-glass sign-off only (<2% tasks) |
+| **`Orchestrator (Argon)`** | `Med` / `High` | **Autonomous Batch Dispatcher:** Multi-step task card execution, branch orchestration, and automated build/test loops (primary driver before Argon weekly reset). |
+| **`Gemini 4 Argon`** | `Med` / `High` | **Frontier Full-Stack & Core Engine Builder:** Complex backend services, Drizzle DB persistence adapters, IRT/Rasch math, RBAC/entitlements, and executing Opus audit fix plans. |
+| **`Gemini 4 Carbon`** | `Med` / `High` | **UI & Feature Workhorse:** Next.js 16 App Router pages, React 19 interactive components, Tailwind v4 styling, Studio/Admin consoles, and standard Vitest suites. |
+| **`Gemini 4 Hydrogen`** | `Low` / `Med` | **Ultra-Fast Mechanical & Log Tier:** Pre-audit scanner scripts, `PROGRESS.md`/`HANDOFF.md`/session logs, lint/type fixes, i18n (`en`/`bn` dictionaries), and boilerplate. |
+| **`Gemini 3.8 Flash`** | `Low` / `Med` / `High` | **Proven High-Speed Fallback Builder:** General full-stack implementation whenever Gemini 4 Argon/Carbon quota is conserved. |
+| **`Claude Sonnet 5.5`** | `Low` / `Med` | **Surgical Specialist & Two-Key Reviewer:** Complex TypeScript generics, payment webhook cryptography, Better Auth edge cases, and L2 security diff reviews. |
+| **`Claude Opus 5.5`** | `Low` / `Med` (**NEVER `High`**) | **Apex Principal Auditor (Break-Glass / Pre-Reset Audit):** Single-turn architectural, security, and math audits reading ONLY compact digest files (`<350 lines`) after `/clear`. |
+| **`GPT-OSS 120B (Medium)`** | `Medium` (fixed) | **Off-Quota Bulk Content & Cross-Check Tier:** Bulk GRE vocab/question seed generation (`P0-16` / `P1-100+`), support macros (`docs/27`), legal page formatting, and independent `/cross-check` reviews. |
 
 ### 2.1 Escalation rules
 
 | Trigger | Action |
 |---|---|
-| Argon (low/med) fails once | Retry on Argon (high) or 3.8 Flash (med) with failure logs |
-| 3.8 Flash (med) fails once | Escalate to 3.8 Flash (high) |
-| 3.8 Flash (high) fails twice on a complex algorithmic/state task | Escalate to Sonnet 5.5 (med) |
-| Any task whose `touch` includes a **security-critical path** (below) | Mandatory `architect-reviewer` / `security-auditor` (Sonnet 5.5 high) diff review before commit |
-| Sonnet 5.5 (med/high) fails twice | Log to `docs/logs/errors/ERROR-LOG.md` and ask the Founder before touching Opus 5.5 |
+| `Gemini 4 Hydrogen` fails once | Escalate to `Gemini 4 Carbon` or `Gemini 3.8 Flash` |
+| `Gemini 4 Carbon` / `3.8 Flash` fails twice | Escalate to `Gemini 4 Argon` or `Claude Sonnet 5.5 (Med)` |
+| Any task whose `touch` includes a **security-critical path** | Mandatory `Claude Sonnet 5.5` L2 diff review before commit |
+| Pre-Reset / Break-Glass Audit | `Claude Opus 5.5` (`Low` or `Med` ONLY — **NEVER `High`**) reading ONLY compact `<350 line` digest after `/clear` |
 | Task needs a stack/dependency/schema decision not in 00-DECISIONS | Stop. Add to PROGRESS.md "Decisions needing the founder". Do not guess |
 | Quiet Output Rule | All test/lint/build commands must pipe output to a log file and print only exit code and first 25 error lines to keep context tiny |
 

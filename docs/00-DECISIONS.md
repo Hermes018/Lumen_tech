@@ -162,26 +162,24 @@ OWASP ASVS 5.0 **Level 2** target; OWASP Top 10 + API Top 10 covered in `09-SECU
 
 **"Apple calm, Khan Academy generous."** System font stack (`-apple-system, BlinkMacSystemFont, "SF Pro Text"` → `Inter`), 8-pt grid, large confident display type, lots of whitespace, one accent colour, frosted translucent nav, soft depth instead of borders, 150–300 ms ease-out motion, light + dark mode, WCAG 2.2 AA. Details in `08-UI-UX-DESIGN-SYSTEM.md`. **No gradients-on-everything, no emoji icons, no stock "AI glow" — that is what looks vibe-coded.**
 
-## D9. AI build orchestration (Google AI Pro subscription realigned)
+## D9. AI build orchestration (8-Model Antigravity CLI 1.5.5 Matrix)
 
-- **3.8 Flash (low | med | high — primarily high) = Primary Lead & Core Builder**:
-  - `3.8 Flash (high)`: Primary Lead Orchestrator and core engineering builder (plans sub-steps, writes task cards, default L1/L2 reviewer, builds complex frontend/backend features, Drizzle schemas, Exam Shell UI, and Magoosh practice flows).
-  - `3.8 Flash (med)`: Standard feature implementation (`frontend-engineer`, `backend-engineer`, `db-engineer`, `qa-engineer`, `ui-polisher`).
-  - `3.8 Flash (low)`: Fast exploration, Tier B/C doc indexing, pre-commit self-checks.
-- **Argon (low | med) = Default Mechanical & Volume Workhorse**:
-  - `Argon (med)`: Default mechanical/volume workhorse: standard CRUD routes, UI scaffolding from tokens, Vitest unit test suites, seed scripts, Zod schema wiring, `i18n-copywriter` (Bangla/English strings), `seed-data-maker` (GRE vocab decks, sample questions), `docs-scribe` (session logs, PROGRESS updates, FILEMAP).
-  - `Argon (low)`: `lint-fixer`, formatting, boilerplate files, git hook checks, directory scaffolding.
-- **Sonnet 5.5 (low | med | high) = Specialist Escalation & Critical Paths**:
-  - `Sonnet 5.5 (med)`: Used only when 3.8 Flash (high) fails twice on a complex algorithmic task, OR for intricate GRE section-adaptive scoring (`test-engine-engineer`), RBAC `assertCan` policies, and payment webhook signature verification (`payments-integrator`).
-  - `Sonnet 5.5 (high)`: Two-Key Reviewer (`architect-reviewer`, `security-auditor`) for auth, payments, DB migrations, and scoring PRs.
-- **Opus 5.5 (low | med ONLY — high is STRICTLY BANNED) = Two-Key Reviewer & Break-Glass Escalation**:
-  - Strictly capped at `low` or `med` effort. `Opus (high)` is STRICTLY BANNED due to weekly quota preservation. Used only for two-key architectural/security reviews on compact diffs (<250 lines) or break-glass escalation with explicit Founder permission if Sonnet 5.5 fails twice on a P0 security/data bug.
-- **Strict Escalation Ladder**:
-  - Argon (low/med) fails once -> retry on 3.8 Flash (med).
-  - 3.8 Flash (med) fails once -> escalate to 3.8 Flash (high).
-  - 3.8 Flash (high) fails twice -> escalate to Sonnet 5.5 (med).
-  - Sonnet 5.5 (med/high) fails twice -> log to `docs/logs/errors/ERROR-LOG.md` and ask Founder before touching Opus 5.5 (low/med only).
-- **Quiet Output Rule**: All test/lint/build commands must pipe output to a log file and print only the exit code and first 25 error lines so context windows stay tiny.
+| Model in Antigravity CLI | Effort Tier | Assigned Role & Tasks in Lumen Academy |
+|---|---|---|
+| **`Orchestrator (Argon)`** | `Med` / `High` | **Autonomous Batch Dispatcher:** Multi-step task card execution, branch orchestration, and automated build/test loops (primary driver before Argon weekly reset). |
+| **`Gemini 4 Argon`** | `Med` / `High` | **Frontier Full-Stack & Core Engine Builder:** Complex backend services, Drizzle DB persistence adapters, IRT/Rasch math, RBAC/entitlements, and executing Opus audit fix plans. |
+| **`Gemini 4 Carbon`** | `Med` / `High` | **UI & Feature Workhorse:** Next.js 16 App Router pages, React 19 interactive components, Tailwind v4 styling, Studio/Admin consoles, and standard Vitest suites. |
+| **`Gemini 4 Hydrogen`** | `Low` / `Med` | **Ultra-Fast Mechanical & Log Tier:** Pre-audit scanner scripts, `PROGRESS.md`/`HANDOFF.md`/session logs, lint/type fixes, i18n (`en`/`bn` dictionaries), and boilerplate. |
+| **`Gemini 3.8 Flash`** | `Low` / `Med` / `High` | **Proven High-Speed Fallback Builder:** General full-stack implementation whenever Gemini 4 Argon/Carbon quota is conserved. |
+| **`Claude Sonnet 5.5`** | `Low` / `Med` | **Surgical Specialist & Two-Key Reviewer:** Complex TypeScript generics, payment webhook cryptography, Better Auth edge cases, and L2 security diff reviews. |
+| **`Claude Opus 5.5`** | `Low` / `Med` (**NEVER `High`**) | **Apex Principal Auditor (Break-Glass / Pre-Reset Audit):** Single-turn architectural, security, and math audits reading ONLY compact digest files (`<350 lines`) after `/clear`. |
+| **`GPT-OSS 120B (Medium)`** | `Medium` (fixed) | **Off-Quota Bulk Content & Cross-Check Tier:** Bulk GRE vocab/question seed generation (`P0-16` / `P1-100+`), support macros (`docs/27`), legal page formatting, and independent `/cross-check` reviews. |
+
+- **Strict Escalation & Quiet Output Rules**:
+  - Mechanical/Log (`Gemini 4 Hydrogen`) fails once -> escalate to `Gemini 4 Carbon` / `Gemini 3.8 Flash`.
+  - Feature/Core (`Gemini 4 Carbon` / `3.8 Flash`) fails twice -> escalate to `Gemini 4 Argon` or `Claude Sonnet 5.5 (Med)`.
+  - `Claude Opus 5.5` is strictly capped at `Low` or `Med` (**NEVER `High`**) and used only for compact digest audits (`<350 lines`) after `/clear`.
+  - **Quiet Output Rule**: All test/lint/build commands must pipe output to a log file and print only the exit code and first 25 error lines so context windows stay tiny.
 
 ## D10. Course tier framework (applies to every exam course: IELTS Academic, IELTS GT, GRE, later PTE, DET, TOEFL)
 
@@ -294,3 +292,4 @@ IDP reported Language Testing volume −8% in FY26 and plans for a 20–30% mark
 - 2026-11-07 — D2: canonical route groups locked (table above, from 03-PRODUCT-SPEC). Supersedes `(learn)`, `(test)`, `(dashboard)` names used in early drafts. Locale prefix `as-needed` (supersedes "always prefixed").
 - 2026-11-11 — Strategic Pivot (Founder Directive): GRE-First Magoosh-parity core prioritized for M0/M1 ahead of IELTS audio pipelines. Model routing realigned to 3.8 Flash & Argon primary, Sonnet 5.5 critical review, Opus 5.5 break-glass only. Hardware guardrails pinned to Intel i5-1135G7 8GB RAM dual-boot (Windows 11 / Fedora 44).
 - 2026-11-11 — D13 added: Interactive Pedagogy & Active-Recall Engine (Magoosh + TTP + GregMat + Brilliant parity): 3-tier progressive hints, Second-Chance retry with trap diagnostics, Socratic step-by-step solver, GregMat verbal deconstructor, and 4-mode FSRS active-recall flashcard engine.
+- 2026-11-13 — D9 updated: Locked the 8-Model Antigravity CLI 1.5.5 Routing Matrix (`Orchestrator (Argon)`, `Gemini 4 Argon`, `Gemini 4 Carbon`, `Gemini 4 Hydrogen`, `Gemini 3.8 Flash`, `Claude Sonnet 5.5`, `Claude Opus 5.5` [Low/Med only], `GPT-OSS 120B (Medium)`).
