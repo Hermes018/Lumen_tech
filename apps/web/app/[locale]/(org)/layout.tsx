@@ -1,6 +1,8 @@
 /** @purpose Institutional coaching centre and B2B portal layout */
 import type { ReactNode } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export default function OrgLayout({ children }: { children: ReactNode }) {
   return (
     <div className="org-shell min-h-screen p-6">

@@ -1,5 +1,6 @@
 /** @purpose Public Certificate Verification page with validity and revocation badges (docs/02 §7.1, docs/17 §11) */
 import Link from 'next/link';
+import { brand } from '@lumen/config';
 import {
   verifyCertificate,
   type CertificateRecord,
@@ -89,7 +90,7 @@ export default async function CertificateVerificationPage({ params }: PageProps)
             Certificate Verification
           </h1>
           <p className="text-sm text-fg-muted">
-            Official authenticity verification for Lumen Academy course completion credentials.
+            Official authenticity verification for {brand.name} course completion credentials.
           </p>
         </div>
 
@@ -157,7 +158,7 @@ export default async function CertificateVerificationPage({ params }: PageProps)
                     Reason: {cert.revocationReason || 'Course enrollment was refunded or cancelled.'}
                   </p>
                   <p className="text-fg-subtle text-[11px]">
-                    Per Lumen Academy policy (docs/02 §7.1 & docs/17 §11), course completion
+                    Per {brand.name} policy (docs/02 §7.1 & docs/17 §11), course completion
                     certificates are permanently invalidated upon refund issuance.
                   </p>
                 </div>
@@ -168,7 +169,7 @@ export default async function CertificateVerificationPage({ params }: PageProps)
                 <div className="rounded-xl border border-success/30 bg-success-soft/40 p-4 text-xs text-fg flex items-start gap-3">
                   <ShieldCheck className="h-5 w-5 text-success shrink-0 mt-0.5" />
                   <div className="space-y-1">
-                    <div className="font-semibold text-success">Authentic Lumen Academy Credential</div>
+                    <div className="font-semibold text-success">Authentic {brand.name} Credential</div>
                     <p className="text-fg-muted text-[11px] leading-relaxed">
                       This certificate confirms that the student named above successfully completed all
                       prescribed curriculum modules, computer-based adaptive mock examinations, and

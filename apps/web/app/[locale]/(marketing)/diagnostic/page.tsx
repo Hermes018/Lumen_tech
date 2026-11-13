@@ -1,5 +1,6 @@
 /** @purpose Marketing landing gateway for Free GRE & IELTS Express Diagnostic tests */
 import Link from 'next/link';
+import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
   Clock,
@@ -10,7 +11,7 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Free Express Diagnostic | 15-Minute Ability Assessment | Lumen Academy',
+  title: `Free Express Diagnostic | 15-Minute Ability Assessment | ${brand.name}`,
   description:
     'Test your real GRE or IELTS baseline in 15 minutes with our authentic CBT exam shell. Instant Rasch ability scoring and trap diagnostics.',
 };

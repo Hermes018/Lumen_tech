@@ -1,6 +1,8 @@
 /** @purpose Internal staff management layout (Editor, Support, Finance) */
 import type { ReactNode } from 'react';
 
+export const dynamic = 'force-dynamic';
+
 export default function StaffLayout({ children }: { children: ReactNode }) {
   return (
     <div className="staff-shell min-h-screen p-6">

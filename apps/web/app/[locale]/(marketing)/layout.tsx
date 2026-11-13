@@ -1,6 +1,7 @@
 /** @purpose Marketing shell layout with frosted navbar and trademark disclaimer */
 import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { brand } from '@lumen/config';
 import { Button } from '@lumen/ui';
 import { Globe, GraduationCap } from 'lucide-react';
 
@@ -23,7 +24,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               <span className="bg-accent text-accent-fg flex h-8 w-8 items-center justify-center rounded-lg">
                 <GraduationCap className="h-5 w-5" />
               </span>
-              <span>Lumen Academy</span>
+              <span>{brand.name}</span>
             </Link>
             <nav className="text-fg-muted hidden items-center gap-6 text-sm font-medium md:flex">
               <Link href="/courses" className="hover:text-fg transition-colors">
@@ -182,13 +183,13 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               Education.
             </p>
             <p className="mb-4">
-              Lumen Academy is an independent preparation service and is not affiliated with,
+              {brand.name} is an independent preparation service and is not affiliated with,
               approved, or endorsed by ETS, Cambridge Assessment English, the British Council, or
               IDP Education. All score benchmarks and percentiles are estimated diagnostic
               indicators.
             </p>
             <p>
-              © 2026 Lumen Academy. Built for high-ambition Bangladeshi & international scholars.
+              © 2026 {brand.name}. Built for high-ambition Bangladeshi & international scholars.
             </p>
           </div>
         </div>

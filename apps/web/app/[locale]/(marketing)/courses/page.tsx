@@ -1,5 +1,6 @@
 /** @purpose Courses index page listing GRE, IELTS Academic & General curriculum tracks */
 import Link from 'next/link';
+import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
   ArrowRight,
@@ -7,7 +8,7 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Courses & Curriculum | GRE & IELTS Test Engines | Lumen Academy',
+  title: `Courses & Curriculum | GRE & IELTS Test Engines | ${brand.name}`,
   description:
     'Explore our comprehensive GRE and IELTS prep courses with section-adaptive mock tests, FSRS vocabulary systems, and Socratic hint ladders.',
 };

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { Badge } from '@lumen/ui';
 import { Layers, BookOpen, ShieldCheck, PlusCircle } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function StudioLayout({ children }: { children: ReactNode }) {
   return (
     <div className="studio-shell bg-canvas text-fg min-h-screen">
