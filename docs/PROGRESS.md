@@ -573,6 +573,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-39 | task-p1-39 | 3.8-flash | Notifications dispatcher (templates, user opt-outs, 22:00-08:00 Asia/Dhaka quiet hours) and Bangladesh PDPO 2025 Under-18 Guardian Consent state machine (request, OTP verify, revoke, data export & erasure) |
 | 2026-11-13 | P1-40 | task-p1-40 | 3.8-flash | Localized sitemap.ts & robots.ts (en/bn public routes), 100% bilingual dictionary parity test, and pilot concurrency & ledger stress test (50 concurrent consumeAiCredit & duplicate SSLCommerz IPN webhooks) |
 | 2026-11-13 | P1-41 | task-p1-41 | 3.8-flash | Manual bKash/Nagad fallback gateway (packages/core/src/commerce/manual-pay.ts), TrxID verification, staff 2FA approval queue in /finance, and checkout UI fallback tab |
+| 2026-11-13 | P1-42 | task-p1-42 | 3.8-flash | Playwright E2E suite setup (Chromium/Firefox/WebKit, baseURL :3000), checkout flow spec, and IELTS mock runner split-screen spec |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
