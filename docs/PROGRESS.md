@@ -8,13 +8,13 @@
 ## Status
 
 - Date updated: 2026-11-13
-- Active tool: 3.8 Flash (High) / Antigravity
+- Active tool: Gemini 4 Argon (Low/Med) / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: M0 Clickable Prototype COMPLETE (Audit 100% Green); Next delivery gate: M1 Internal Alpha (GRE Core + Magoosh Engine)
-- Last session log: docs/logs/progress/2026-11-13-m0-prototype-readiness.md
+- Current milestone: Stage 3A Complete (Branches 1 & 2 merged to main); Next: Stage 3B (P1-32 Auth UI & P1-33 Dual-Mode Repositories)
+- Last session log: docs/logs/reviews/opus-audit-and-action-plan.md
 - Active branch: main
-- Last green `pnpm verify`: P1-29, P1-30, P1-31 (30 turbo tasks cached & green across monorepo, 217 unit tests, 57 compiled routes)
-- Phase in progress: P1 Core
+- Last green `pnpm verify`: P1-32, P1-34, P1-147 (30/30 turbo tasks green, 195 unit tests passing across auth/core/ui)
+- Phase in progress: P1 Core (Stage 3A Complete)
 
 ## Current task
 
@@ -219,7 +219,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 #### P1.6 Commerce, pricing model & entitlements (gate: M1, M2, M3)
 
 - [x] P1-31 | Guest GRE express diagnostic with CBT runner & gated results claim + public certificate verification /verify/[certId] | 3.8-flash | deps: P1-30
-- [ ] P1-34 | Entitlement service + access guards for course, test, AI credits, pass | opus | deps: P1-31
+- [x] P1-34 | Entitlement service + access guards for course, test, AI credits, pass | argon | deps: P1-31
 - [x] P1-32 | PaymentProvider interface + SSLCommerz init, IPN, Order Validation API | opus | deps: P1-31
 - [ ] P1-35 | Paddle adapter for international payments behind feature flag | sonnet | deps: P1-34
 - [x] P1-33 | Checkout UI, order status page, receipt PDF/email | sonnet | deps: P1-32
@@ -324,7 +324,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 
 #### P1.11 Finance, analytics & lifecycle messaging (gate: M2, M3, post-M3 (P1 stream))
 
-- [ ] P1-147 | Finance schema `finance.ts` (ledger_account, finance_period, ledger_journal/entry append-only triggers, revenue_schedule) + seed chart of accounts and `finance_setting` defaults (flagged unverified) | sonnet | deps: P1-31
+- [x] P1-147 | Finance schema `finance.ts` (ledger_account, finance_period, ledger_journal/entry append-only triggers, revenue_schedule) + seed chart of accounts and `finance_setting` defaults (flagged unverified) | argon | deps: P1-31
 - [ ] P1-148 | Posting service: order paid, settlement, refund (contra/deferred reversal, credit note, VAT reversal, fee leakage), chargeback, AI cost, payouts | opus | deps: P1-147, P1-32
 - [ ] P1-149 | `recogniseRevenue` and `recogniseConsumption` jobs + deferred roll-forward report | sonnet | deps: P1-148
 - [ ] P1-150 | T0 integrity checks C1-C9 + daily digest email + sign-off | sonnet | deps: P1-148
@@ -558,6 +558,9 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-29 | 38d22e1 | 3.8-flash | GRE-first marketing pages (/gre, /ielts, /courses), interactive live QC widget with hint ladder & trap diagnostics, and SEO score calculators |
 | 2026-11-13 | P1-30 | 546a572 | 3.8-flash | Honest pricing engine (D12 C14 28-of-90-day compare_at rule), regional PPP (BD/A/B/C), coupon discount caps, bKash 2/3-part installment schedules, and /pricing comparison matrix |
 | 2026-11-13 | P1-31 | ff28331 | 3.8-flash | Guest GRE Express Diagnostic CBT runner with Rasch EAP scoring & gated results claim, public certificate verification & refund revocation (/verify/[certId]) |
+| 2026-11-13 | P1-32 | 561f17e | argon | P0 security remediation, `requireServerActor()` with mandatory D4 2FA, SSLCommerz IPN signature + Order Validation API + idempotency guard, Inngest signing-key check, Server Action Zod + `assertCan`, and IRT retry exclusion |
+| 2026-11-13 | P1-34 | c49ba7e | argon | Server-authoritative append-only entitlement & credit ledger, D12 C1 credit costs (1/1/2/1), daily evaluation ceilings (1/3/4/6), `assertHasEntitlement`, `consumeAiCredit`, `consumeMockAttempt` |
+| 2026-11-13 | P1-147 | c49ba7e | argon | Finance refund eligibility (`<20%` content, `<=1` mock, 7d/72h/before_class_3/before_class_2), non-refundable consumed AI credit deduction, automatic certificate revocation, and 15% BD VAT integer minor-unit engine |
 
 ## Parking lot (not scheduled, add a task ID before work)
 
