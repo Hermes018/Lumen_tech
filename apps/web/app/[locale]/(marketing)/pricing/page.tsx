@@ -1,4 +1,4 @@
-/** @purpose Interactive Honest Pricing Page with tier matrices, regional switcher, bKash installments modal, and pass packs (docs/17, P2.6.1 Bilingual) */
+/** @purpose Interactive Honest Pricing Page with unified sticky control bar, locale-accurate English/Bengali digits, separated Self-Paced vs Live Instructor tiers, bKash installments modal, and pass packs (docs/17, P2.6.1, M2.8-A) */
 'use client';
 
 import * as React from 'react';
@@ -26,6 +26,8 @@ import {
   CreditCard,
   Clock,
   Smartphone,
+  Users,
+  Calendar,
 } from 'lucide-react';
 
 type ExamType = 'gre' | 'ielts_academic' | 'ielts_gt';
@@ -37,8 +39,11 @@ interface TierData {
   tier: 'free' | 'core' | 'plus' | 'live' | 'crash' | 'mentor';
   badge?: string;
   badgeBn?: string;
+  scheduleBadge?: string;
+  scheduleBadgeBn?: string;
   popular?: boolean;
   priceBD: string;
+  priceBDBn: string;
   priceA: string;
   priceB: string;
   priceC: string;
@@ -58,7 +63,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       name: 'Free Diagnostic',
       nameBn: 'ফ্রি ডায়াগনস্টিক',
       tier: 'free',
-      priceBD: '৳ ০',
+      priceBD: '৳ 0',
+      priceBDBn: '৳ ০',
       priceA: '$0',
       priceB: '$0',
       priceC: '$0',
@@ -88,7 +94,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       name: 'GRE Core',
       nameBn: 'জিআরই কোর (GRE Core)',
       tier: 'core',
-      priceBD: '৳ ৫,৯৯০',
+      priceBD: '৳ 5,990',
+      priceBDBn: '৳ ৫,৯৯০',
       priceA: '$149',
       priceB: '$89',
       priceC: '$59',
@@ -127,7 +134,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       popular: true,
       badge: 'Most Popular',
       badgeBn: 'সবচেয়ে জনপ্রিয়',
-      priceBD: '৳ ৮,৪৯০',
+      priceBD: '৳ 8,490',
+      priceBDBn: '৳ ৮,৪৯০',
       priceA: '$199',
       priceB: '$119',
       priceC: '$79',
@@ -160,10 +168,13 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'gre-crash',
-      name: 'GRE Live Crash',
-      nameBn: 'জিআরই লাইভ ক্র্যাশ ব্যাচ',
+      name: 'Live Crash (4 Weeks)',
+      nameBn: 'জিআরই লাইভ ক্র্যাশ ব্যাচ (৪ সপ্তাহ)',
       tier: 'crash',
-      priceBD: '৳ ৯,৯৯০',
+      scheduleBadge: '4 Weeks • 3x/Week Evening Zoom',
+      scheduleBadgeBn: '৪ সপ্তাহ • সপ্তাহে ৩ দিন সান্ধ্যকালীন জুম',
+      priceBD: '৳ 9,990',
+      priceBDBn: '৳ ৯,৯৯০',
       priceA: '$229',
       priceB: '$129',
       priceC: '$89',
@@ -191,10 +202,13 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'gre-live',
-      name: 'GRE Live Cohort',
-      nameBn: 'জিআরই লাইভ কোহর্ট ব্যাচ',
+      name: 'Live Cohort (8 Weeks)',
+      nameBn: 'জিআরই লাইভ কোহর্ট ব্যাচ (৮ সপ্তাহ)',
       tier: 'live',
-      priceBD: '৳ ১২,৯৯০',
+      scheduleBadge: '8 Weeks • Weekend & Evening Batches',
+      scheduleBadgeBn: '৮ সপ্তাহ • উইকেন্ড ও ইভনিং ব্যাচ',
+      priceBD: '৳ 12,990',
+      priceBDBn: '৳ ১২,৯৯০',
       priceA: '$299',
       priceB: '$179',
       priceC: '$119',
@@ -224,10 +238,13 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'gre-mentor',
-      name: 'GRE 1:1 Mentor',
-      nameBn: 'জিআরই ১:১ মেন্টরশিপ',
+      name: '1:1 Private Mentor',
+      nameBn: 'জিআরই ১:১ প্রাইভেট মেন্টরশিপ',
       tier: 'mentor',
-      priceBD: '৳ ১৯,৯৯০',
+      scheduleBadge: 'Flexible 1-on-1 • 335+ Scorer Mentor',
+      scheduleBadgeBn: 'ফ্লেক্সিবল ১:১ সেশন • ৩৩৫+ স্কোরার মেন্টর',
+      priceBD: '৳ 19,990',
+      priceBDBn: '৳ ১৯,৯৯০',
       priceA: '$399',
       priceB: '$249',
       priceC: '$169',
@@ -260,7 +277,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       name: 'Free Diagnostic',
       nameBn: 'ফ্রি ডায়াগনস্টিক',
       tier: 'free',
-      priceBD: '৳ ০',
+      priceBD: '৳ 0',
+      priceBDBn: '৳ ০',
       priceA: '$0',
       priceB: '$0',
       priceC: '$0',
@@ -288,7 +306,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       name: 'IELTS Academic Core',
       nameBn: 'আইইএলটিএস একাডেমিক কোর',
       tier: 'core',
-      priceBD: '৳ ৩,৯৯০',
+      priceBD: '৳ 3,990',
+      priceBDBn: '৳ ৩,৯৯০',
       priceA: '$89',
       priceB: '$49',
       priceC: '$34',
@@ -323,9 +342,10 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       nameBn: 'আইইএলটিএস একাডেমিক প্লাস',
       tier: 'plus',
       popular: true,
-      badge: 'Best Value',
-      badgeBn: 'সেরা সাশ্রয়ী প্ল্যান',
-      priceBD: '৳ ৬,৪৯০',
+      badge: 'Most Popular',
+      badgeBn: 'সবচেয়ে জনপ্রিয়',
+      priceBD: '৳ 6,490',
+      priceBDBn: '৳ ৬,৪৯০',
       priceA: '$149',
       priceB: '$89',
       priceC: '$59',
@@ -358,10 +378,13 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'ielts-academic-crash',
-      name: 'IELTS Live Crash',
-      nameBn: 'আইইএলটিএস লাইভ ক্র্যাশ ব্যাচ',
+      name: 'Live Crash (4 Weeks)',
+      nameBn: 'আইইএলটিএস লাইভ ক্র্যাশ ব্যাচ (৪ সপ্তাহ)',
       tier: 'crash',
-      priceBD: '৳ ৯,৯৯০',
+      scheduleBadge: '4 Weeks • 4x/Week Intensive Zoom',
+      scheduleBadgeBn: '৪ সপ্তাহ • সপ্তাহে ৪ দিন ইনটেনসিভ জুম',
+      priceBD: '৳ 9,990',
+      priceBDBn: '৳ ৯,৯৯০',
       priceA: '$229',
       priceB: '$129',
       priceC: '$89',
@@ -389,17 +412,20 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'ielts-academic-live',
-      name: 'IELTS Live Cohort',
+      name: 'Live Cohort (8 Weeks)',
       nameBn: 'আইইএলটিএস লাইভ কোহর্ট ব্যাচ',
       tier: 'live',
-      priceBD: '৳ ১৩,৯৯০',
+      scheduleBadge: '8–12 Weeks • Regular, Weekend & Evening',
+      scheduleBadgeBn: '৮–১২ সপ্তাহ • রেগুলার, উইকেন্ড ও ইভনিং ব্যাচ',
+      priceBD: '৳ 13,990',
+      priceBDBn: '৳ ১৩,৯৯০',
       priceA: '$299',
       priceB: '$179',
       priceC: '$119',
       duration: '12 Months Access',
       durationBn: '১২ মাসের অ্যাক্সেস',
-      description: '12-week comprehensive live training with human speaking mocks.',
-      descriptionBn: 'হিউম্যান স্পিকিং মকসহ ১২-সপ্তাহের পূর্ণাঙ্গ লাইভ প্রশিক্ষণ।',
+      description: 'Comprehensive live training with human speaking mocks.',
+      descriptionBn: 'হিউম্যান স্পিকিং মকসহ পূর্ণাঙ্গ লাইভ প্রশিক্ষণ।',
       hasInstallments: true,
       perks: [
         '36 Live Sessions (Regular, Weekend, or Evening)',
@@ -420,10 +446,13 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'ielts-academic-mentor',
-      name: 'IELTS 1:1 Mentor',
-      nameBn: 'আইইএলটিএস ১:১ মেন্টরশিপ',
+      name: '1:1 Private Mentor',
+      nameBn: 'আইইএলটিএস ১:১ প্রাইভেট মেন্টরশিপ',
       tier: 'mentor',
-      priceBD: '৳ ১৯,৯৯০',
+      scheduleBadge: 'Flexible 1-on-1 • Band 8.5+ Lead Mentor',
+      scheduleBadgeBn: 'ফ্লেক্সিবল ১:১ সেশন • ব্যান্ড ৮.৫+ মেন্টর',
+      priceBD: '৳ 19,990',
+      priceBDBn: '৳ ১৯,৯৯০',
       priceA: '$399',
       priceB: '$249',
       priceC: '$169',
@@ -456,7 +485,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       name: 'Free Diagnostic',
       nameBn: 'ফ্রি ডায়াগনস্টিক',
       tier: 'free',
-      priceBD: '৳ ০',
+      priceBD: '৳ 0',
+      priceBDBn: '৳ ০',
       priceA: '$0',
       priceB: '$0',
       priceC: '$0',
@@ -482,7 +512,8 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       name: 'IELTS GT Core',
       nameBn: 'আইইএলটিএস জিটি কোর',
       tier: 'core',
-      priceBD: '৳ ৩,৪৯০',
+      priceBD: '৳ 3,490',
+      priceBDBn: '৳ ৩,৪৯০',
       priceA: '$79',
       priceB: '$49',
       priceC: '$29.99',
@@ -513,9 +544,10 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
       nameBn: 'আইইএলটিএস জিটি প্লাস',
       tier: 'plus',
       popular: true,
-      badge: 'PR Target CLB 9',
+      badge: 'Most Popular • CLB 9',
       badgeBn: 'পিআর টার্গেট CLB 9',
-      priceBD: '৳ ৬,৪৯০',
+      priceBD: '৳ 6,490',
+      priceBDBn: '৳ ৬,৪৯০',
       priceA: '$149',
       priceB: '$89',
       priceC: '$59',
@@ -544,17 +576,20 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     },
     {
       slug: 'ielts-gt-live',
-      name: 'IELTS GT Live Cohort',
+      name: 'Live Cohort (8 Weeks)',
       nameBn: 'আইইএলটিএস জিটি লাইভ ব্যাচ',
       tier: 'live',
-      priceBD: '৳ ১২,৯৯০',
+      scheduleBadge: 'After 8:30 PM • Working Professionals',
+      scheduleBadgeBn: 'রাত ৮:৩০-এর পর • চাকরিজীবীদের ব্যাচ',
+      priceBD: '৳ 12,990',
+      priceBDBn: '৳ ১২,৯৯০',
       priceA: '$299',
       priceB: '$179',
       priceC: '$119',
       duration: '12 Months Access',
       durationBn: '১২ মাসের অ্যাক্সেস',
-      description: '12-week evening batch for working professionals.',
-      descriptionBn: 'চাকরিজীবী ও পেশাজীবীদের জন্য ১২-সপ্তাহের সান্ধ্যকালীন লাইভ ব্যাচ।',
+      description: 'Evening batch designed for working professionals targeting PR.',
+      descriptionBn: 'চাকরিজীবী ও পেশাজীবীদের জন্য সান্ধ্যকালীন লাইভ ব্যাচ।',
       hasInstallments: true,
       perks: [
         '36 Live Evening Classes (after 8:30 PM)',
@@ -581,6 +616,7 @@ interface AllAccessPassData {
   badge?: string;
   badgeBn?: string;
   priceBD: string;
+  priceBDBn: string;
   priceA: string;
   priceB: string;
   priceC: string;
@@ -597,7 +633,8 @@ const ALL_ACCESS_PASSES: AllAccessPassData[] = [
     slug: 'pass-1m',
     name: '1-Month Pass',
     nameBn: '১-মাসের পাস',
-    priceBD: '৳ ১,১৯০',
+    priceBD: '৳ 1,190',
+    priceBDBn: '৳ ১,১৯০',
     priceA: '$24.99',
     priceB: '$14.99',
     priceC: '$9.99',
@@ -614,7 +651,8 @@ const ALL_ACCESS_PASSES: AllAccessPassData[] = [
     nameBn: '৩-মাসের পাস',
     badge: 'Popular',
     badgeBn: 'জনপ্রিয়',
-    priceBD: '৳ ২,৯৯০',
+    priceBD: '৳ 2,990',
+    priceBDBn: '৳ ২,৯৯০',
     priceA: '$59',
     priceB: '$39',
     priceC: '$24.99',
@@ -629,7 +667,8 @@ const ALL_ACCESS_PASSES: AllAccessPassData[] = [
     slug: 'pass-6m',
     name: '6-Month Pass',
     nameBn: '৬-মাসের পাস',
-    priceBD: '৳ ৪,৪৯০',
+    priceBD: '৳ 4,490',
+    priceBDBn: '৳ ৪,৪৯০',
     priceA: '$99',
     priceB: '$59',
     priceC: '$39',
@@ -646,7 +685,8 @@ const ALL_ACCESS_PASSES: AllAccessPassData[] = [
     nameBn: '১২-মাসের বার্ষিক পাস',
     badge: 'Best Long-Term',
     badgeBn: 'সেরা দীর্ঘমেয়াদি',
-    priceBD: '৳ ৬,৯৯০',
+    priceBD: '৳ 6,990',
+    priceBDBn: '৳ ৬,৯৯০',
     priceA: '$149',
     priceB: '$89',
     priceC: '$59',
@@ -664,7 +704,8 @@ const ADD_ON_PACKS = [
     slug: 'ai-credits-10',
     name: '10 AI Evaluation Credits',
     nameBn: '১০টি এআই ইভ্যালুয়েশন ক্রেডিট',
-    priceBD: '৳ ৪৯০',
+    priceBD: '৳ 490',
+    priceBDBn: '৳ ৪৯০',
     priceUSD: '$4.99',
     description: 'Refill 10 instant Writing or Speaking evaluations. Never expires.',
     descriptionBn: '১০টি তাৎক্ষণিক রাইটিং বা স্পিকিং মূল্যায়ন রিফিল করুন। মেয়াদ কখনো শেষ হয় না।',
@@ -673,7 +714,8 @@ const ADD_ON_PACKS = [
     slug: 'mock-pack-4',
     name: '4 Adaptive CBT Mocks Pack',
     nameBn: '৪টি অ্যাডাপটিভ সিবিটি মক প্যাক',
-    priceBD: '৳ ৯৯০',
+    priceBD: '৳ 990',
+    priceBDBn: '৳ ৯৯০',
     priceUSD: '$9.99',
     description: '4 full section-adaptive GRE or CD-IELTS computer-delivered mocks.',
     descriptionBn: '৪টি পূর্ণাঙ্গ সেকশন-অ্যাডাপটিভ জিআরই বা সিডি-আইইএলটিএস কম্পিউটার-ডেলিভার্ড মক টেস্ট।',
@@ -682,7 +724,8 @@ const ADD_ON_PACKS = [
     slug: 'human-review-pack',
     name: 'Human Feedback Bundle',
     nameBn: 'হিউম্যান ফিডব্যাক বান্ডেল',
-    priceBD: '৳ ১,৪৯০',
+    priceBD: '৳ 1,490',
+    priceBDBn: '৳ ১,৪৯০',
     priceUSD: '$14.99',
     description: '2 detailed Essay Reviews with rubrics + 1 live 15-min Speaking Mock.',
     descriptionBn: 'রুব্রিকসহ ২টি বিস্তারিত এসে রিভিউ + ১টি লাইভ ১৫-মিনিটের স্পিকিং মক।',
@@ -698,6 +741,12 @@ export default function PricingPage() {
   const [installmentModalTier, setInstallmentModalTier] = React.useState<string | null>(null);
 
   const currentTiers = PRICING_DATA[exam];
+  const selfPacedTiers = currentTiers.filter(
+    (t) => t.tier === 'free' || t.tier === 'core' || t.tier === 'plus'
+  );
+  const liveTiers = currentTiers.filter(
+    (t) => t.tier === 'crash' || t.tier === 'live' || t.tier === 'mentor'
+  );
 
   const getDisplayPrice = (tier: TierData): string => {
     switch (region) {
@@ -709,7 +758,7 @@ export default function PricingPage() {
         return tier.priceC;
       case 'BD':
       default:
-        return tier.priceBD;
+        return isBn ? tier.priceBDBn : tier.priceBD;
     }
   };
 
@@ -723,7 +772,7 @@ export default function PricingPage() {
         return pass.priceC;
       case 'BD':
       default:
-        return pass.priceBD;
+        return isBn ? pass.priceBDBn : pass.priceBD;
     }
   };
 
@@ -736,10 +785,10 @@ export default function PricingPage() {
 
   return (
     <div className="flex flex-col items-center pb-20" data-locale={locale}>
-      {/* High-Contrast Institutional Navy Hero Banner with Left-Aligned Editorial Kicker */}
+      {/* High-Contrast Institutional Navy Hero Banner */}
       <section className="relative w-full overflow-hidden border-b border-slate-800 bg-[#001E42] text-white">
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
-          <div className="lg:col-span-7 space-y-5 text-left">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="max-w-3xl space-y-4 text-left">
             <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-slate-200">
               {tPricing('badge')}
             </div>
@@ -751,220 +800,328 @@ export default function PricingPage() {
             <p className="max-w-2xl text-base text-slate-300 sm:text-lg leading-relaxed">
               {tPricing('subtitle')}
             </p>
-
-            {/* Exam Selector Tabs */}
-            <div className="pt-2 flex flex-wrap gap-2.5">
-              {[
-                { id: 'gre', label: tPricing('grePrep') },
-                { id: 'ielts_academic', label: tPricing('ieltsAcademic') },
-                { id: 'ielts_gt', label: tPricing('ieltsGt') },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setExam(tab.id as ExamType)}
-                  className={`rounded-lg px-5 py-2.5 text-sm font-bold transition-all ${
-                    exam === tab.id
-                      ? 'bg-[#E4002B] text-white shadow-md'
-                      : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Right 5 Columns: Region & Currency Selector Card */}
-          <div className="lg:col-span-5 rounded-2xl border border-white/15 bg-slate-900/90 p-6 space-y-4 shadow-xl">
-            <div className="border-l-4 border-[#00A896] pl-3 text-xs font-bold uppercase tracking-widest text-slate-200">
-              {tPricing('currencyRegion')}
-            </div>
-            <div className="grid grid-cols-1 gap-2 text-xs">
-              {[
-                {
-                  id: 'BD',
-                  label: isBn
-                    ? 'বাংলাদেশ (৳ BDT - ১৫% ভ্যাটসহ)'
-                    : 'BD (৳ BDT - 15% VAT incl.)',
-                },
-                {
-                  id: 'A',
-                  label: isBn
-                    ? 'অঞ্চল A ($ USD - উচ্চ আয়)'
-                    : 'Region A ($ USD - High Income)',
-                },
-                {
-                  id: 'B',
-                  label: isBn
-                    ? 'অঞ্চল B ($ USD - উচ্চ-মধ্যম)'
-                    : 'Region B ($ USD - Upper-Middle)',
-                },
-                {
-                  id: 'C',
-                  label: isBn
-                    ? 'অঞ্চল C ($ USD - দক্ষিণ এশিয়া)'
-                    : 'Region C ($ USD - South Asia / Emerging)',
-                },
-              ].map((reg) => (
-                <button
-                  key={reg.id}
-                  type="button"
-                  onClick={() => setRegion(reg.id as Region)}
-                  className={`rounded-lg px-3.5 py-2.5 text-left font-semibold transition-all ${
-                    region === reg.id
-                      ? 'bg-[#00A896] text-white shadow-sm'
-                      : 'bg-slate-950/70 text-slate-300 border border-slate-800 hover:text-white hover:bg-slate-800'
-                  }`}
-                >
-                  {reg.label}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-7xl w-full space-y-12 px-4 pt-12 sm:px-6 lg:px-8">
-        {/* Tier Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {currentTiers.map((tier) => {
-            const displayPrice = getDisplayPrice(tier);
-            const isFree = tier.tier === 'free';
-            const tierName = isBn ? tier.nameBn : tier.name;
-            const tierDuration = isBn ? tier.durationBn : tier.duration;
-            const tierDesc = isBn ? tier.descriptionBn : tier.description;
-            const tierPerks = isBn ? tier.perksBn : tier.perks;
-            const tierBadge = isBn ? tier.badgeBn ?? tier.badge : tier.badge;
-
-            return (
-              <Card
-                key={tier.slug}
-                className={`overflow-hidden bg-white transition-all flex flex-col justify-between relative ${
-                  tier.popular
-                    ? 'border-2 border-indigo-900 shadow-xl ring-2 ring-indigo-950/10'
-                    : 'border-slate-200/90 shadow-xs hover:shadow-md'
+      {/* Unified Full-Width Sticky Control Bar */}
+      <div className="sticky top-16 z-20 w-full bg-white border-b border-slate-200 py-4 shadow-2xs">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          {/* Left: Track Tabs */}
+          <div
+            className="flex flex-wrap items-center gap-1 bg-slate-100 p-1 rounded-md border border-slate-200"
+            role="tablist"
+            aria-label={isBn ? 'পরীক্ষার ট্র্যাক' : 'Exam Track'}
+          >
+            {[
+              { id: 'gre', label: isBn ? 'GRE® প্রস্তুতি' : 'GRE® Prep' },
+              { id: 'ielts_academic', label: isBn ? 'IELTS™ একাডেমিক' : 'IELTS™ Academic' },
+              {
+                id: 'ielts_gt',
+                label: isBn ? 'IELTS™ জেনারেল ট্রেনিং' : 'IELTS™ General Training',
+              },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={exam === tab.id}
+                onClick={() => setExam(tab.id as ExamType)}
+                className={`rounded-md px-4 py-2 text-xs sm:text-sm font-bold transition-colors ${
+                  exam === tab.id
+                    ? 'bg-[#001E42] text-white shadow-2xs'
+                    : 'text-slate-700 hover:text-slate-950 hover:bg-white/60'
                 }`}
               >
-                {/* Elevated Dark-Navy / Indigo Top Header Ribbon for Most Popular (BUG-12) */}
-                {tier.popular ? (
-                  <div className="bg-indigo-950 text-white px-6 py-2.5 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                      {tierBadge ?? (isBn ? 'সবচেয়ে জনপ্রিয়' : 'Most Popular')}
-                    </span>
-                    <span className="rounded-full bg-blue-600/40 px-2.5 py-0.5 text-[10px] font-semibold text-blue-100">
-                      {isBn ? 'টার্গেট প্রমিজ অন্তর্ভুক্ত' : 'Target Promise Included'}
-                    </span>
-                  </div>
-                ) : (
-                  tierBadge && (
-                    <div className="absolute top-3 right-4">
-                      <Badge variant="default" className="text-[11px] font-bold">
-                        {tierBadge}
-                      </Badge>
-                    </div>
-                  )
-                )}
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl font-bold text-slate-950">{tierName}</CardTitle>
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                      {tierDuration}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-600 mt-1 min-h-[32px]">{tierDesc}</p>
-                  <div className="mt-4 pt-2">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-3xl font-extrabold text-slate-950">{displayPrice}</span>
-                      {!isFree && region === 'BD' && (
-                        <span className="text-[11px] font-medium text-slate-500">
-                          {isBn
-                            ? '(১৫% ভ্যাট ও মূসক ৬.৩ অন্তর্ভুক্ত)'
-                            : '(15% VAT & Mushak 6.3 incl.)'}
+          {/* Right: Compact Currency / Region Selector */}
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              {
+                id: 'BD',
+                label: isBn ? 'BDT (৳ • ১৫% ভ্যাটসহ)' : 'BDT (৳ • 15% VAT incl.)',
+              },
+              {
+                id: 'A',
+                label: isBn ? 'USD ($ • গ্লোবাল)' : 'USD ($ • Global)',
+              },
+              {
+                id: 'C',
+                label: isBn ? 'দক্ষিণ এশিয়া ($)' : 'South Asia ($)',
+              },
+            ].map((reg) => (
+              <button
+                key={reg.id}
+                type="button"
+                onClick={() => setRegion(reg.id as Region)}
+                className={`rounded-md border px-3 py-1.5 text-xs font-bold transition-colors ${
+                  region === reg.id
+                    ? 'border-[#001E42] bg-[#001E42] text-white'
+                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                {reg.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl w-full space-y-16 px-4 pt-10 sm:px-6 lg:px-8">
+        {/* SECTION A: Self-Paced Preparation (3-Column Flush/Sharp Grid rounded-md) */}
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#007791]">
+                {isBn ? 'নিজের গতিতে প্রস্তুতি' : 'Self-Paced Adaptive Plans'}
+              </div>
+              <h2 className="text-2xl font-extrabold text-slate-950 mt-1">
+                {isBn
+                  ? 'সেলফ-পেসড ও এআই-সহায়ক প্রস্তুতি'
+                  : 'Self-Paced Preparation & Adaptive Mocks'}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-600">
+              {isBn
+                ? 'তাত্ক্ষণিক অ্যাক্সেস • ৭-দিনের ১০০% মানি-ব্যাক গ্যারান্টি'
+                : 'Instant activation • Covered by our 7-Day 100% Money-Back Guarantee'}
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3 items-stretch">
+            {selfPacedTiers.map((tier) => {
+              const displayPrice = getDisplayPrice(tier);
+              const isFree = tier.tier === 'free';
+              const tierName = isBn ? tier.nameBn : tier.name;
+              const tierDuration = isBn ? tier.durationBn : tier.duration;
+              const tierDesc = isBn ? tier.descriptionBn : tier.description;
+              const tierPerks = isBn ? tier.perksBn : tier.perks;
+              const tierBadge = isBn ? tier.badgeBn ?? tier.badge : tier.badge;
+
+              return (
+                <Card
+                  key={tier.slug}
+                  className={`rounded-md overflow-hidden bg-white flex flex-col justify-between relative ${
+                    tier.popular
+                      ? 'border-2 border-[#001E42] ring-1 ring-[#001E42]/20 shadow-md'
+                      : 'border border-slate-300 shadow-xs'
+                  }`}
+                >
+                  {/* Solid #001E42 Top Bar for Most Popular */}
+                  {tier.popular ? (
+                    <div className="bg-[#001E42] text-white px-6 py-2.5 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                        {tierBadge ?? (isBn ? 'সবচেয়ে জনপ্রিয়' : 'Most Popular')}
+                      </span>
+                      <span className="rounded bg-white/15 px-2 py-0.5 text-[10px] font-semibold text-white">
+                        {isBn ? 'টার্গেট প্রমিজ' : 'Target Promise'}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="h-1.5 w-full bg-slate-200" />
+                  )}
+
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <CardTitle className="text-xl font-bold text-slate-950">{tierName}</CardTitle>
+                      <span className="rounded bg-slate-100 border border-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-700">
+                        {tierDuration}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 min-h-[32px]">{tierDesc}</p>
+                    <div className="mt-4 pt-2 border-t border-slate-100">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-extrabold text-slate-950 font-mono">
+                          {displayPrice}
                         </span>
+                        {!isFree && region === 'BD' && (
+                          <span className="text-[11px] font-medium text-slate-500">
+                            {isBn
+                              ? '(১৫% ভ্যাট ও মূসক ৬.৩ অন্তর্ভুক্ত)'
+                              : '(15% VAT & Mushak 6.3 incl.)'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="space-y-6 pt-0 flex-1 flex flex-col justify-between">
+                    <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs text-slate-800">
+                      {tierPerks.map((perk, i) => (
+                        <div key={i} className="flex items-start gap-2.5">
+                          <span
+                            className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-xs ${
+                              tier.popular
+                                ? 'bg-[#001E42] text-white'
+                                : 'bg-slate-100 text-[#001E42]'
+                            }`}
+                          >
+                            <Check className="h-2.5 w-2.5" />
+                          </span>
+                          <span className="font-medium leading-relaxed">{perk}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="space-y-2.5 pt-4 border-t border-slate-100">
+                      {isFree ? (
+                        <Link href="/exam/diagnostic" className="block w-full">
+                          <Button variant="outline" className="w-full rounded-md border-slate-300 font-semibold">
+                            {isBn ? 'ফ্রি ডায়াগনস্টিক শুরু করুন' : 'Start Free Diagnostic'}
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Link href={`/checkout?plan=${tier.slug}`} className="block w-full">
+                          <Button
+                            variant={tier.popular ? 'primary' : 'outline'}
+                            className={`w-full gap-2 rounded-md font-semibold ${
+                              tier.popular
+                                ? 'bg-[#001E42] text-white hover:bg-slate-900'
+                                : 'border-slate-300'
+                            }`}
+                          >
+                            {isBn ? 'এখনই ভর্তি হোন' : 'Enroll Now'}{' '}
+                            <ArrowRight className="h-4 w-4" />
+                          </Button>
+                        </Link>
                       )}
                     </div>
-                  </div>
-                </CardHeader>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
 
-                <CardContent className="space-y-6 pt-0 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs text-slate-800">
-                    {tierPerks.map((perk, i) => (
-                      <div key={i} className="flex items-start gap-2.5">
-                        <span
-                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
-                            tier.popular
-                              ? 'bg-indigo-950 text-white'
-                              : 'bg-blue-50 text-blue-600'
-                          }`}
-                        >
-                          <Check className="h-2.5 w-2.5" />
-                        </span>
-                        <span className="font-medium leading-relaxed">{perk}</span>
+        {/* SECTION B: Live Instructor Batches & 1-on-1 Mentorship (Horizontal Architectural Rows) */}
+        <section className="space-y-6 pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-200 pb-4">
+            <div>
+              <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#001E42]">
+                {isBn
+                  ? 'লাইভ ক্লাস ও সরাসরি মেন্টরশিপ'
+                  : 'Live Instructor Cohorts & 1-on-1 Coaching'}
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 mt-1">
+                {isBn
+                  ? 'লাইভ ক্লাস এবং হিউম্যান মেন্টরশিপ পছন্দ করেন?'
+                  : 'Prefer Live Classes & Human Mentorship?'}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-600">
+              {isBn
+                ? 'বিকাশে ০% সুদে ২ বা ৩ কিস্তিতে ফি পরিশোধের সুবিধা রয়েছে'
+                : '0% bKash 2 or 3-part installment plans available on all live batches'}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {liveTiers.map((tier) => {
+              const displayPrice = getDisplayPrice(tier);
+              const tierName = isBn ? tier.nameBn : tier.name;
+              const tierDuration = isBn ? tier.durationBn : tier.duration;
+              const tierDesc = isBn ? tier.descriptionBn : tier.description;
+              const tierPerks = isBn ? tier.perksBn : tier.perks;
+              const scheduleText = isBn
+                ? tier.scheduleBadgeBn ?? tier.scheduleBadge
+                : tier.scheduleBadge;
+
+              return (
+                <div
+                  key={tier.slug}
+                  className="rounded-md border border-slate-300 bg-white p-6 shadow-xs grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"
+                >
+                  {/* Left 4 Columns: Cohort Name, Schedule Badge & Description */}
+                  <div className="lg:col-span-4 space-y-2.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded bg-[#001E42]/10 px-2.5 py-1 text-[11px] font-bold text-[#001E42]">
+                        <Calendar className="h-3 w-3" />
+                        {scheduleText}
+                      </span>
+                      <span className="rounded bg-slate-100 border border-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-600">
+                        {tierDuration}
+                      </span>
+                    </div>
+
+                    <h3 className="text-xl font-extrabold text-slate-950 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-[#007791] shrink-0" />
+                      <span>{tierName}</span>
+                    </h3>
+
+                    <p className="text-xs text-slate-600 leading-relaxed">{tierDesc}</p>
+                  </div>
+
+                  {/* Middle 5 Columns: 2-Column Perks Checklist */}
+                  <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 border-y lg:border-y-0 lg:border-x border-slate-200 py-4 lg:py-0 lg:px-6 text-xs text-slate-800">
+                    {tierPerks.map((perk, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <Check className="h-3.5 w-3.5 text-[#007791] shrink-0 mt-0.5" />
+                        <span className="font-medium leading-snug">{perk}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-2.5 pt-4 border-t border-slate-100">
-                    {isFree ? (
-                      <Link href="/exam/diagnostic" className="block w-full">
-                        <Button variant="outline" className="w-full font-semibold">
-                          {isBn ? 'ফ্রি ডায়াগনস্টিক শুরু করুন' : 'Start Free Diagnostic'}
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Link href={`/checkout?plan=${tier.slug}`} className="block w-full">
-                        <Button
-                          variant={tier.popular ? 'primary' : 'outline'}
-                          className={`w-full gap-2 font-semibold ${
-                            tier.popular ? 'bg-indigo-950 text-white hover:bg-indigo-900 shadow-md' : ''
-                          }`}
-                        >
-                          {isBn ? 'এখনই ভর্তি হোন' : 'Enroll Now'}{' '}
-                          <ArrowRight className="h-4 w-4" />
-                        </Button>
-                      </Link>
-                    )}
+                  {/* Right 3 Columns: Price, Rectangular CTA, and bKash Installment Trigger */}
+                  <div className="lg:col-span-3 flex flex-col justify-between gap-3">
+                    <div>
+                      <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 font-mono">
+                        {displayPrice}
+                      </div>
+                      {region === 'BD' && (
+                        <div className="text-[11px] text-slate-500">
+                          {isBn
+                            ? '১৫% ভ্যাট ও মূসক ৬.৩ অন্তর্ভুক্ত'
+                            : '15% VAT & Mushak 6.3 included'}
+                        </div>
+                      )}
+                    </div>
 
-                    {/* Highlighted bKash 2/3-Part 0% Split-Pay Banner underneath Most Popular & Installment tiers */}
-                    {(tier.popular || tier.hasInstallments) && region === 'BD' && (
+                    <Link href={`/checkout?plan=${tier.slug}`} className="block w-full">
+                      <Button className="w-full gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900 font-semibold">
+                        {isBn ? 'ব্যাচে ভর্তি হোন' : 'Enroll in Cohort'}{' '}
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+
+                    {tier.hasInstallments && region === 'BD' && (
                       <button
                         type="button"
-                        onClick={() => setInstallmentModalTier(tier.hasInstallments ? tier.tier : 'live')}
-                        className="flex w-full items-center justify-between rounded-xl border border-pink-200 bg-pink-50/80 px-3 py-2 text-left text-[11px] font-semibold text-pink-950 transition-colors hover:bg-pink-100"
+                        onClick={() => setInstallmentModalTier(tier.tier)}
+                        className="flex w-full items-center justify-between rounded-md border border-pink-200 bg-pink-50/80 px-3 py-1.5 text-left text-[11px] font-semibold text-pink-950 transition-colors hover:bg-pink-100"
                       >
                         <span className="flex items-center gap-1.5">
                           <Smartphone className="h-3.5 w-3.5 text-pink-600 shrink-0" />
                           <span>
-                            {isBn
-                              ? 'বিকাশ ২/৩-কিস্তি ০% স্প্লিট-পে সুবিধা রয়েছে'
-                              : 'bKash 2/3-Part 0% Split-Pay Available'}
+                            {isBn ? 'বিকাশ ০% কিস্তি সূচি' : 'bKash 0% Split-Pay'}
                           </span>
                         </span>
                         <span className="text-pink-700 underline">
-                          {isBn ? 'কিস্তির তালিকা →' : 'Schedule →'}
+                          {isBn ? 'দেখুন →' : 'Schedule →'}
                         </span>
                       </button>
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         {/* All-Access Passes Section */}
-        <div className="border-t border-border pt-16 space-y-8">
+        <div className="border-t border-slate-200 pt-14 space-y-8">
           <div className="text-left space-y-3 max-w-2xl">
             <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#001E42]">
               {isBn ? 'বিস্তৃত অনুশীলনের সুযোগ' : 'Multi-Exam Access Options'}
             </div>
-            <h2 className="text-3xl lg:text-5xl font-extrabold text-fg">
+            <h2 className="text-2xl lg:text-4xl font-extrabold text-slate-950">
               {isBn ? 'অল-অ্যাক্সেস পাসসমূহ' : 'All-Access Passes'}
             </h2>
-            <p className="text-fg-muted text-sm leading-relaxed">
+            <p className="text-slate-600 text-sm leading-relaxed">
               {isBn
                 ? 'একাধিক পরীক্ষার প্রস্তুতি নিচ্ছেন অথবা আমাদের জিআরই ও আইইএলটিএস মক লাইব্রেরিতে উন্মুক্ত অনুশীলন করতে চান? অল-অ্যাক্সেস পাস আপনাকে কোনো নির্দিষ্ট কোর্সে সীমাবদ্ধ না রেখেই অবাধ অনুশীলনের সুযোগ দেয়।'
                 : 'Preparing for multiple tests or just need open practice across our GRE and IELTS mock libraries? Passes provide unconstrained practice without structured course lock-in.'}
@@ -973,38 +1130,43 @@ export default function PricingPage() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {ALL_ACCESS_PASSES.map((pass) => (
-              <Card key={pass.slug} className="border-border bg-surface flex flex-col justify-between">
+              <Card
+                key={pass.slug}
+                className="rounded-md border border-slate-300 bg-white flex flex-col justify-between"
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-bold text-fg">
+                    <CardTitle className="text-lg font-bold text-slate-950">
                       {isBn ? pass.nameBn : pass.name}
                     </CardTitle>
                     {pass.badge && (
-                      <Badge variant="default" className="text-[10px]">
+                      <Badge variant="default" className="rounded text-[10px]">
                         {isBn ? pass.badgeBn ?? pass.badge : pass.badge}
                       </Badge>
                     )}
                   </div>
-                  <div className="text-2xl font-black text-accent mt-2">{getPassPrice(pass)}</div>
-                  <div className="text-xs text-fg-subtle">
+                  <div className="text-2xl font-black text-[#001E42] mt-2 font-mono">
+                    {getPassPrice(pass)}
+                  </div>
+                  <div className="text-xs text-slate-500">
                     {isBn ? pass.durationBn : pass.duration}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-0">
-                  <p className="text-xs text-fg-muted">
+                  <p className="text-xs text-slate-600">
                     {isBn ? pass.descriptionBn : pass.description}
                   </p>
-                  <ul className="space-y-1.5 text-xs text-fg border-t border-border/60 pt-3">
+                  <ul className="space-y-1.5 text-xs text-slate-800 border-t border-slate-100 pt-3">
                     {(isBn ? pass.featuresBn : pass.features).map((f, i) => (
                       <li key={i} className="flex items-center gap-1.5">
-                        <Check className="h-3.5 w-3.5 text-accent shrink-0" />
+                        <Check className="h-3.5 w-3.5 text-[#007791] shrink-0" />
                         <span>{f}</span>
                       </li>
                     ))}
                   </ul>
                   <div className="pt-2">
                     <Link href={`/checkout?plan=${pass.slug}`}>
-                      <Button variant="outline" size="sm" className="w-full">
+                      <Button variant="outline" size="sm" className="w-full rounded-md border-slate-300">
                         {isBn ? 'পাস নিন' : 'Get Pass'}
                       </Button>
                     </Link>
@@ -1016,15 +1178,15 @@ export default function PricingPage() {
         </div>
 
         {/* Add-ons Section */}
-        <div className="border-t border-border pt-16 space-y-8">
+        <div className="border-t border-slate-200 pt-14 space-y-8">
           <div className="text-left space-y-3 max-w-2xl">
             <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#001E42]">
               {isBn ? 'ক্রেডিট রিফিল' : 'On-Demand Credit Refills'}
             </div>
-            <h3 className="text-3xl lg:text-5xl font-bold text-fg">
+            <h3 className="text-2xl lg:text-4xl font-bold text-slate-950">
               {isBn ? 'অ্যাড-অন প্যাকসমূহ' : 'Add-on Packs'}
             </h3>
-            <p className="text-fg-muted text-sm">
+            <p className="text-slate-600 text-sm">
               {isBn
                 ? 'অতিরিক্ত এআই ইভ্যালুয়েশন ক্রেডিট বা বাড়তি হিউম্যান এসে রিভিউ প্রয়োজন? যেকোনো প্ল্যানের সাথে প্যাক যুক্ত করুন।'
                 : 'Need extra AI evaluation credits or additional human essay reviews? Add packs to any tier.'}
@@ -1033,21 +1195,28 @@ export default function PricingPage() {
 
           <div className="grid gap-6 md:grid-cols-3">
             {ADD_ON_PACKS.map((pack) => (
-              <Card key={pack.slug} className="border-border bg-surface flex flex-col justify-between">
+              <Card
+                key={pack.slug}
+                className="rounded-md border border-slate-300 bg-white flex flex-col justify-between"
+              >
                 <CardHeader>
-                  <CardTitle className="text-base font-bold text-fg">
+                  <CardTitle className="text-base font-bold text-slate-950">
                     {isBn ? pack.nameBn : pack.name}
                   </CardTitle>
-                  <div className="text-xl font-extrabold text-accent mt-1">
-                    {region === 'BD' ? pack.priceBD : pack.priceUSD}
+                  <div className="text-xl font-extrabold text-[#001E42] mt-1 font-mono">
+                    {region === 'BD'
+                      ? isBn
+                        ? pack.priceBDBn
+                        : pack.priceBD
+                      : pack.priceUSD}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-xs text-fg-muted leading-relaxed">
+                  <p className="text-xs text-slate-600 leading-relaxed">
                     {isBn ? pack.descriptionBn : pack.description}
                   </p>
                   <Link href={`/checkout?plan=${pack.slug}`}>
-                    <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full rounded-md border-slate-300">
                       {isBn ? 'অ্যাকাউন্টে যুক্ত করুন' : 'Add to Account'}
                     </Button>
                   </Link>
@@ -1058,50 +1227,50 @@ export default function PricingPage() {
         </div>
 
         {/* Honest Pricing Pillars Guarantee Box */}
-        <div className="rounded-2xl border border-border bg-surface p-8 sm:p-10 space-y-6">
+        <div className="rounded-md border border-slate-300 bg-white p-8 space-y-6">
           <div className="text-center space-y-2">
-            <h3 className="text-xl font-bold text-fg flex items-center justify-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-accent" />{' '}
+            <h3 className="text-xl font-bold text-slate-950 flex items-center justify-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-[#007791]" />{' '}
               {isBn ? 'আমাদের স্বচ্ছ মূল্যতালিকার প্রতিশ্রুতি' : 'Our Honest Pricing Guarantee'}
             </h3>
-            <p className="text-fg-muted text-xs max-w-xl mx-auto">
+            <p className="text-slate-600 text-xs max-w-xl mx-auto">
               {isBn
                 ? 'আমরা বাংলাদেশ ডিজিটাল কমার্স পরিচালনা নির্দেশিকা ২০২১ এবং নৈতিক মূল্য নির্ধারণ মানদণ্ড মেনে চলি।'
                 : 'We abide by the Bangladesh Digital Commerce Operation Guidelines 2021 and ethical pricing standards.'}
             </p>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-3 text-xs text-fg">
-            <div className="space-y-1 rounded-lg border border-border/70 bg-canvas p-4">
-              <div className="font-semibold text-fg flex items-center gap-1.5">
-                <Clock className="h-4 w-4 text-accent" />{' '}
+          <div className="grid gap-6 sm:grid-cols-3 text-xs text-slate-800">
+            <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-4">
+              <div className="font-bold text-slate-950 flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-[#007791]" />{' '}
                 {isBn ? '৭-দিনের মানি-ব্যাক গ্যারান্টি' : '7-Day Money-Back Guarantee'}
               </div>
-              <p className="text-fg-muted leading-relaxed">
+              <p className="text-slate-600 leading-relaxed">
                 {isBn
                   ? 'আপনি যদি কোর্সের ২০%-এর কম সম্পন্ন করে থাকেন এবং সর্বোচ্চ ১টি মক টেস্ট দিয়ে থাকেন, তবে ৭ দিনের মধ্যে কোনো প্রশ্ন ছাড়াই ১০০% রিফান্ড পাবেন।'
                   : 'If you have completed < 20% of course content and took ≤ 1 full mock, receive a 100% full refund within 7 days. No questions asked.'}
               </p>
             </div>
 
-            <div className="space-y-1 rounded-lg border border-border/70 bg-canvas p-4">
-              <div className="font-semibold text-fg flex items-center gap-1.5">
-                <CreditCard className="h-4 w-4 text-accent" />{' '}
+            <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-4">
+              <div className="font-bold text-slate-950 flex items-center gap-1.5">
+                <CreditCard className="h-4 w-4 text-[#007791]" />{' '}
                 {isBn ? 'বিকাশ কিস্তিতে কোনো অতিরিক্ত চার্জ নেই' : 'Zero bKash Financing Fees'}
               </div>
-              <p className="text-fg-muted leading-relaxed">
+              <p className="text-slate-600 leading-relaxed">
                 {isBn
                   ? 'লাইভ এবং মেন্টর প্ল্যানে ২ বা ৩ কিস্তিতে পরিশোধ করুন। কিস্তিগুলোর যোগফল মূল তালিকার মূল্যের সমান—কোনো সুদ বা লুকানো চার্জ নেই।'
                   : 'Pay in 2 or 3 parts on Live and Mentor tiers. The sum of the parts exactly equals the cash list price. No hidden interest or admin surcharge.'}
               </p>
             </div>
 
-            <div className="space-y-1 rounded-lg border border-border/70 bg-canvas p-4">
-              <div className="font-semibold text-fg flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-accent" />{' '}
+            <div className="space-y-1 rounded-md border border-slate-200 bg-slate-50 p-4">
+              <div className="font-bold text-slate-950 flex items-center gap-1.5">
+                <Sparkles className="h-4 w-4 text-[#007791]" />{' '}
                 {isBn ? 'ভুয়া ডিসকাউন্ট সম্পূর্ণ নিষিদ্ধ' : 'Banned Fake Strikethroughs'}
               </div>
-              <p className="text-fg-muted leading-relaxed">
+              <p className="text-slate-600 leading-relaxed">
                 {isBn
                   ? 'বিগত ৯০ দিনের মধ্যে কমপক্ষে ২৮ দিন কোনো পূর্ববর্তী মূল্য কার্যকর থাকলেই কেবল ডিসকাউন্ট স্ট্রাইকথ্রু প্রদর্শিত হয়।'
                   : 'Discount strikethroughs are displayed only when the prior price was active for at least 28 consecutive days in the past 90 days.'}
@@ -1116,13 +1285,13 @@ export default function PricingPage() {
             open={!!installmentModalTier}
             onOpenChange={(open) => !open && setInstallmentModalTier(null)}
           >
-            <DialogContent className="max-w-lg bg-surface border-border">
+            <DialogContent className="max-w-lg rounded-md bg-white border-slate-300">
               <DialogHeader>
-                <DialogTitle className="text-lg font-bold text-fg flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-accent" />{' '}
+                <DialogTitle className="text-lg font-bold text-slate-950 flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-[#007791]" />{' '}
                   {isBn ? 'বিকাশ কিস্তির বিস্তারিত হিসাব' : 'bKash Installment Breakdown'}
                 </DialogTitle>
-                <DialogDescription className="text-xs text-fg-muted">
+                <DialogDescription className="text-xs text-slate-600">
                   {isBn
                     ? 'কোনো সুদ বা অতিরিক্ত চার্জ নেই। কিস্তির মোট পরিমাণ নগদ মূল্যের সমান।'
                     : 'No financing or interest charge. The total equals the cash list price.'}
@@ -1131,12 +1300,12 @@ export default function PricingPage() {
 
               <div className="space-y-6 pt-2">
                 {activeInstallmentSchedule.threePart && (
-                  <div className="rounded-xl border border-border bg-canvas p-4 space-y-3">
-                    <div className="flex justify-between items-center text-sm font-bold text-fg">
+                  <div className="rounded-md border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <div className="flex justify-between items-center text-sm font-bold text-slate-950">
                       <span>
                         {isBn ? '৩-কিস্তির পরিশোধ সূচি' : '3-Part Installment Schedule'}
                       </span>
-                      <span className="text-accent">
+                      <span className="text-[#001E42] font-mono">
                         ৳ {(activeInstallmentSchedule.threePart.totalMinor / 100).toLocaleString()}{' '}
                         {isBn ? 'মোট' : 'Total'}
                       </span>
@@ -1145,10 +1314,10 @@ export default function PricingPage() {
                       {activeInstallmentSchedule.threePart.parts.map((part) => (
                         <div
                           key={part.partNumber}
-                          className="flex justify-between items-center border-b border-border/50 py-1.5"
+                          className="flex justify-between items-center border-b border-slate-200 py-1.5"
                         >
-                          <span className="text-fg-muted">{part.label}</span>
-                          <span className="font-mono font-semibold text-fg">
+                          <span className="text-slate-600">{part.label}</span>
+                          <span className="font-mono font-semibold text-slate-900">
                             {part.amountFormatted}
                           </span>
                         </div>
@@ -1158,12 +1327,12 @@ export default function PricingPage() {
                 )}
 
                 {activeInstallmentSchedule.twoPart && (
-                  <div className="rounded-xl border border-border bg-canvas p-4 space-y-3">
-                    <div className="flex justify-between items-center text-sm font-bold text-fg">
+                  <div className="rounded-md border border-slate-200 bg-slate-50 p-4 space-y-3">
+                    <div className="flex justify-between items-center text-sm font-bold text-slate-950">
                       <span>
                         {isBn ? '২-কিস্তির পরিশোধ সূচি' : '2-Part Installment Schedule'}
                       </span>
-                      <span className="text-accent">
+                      <span className="text-[#001E42] font-mono">
                         ৳ {(activeInstallmentSchedule.twoPart.totalMinor / 100).toLocaleString()}{' '}
                         {isBn ? 'মোট' : 'Total'}
                       </span>
@@ -1172,10 +1341,10 @@ export default function PricingPage() {
                       {activeInstallmentSchedule.twoPart.parts.map((part) => (
                         <div
                           key={part.partNumber}
-                          className="flex justify-between items-center border-b border-border/50 py-1.5"
+                          className="flex justify-between items-center border-b border-slate-200 py-1.5"
                         >
-                          <span className="text-fg-muted">{part.label}</span>
-                          <span className="font-mono font-semibold text-fg">
+                          <span className="text-slate-600">{part.label}</span>
+                          <span className="font-mono font-semibold text-slate-900">
                             {part.amountFormatted}
                           </span>
                         </div>
@@ -1184,7 +1353,7 @@ export default function PricingPage() {
                   </div>
                 )}
 
-                <div className="text-[11px] text-fg-subtle leading-relaxed">
+                <div className="text-[11px] text-slate-500 leading-relaxed">
                   {isBn
                     ? 'দ্রষ্টব্য: প্রতিটি কিস্তির নির্ধারিত তারিখের পর ৩ দিনের গ্রেস পিরিয়ড প্রযোজ্য থাকে। এই সময়ে কনটেন্ট লাইব্রেরি অ্যাক্সেস সচল থাকবে।'
                     : 'Note: A 3-day grace window applies after each installment due date before live class access is paused. Content library access remains active.'}
@@ -1194,6 +1363,7 @@ export default function PricingPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="rounded-md"
                     onClick={() => setInstallmentModalTier(null)}
                   >
                     {isBn ? 'বন্ধ করুন' : 'Close'}
@@ -1201,7 +1371,9 @@ export default function PricingPage() {
                   <Link
                     href={`/checkout?plan=${activeInstallmentSchedule.threePart?.productSlug || 'live'}`}
                   >
-                    <Button size="sm">{isBn ? 'বিকাশে এগিয়ে যান' : 'Proceed with bKash'}</Button>
+                    <Button size="sm" className="rounded-md bg-[#001E42] text-white">
+                      {isBn ? 'বিকাশে এগিয়ে যান' : 'Proceed with bKash'}
+                    </Button>
                   </Link>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-/** @purpose Full-bleed 50/50 edge-to-edge split-screen client auth experience with student photography poster, outcome cards, scholar testimonial, Google OAuth, Email/Phone (+880) OTP, and collapsible Staff Passkey/2FA drawer (M2.7-B) */
+/** @purpose Full-bleed 50/50 edge-to-edge split-screen client auth experience with institutional rounded-md geometry, outcome cards, scholar testimonial, Google OAuth, Email/Phone (+880) OTP, and collapsible Staff Passkey/2FA drawer (M2.7-B, M2.8-A) */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -25,7 +25,6 @@ import {
   CheckCircle2,
   Fingerprint,
   Quote,
-  ArrowLeft,
 } from 'lucide-react';
 import { sendPhoneOtpStubAction, verifyPhoneOtpStubAction } from '../../../actions/auth';
 import { LocaleSwitcher } from '../../_components/LocaleSwitcher';
@@ -247,8 +246,8 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
 
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white">
-      {/* Left 6 Columns: Full-Bleed Student Photograph + Institutional Overlay + Outcome Cards + Glassmorphic Testimonial */}
-      <div className="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-12 xl:p-16 bg-[#001E42] text-white overflow-hidden">
+      {/* Left 6 Columns: Institutional Poster + Crisp Architectural Outcome Cards */}
+      <div className="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-12 xl:p-16 bg-[#001E42] text-white overflow-hidden border-r border-slate-800">
         {/* Full-bleed background student photograph */}
         <img
           src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=85"
@@ -257,31 +256,27 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               ? 'বিশ্ববিদ্যালয়ের শিক্ষার্থীরা একসাথে পরীক্ষার প্রস্তুতি নিচ্ছেন'
               : 'University scholars preparing together'
           }
-          className="absolute inset-0 h-full w-full object-cover object-center"
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-[#001E42] via-[#001E42]/85 to-[#003057]/75"
-          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-20"
         />
 
         {/* Top: Brand logo + ETS / IELTS official format badge */}
         <div className="relative z-10 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E4002B] text-white shadow-md">
+            <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#E4002B] text-white">
               <GraduationCap className="h-5 w-5" />
             </span>
             <span className="text-xl font-extrabold tracking-tight text-white">
               {brandDisplayName}
             </span>
           </Link>
-          <span className="rounded-md border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-100 backdrop-blur-xs">
+          <span className="rounded-md border border-white/20 bg-slate-900/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-100">
             {isBn
               ? 'অফিশিয়াল ETS / IELTS ফরম্যাট'
               : 'ETS / IELTS Official Format'}
           </span>
         </div>
 
-        {/* Center: Large Editorial Headline + 2 High-Impact Visual Outcome Cards */}
+        {/* Center: Large Editorial Headline + 2 Crisp Architectural Outcome Cards */}
         <div className="relative z-10 space-y-8 my-auto py-8">
           <div className="space-y-4">
             <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-cyan-200">
@@ -301,14 +296,14 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
             </p>
           </div>
 
-          {/* 2 Clean, High-Impact Visual Outcome Cards */}
+          {/* 2 Crisp Architectural Outcome Cards (rounded-md) */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-md shadow-lg">
+            <div className="rounded-md border border-white/20 bg-slate-900/80 p-5">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-300">
                 <TrendingUp className="h-4 w-4" />
                 <span>{isBn ? 'জিআরই ফলাফল' : 'GRE® Outcome'}</span>
               </div>
-              <div className="mt-2 text-2xl xl:text-3xl font-black text-white">
+              <div className="mt-2 text-2xl xl:text-3xl font-black text-white font-mono">
                 {isBn ? 'GRE® +১১.৪ পয়েন্ট' : 'GRE® +11.4 Pts Median Gain'}
               </div>
               <div className="mt-1 text-xs text-slate-300">
@@ -316,12 +311,12 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-md shadow-lg">
+            <div className="rounded-md border border-white/20 bg-slate-900/80 p-5">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00A896]">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>{isBn ? 'আইইএলটিএস ফলাফল' : 'IELTS™ Outcome'}</span>
               </div>
-              <div className="mt-2 text-2xl xl:text-3xl font-black text-white">
+              <div className="mt-2 text-2xl xl:text-3xl font-black text-white font-mono">
                 {isBn
                   ? 'IELTS™ ব্যান্ড ৭.৫+ (৭৮%)'
                   : 'IELTS™ Band 7.5+ Achieved by 78%'}
@@ -333,14 +328,14 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
           </div>
         </div>
 
-        {/* Bottom: Clean Glassmorphic Scholar Testimonial Poster Card */}
-        <div className="relative z-10 rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-md shadow-xl space-y-3">
+        {/* Bottom: Crisp Institutional Scholar Testimonial Card (rounded-md) */}
+        <div className="relative z-10 rounded-md border border-white/20 bg-slate-900/80 p-6 space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="inline-flex items-center gap-1.5 font-bold text-cyan-300">
               <CheckCircle2 className="h-4 w-4" />
               {isBn ? 'যাচাইকৃত বাংলাদেশি স্কলার' : 'Verified Bangladeshi Scholar'}
             </span>
-            <span className="rounded bg-[#003057] px-2.5 py-0.5 font-mono text-xs font-bold text-white">
+            <span className="rounded-md bg-[#003057] border border-white/15 px-2.5 py-0.5 font-mono text-xs font-bold text-white">
               GRE 332 (Q169 • V163)
             </span>
           </div>
@@ -360,16 +355,13 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
 
       {/* Right 6 Columns: Full-Height Form Column with Top Row + Center Form Container */}
       <div className="lg:col-span-6 flex flex-col justify-between p-6 sm:p-12 xl:p-16 bg-white">
-        {/* Top Row: Locale-aware Back link on left + LocaleSwitcher on right */}
+        {/* Top Row: Single-Arrow Back link on left + LocaleSwitcher on right */}
         <div className="flex items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950"
+            className="inline-flex items-center text-xs sm:text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span>
-              {isBn ? `← ${brandDisplayName}-এ ফিরে যান` : `← Back to ${brand.name}`}
-            </span>
+            {isBn ? '← লুমেন একাডেমিতে ফিরে যান' : `← Back to ${brand.name}`}
           </Link>
           <LocaleSwitcher />
         </div>
@@ -382,7 +374,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                 {isBn ? `${brandDisplayName} অ্যাকাউন্ট পোর্টাল` : `${brand.name} Account Portal`}
               </div>
               {diagnosticToken && (
-                <Badge variant="default" className="bg-[#007791] text-white gap-1 text-xs">
+                <Badge variant="default" className="rounded-md bg-[#007791] text-white gap-1 text-xs">
                   <Sparkles className="h-3 w-3" />{' '}
                   {isBn ? 'ডায়াগনস্টিক ফলাফল প্রস্তুত' : 'Diagnostic Ready to Claim'}
                 </Badge>
@@ -410,22 +402,22 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
           </div>
 
           {error && (
-            <Callout type="trap" title={isBn ? 'লগইন ত্রুটি' : 'Authentication Error'}>
+            <Callout type="trap" title={isBn ? 'লগইন ত্রুটি' : 'Authentication Error'} className="rounded-md">
               {error}
             </Callout>
           )}
 
           {statusMessage && (
-            <Callout type="concept" title={isBn ? 'ভেরিফিকেশন কোড পাঠানো হয়েছে' : 'Verification Sent'}>
+            <Callout type="concept" title={isBn ? 'ভেরিফিকেশন কোড পাঠানো হয়েছে' : 'Verification Sent'} className="rounded-md">
               {statusMessage}
             </Callout>
           )}
 
-          {/* Large h-12 text-base Google OAuth Button */}
+          {/* Crisp h-11 rounded-md Google OAuth Button */}
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 text-base justify-center gap-2.5 border-slate-300 font-semibold text-slate-800 hover:bg-slate-50"
+            className="w-full h-11 rounded-md text-sm justify-center gap-2.5 border-slate-300 font-semibold text-slate-800 hover:bg-slate-50"
             onClick={handleGoogleAuth}
             disabled={loading}
           >
@@ -441,10 +433,10 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
             <div className="flex-grow border-t border-slate-200" />
           </div>
 
-          {/* Clean Email / +880 Phone Tabs */}
+          {/* Crisp Email / +880 Phone Tabs (rounded-md) */}
           <div className="space-y-4">
             <div
-              className="grid w-full grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1"
+              className="grid w-full grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1"
               role="tablist"
               aria-label={isBn ? 'ওটিপি পদ্ধতি' : 'OTP Method'}
             >
@@ -456,9 +448,9 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                   setTab('email');
                   setError(null);
                 }}
-                className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-2 rounded-md py-2 text-xs font-bold transition-colors ${
                   tab === 'email'
-                    ? 'bg-white text-slate-950 shadow-xs'
+                    ? 'bg-white text-slate-950 shadow-2xs border border-slate-200'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -473,9 +465,9 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                   setTab('phone');
                   setError(null);
                 }}
-                className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-2 rounded-md py-2 text-xs font-bold transition-colors ${
                   tab === 'phone'
-                    ? 'bg-white text-slate-950 shadow-xs'
+                    ? 'bg-white text-slate-950 shadow-2xs border border-slate-200'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -499,12 +491,12 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                         placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="h-12 text-base"
+                        className="h-11 rounded-md border-slate-300 text-sm"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base bg-[#001E42] text-white hover:bg-slate-900 font-semibold"
+                      className="w-full h-11 rounded-md text-sm bg-[#001E42] text-white hover:bg-slate-900 font-semibold"
                       disabled={loading}
                     >
                       {loading
@@ -534,13 +526,13 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                         placeholder="123456"
                         value={emailOtp}
                         onChange={(e) => setEmailOtp(e.target.value)}
-                        className="h-12 text-base font-mono"
+                        className="h-11 rounded-md border-slate-300 text-sm font-mono"
                       />
                     </div>
                     <div className="flex gap-2">
                       <Button
                         type="submit"
-                        className="flex-1 h-12 text-base bg-[#E4002B] text-white hover:bg-[#c80025] font-semibold"
+                        className="flex-1 h-11 rounded-md text-sm bg-[#E4002B] text-white hover:bg-[#c80025] font-semibold"
                         disabled={loading}
                       >
                         {loading
@@ -554,7 +546,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-12"
+                        className="h-11 rounded-md"
                         onClick={() => setEmailOtpSent(false)}
                         disabled={loading}
                       >
@@ -579,12 +571,12 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                         placeholder="+8801712345678"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="h-12 text-base"
+                        className="h-11 rounded-md border-slate-300 text-sm"
                       />
                     </div>
                     <Button
                       type="submit"
-                      className="w-full h-12 text-base bg-[#006677] text-white hover:bg-[#005563] font-semibold"
+                      className="w-full h-11 rounded-md text-sm bg-[#006677] text-white hover:bg-[#005563] font-semibold"
                       disabled={loading}
                     >
                       {loading
@@ -614,13 +606,13 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                         placeholder="123456"
                         value={phoneOtp}
                         onChange={(e) => setPhoneOtp(e.target.value)}
-                        className="h-12 text-base font-mono"
+                        className="h-11 rounded-md border-slate-300 text-sm font-mono"
                       />
                     </div>
                     <div className="flex gap-2">
                       <Button
                         type="submit"
-                        className="flex-1 h-12 text-base bg-[#006677] text-white hover:bg-[#005563] font-semibold"
+                        className="flex-1 h-11 rounded-md text-sm bg-[#006677] text-white hover:bg-[#005563] font-semibold"
                         disabled={loading}
                       >
                         {loading
@@ -634,7 +626,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                       <Button
                         type="button"
                         variant="ghost"
-                        className="h-12"
+                        className="h-11 rounded-md"
                         onClick={() => setPhoneOtpSent(false)}
                         disabled={loading}
                       >
@@ -647,8 +639,8 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
             )}
           </div>
 
-          {/* Collapsible Staff Passkey & 2FA Drawer */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs">
+          {/* Collapsible Staff Passkey & 2FA Drawer (rounded-md) */}
+          <div className="rounded-md border border-slate-300 bg-slate-50 p-4 text-xs">
             <div className="flex items-center justify-between gap-2">
               <span className="flex items-center gap-1.5 font-semibold text-slate-800">
                 <ShieldCheck className="h-4 w-4 text-[#003057]" />
@@ -689,10 +681,10 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                       placeholder={isBn ? '৬-ডিজিটের TOTP কোড' : '6-digit TOTP code'}
                       value={totpCode}
                       onChange={(e) => setTotpCode(e.target.value)}
-                      className="bg-white text-xs"
+                      className="rounded-md bg-white border-slate-300 text-xs"
                       aria-label={isBn ? '৬-ডিজিটের TOTP কোড' : '6-digit TOTP code'}
                     />
-                    <Button type="submit" size="sm" variant="outline" className="shrink-0 font-semibold">
+                    <Button type="submit" size="sm" variant="outline" className="shrink-0 rounded-md border-slate-300 font-semibold">
                       {isBn ? 'TOTP যাচাই করুন' : 'Stage TOTP Factor'}
                     </Button>
                     <Button
@@ -706,14 +698,14 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                             : 'Passkey challenge ready. Complete primary sign-in above or insert your WebAuthn security key.'
                         )
                       }
-                      className="shrink-0 gap-1 font-semibold"
+                      className="shrink-0 gap-1 rounded-md border-slate-300 font-semibold"
                     >
                       <Fingerprint className="h-3.5 w-3.5 text-[#003057]" />
                       {isBn ? 'পাসকি' : 'Passkey'}
                     </Button>
                   </div>
                   {totpVerifiedMsg && (
-                    <p className="rounded-lg bg-slate-100 px-3 py-2 text-[11px] font-medium text-slate-900">
+                    <p className="rounded-md bg-slate-100 border border-slate-200 px-3 py-2 text-[11px] font-medium text-slate-900">
                       {totpVerifiedMsg}
                     </p>
                   )}
@@ -735,7 +727,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
         </div>
 
         {/* Bottom Row: Account Mode Switcher */}
-        <div className="flex items-center justify-between border-t border-slate-100 pt-4 text-xs sm:text-sm max-w-md w-full mx-auto">
+        <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-xs sm:text-sm max-w-md w-full mx-auto">
           <span className="text-slate-600">
             {mode === 'sign-in'
               ? isBn

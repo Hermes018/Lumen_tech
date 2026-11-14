@@ -1,4 +1,4 @@
-/** @purpose Full-bleed 50/50 edge-to-edge split-screen Sign-in authentication page (M2.7-B, P2.6.1 Bilingual) */
+/** @purpose Full-bleed 50/50 edge-to-edge split-screen Sign-in authentication page (M2.7-B, P2.6.1, M2.8-A) */
 import { Suspense } from 'react';
 import { brand } from '@lumen/config';
 import { AuthForm } from '../_components/AuthForm';

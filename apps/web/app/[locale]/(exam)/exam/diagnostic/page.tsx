@@ -1,4 +1,4 @@
-/** @purpose Guest GRE Express Diagnostic CBT Runner & Gated Results Claim Gate with full EN/BN Bilingual Question & Hint Support (D4, 02 §6, P2.6.1) */
+/** @purpose Guest GRE Express Diagnostic CBT Runner & Gated Results Claim Gate with full EN/BN Bilingual Question & Hint Support (02 §6, P2.6.1, M2.8-A) */
 'use client';
 
 import * as React from 'react';
@@ -15,7 +15,7 @@ import {
 } from '@lumen/core';
 import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent, MathText } from '@lumen/ui';
-import { GreCalculator, HintLadder, type HintItem } from '@lumen/ui';
+import { GreCalculator, type HintItem } from '@lumen/ui';
 import {
   Calculator as CalcIcon,
   Clock,
@@ -427,7 +427,6 @@ export default function DiagnosticExamPage() {
   const locale = useLocale();
   const isBnLocale = locale === 'bn';
 
-  // When locale === 'bn', default question display to Bengali with a clean toggle for English
   const [showOriginalEnglish, setShowOriginalEnglish] = React.useState<boolean>(false);
   const displayBn = isBnLocale && !showOriginalEnglish;
 
@@ -441,13 +440,13 @@ export default function DiagnosticExamPage() {
     new Map()
   );
 
-  // Per-question progressive hint ladder state inside Diagnostic Runner
+  // Per-question progressive hint ladder state inside Unified Companion Workbench
   const [revealedHintsByQuestion, setRevealedHintsByQuestion] = React.useState<
     Record<string, number[]>
   >({});
   const [hintBudget, setHintBudget] = React.useState<number>(6);
   const [flaggedQuestions, setFlaggedQuestions] = React.useState<Record<string, boolean>>({});
-  const [scratchpadTab, setScratchpadTab] = React.useState<'notes' | 'formulas'>('notes');
+  const [companionTab, setCompanionTab] = React.useState<'hints' | 'scratchpad' | 'formulas'>('hints');
   const [scratchpadNotes, setScratchpadNotes] = React.useState<string>('');
 
   // Initialize guest session on mount
@@ -467,7 +466,7 @@ export default function DiagnosticExamPage() {
 
   if (!session) {
     return (
-      <div className="p-8 text-center text-sm text-[#444]">
+      <div className="p-8 text-center text-sm text-slate-600">
         {isBnLocale
           ? 'জিআরই এক্সপ্রেস ডায়াগনস্টিক লোড হচ্ছে...'
           : 'Loading GRE Express Diagnostic...'}
@@ -478,7 +477,7 @@ export default function DiagnosticExamPage() {
   const currentQuestion = session.questions[currentIndex];
   if (!currentQuestion && !submittedResult) {
     return (
-      <div className="p-8 text-center text-sm text-[#444]">
+      <div className="p-8 text-center text-sm text-slate-600">
         {isBnLocale ? 'প্রশ্নটি পাওয়া যায়নি।' : 'Question not found.'}
       </div>
     );
@@ -493,7 +492,6 @@ export default function DiagnosticExamPage() {
   const handleSelectOption = (choiceId: string) => {
     if (!currentQuestion) return;
     if (currentQuestion.type === 'se') {
-      // Sentence equivalence allows up to 2 choices
       const currentChoices = (userAnswers[currentQuestion.id] as string[]) || [];
       if (currentChoices.includes(choiceId)) {
         setUserAnswers((prev) => ({
@@ -568,18 +566,18 @@ export default function DiagnosticExamPage() {
         data-locale={locale}
       >
         {/* Results Header */}
-        <div className="text-center space-y-3 border-b pb-6">
-          <Badge variant="outline" className="border-accent text-accent text-xs">
+        <div className="text-center space-y-3 border-b border-slate-200 pb-6">
+          <Badge variant="outline" className="rounded-md border-[#001E42] text-[#001E42] text-xs">
             {isBnLocale
               ? 'জিআরই ডায়াগনস্টিক মূল্যায়ন রিপোর্ট'
               : 'GRE Diagnostic Assessment Report'}
           </Badge>
-          <h1 className="text-3xl font-extrabold text-[#111] sm:text-4xl">
+          <h1 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">
             {isBnLocale
               ? 'আপনার ডায়াগনস্টিক দক্ষতা প্রোফাইল'
               : 'Your Diagnostic Ability Profile'}
           </h1>
-          <p className="text-sm text-[#555] max-w-xl mx-auto">
+          <p className="text-sm text-slate-600 max-w-xl mx-auto">
             {isBnLocale
               ? 'ETS সেকশন-অ্যাডাপটিভ মানদণ্ড অনুযায়ী Rasch 1PL Expected A Posteriori (EAP) অ্যালগরিদমে প্রাক্কলিত।'
               : 'Calculated via Rasch 1PL Expected A Posteriori (EAP) ability estimation matching ETS section-adaptive norms.'}
@@ -588,69 +586,69 @@ export default function DiagnosticExamPage() {
 
         {/* Estimated Scores Grid */}
         <div className="grid gap-6 sm:grid-cols-3">
-          <div className="rounded-xl border border-[#ddd] bg-white p-5 text-center shadow-xs">
-            <div className="text-xs uppercase font-semibold text-[#666]">
+          <div className="rounded-md border border-slate-300 bg-white p-5 text-center shadow-xs">
+            <div className="text-xs uppercase font-bold text-slate-600">
               {isBnLocale ? 'আনুমানিক কোয়ান্ট (Quant)' : 'Estimated Quant'}
             </div>
-            <div className="text-3xl font-black text-accent mt-1">
+            <div className="text-3xl font-black text-[#001E42] mt-1 font-mono">
               {scoreSummary.quantScaledRange[0]} - {scoreSummary.quantScaledRange[1]}
             </div>
-            <div className="text-xs text-[#888] mt-1">
+            <div className="text-xs text-slate-500 mt-1">
               {isBnLocale
                 ? `সঠিক উত্তর: ${scoreSummary.quantRaw} / ৪`
                 : `Raw: ${scoreSummary.quantRaw} / 4 Correct`}
             </div>
           </div>
 
-          <div className="rounded-xl border border-[#ddd] bg-white p-5 text-center shadow-xs">
-            <div className="text-xs uppercase font-semibold text-[#666]">
+          <div className="rounded-md border border-slate-300 bg-white p-5 text-center shadow-xs">
+            <div className="text-xs uppercase font-bold text-slate-600">
               {isBnLocale ? 'আনুমানিক ভার্বাল (Verbal)' : 'Estimated Verbal'}
             </div>
-            <div className="text-3xl font-black text-accent mt-1">
+            <div className="text-3xl font-black text-[#001E42] mt-1 font-mono">
               {scoreSummary.verbalScaledRange[0]} - {scoreSummary.verbalScaledRange[1]}
             </div>
-            <div className="text-xs text-[#888] mt-1">
+            <div className="text-xs text-slate-500 mt-1">
               {isBnLocale
                 ? `সঠিক উত্তর: ${scoreSummary.verbalRaw} / ৪`
                 : `Raw: ${scoreSummary.verbalRaw} / 4 Correct`}
             </div>
           </div>
 
-          <div className="rounded-xl border border-accent/40 bg-accent/5 p-5 text-center shadow-xs">
-            <div className="text-xs uppercase font-semibold text-accent">
+          <div className="rounded-md border border-[#001E42] bg-[#001E42]/5 p-5 text-center shadow-xs">
+            <div className="text-xs uppercase font-bold text-[#001E42]">
               {isBnLocale ? 'মোট আনুমানিক জিআরই স্কোর' : 'Total Estimated GRE'}
             </div>
-            <div className="text-3xl font-black text-[#111] mt-1">
+            <div className="text-3xl font-black text-slate-950 mt-1 font-mono">
               {scoreSummary.overallEstimatedRange[0]} - {scoreSummary.overallEstimatedRange[1]}
             </div>
-            <div className="text-xs text-accent mt-1">
+            <div className="text-xs text-[#001E42] mt-1 font-medium">
               {isBnLocale ? '৩৪০ স্কেলের মধ্যে' : 'Out of 340 Scale'}
             </div>
           </div>
         </div>
 
         {/* Top Trap Archetype Callout */}
-        <div className="rounded-xl border border-warning/40 bg-warning-soft/60 p-5 space-y-2">
-          <div className="flex items-center gap-2 text-warning font-bold text-sm">
-            <ShieldAlert className="h-5 w-5" />
+        <div className="rounded-md border border-amber-300 bg-amber-50/70 p-5 space-y-2">
+          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
+            <ShieldAlert className="h-5 w-5 text-amber-700" />
             <span>
               {isBnLocale
                 ? `শনাক্তকৃত প্রধান ডিস্ট্রাক্টর ফাঁদ: ${scoreSummary.topTrapArchetype.label}`
                 : `Primary Cognitive Trap Identified: ${scoreSummary.topTrapArchetype.label}`}
             </span>
           </div>
-          <p className="text-xs text-[#444] leading-relaxed">
+          <p className="text-xs text-slate-700 leading-relaxed">
             <MathText content={scoreSummary.topTrapArchetype.description} />
           </p>
         </div>
 
         {/* Recommended Track */}
-        <div className="rounded-xl border border-[#ddd] bg-white p-5 space-y-2">
-          <div className="text-xs uppercase font-semibold text-[#666]">
+        <div className="rounded-md border border-slate-300 bg-white p-5 space-y-2">
+          <div className="text-xs uppercase font-bold text-slate-500">
             {isBnLocale ? 'সুপারিশকৃত প্রস্তুতি ট্র্যাক' : 'Recommended Track'}
           </div>
-          <div className="text-base font-bold text-[#111]">{scoreSummary.recommendedTrack}</div>
-          <p className="text-xs text-[#666]">
+          <div className="text-base font-bold text-slate-900">{scoreSummary.recommendedTrack}</div>
+          <p className="text-xs text-slate-600">
             {isBnLocale
               ? 'এই ডায়াগনস্টিক সেটে আপনার গতি, নির্ভুলতা এবং ডিস্ট্রাক্টর ফাঁদের প্রবণতার ওপর ভিত্তি করে নির্ধারিত।'
               : 'Based on your speed, accuracy, and vulnerability to distractor patterns in this diagnostic set.'}
@@ -661,17 +659,17 @@ export default function DiagnosticExamPage() {
         <div className="space-y-6 relative">
           {gated ? (
             /* GATE OVERLAY */
-            <div className="rounded-2xl border-2 border-dashed border-accent/40 bg-white p-8 text-center space-y-6 shadow-sm">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-accent">
+            <div className="rounded-md border-2 border-dashed border-slate-300 bg-white p-8 text-center space-y-6 shadow-xs">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[#001E42]/10 text-[#001E42]">
                 <Lock className="h-6 w-6" />
               </div>
               <div className="space-y-2 max-w-md mx-auto">
-                <h3 className="text-xl font-bold text-[#111]">
+                <h3 className="text-xl font-bold text-slate-900">
                   {isBnLocale
                     ? 'বিস্তারিত সমাধান ও স্টাডি প্ল্যান আনলক করুন'
                     : 'Full Item Breakdown & Study Plan Gated'}
                 </h3>
-                <p className="text-xs text-[#555] leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {isBnLocale
                     ? 'গেস্ট ইউজার হিসেবে উপরে আপনার প্রাথমিক স্কোর দেখানো হয়েছে। প্রতিটি প্রশ্নের ব্যাখ্যাসহ সমাধান, ট্র্যাপ বিশ্লেষণ এবং ৮-সপ্তাহের ব্যক্তিগত স্টাডি প্ল্যান আনলক করতে এখনই ফ্রি অ্যাকাউন্ট খুলুন।'
                     : 'As an unauthenticated guest, your high-level ability score is shown above. To unlock item-by-item solutions, trap forensics, and your personalized 8-week Study Plan, create your free account now.'}
@@ -680,7 +678,7 @@ export default function DiagnosticExamPage() {
 
               <div className="flex flex-wrap justify-center gap-4">
                 <Link href={`/sign-up?diagnosticToken=${encodeURIComponent(session.guestToken)}`}>
-                  <Button size="lg" className="gap-2 font-semibold">
+                  <Button size="lg" className="gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900 font-semibold">
                     {isBnLocale
                       ? 'ফলাফল সংরক্ষণ করতে ফ্রি সাইন-আপ করুন'
                       : 'Sign Up Free to Claim Results'}{' '}
@@ -691,7 +689,7 @@ export default function DiagnosticExamPage() {
                   variant="outline"
                   size="lg"
                   onClick={handleClaim}
-                  className="gap-2 border-accent text-accent hover:bg-accent/10"
+                  className="gap-2 rounded-md border-slate-300 text-slate-800 hover:bg-slate-50"
                 >
                   <Unlock className="h-4 w-4" />{' '}
                   {isBnLocale
@@ -703,40 +701,40 @@ export default function DiagnosticExamPage() {
           ) : (
             /* UNLOCKED SECTION */
             <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="rounded-xl border border-success/40 bg-success-soft/70 p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-success font-semibold text-sm">
-                  <CheckCircle2 className="h-5 w-5" />
+              <div className="rounded-md border border-emerald-300 bg-emerald-50 p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-emerald-900 font-semibold text-sm">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-700" />
                   <span>
                     {isBnLocale
                       ? 'ফলাফল সংরক্ষিত হয়েছে! বিস্তারিত সমাধান ও স্টাডি প্ল্যান আনলক করা হয়েছে।'
                       : 'Attempt Claimed! Full Breakdown & Study Plan Unlocked.'}
                   </span>
                 </div>
-                <Badge variant="outline" className="border-success text-success text-xs">
+                <Badge variant="outline" className="rounded-md border-emerald-600 text-emerald-800 text-xs">
                   {isBnLocale ? 'অ্যাকাউন্ট সংযুক্ত' : 'Account Linked'}
                 </Badge>
               </div>
 
               {/* Study Plan Preview */}
               {personalizedStudyPlan && (
-                <Card className="border-[#ddd] bg-white">
+                <Card className="rounded-md border-slate-300 bg-white">
                   <CardHeader>
-                    <CardTitle className="text-base font-bold text-[#111]">
+                    <CardTitle className="text-base font-bold text-slate-900">
                       {isBnLocale
                         ? `আপনার ব্যক্তিগত ${personalizedStudyPlan.recommendedWeeks}-সপ্তাহের স্টাডি প্ল্যান`
                         : `Your Personalized ${personalizedStudyPlan.recommendedWeeks}-Week Study Plan`}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3 text-xs text-[#333]">
+                  <CardContent className="space-y-3 text-xs text-slate-700">
                     <div>
                       {isBnLocale ? 'লক্ষ্য স্কেলড স্কোর:' : 'Target Scaled Score:'}{' '}
                       <span className="font-bold">{personalizedStudyPlan.targetScore}</span>
                     </div>
                     <div className="space-y-1">
-                      <div className="font-semibold text-[#555]">
+                      <div className="font-semibold text-slate-600">
                         {isBnLocale ? 'অগ্রাধিকার ক্ষেত্রসমূহ:' : 'Focus Priority Areas:'}
                       </div>
-                      <ul className="list-disc list-inside space-y-0.5 text-[#444]">
+                      <ul className="list-disc list-inside space-y-0.5 text-slate-700">
                         {personalizedStudyPlan.focusAreas.map((area, i) => (
                           <li key={i}>{area}</li>
                         ))}
@@ -748,7 +746,7 @@ export default function DiagnosticExamPage() {
 
               {/* Detailed Item Solutions */}
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#111]">
+                <h3 className="text-base font-bold text-slate-900">
                   {isBnLocale
                     ? 'প্রশ্নভিত্তিক পর্যালোচনা ও সমাধান'
                     : 'Item-by-Item Review & Solutions'}
@@ -768,10 +766,10 @@ export default function DiagnosticExamPage() {
                     return (
                       <div
                         key={item.questionId}
-                        className={`rounded-lg border p-4 text-xs space-y-2 ${
+                        className={`rounded-md border p-4 text-xs space-y-2 ${
                           item.isCorrect
-                            ? 'border-success/30 bg-success-soft/30'
-                            : 'border-danger/30 bg-danger-soft/30'
+                            ? 'border-emerald-300 bg-emerald-50/50'
+                            : 'border-red-300 bg-red-50/50'
                         }`}
                       >
                         <div className="flex items-center justify-between font-semibold">
@@ -779,7 +777,7 @@ export default function DiagnosticExamPage() {
                             {isBnLocale ? `প্রশ্ন ${idx + 1}` : `Question ${idx + 1}`} (
                             {item.measure.toUpperCase()})
                           </span>
-                          <span className={item.isCorrect ? 'text-success' : 'text-danger'}>
+                          <span className={item.isCorrect ? 'text-emerald-700' : 'text-red-700'}>
                             {item.isCorrect
                               ? isBnLocale
                                 ? 'সঠিক'
@@ -789,7 +787,7 @@ export default function DiagnosticExamPage() {
                                 : 'Incorrect'}
                           </span>
                         </div>
-                        <div className="text-[#555]">
+                        <div className="text-slate-600">
                           {isBnLocale ? 'আপনার উত্তর:' : 'Your Answer:'}{' '}
                           <span className="font-mono">
                             {Array.isArray(item.userAnswer)
@@ -804,7 +802,7 @@ export default function DiagnosticExamPage() {
                           </span>
                         </div>
                         {item.trapTriggered && trapLabel && trapDesc && (
-                          <div className="rounded bg-warning/15 p-2 text-warning font-medium">
+                          <div className="rounded-md bg-amber-100/80 p-2 text-amber-900 font-medium">
                             {isBnLocale ? 'ডিস্ট্রাক্টর ফাঁদ:' : 'Cognitive Trap:'} {trapLabel} —{' '}
                             <MathText content={trapDesc} />
                           </div>
@@ -819,13 +817,13 @@ export default function DiagnosticExamPage() {
         </div>
 
         {/* Footer Actions */}
-        <div className="flex justify-between items-center border-t pt-4 text-xs">
-          <Button variant="outline" size="sm" onClick={handleRestart} className="gap-2">
+        <div className="flex justify-between items-center border-t border-slate-200 pt-4 text-xs">
+          <Button variant="outline" size="sm" onClick={handleRestart} className="gap-2 rounded-md">
             <RotateCcw className="h-4 w-4" />{' '}
             {isBnLocale ? 'ডায়াগনস্টিক পুনরায় দিন' : 'Retake Diagnostic'}
           </Button>
           <Link href="/pricing">
-            <Button size="sm" className="gap-2">
+            <Button size="sm" className="gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900">
               {isBnLocale ? 'সুপারিশকৃত প্ল্যানগুলো দেখুন' : 'View Recommended Plans'}{' '}
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -837,14 +835,14 @@ export default function DiagnosticExamPage() {
 
   // RENDER CBT RUNNER INTERFACE
   if (!currentQuestion) {
-    return <div className="p-8 text-center text-sm text-[#444]">Question not found.</div>;
+    return <div className="p-8 text-center text-sm text-slate-600">Question not found.</div>;
   }
 
   const selectedAnswer = userAnswers[currentQuestion.id];
   const bnContent = DIAGNOSTIC_BILINGUAL_MAP[currentQuestion.id];
-  const activeHints =
-    bnContent ? (displayBn ? bnContent.hintsBn : bnContent.hintsEn) : [];
+  const activeHints = bnContent ? (displayBn ? bnContent.hintsBn : bnContent.hintsEn) : [];
   const currentRevealedTiers = revealedHintsByQuestion[currentQuestion.id] || [];
+  const nextTierToReveal = ([1, 2, 3] as const).find((t) => !currentRevealedTiers.includes(t));
   const isCurrentFlagged = !!flaggedQuestions[currentQuestion.id];
   const progressPercent = Math.round(((currentIndex + 1) / session.questions.length) * 100);
   const brandDisplayName = isBnLocale ? 'লুমেন একাডেমি' : brand.name;
@@ -858,9 +856,8 @@ export default function DiagnosticExamPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F3F5F8] text-slate-900" data-locale={locale}>
-      {/* Top Exam Bar (bg-[#001E42] text-white h-16 px-6 sticky top-0 z-30) */}
-      <header className="bg-[#001E42] text-white h-16 px-4 sm:px-6 sticky top-0 z-30 border-b border-slate-800 shadow-md flex items-center justify-between gap-4">
-        {/* Left: Brand badge + GRE Express Diagnostic + Question Progress + visual progress bar */}
+      {/* Top ETS PowerPrep Institutional Header Bar — Single Unified Language Switcher */}
+      <header className="bg-[#001E42] text-white h-14 px-4 sm:px-6 sticky top-0 z-30 border-b border-slate-800 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link
             href="/"
@@ -880,10 +877,10 @@ export default function DiagnosticExamPage() {
           </div>
           {/* Visual Progress Bar */}
           <div
-            className="hidden md:flex items-center gap-2 w-32 lg:w-44"
+            className="hidden md:flex items-center gap-2 w-28 lg:w-40"
             aria-label="Diagnostic progress"
           >
-            <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+            <div className="h-1.5 w-full overflow-hidden rounded-xs bg-slate-800">
               <div
                 className="h-full bg-[#00A896] transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
@@ -893,7 +890,7 @@ export default function DiagnosticExamPage() {
           </div>
         </div>
 
-        {/* Right: LocaleSwitcher + Question Language Toggle + Calculator Toggle + High-Contrast Countdown Timer */}
+        {/* Right: Single Unified LocaleSwitcher + Calculator Toggle + Countdown Timer */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <div className="rounded-md bg-white/95 text-slate-900 px-1 py-0.5">
             <LocaleSwitcher />
@@ -901,24 +898,8 @@ export default function DiagnosticExamPage() {
 
           <button
             type="button"
-            onClick={() => setShowOriginalEnglish((prev) => !prev)}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
-          >
-            <Languages className="h-3.5 w-3.5 text-[#00A896]" />
-            <span>
-              {isBnLocale
-                ? showOriginalEnglish
-                  ? 'বাংলা অনুবাদ দেখুন / Show Bengali'
-                  : 'ইংরেজি মূল প্রশ্ন দেখুন / Show Original English'
-                : 'বাংলা / English'}
-            </span>
-          </button>
-
-          {/* Interactive Calculator Toggle Button */}
-          <button
-            type="button"
             onClick={() => setIsCalculatorOpen(!isCalculatorOpen)}
-            className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-colors ${
               isCalculatorOpen
                 ? 'border-[#00A896] bg-[#00A896] text-white'
                 : 'border-white/20 bg-white/10 text-white hover:bg-white/20'
@@ -930,8 +911,7 @@ export default function DiagnosticExamPage() {
             </span>
           </button>
 
-          {/* High-Contrast Countdown Timer */}
-          <div className="inline-flex items-center gap-1.5 rounded-lg border border-amber-400/40 bg-slate-950 px-3 py-1.5 font-mono text-sm font-extrabold text-amber-300 shadow-inner">
+          <div className="inline-flex items-center gap-1.5 rounded-md border border-amber-400/40 bg-slate-950 px-3 py-1.5 font-mono text-sm font-extrabold text-amber-300">
             <Clock className="h-4 w-4 text-amber-400" />
             <span>{formatTimer(timeRemaining)}</span>
           </div>
@@ -940,7 +920,7 @@ export default function DiagnosticExamPage() {
 
       {/* On-Screen Calculator Floating Modal */}
       {isCalculatorOpen && (
-        <div className="fixed top-20 right-6 z-50 shadow-2xl">
+        <div className="fixed top-16 right-6 z-50 shadow-2xl">
           <GreCalculator
             isOpen={isCalculatorOpen}
             onTransferDisplay={() => {
@@ -951,16 +931,16 @@ export default function DiagnosticExamPage() {
         </div>
       )}
 
-      {/* Main Stage (max-w-7xl 12-column grid on warm contrast canvas bg-[#F3F5F8] min-h-[calc(100dvh-4rem)]) */}
-      <main className="w-full flex-1 bg-[#F3F5F8] min-h-[calc(100dvh-4rem)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left 8 Columns: High-Impact Question Card */}
-          <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200/90 p-6 sm:p-10 space-y-8">
-              {/* Question Section Meta Header */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      {/* Main ETS PowerPrep Workbench Stage */}
+      <main className="w-full flex-1 bg-[#F3F5F8] min-h-[calc(100dvh-3.5rem)]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left 8 Columns: Crisp ETS Question Sheet */}
+          <div className="lg:col-span-8">
+            <div className="rounded-md border border-slate-300 bg-white shadow-xs overflow-hidden">
+              {/* Top Structural Status Bar */}
+              <div className="border-b border-slate-200 px-6 py-3.5 bg-slate-50 flex flex-wrap justify-between items-center gap-3">
                 <div className="flex items-center gap-2.5">
-                  <Badge className="bg-[#003057] text-white text-xs font-bold uppercase tracking-wider">
+                  <span className="rounded-md bg-[#001E42] px-2.5 py-1 text-white text-xs font-bold uppercase tracking-wider">
                     {currentQuestion.measure === 'quant'
                       ? displayBn
                         ? 'কোয়ান্টিটেটিভ রিজনিং (Quant)'
@@ -968,8 +948,8 @@ export default function DiagnosticExamPage() {
                       : displayBn
                         ? 'ভার্বাল রিজনিং (Verbal)'
                         : 'Verbal Reasoning'}
-                  </Badge>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  </span>
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
                     {currentQuestion.type === 'qc'
                       ? displayBn
                         ? 'কোয়ান্টিটেটিভ কম্প্যারিজন'
@@ -989,12 +969,12 @@ export default function DiagnosticExamPage() {
                     <button
                       type="button"
                       onClick={() => setShowOriginalEnglish((prev) => !prev)}
-                      className="sm:hidden inline-flex items-center gap-1 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-700"
+                      className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
                     >
                       <Languages className="h-3.5 w-3.5 text-[#007791]" />
                       <span>
                         {showOriginalEnglish
-                          ? 'বাংলা'
+                          ? 'বাংলা অনুবাদ দেখুন / Show Bengali'
                           : 'ইংরেজি মূল প্রশ্ন দেখুন / Show Original English'}
                       </span>
                     </button>
@@ -1002,10 +982,10 @@ export default function DiagnosticExamPage() {
                   <button
                     type="button"
                     onClick={toggleFlagCurrent}
-                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-xs font-semibold transition-colors ${
                       isCurrentFlagged
-                        ? 'border-[#E4002B] bg-[#E4002B]/10 text-[#E4002B]'
-                        : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                        ? 'border-amber-500 bg-amber-50 text-amber-900'
+                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     <Flag className="h-3.5 w-3.5" />
@@ -1015,336 +995,401 @@ export default function DiagnosticExamPage() {
                           ? 'রিভিউয়ের জন্য চিহ্নিত'
                           : 'Flagged for Review'
                         : displayBn
-                          ? 'রিভিউয়ের জন্য চিহ্নিত করুন'
+                          ? 'রিভিউ ফ্ল্যাগ'
                           : 'Flag for Review'}
                     </span>
                   </button>
                 </div>
               </div>
 
-              {/* Question Stem in Large text-xl sm:text-2xl font-medium text-slate-900 leading-relaxed */}
-              <div className="text-xl sm:text-2xl font-medium text-slate-900 leading-relaxed">
-                <TranslatedText
-                  text={currentQuestion.prompt}
-                  locale={displayBn ? 'bn' : 'en'}
-                  fallbackBn={bnContent?.promptBn}
-                  math
-                />
-              </div>
-
-              {/* Quantitative Comparison Quantity A / Quantity B Boxes in Large p-6 sm:p-8 */}
-              {currentQuestion.type === 'qc' && currentQuestion.quantityA && (
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <div className="p-6 sm:p-8 bg-[#F8FAFC] border-2 border-slate-200 rounded-xl text-center space-y-3">
-                    <div className="text-xs font-bold uppercase tracking-widest text-[#003057] underline underline-offset-4">
-                      {displayBn ? 'রাশি A (Quantity A)' : 'Quantity A'}
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-semibold text-slate-950">
-                      <TranslatedText
-                        text={currentQuestion.quantityA}
-                        locale={displayBn ? 'bn' : 'en'}
-                        fallbackBn={bnContent?.quantityABn}
-                        math
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-6 sm:p-8 bg-[#F8FAFC] border-2 border-slate-200 rounded-xl text-center space-y-3">
-                    <div className="text-xs font-bold uppercase tracking-widest text-[#003057] underline underline-offset-4">
-                      {displayBn ? 'রাশি B (Quantity B)' : 'Quantity B'}
-                    </div>
-                    <div className="text-2xl sm:text-3xl font-semibold text-slate-950">
-                      <TranslatedText
-                        text={currentQuestion.quantityB ?? ''}
-                        locale={displayBn ? 'bn' : 'en'}
-                        fallbackBn={bnContent?.quantityBBn}
-                        math
-                      />
-                    </div>
-                  </div>
+              {/* Question Body */}
+              <div className="p-6 sm:p-8 space-y-6">
+                {/* Question Stem */}
+                <div className="text-lg sm:text-xl font-medium text-slate-900 leading-relaxed">
+                  <TranslatedText
+                    text={currentQuestion.prompt}
+                    locale={displayBn ? 'bn' : 'en'}
+                    fallbackBn={bnContent?.promptBn}
+                    math
+                  />
                 </div>
-              )}
 
-              {/* Answer Option Buttons with p-4 sm:p-5 text-base sm:text-lg and Crisp [A], [B], [C], [D] Keycap Badges */}
-              <div className="space-y-3">
-                {currentQuestion.options.map((opt) => {
-                  const isSelected =
-                    currentQuestion.type === 'se'
-                      ? Array.isArray(selectedAnswer) && selectedAnswer.includes(opt.id)
-                      : selectedAnswer === opt.id;
-
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => handleSelectOption(opt.id)}
-                      className={`flex w-full items-center justify-between rounded-xl border-2 p-4 sm:p-5 text-left text-base sm:text-lg transition-all ${
-                        isSelected
-                          ? 'border-[#003057] bg-[#003057]/5 font-semibold text-slate-950 shadow-xs'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80 text-slate-800'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <span
-                          className={`inline-flex h-9 min-w-9 px-2 items-center justify-center rounded-lg border font-mono text-sm font-bold transition-colors ${
-                            isSelected
-                              ? 'border-[#003057] bg-[#003057] text-white'
-                              : 'border-slate-300 bg-slate-100 text-slate-700'
-                          }`}
-                        >
-                          [{opt.id}]
-                        </span>
-                        <span className="leading-snug">
-                          <TranslatedText
-                            text={opt.text}
-                            locale={displayBn ? 'bn' : 'en'}
-                            fallbackBn={bnContent?.optionsBn[opt.id]}
-                            math
-                          />
-                        </span>
+                {/* Classic ETS 2-Column Quantitative Comparison Table */}
+                {currentQuestion.type === 'qc' && currentQuestion.quantityA && (
+                  <div className="grid grid-cols-2 divide-x divide-slate-300 border border-slate-300 rounded-md bg-white my-6 overflow-hidden">
+                    <div className="flex flex-col">
+                      <div className="bg-slate-100 border-b border-slate-300 py-2 text-center text-xs font-bold uppercase tracking-wider text-slate-800">
+                        {displayBn ? 'রাশি A (Quantity A)' : 'Quantity A'}
                       </div>
-                      {isSelected && (
-                        <CheckCircle2 className="h-5 w-5 text-[#003057] shrink-0 ml-3" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+                      <div className="py-8 px-4 text-center text-2xl font-semibold text-slate-950">
+                        <TranslatedText
+                          text={currentQuestion.quantityA}
+                          locale={displayBn ? 'bn' : 'en'}
+                          fallbackBn={bnContent?.quantityABn}
+                          math
+                        />
+                      </div>
+                    </div>
 
-              {currentQuestion.type === 'se' && (
-                <p className="text-xs font-medium text-slate-500">
-                  {displayBn
-                    ? 'সমার্থক অর্থ প্রকাশ করে এমন ঠিক দুটি (TWO) উত্তর নির্বাচন করুন।'
-                    : 'Select exactly TWO answer choices that complete the sentence with equivalent meaning.'}
-                </p>
-              )}
+                    <div className="flex flex-col">
+                      <div className="bg-slate-100 border-b border-slate-300 py-2 text-center text-xs font-bold uppercase tracking-wider text-slate-800">
+                        {displayBn ? 'রাশি B (Quantity B)' : 'Quantity B'}
+                      </div>
+                      <div className="py-8 px-4 text-center text-2xl font-semibold text-slate-950">
+                        <TranslatedText
+                          text={currentQuestion.quantityB ?? ''}
+                          locale={displayBn ? 'bn' : 'en'}
+                          fallbackBn={bnContent?.quantityBBn}
+                          math
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
-              {/* Bottom Question Sheet Navigation Bar */}
-              <div className="flex items-center justify-between border-t border-slate-200 pt-6">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                  disabled={currentIndex === 0}
-                  className="gap-2 font-semibold"
-                >
-                  <ArrowLeft className="h-4 w-4" /> {displayBn ? 'পূর্ববর্তী প্রশ্ন' : 'Previous'}
-                </Button>
+                {/* Answer Choices A-D with rounded-md and square [A]-[D] keycaps */}
+                <div className="space-y-2.5">
+                  {currentQuestion.options.map((opt) => {
+                    const isSelected =
+                      currentQuestion.type === 'se'
+                        ? Array.isArray(selectedAnswer) && selectedAnswer.includes(opt.id)
+                        : selectedAnswer === opt.id;
 
-                <div className="text-xs font-semibold text-slate-500">
-                  {Object.keys(userAnswers).length} / {session.questions.length}{' '}
-                  {displayBn ? 'উত্তর প্রদান করা হয়েছে' : 'Answered'}
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => handleSelectOption(opt.id)}
+                        className={`flex w-full items-center justify-between rounded-md border p-3.5 sm:p-4 text-left text-base transition-colors ${
+                          isSelected
+                            ? 'border-[#001E42] bg-[#001E42]/5 font-semibold text-slate-950 ring-1 ring-[#001E42]'
+                            : 'border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 text-slate-800'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <span
+                            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded border font-mono text-xs font-bold transition-colors ${
+                              isSelected
+                                ? 'border-[#001E42] bg-[#001E42] text-white'
+                                : 'border-slate-300 bg-slate-100 text-slate-700'
+                            }`}
+                          >
+                            [{opt.id}]
+                          </span>
+                          <span className="leading-snug">
+                            <TranslatedText
+                              text={opt.text}
+                              locale={displayBn ? 'bn' : 'en'}
+                              fallbackBn={bnContent?.optionsBn[opt.id]}
+                              math
+                            />
+                          </span>
+                        </div>
+                        {isSelected && (
+                          <CheckCircle2 className="h-5 w-5 text-[#001E42] shrink-0 ml-3" />
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                {currentIndex < session.questions.length - 1 ? (
-                  <Button
-                    size="lg"
-                    onClick={() =>
-                      setCurrentIndex((prev) => Math.min(session.questions.length - 1, prev + 1))
-                    }
-                    className="gap-2 bg-[#001E42] text-white hover:bg-slate-900 font-bold"
-                  >
-                    {displayBn ? 'পরবর্তী প্রশ্ন' : 'Next Question'}{' '}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    size="lg"
-                    onClick={handleSubmit}
-                    className="gap-2 bg-[#E4002B] text-white hover:bg-[#c80025] font-bold shadow-md"
-                  >
-                    {displayBn ? 'ডায়াগনস্টিক টেস্ট সাবমিট করুন' : 'Submit Diagnostic Test'}{' '}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+                {currentQuestion.type === 'se' && (
+                  <p className="text-xs font-medium text-slate-500">
+                    {displayBn
+                      ? 'সমার্থক অর্থ প্রকাশ করে এমন ঠিক দুটি (TWO) উত্তর নির্বাচন করুন।'
+                      : 'Select exactly TWO answer choices that complete the sentence with equivalent meaning.'}
+                  </p>
                 )}
+
+                {/* Bottom Question Sheet Navigation Bar */}
+                <div className="flex items-center justify-between border-t border-slate-200 pt-5">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+                    disabled={currentIndex === 0}
+                    className="gap-2 rounded-md border-slate-300 font-semibold"
+                  >
+                    <ArrowLeft className="h-4 w-4" /> {displayBn ? 'পূর্ববর্তী প্রশ্ন' : 'Previous'}
+                  </Button>
+
+                  <div className="text-xs font-semibold text-slate-500 font-mono">
+                    {Object.keys(userAnswers).length} / {session.questions.length}{' '}
+                    {displayBn ? 'উত্তরকৃত' : 'Answered'}
+                  </div>
+
+                  {currentIndex < session.questions.length - 1 ? (
+                    <Button
+                      onClick={() =>
+                        setCurrentIndex((prev) => Math.min(session.questions.length - 1, prev + 1))
+                      }
+                      className="gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900 font-bold"
+                    >
+                      {displayBn ? 'পরবর্তী প্রশ্ন' : 'Next Question'}{' '}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleSubmit}
+                      className="gap-2 rounded-md bg-[#E4002B] text-white hover:bg-[#c80025] font-bold"
+                    >
+                      {displayBn ? 'ডায়াগনস্টিক টেস্ট সাবমিট করুন' : 'Submit Diagnostic Test'}{' '}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right 4 Columns: Interactive Diagnostic Workbench Sidebar */}
-          <aside className="lg:col-span-4 space-y-6">
-            {/* 1. Question Navigator Palette Grid (1–8) + Flag for Review Toggle */}
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#001E42]">
-                  {displayBn ? 'প্রশ্ন নেভিগেটর প্যালেট (১–৮)' : 'Question Navigator Palette (1–8)'}
-                </h2>
-                <button
-                  type="button"
-                  onClick={toggleFlagCurrent}
-                  className={`inline-flex items-center gap-1 text-xs font-semibold ${
-                    isCurrentFlagged ? 'text-[#E4002B]' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <Flag className="h-3.5 w-3.5" />
-                  <span>{displayBn ? 'রিভিউ ফ্ল্যাগ' : 'Flag for Review'}</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-4 gap-2.5">
-                {session.questions.map((q, idx) => {
-                  const answered =
-                    q.type === 'se'
-                      ? Array.isArray(userAnswers[q.id]) &&
-                        (userAnswers[q.id] as string[]).length === 2
-                      : !!userAnswers[q.id];
-                  const isCurrent = idx === currentIndex;
-                  const isFlagged = !!flaggedQuestions[q.id];
-
-                  return (
-                    <button
-                      key={q.id}
-                      type="button"
-                      onClick={() => setCurrentIndex(idx)}
-                      className={`relative flex h-11 items-center justify-center rounded-xl font-mono text-sm font-bold transition-all ${
-                        isCurrent
-                          ? 'bg-[#001E42] text-white ring-2 ring-[#007791] shadow-sm'
-                          : answered
-                            ? 'bg-[#00A896]/15 text-[#006677] border border-[#00A896]/40'
-                            : 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
-                      }`}
-                    >
-                      <span>{idx + 1}</span>
-                      {isFlagged && (
-                        <span
-                          className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-[#E4002B] ring-2 ring-white"
-                          title="Flagged for Review"
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-xs bg-[#001E42]" />
-                  {displayBn ? 'বর্তমান' : 'Current'}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-xs bg-[#00A896]" />
-                  {displayBn ? 'উত্তরকৃত' : 'Answered'}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[#E4002B]" />
-                  {displayBn ? 'ফ্ল্যাগকৃত' : 'Flagged'}
-                </span>
-              </div>
-            </div>
-
-            {/* 2. Interactive 3-Tier Pedagogical Hint Ladder Card */}
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm space-y-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#001E42]">
-                  <Lightbulb className="h-4 w-4 text-[#007791]" />
-                  <span>
-                    {displayBn ? '৩-ধাপের পেডাগজিক্যাল হিন্ট ল্যাডার' : '3-Tier Pedagogical Hint Ladder'}
-                  </span>
-                </div>
-                <span className="rounded-full bg-[#001E42] px-2.5 py-0.5 font-mono text-[11px] font-bold text-white">
-                  {displayBn
-                    ? `${hintBudget} / 6 হিন্ট বাকি`
-                    : `${hintBudget} / 6 Hints Remaining`}
-                </span>
-              </div>
-
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {displayBn
-                  ? 'আটকে গেলে ধাপে ধাপে ধারণা (Concept), সমীকরণ (Setup) এবং সমাধান (Solve) হিন্ট আনলক করুন।'
-                  : 'Click to unlock progressive Concept, Setup, and Solve hints without spoiling the full solution.'}
-              </p>
-
-              {activeHints.length > 0 && (
-                <HintLadder
-                  hints={activeHints}
-                  revealedTiers={currentRevealedTiers}
-                  hintBudgetRemaining={hintBudget}
-                  totalHintBudget={6}
-                  onRevealNextHint={handleRevealHintForCurrent}
-                  disabled={hintBudget <= 0}
-                />
-              )}
-            </div>
-
-            {/* 3. Quick Scratchpad & Quant Formula Reference Card */}
-            <div className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm space-y-4">
-              <div className="grid grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1 text-xs font-bold">
-                <button
-                  type="button"
-                  onClick={() => setScratchpadTab('notes')}
-                  className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
-                    scratchpadTab === 'notes'
-                      ? 'bg-white text-[#001E42] shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  <span>{displayBn ? 'স্ক্র্যাচপ্যাড নোট' : 'Scratchpad Notes'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setScratchpadTab('formulas')}
-                  className={`flex items-center justify-center gap-1.5 rounded-lg py-2 transition-all ${
-                    scratchpadTab === 'formulas'
-                      ? 'bg-white text-[#001E42] shadow-2xs'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  <BookOpen className="h-3.5 w-3.5" />
-                  <span>{displayBn ? 'গণিত সূত্রাবলি' : 'GRE Math Reference'}</span>
-                </button>
-              </div>
-
-              {scratchpadTab === 'notes' ? (
-                <div className="space-y-2">
-                  <textarea
-                    rows={5}
-                    value={scratchpadNotes}
-                    onChange={(e) => setScratchpadNotes(e.target.value)}
-                    placeholder={
-                      displayBn
-                        ? 'এখানে আপনার বীজগণিতের রাফ হিসাব বা ভার্বাল পূর্বাভাস লিখুন...'
-                        : 'Work out algebra steps, test cases (x = +4, -4), or type verbal blank predictions here...'
-                    }
-                    className="w-full rounded-xl border border-slate-200 bg-[#F8FAFC] p-3 font-mono text-xs text-slate-800 focus:border-[#003057] focus:outline-none"
-                  />
-                  <div className="flex justify-between items-center text-[11px] text-slate-500">
-                    <span>
-                      {displayBn ? 'ব্রাউজার সেশনে সংরক্ষিত' : 'Persists across all 8 questions'}
+          {/* Right 4 Columns: ONE Consolidated Architectural Panel */}
+          <aside className="lg:col-span-4">
+            <div className="rounded-md border border-slate-300 bg-white shadow-xs overflow-hidden">
+              {/* Top Section: Question Navigator 1–8 */}
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+                    {displayBn ? 'প্রশ্ন নেভিগেটর (১–৮)' : 'Question Navigator (1–8)'}
+                  </h2>
+                  <div className="flex items-center gap-2.5 text-[11px] text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <span className="h-2 w-2 rounded-xs bg-[#001E42]" />
+                      {displayBn ? 'বর্তমান' : 'Current'}
                     </span>
-                    {scratchpadNotes && (
+                    <span className="flex items-center gap-1">
+                      <span className="h-2 w-2 rounded-xs bg-emerald-600" />
+                      {displayBn ? 'উত্তরকৃত' : 'Done'}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="h-2 w-2 rounded-full bg-amber-500" />
+                      {displayBn ? 'ফ্ল্যাগ' : 'Flag'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 8-Column Row of Crisp Square Buttons (h-9 w-9 rounded font-mono text-sm font-semibold) */}
+                <div className="grid grid-cols-8 gap-1.5">
+                  {session.questions.map((q, idx) => {
+                    const answered =
+                      q.type === 'se'
+                        ? Array.isArray(userAnswers[q.id]) &&
+                          (userAnswers[q.id] as string[]).length === 2
+                        : !!userAnswers[q.id];
+                    const isCurrent = idx === currentIndex;
+                    const isFlagged = !!flaggedQuestions[q.id];
+
+                    return (
                       <button
+                        key={q.id}
                         type="button"
-                        onClick={() => setScratchpadNotes('')}
-                        className="font-semibold text-[#E4002B] hover:underline"
+                        onClick={() => setCurrentIndex(idx)}
+                        className={`relative flex h-9 w-9 items-center justify-center rounded font-mono text-sm font-semibold transition-colors ${
+                          isCurrent
+                            ? 'bg-[#001E42] text-white border border-[#001E42]'
+                            : answered
+                              ? 'bg-emerald-50 text-emerald-900 border border-emerald-500'
+                              : 'bg-slate-50 text-slate-700 border border-slate-300 hover:bg-slate-100'
+                        }`}
                       >
-                        {displayBn ? 'মুছুন' : 'Clear Notes'}
+                        <span>{idx + 1}</span>
+                        {isFlagged && (
+                          <span
+                            className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-white"
+                            title="Flagged for Review"
+                          />
+                        )}
                       </button>
-                    )}
-                  </div>
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="space-y-2.5 text-xs text-slate-700">
-                  <div className="rounded-lg border border-slate-200 bg-[#F8FAFC] p-2.5">
-                    <div className="font-bold text-[#003057]">Quadratic &amp; Square Roots</div>
-                    <div className="mt-1 font-mono text-[11px] text-slate-600">
-                      <MathText content="If $x^2 = k$ ($k > 0$), then $x = +\sqrt{k}$ or $x = -\sqrt{k}$. Notice $\sqrt{x^2} = |x|$." />
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 bg-[#F8FAFC] p-2.5">
-                    <div className="font-bold text-[#003057]">Exponent &amp; Coordinate Rules</div>
-                    <div className="mt-1 font-mono text-[11px] text-slate-600">
-                      <MathText content="$a^m \cdot a^n = a^{m+n}$ • Distance $d = \sqrt{(\Delta x)^2 + (\Delta y)^2}$" />
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 bg-[#F8FAFC] p-2.5">
-                    <div className="font-bold text-[#003057]">Right Triangles &amp; Combined Work</div>
-                    <div className="mt-1 font-mono text-[11px] text-slate-600">
-                      <MathText content="Pythagorean triplets: $3:4:5$, $5:12:13$ • Work rate: $R_{total} = \frac{1}{T_A} + \frac{1}{T_B}$" />
-                    </div>
-                  </div>
+              </div>
+
+              {/* Bottom Section: Unified 3-Tab Companion Workbench */}
+              <div className="border-t border-slate-200">
+                <div
+                  className="grid grid-cols-3 border-b border-slate-200 bg-slate-50 text-xs font-bold"
+                  role="tablist"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={companionTab === 'hints'}
+                    onClick={() => setCompanionTab('hints')}
+                    className={`flex items-center justify-center gap-1.5 py-2.5 border-b-2 transition-colors ${
+                      companionTab === 'hints'
+                        ? 'border-[#001E42] bg-white text-[#001E42]'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <Lightbulb className="h-3.5 w-3.5" />
+                    <span>{displayBn ? `হিন্টস (${hintBudget})` : `Hints (${hintBudget})`}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={companionTab === 'scratchpad'}
+                    onClick={() => setCompanionTab('scratchpad')}
+                    className={`flex items-center justify-center gap-1.5 py-2.5 border-b-2 transition-colors ${
+                      companionTab === 'scratchpad'
+                        ? 'border-[#001E42] bg-white text-[#001E42]'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    <span>{displayBn ? 'স্ক্র্যাচপ্যাড' : 'Scratchpad'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={companionTab === 'formulas'}
+                    onClick={() => setCompanionTab('formulas')}
+                    className={`flex items-center justify-center gap-1.5 py-2.5 border-b-2 transition-colors ${
+                      companionTab === 'formulas'
+                        ? 'border-[#001E42] bg-white text-[#001E42]'
+                        : 'border-transparent text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    <span>{displayBn ? 'সূত্রাবলি' : 'Formulas'}</span>
+                  </button>
                 </div>
-              )}
+
+                <div className="p-4">
+                  {/* Tab 1: Direct 3-Tier Progressive Hints (Zero Nested Card-Inside-Card) */}
+                  {companionTab === 'hints' && (
+                    <div className="space-y-3" role="tabpanel">
+                      <div className="flex items-center justify-between text-xs text-slate-600">
+                        <span>
+                          {displayBn
+                            ? 'ধাপে ধাপে ধারণা, সমীকরণ ও সমাধান আনলক করুন'
+                            : 'Progressive 3-tier hints (Concept → Setup → Bridge)'}
+                        </span>
+                        <span className="font-mono font-bold text-slate-800">
+                          {currentRevealedTiers.length}/3
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        {activeHints.map((hint) => {
+                          const isRevealed = currentRevealedTiers.includes(hint.tier);
+                          return (
+                            <div
+                              key={hint.tier}
+                              className={`rounded-md border p-3 text-xs ${
+                                isRevealed
+                                  ? 'border-slate-300 bg-slate-50 text-slate-800'
+                                  : 'border-dashed border-slate-200 bg-slate-50/50 text-slate-400'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between font-bold text-slate-900">
+                                <span>
+                                  {displayBn ? `ধাপ ${hint.tier}: ` : `Tier ${hint.tier}: `}
+                                  {hint.label}
+                                </span>
+                                {!isRevealed && <Lock className="h-3.5 w-3.5 text-slate-400" />}
+                              </div>
+                              {isRevealed ? (
+                                <div className="mt-1.5 text-slate-700 leading-relaxed">
+                                  <MathText content={hint.content_md} />
+                                </div>
+                              ) : (
+                                <div className="mt-1 text-[11px] text-slate-500">
+                                  {displayBn
+                                    ? 'এই ধাপের হিন্ট এখনো আনলক করা হয়নি।'
+                                    : 'Locked — unlock below to view this step.'}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {nextTierToReveal ? (
+                        <button
+                          type="button"
+                          onClick={handleRevealHintForCurrent}
+                          disabled={hintBudget <= 0}
+                          className={`w-full rounded-md border px-3 py-2 text-xs font-bold transition-colors ${
+                            hintBudget <= 0
+                              ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                              : 'border-[#001E42] bg-[#001E42] text-white hover:bg-slate-900'
+                          }`}
+                        >
+                          {hintBudget <= 0
+                            ? displayBn
+                              ? 'হিন্ট বাজেট শেষ (0/6)'
+                              : 'Hint Budget Exhausted (0/6)'
+                            : displayBn
+                              ? `ধাপ ${nextTierToReveal} আনলক করুন (-১ হিন্ট)`
+                              : `Unlock Tier ${nextTierToReveal} Hint (-1 Budget)`}
+                        </button>
+                      ) : (
+                        <p className="text-center text-xs font-medium text-emerald-700">
+                          {displayBn
+                            ? 'এই প্রশ্নের সবকটি হিন্ট আনলক করা হয়েছে।'
+                            : 'All 3 hint tiers unlocked for this question.'}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Tab 2: Scratchpad */}
+                  {companionTab === 'scratchpad' && (
+                    <div className="space-y-2.5" role="tabpanel">
+                      <textarea
+                        rows={7}
+                        value={scratchpadNotes}
+                        onChange={(e) => setScratchpadNotes(e.target.value)}
+                        placeholder={
+                          displayBn
+                            ? 'এখানে আপনার বীজগণিতের রাফ হিসাব বা ভার্বাল পূর্বাভাস লিখুন...'
+                            : 'Work out algebra steps, test cases (x = +4, -4), or type verbal blank predictions here...'
+                        }
+                        className="w-full rounded-md border border-slate-300 bg-slate-50 p-3 font-mono text-xs text-slate-800 focus:border-[#001E42] focus:bg-white focus:outline-none"
+                      />
+                      <div className="flex justify-between items-center text-[11px] text-slate-500">
+                        <span>
+                          {displayBn ? 'সকল প্রশ্নে সংরক্ষিত থাকে' : 'Persists across all 8 questions'}
+                        </span>
+                        {scratchpadNotes && (
+                          <button
+                            type="button"
+                            onClick={() => setScratchpadNotes('')}
+                            className="font-semibold text-[#E4002B] hover:underline"
+                          >
+                            {displayBn ? 'মুছুন' : 'Clear'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab 3: Formulas */}
+                  {companionTab === 'formulas' && (
+                    <div className="space-y-2.5 text-xs text-slate-700" role="tabpanel">
+                      <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
+                        <div className="font-bold text-[#001E42]">Quadratic &amp; Square Roots</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-600">
+                          <MathText content="If $x^2 = k$ ($k > 0$), then $x = +\sqrt{k}$ or $x = -\sqrt{k}$. Notice $\sqrt{x^2} = |x|$." />
+                        </div>
+                      </div>
+                      <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
+                        <div className="font-bold text-[#001E42]">Exponents &amp; Coordinate Distance</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-600">
+                          <MathText content="$a^m \cdot a^n = a^{m+n}$ • Distance $d = \sqrt{(\Delta x)^2 + (\Delta y)^2}$" />
+                        </div>
+                      </div>
+                      <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
+                        <div className="font-bold text-[#001E42]">Geometry &amp; Combined Work</div>
+                        <div className="mt-1 font-mono text-[11px] text-slate-600">
+                          <MathText content="Right triangles: $3:4:5$, $5:12:13$ • Combined rate: $R = \frac{1}{T_A} + \frac{1}{T_B}$" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </aside>
         </div>
