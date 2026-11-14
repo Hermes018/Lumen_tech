@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { type Region, getInstallmentSchedule } from '@lumen/core';
 import {
   Button,

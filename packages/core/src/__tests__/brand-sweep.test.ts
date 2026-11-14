@@ -105,3 +105,24 @@ describe('Competitor name sweep (P2.6.2)', () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe('Auth jargon sweep (M2.7-A)', () => {
+  it('contains zero "Rasch 1PL", "IRT", or "SM-2" jargon in (auth) English or Bengali copy', () => {
+    const repoRoot = path.resolve(__dirname, '../../../..');
+    const authDir = path.join(repoRoot, 'apps', 'web', 'app', '[locale]', '(auth)');
+    const files = walkSourceFiles(authDir, ['.ts', '.tsx']);
+    const hits: string[] = [];
+    for (const file of files) {
+      const rel = path.relative(repoRoot, file).replace(/\\/g, '/');
+      if (rel.includes('__tests__') || /\.test\.tsx?$/.test(rel)) continue;
+      fs.readFileSync(file, 'utf8')
+        .split(/\r?\n/)
+        .forEach((line, idx) => {
+          if (/Rasch\s*1PL|1PL\s*IRT|\bIRT\b|\bSM-2\b/i.test(line)) {
+            hits.push(`${rel}:${idx + 1}: ${line.trim()}`);
+          }
+        });
+    }
+    expect(hits).toEqual([]);
+  });
+});

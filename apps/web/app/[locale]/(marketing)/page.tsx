@@ -1,6 +1,6 @@
 /** @purpose Marketing landing page showcasing GRE & IELTS test engines, Oxford Navy hero, and Bangladesh Payment Trust Bar (BUG-12) */
 import { getTranslations } from 'next-intl/server';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../_components/LocaleLink';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
   Brain,

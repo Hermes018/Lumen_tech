@@ -3,7 +3,8 @@
 /** @purpose IDP-faithful IELTS on Computer CBT Split-Screen interface with resizable panes, text highlighter, sticky notepad, text-size toggle, and live word counter (docs/07 §3) */
 
 import React, { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
+import { LocaleLink as Link } from '../../../_components/LocaleLink';
+import { LocaleSwitcher } from '../../../_components/LocaleSwitcher';
 import {
   Button,
   Badge,
@@ -170,8 +171,9 @@ export function IeltsSplitScreenClient() {
           </div>
         </div>
 
-        {/* Right Tools: Text Size, Highlighter, Notepad */}
+        {/* Right Tools: Locale Switcher, Text Size, Highlighter, Notepad */}
         <div className="flex items-center gap-2">
+          <LocaleSwitcher className="border-gray-700 bg-gray-800/80 text-gray-200" />
           {/* Text Size Selector */}
           <div className="flex items-center rounded border border-gray-700 bg-gray-800 px-2 py-1 text-xs">
             <Type className="mr-1 h-3.5 w-3.5 text-gray-400" />

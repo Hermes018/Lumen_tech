@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { useLocale } from 'next-intl';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { Button, Card, CardHeader, CardTitle, CardContent, MathText } from '@lumen/ui';
 import { HintLadder, type HintItem } from '@lumen/ui';
 import { TrapDiagnostic } from '@lumen/ui';

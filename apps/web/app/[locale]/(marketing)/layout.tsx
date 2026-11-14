@@ -4,7 +4,7 @@ import { brand } from '@lumen/config';
 import { Button } from '@lumen/ui';
 import { GraduationCap } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../_components/LocaleLink';
 import { LocaleSwitcher } from '../_components/LocaleSwitcher';
 import { MarketingMobileDrawer } from './_components/MarketingMobileDrawer';
 import { BangladeshPaymentTrustBar } from './_components/BangladeshPaymentTrustBar';

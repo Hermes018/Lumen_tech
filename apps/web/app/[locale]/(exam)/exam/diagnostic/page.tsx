@@ -3,7 +3,9 @@
 
 import * as React from 'react';
 import { useLocale } from 'next-intl';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../../_components/LocaleLink';
+import { LocaleSwitcher } from '../../../_components/LocaleSwitcher';
+import { TranslatedText } from '../../../_components/TranslatedText';
 import {
   createGuestDiagnosticSession,
   submitGuestDiagnostic,
@@ -863,6 +865,7 @@ export default function DiagnosticExamPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <LocaleSwitcher />
           {isBnLocale && (
             <button
               type="button"
@@ -916,18 +919,28 @@ export default function DiagnosticExamPage() {
         {/* Question Card */}
         <div className="rounded-xl border border-[#ccc] bg-white p-6 shadow-xs space-y-6">
           <div className="text-sm font-medium leading-relaxed text-[#111]">
-            <MathText content={promptText} />
+            <TranslatedText
+              text={currentQuestion.prompt}
+              locale={displayBn ? 'bn' : 'en'}
+              fallbackBn={bnContent?.promptBn}
+              math
+            />
           </div>
 
           {/* QC Column Layout if type is QC */}
-          {currentQuestion.type === 'qc' && quantityAText && (
+          {currentQuestion.type === 'qc' && currentQuestion.quantityA && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 rounded-lg border border-[#eee] bg-[#fafafa] p-4 text-center">
               <div className="border-r border-[#eee] pr-4">
                 <div className="text-xs uppercase font-semibold text-[#777]">
                   {displayBn ? 'রাশি A (Quantity A)' : 'Quantity A'}
                 </div>
                 <div className="text-base font-bold text-[#111] mt-1">
-                  <MathText content={quantityAText} />
+                  <TranslatedText
+                    text={currentQuestion.quantityA}
+                    locale={displayBn ? 'bn' : 'en'}
+                    fallbackBn={bnContent?.quantityABn}
+                    math
+                  />
                 </div>
               </div>
               <div>
@@ -935,7 +948,12 @@ export default function DiagnosticExamPage() {
                   {displayBn ? 'রাশি B (Quantity B)' : 'Quantity B'}
                 </div>
                 <div className="text-base font-bold text-[#111] mt-1">
-                  <MathText content={quantityBText} />
+                  <TranslatedText
+                    text={currentQuestion.quantityB ?? ''}
+                    locale={displayBn ? 'bn' : 'en'}
+                    fallbackBn={bnContent?.quantityBBn}
+                    math
+                  />
                 </div>
               </div>
             </div>
@@ -969,7 +987,12 @@ export default function DiagnosticExamPage() {
                       {opt.id}
                     </span>
                     <span>
-                      <MathText content={optionText} />
+                      <TranslatedText
+                        text={opt.text}
+                        locale={displayBn ? 'bn' : 'en'}
+                        fallbackBn={bnContent?.optionsBn[opt.id]}
+                        math
+                      />
                     </span>
                   </div>
                   {isSelected && <CheckCircle2 className="h-4 w-4 text-accent" />}

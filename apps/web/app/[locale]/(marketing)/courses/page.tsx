@@ -3,7 +3,7 @@ import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { ExamChooserGuide } from '../_components/ExamChooserGuide';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 
 export const metadata = {
   title: `Courses & Curriculum | কোর্স ও পাঠ্যক্রম | ${brand.name}`,

@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { authClient } from '@lumen/auth';
 import { brand } from '@lumen/config';
 import {
@@ -295,7 +295,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               </h2>
               <p className="text-xs leading-relaxed text-slate-300">
                 {isBn
-                  ? 'প্রতিটি অনুশীলন প্রশ্ন Rasch 1PL IRT অ্যালগরিদম ব্যবহার করে আপনার দক্ষতার সাথে খাপ খাইয়ে নেয় এবং ৯০% স্মৃতি স্থায়িত্ব বজায় রাখতে ভোকাবুলারি রিভিউ নির্ধারণ করে।'
+                  ? 'প্রতিটি অনুশীলন প্রশ্ন আপনার দক্ষতার সাথে খাপ খাইয়ে নেয় এবং দীর্ঘস্থায়ী মনে রাখার জন্য ভোকাবুলারি রিভিউ নির্ধারণ করে।'
                   : 'Section-adaptive practice tests match difficulty to your performance, and vocabulary reviews are scheduled for lasting recall.'}
               </p>
             </div>
@@ -341,7 +341,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               </div>
               <p className="text-[11px] leading-relaxed text-indigo-100/80">
                 {isBn
-                  ? 'পুরাতন SM-2 পদ্ধতির তুলনায় ৩০% কম ফ্ল্যাশকার্ড রিভিউতে পরীক্ষার দিন ৯০% মনে রাখার নিশ্চয়তা, সাথে থাকছে ৭-দিনের সম্পূর্ণ মানি-ব্যাক গ্যারান্টি।'
+                  ? 'কার্যকর ফ্ল্যাশকার্ড রিভিউ শিডিউল, সাথে থাকছে ৭-দিনের স্বচ্ছ মানি-ব্যাক গ্যারান্টি।'
                   : 'An efficient flashcard review schedule, backed by our transparent 7-day money-back guarantee.'}
               </p>
             </div>
