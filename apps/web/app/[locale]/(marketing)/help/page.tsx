@@ -7,9 +7,6 @@ import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { brand } from '@lumen/config';
 import {
   Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
   Badge,
   Input,
   Button,
@@ -194,7 +191,7 @@ export default function SupportHelpCenterPage() {
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 w-full rounded-xl border-slate-700 bg-white pl-11 pr-4 text-base text-slate-900 shadow-md focus:border-blue-600 focus:ring-blue-600"
+                className="h-12 w-full rounded-md border-slate-700 bg-white pl-11 pr-4 text-base text-slate-900 shadow-sm focus:border-blue-600 focus:ring-blue-600"
               />
               {searchQuery && (
                 <button
@@ -208,17 +205,9 @@ export default function SupportHelpCenterPage() {
             </div>
           </div>
 
-          {/* Right 5 Columns: Student Support Poster Collage & Guaranteed SLA Card */}
-          <div className="lg:col-span-5 relative">
-            <div
-              className="absolute -top-3 -right-3 h-full w-full rounded-2xl bg-[#E4002B] opacity-85"
-              aria-hidden="true"
-            />
-            <div
-              className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl bg-[#00A896] opacity-80"
-              aria-hidden="true"
-            />
-            <div className="relative overflow-hidden rounded-2xl border-2 border-white/20 bg-slate-900 shadow-2xl">
+          {/* Right 5 Columns: Un-tilted Student Support Photograph + Docked SLA Caption Bar Underneath */}
+          <div className="lg:col-span-5">
+            <div className="rounded-md overflow-hidden border border-slate-700/60 bg-slate-950 shadow-lg">
               <img
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=85"
                 alt={
@@ -226,21 +215,21 @@ export default function SupportHelpCenterPage() {
                     ? 'শিক্ষার্থী সহায়তা ও একাডেমিক পরামর্শ দল'
                     : 'Student support and academic mentoring desk'
                 }
-                className="h-[320px] w-full object-cover object-center"
+                className="h-[260px] w-full object-cover object-center block"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#001E42]/95 via-[#001E42]/35 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-slate-200 bg-white/95 p-4 text-slate-900 shadow-xl backdrop-blur-xs space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-bold text-[#001E42]">
+              {/* Solid Structural Caption Bar Docked Directly Underneath the Photo */}
+              <div className="border-t border-slate-700/80 bg-[#00142E] p-4 space-y-1.5 text-left">
+                <div className="flex items-center justify-between text-xs font-bold text-white">
                   <span>
                     {isBn
                       ? 'ঢাকা স্টুডেন্ট সাপোর্ট ডেস্ক (৯টা – ১০টা BST)'
                       : 'Dhaka Student Desk (9am – 10pm BST)'}
                   </span>
-                  <span className="rounded bg-[#00A896]/15 px-2 py-0.5 text-[10px] font-extrabold text-[#006677]">
+                  <span className="rounded-md bg-[#00A896] px-2 py-0.5 font-mono text-[10px] font-extrabold text-white">
                     Mushak 6.3 Verified
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-600">
+                <p className="text-[11px] text-slate-300">
                   {isBn
                     ? '৭-দিনের ১-ক্লিক স্বচ্ছ রিফান্ড এবং লাইভ ক্লাস চলাকালীন ১৫-মিনিট জয়েন ডেস্ক সহায়তা।'
                     : '7-day 1-click self-serve refund eligibility and 15-minute live batch join desk.'}
@@ -274,38 +263,36 @@ export default function SupportHelpCenterPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-md border border-slate-200 bg-white divide-y sm:divide-y-0 sm:divide-x divide-slate-200 grid grid-cols-1 sm:grid-cols-4">
             {slaBadges.map((sla) => {
               const slaBn = SLA_BN_TRANSLATIONS[sla.tier];
               return (
-                <Card key={sla.tier} className="border-slate-200 bg-white transition-all hover:border-blue-300">
-                  <CardHeader className="p-4 pb-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                        {isBn && slaBn ? slaBn.tierBn : sla.tier}
-                      </span>
-                      <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 font-semibold">
-                        {isBn && slaBn ? slaBn.badgeBn : sla.badgeLabel}
-                      </Badge>
-                    </div>
-                    <CardTitle className="mt-1 flex items-center gap-1.5 text-base font-bold text-slate-900">
-                      <Clock className="h-4 w-4 text-blue-600" />
-                      <span>
-                        &le; {sla.resolutionHours}
-                        {isBn ? ' ঘণ্টা SLA' : 'h SLA'}
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0 text-xs text-slate-600">
+                <div key={sla.tier} className="p-4 text-left space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-bold uppercase tracking-wider text-slate-500">
+                      {isBn && slaBn ? slaBn.tierBn : sla.tier}
+                    </span>
+                    <Badge variant="outline" className="rounded-md border-blue-200 bg-blue-50 text-blue-700 font-semibold">
+                      {isBn && slaBn ? slaBn.badgeBn : sla.badgeLabel}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-base font-bold text-slate-900">
+                    <Clock className="h-4 w-4 text-blue-600" />
+                    <span>
+                      &le; {sla.resolutionHours}
+                      {isBn ? ' ঘণ্টা SLA' : 'h SLA'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600">
                     {isBn && slaBn ? slaBn.descBn : sla.description}
-                  </CardContent>
-                </Card>
+                  </p>
+                </div>
               );
             })}
           </div>
         </section>
 
-        {/* Category Filter Pills */}
+        {/* Category Filter Tabs */}
         <div className="mb-8 flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => {
             const Icon = cat.icon;
@@ -315,9 +302,9 @@ export default function SupportHelpCenterPage() {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors ${
+                className={`inline-flex items-center gap-2 rounded-md px-3.5 py-2 text-xs font-medium transition-colors ${
                   isSelected
-                    ? 'bg-slate-900 text-white shadow-xs'
+                    ? 'bg-slate-900 text-white shadow-2xs'
                     : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
@@ -331,7 +318,7 @@ export default function SupportHelpCenterPage() {
         {/* FAQ Accordion List */}
         <section className="space-y-3">
           {filteredFaqs.length === 0 ? (
-            <Card className="p-12 text-center text-slate-500">
+            <Card className="rounded-md p-12 text-center text-slate-500">
               <HelpCircle className="mx-auto mb-3 h-10 w-10 text-slate-300" />
               <p className="text-base font-medium">
                 {isBn ? 'কোনো প্রাসঙ্গিক প্রশ্ন পাওয়া যায়নি' : 'No matching questions found'}
@@ -353,7 +340,7 @@ export default function SupportHelpCenterPage() {
               return (
                 <div
                   key={faq.id}
-                  className="rounded-xl border border-slate-200 bg-white shadow-2xs transition-colors"
+                  className="rounded-md border border-slate-200 bg-white shadow-2xs transition-colors"
                 >
                   <button
                     type="button"
@@ -382,7 +369,7 @@ export default function SupportHelpCenterPage() {
                         {faq.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="rounded-full bg-slate-100 px-2.5 py-0.5 text-2xs text-slate-500"
+                            className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-0.5 font-mono text-2xs text-slate-600"
                           >
                             #{tag}
                           </span>
@@ -397,10 +384,10 @@ export default function SupportHelpCenterPage() {
         </section>
 
         {/* Quick Links & Contact Channels */}
-        <section className="mt-14 grid gap-6 sm:grid-cols-2">
-          <Card className="border-slate-200 bg-white p-6">
+        <section className="mt-14 rounded-md border border-slate-200 bg-white divide-y sm:divide-y-0 sm:divide-x divide-slate-200 grid grid-cols-1 sm:grid-cols-2">
+          <div className="p-6 text-left">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-50 p-2.5 text-blue-600">
+              <div className="rounded-md bg-blue-50 p-2.5 text-blue-600">
                 <RotateCcw className="h-5 w-5" />
               </div>
               <div>
@@ -421,18 +408,18 @@ export default function SupportHelpCenterPage() {
             </p>
             <div className="mt-4">
               <Link href="/orders">
-                <Button variant="outline" size="sm" className="w-full text-xs font-semibold">
+                <Button variant="outline" size="sm" className="w-full rounded-md text-xs font-semibold">
                   {isBn
                     ? 'অর্ডার ও রিফান্ড যোগ্যতা মিটার দেখুন'
                     : 'View Orders & Eligibility Meter'}
                 </Button>
               </Link>
             </div>
-          </Card>
+          </div>
 
-          <Card className="border-slate-200 bg-white p-6">
+          <div className="p-6 text-left">
             <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-emerald-50 p-2.5 text-emerald-600">
+              <div className="rounded-md bg-emerald-50 p-2.5 text-emerald-600">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div>
@@ -453,14 +440,14 @@ export default function SupportHelpCenterPage() {
             </p>
             <div className="mt-4">
               <Link href="/app/plan">
-                <Button variant="outline" size="sm" className="w-full text-xs font-semibold">
+                <Button variant="outline" size="sm" className="w-full rounded-md text-xs font-semibold">
                   {isBn
                     ? 'স্টাডি প্ল্যান ও জয়েন লিংক খুলুন'
                     : 'Open Study Plan & Join Links'}
                 </Button>
               </Link>
             </div>
-          </Card>
+          </div>
         </section>
 
         {/* Legal & Compliance Notice */}

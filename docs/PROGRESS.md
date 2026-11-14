@@ -10,11 +10,11 @@
 - Date updated: 2026-11-14
 - Active tool: Gemini / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Phase M2.7-D Complete (Two-Key Sign-Off of M2.7-A, M2.7-B & M2.7-C)
+- Current milestone: Phase M2.8-B Complete (Institutional Swiss Grid Redesign of `/`, `/courses`, `/gre`, `/ielts` & `/help`)
 - Last session log: docs/logs/reviews/m2-7-redesign-signoff.md
 - Active branch: main
-- Last green `pnpm verify`: M2.7-D (`brand-sweep.test.ts` 5/5 green, `i18n-pages-coverage.test.ts` 14/14 green, `@lumen/web` typecheck 0 errors)
-- Phase in progress: Phase M2.7-D Complete
+- Last green `pnpm verify`: M2.8-B (`brand-sweep.test.ts` 5/5 green, `i18n-pages-coverage.test.ts` 14/14 green, `@lumen/web` typecheck 0 errors)
+- Phase in progress: Phase M2.8-B Complete
 
 ## Current task
 
@@ -579,6 +579,8 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-14 | P2-3 | task-p2-3 | argon | Phase P2.3: Top cohort/trust announcement bar & mobile slide-over drawer (BUG-10), Oxford Navy / Royal Indigo / British Emerald hero banners & BD payment trust bar (BUG-12), and 2-column split-screen `/sign-in` & `/sign-up` auth experience with inline 2FA/Passkey drawer (BUG-11) |
 | 2026-11-14 | P2-6-2/P2-6-3 | task-p2-6-2 | gemini | Institutional redesign (flat navy/teal, no cyber grid/emoji/pills, single trust bar in footer), competitor/jargon purge + Magoosh/GregMat sweep test, bilingual GRE/IELTS exam guides and exam-chooser table |
 | 2026-11-14 | M2.7-B/M2.7-C | task-m2-7-b | gemini | ETS / British Council / IDP editorial kickers, asymmetric 12-col split heroes with student photography posters & floating score cards (`/`, `/gre`, `/ielts`, `/help`), full-viewport 12-col `/exam/diagnostic` assessment workbench, full-bleed 50/50 `/sign-in` & `/sign-up` screens, and AI pill-badge ban regression test |
+| 2026-11-14 | M2.8-A | 7cb9a03 | gemini | Diagnostic workbench de-nesting, pricing control bar & digit fix, and auth precision |
+| 2026-11-14 | M2.8-B | task-m2-8-b | gemini | Institutional Swiss Grid redesign of `/`, `/courses`, `/gre`, `/ielts`, and `/help` (un-obscured student portraits with docked caption bars, zero tilted backdrops, `rounded-md` hairline grids, 2-track homepage fork + 3-step journey, 6-program filterable `/courses` directory, sticky 4-item sub-navbars on `/gre` & `/ielts`) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 

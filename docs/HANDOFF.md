@@ -5,29 +5,31 @@
 
 ## Baton
 
-- From: gemini (Gemini 4 Argon Low)   To: next agent / founder review   Date/time (UTC): 2026-11-14 10:19:00
-- Reason: Phase M2.7-D two-key audit complete & committed to `main` (`docs/logs/reviews/m2-7-redesign-signoff.md`).
-- Branch: main                      Last commit SHA: (see `git log -1` after M2.7-D commit)
+- From: gemini (Gemini 4 Argon Medium)   To: next agent / founder review   Date/time (UTC): 2026-11-14 16:28:00
+- Reason: Phase M2.8-B complete & merged to `main` (Institutional Swiss Grid redesign of `/`, `/courses`, `/gre`, `/ielts` & `/help`).
+- Branch: main                      Last commit SHA: (see `git log -1` after M2.8-B merge)
 - Device (hostname) / session log path: docs/logs/reviews/m2-7-redesign-signoff.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict rule)
 - Working tree clean? yes
-- Task: Phase M2.7-D (Fast Two-Key Audit of M2.7-A, M2.7-B & M2.7-C) - status: complete
-- Milestone gate in progress: Milestone M2.7 / M3 Preflight Remediation
+- Task: Phase M2.8-B (Institutional Swiss Grid Redesign & Navigation Flow) - status: complete
+- Milestone gate in progress: Milestone M2.8 / M3 Preflight Remediation
 - Tests passing: `brand-sweep.test.ts` 5/5 green, `i18n-pages-coverage.test.ts` 14/14 green (19/19 tests passing)
 - TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental`)
-- Needs two-key review: None (`apps/web/next.config.ts` and M2.7-A/B/C changes signed off in `docs/logs/reviews/m2-7-redesign-signoff.md`).
+- Needs two-key review: None (marketing UI & navigation layout only; zero security-critical paths touched).
 
-## Done so far (Phase M2.7-B & M2.7-C)
+## Done so far (Phase M2.8-A & M2.8-B)
 
-1. **Open-Source Student Photography & AI Pill Badge Ban:**
-   - Configured `images.remotePatterns` and CSP `img-src` in `apps/web/next.config.ts` for `https://images.unsplash.com`.
-   - Stripped all centered AI prompt-leak pill badges across `/`, `/gre`, `/ielts`, `/courses`, `/pricing`, and `/help` (`"British Emerald & Teal"`, `"Free Band Utility"`, `"No Account Needed To Start"`, `"Next-Gen GRE & IELTS..."`, `"Verified Historical Pricing"`) and replaced them with left-aligned `border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest` editorial kickers above left-aligned `text-3xl lg:text-5xl` headings.
-2. **Asymmetric 12-Column Split Heroes & Student Posters (`/`, `/gre`, `/ielts`, `/help`):**
-   - Rebuilt `/`, `/gre`, `/ielts`, and `/help` heroes into `max-w-7xl` 12-column asymmetric split layouts (`lg:col-span-7` editorial copy + `lg:col-span-5` high-res student photography posters with offset `#E4002B` / `#00A896` / `#007791` geometric backdrops and floating GRE 332 / IELTS Band 8.0 / Section-Adaptive Routing / 4-Skill Band Breakdown cards).
-3. **Full-Viewport (`/exam/diagnostic`) Interactive Assessment Workbench:**
-   - Overhauled `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx` with a sticky `h-16 bg-[#001E42]` top bar (progress bar, `<LocaleSwitcher />`, EN/BN stem toggle, calculator toggle, countdown timer) and a `max-w-7xl` 12-column workbench (`lg:col-span-8` elevated exam sheet with `text-xl sm:text-2xl` stems, `p-6 sm:p-8` QC boxes, and `[A]`–`[D]` keycap option buttons + `lg:col-span-4` sidebar with 1–8 Navigator Palette, Flag for Review, 3-Tier Hint Ladder with `6 / 6 Hints Remaining` badge, and Scratchpad / GRE Math Reference tabs).
-4. **Full-Bleed 50/50 Edge-to-Edge Split Screen Auth (`/sign-in`, `/sign-up`, `AuthForm.tsx`):**
-   - Rebuilt `(auth)/layout.tsx`, `sign-in/page.tsx`, `sign-up/page.tsx`, and `AuthForm.tsx` into a `min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white` 50/50 split screen with a full-bleed student photograph, gradient overlay, outcome cards (`GRE® +11.4 Pts Median Gain`, `IELTS™ Band 7.5+ Achieved by 78%`), and glassmorphic BUET scholar testimonial on the left 6 columns, and a centered `max-w-md` form with `h-12 text-base` controls on the right 6 columns.
+1. **Global Anti-AI Swiss Grid Geometry (`/`, `/courses`, `/gre`, `/ielts`, `/help`):**
+   - Removed all offset/tilted crimson & teal background rectangles behind student photographs and eliminated all floating overlay cards covering student faces.
+   - Framed all hero portraits in sharp `rounded-md overflow-hidden border border-slate-700/60` containers with solid structural caption bars docked directly underneath.
+   - Replaced `rounded-2xl`, `rounded-3xl`, and `rounded-full` capsules across `/`, `/courses`, `/gre`, `/ielts`, `/help`, `GreExamGuide.tsx`, `IeltsExamGuide.tsx`, `ExamChooserGuide.tsx`, and `live-gre-widget.tsx` with `rounded-md` corners and exposed hairline grids (`border border-slate-200 divide-y md:divide-y-0 md:divide-x divide-slate-200`).
+2. **Homepage Immediate "Choose Your Exam" Fork & 1-2-3 Journey (`/`):**
+   - Built a docked 2-track selector bar (`-mt-8 relative z-10`) splitting Path 01 (`GRE® General Test`) and Path 02 (`IELTS™ Academic & General`).
+   - Replaced floating icon bubbles with a 3-column hairline progression (`Step 01: Baseline Diagnostic` -> `Step 02: Targeted Syllabus & Hint-Guided Practice` -> `Step 03: Full-Length Computer-Delivered Mocks & AI Rubric Grading`) plus a Flagship Programs & Syllabus Summary comparison table.
+3. **6-Program Coursera / 10MS Syllabus Directory (`/courses`):**
+   - Added `CoursesDirectoryClient.tsx` with interactive filter tabs (`All Programs (6)` | `GRE® Preparation` | `IELTS™ Academic & GT` | `Live Crash & Cohort Batches`) and 6 structured program rows showing duration badges, 4–5 concrete syllabus modules, assessment deliverables, and VAT-inclusive BDT pricing.
+4. **Sticky Sub-Navbars on `/gre` & `/ielts`:**
+   - Added `sticky top-0 z-20` 4-cell institutional jump-bars directly below the hero on `/gre` (`#how-gre-works`, `#live-practice`, `#curriculum`, `/pricing`) and `/ielts` (`#how-ielts-works`, `#simulator`, `#skills`, `/pricing`).
 
 ## Remaining steps (numbered, in order)
 
