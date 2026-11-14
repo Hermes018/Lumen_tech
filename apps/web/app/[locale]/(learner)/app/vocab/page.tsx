@@ -143,7 +143,7 @@ export default async function VocabHubPage() {
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">GregMat Sentence Equivalence Clusters</CardTitle>
+                <CardTitle className="text-base">Sentence Equivalence Clusters</CardTitle>
                 <span className="text-xs font-semibold text-warning">Synonym Pairs</span>
               </div>
             </CardHeader>

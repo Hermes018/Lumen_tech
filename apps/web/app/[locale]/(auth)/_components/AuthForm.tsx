@@ -269,11 +269,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
       {/* 2-Column Split Layout on Desktop (BUG-11) */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-stretch">
         {/* Left Panel: Brand Showcase, Live GRE/IELTS Metrics, FSRS Guarantee & Verified Scholar Quote */}
-        <div className="lg:col-span-5 bg-slate-950 text-white p-10 rounded-3xl flex flex-col justify-between shadow-2xl border border-slate-800 relative overflow-hidden">
-          <div
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-30"
-            aria-hidden="true"
-          />
+        <div className="lg:col-span-5 bg-[#001E42] text-white p-10 rounded-3xl flex flex-col justify-between shadow-2xl border border-slate-800 relative overflow-hidden">
 
           <div className="relative space-y-6">
             <div className="flex items-center gap-2.5">
@@ -300,7 +296,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               <p className="text-xs leading-relaxed text-slate-300">
                 {isBn
                   ? 'প্রতিটি অনুশীলন প্রশ্ন Rasch 1PL IRT অ্যালগরিদম ব্যবহার করে আপনার দক্ষতার সাথে খাপ খাইয়ে নেয় এবং ৯০% স্মৃতি স্থায়িত্ব বজায় রাখতে ভোকাবুলারি রিভিউ নির্ধারণ করে।'
-                  : 'Every practice item adapts to your latent ability using Rasch 1PL IRT and schedules vocabulary reviews at your exact 90% memory stability threshold.'}
+                  : 'Section-adaptive practice tests match difficulty to your performance, and vocabulary reviews are scheduled for lasting recall.'}
               </p>
             </div>
 
@@ -346,7 +342,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               <p className="text-[11px] leading-relaxed text-indigo-100/80">
                 {isBn
                   ? 'পুরাতন SM-2 পদ্ধতির তুলনায় ৩০% কম ফ্ল্যাশকার্ড রিভিউতে পরীক্ষার দিন ৯০% মনে রাখার নিশ্চয়তা, সাথে থাকছে ৭-দিনের সম্পূর্ণ মানি-ব্যাক গ্যারান্টি।'
-                  : '30% fewer flashcard repetitions than legacy SM-2 for the same 90% exam-day recall, backed by our transparent 7-day money-back guarantee.'}
+                  : 'An efficient flashcard review schedule, backed by our transparent 7-day money-back guarantee.'}
               </p>
             </div>
           </div>
@@ -503,7 +499,7 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                         </div>
                         <Button
                           type="submit"
-                          className="w-full bg-slate-950 text-white hover:bg-slate-900 font-semibold"
+                          className="w-full bg-[#001E42] text-white hover:bg-slate-900 font-semibold"
                           disabled={loading}
                         >
                           {loading

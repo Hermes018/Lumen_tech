@@ -1,4 +1,4 @@
-/** @purpose GregMat-style Verbal Deconstructor with Predict-First choice blurring and inline word click-to-deck (07 §2.7) */
+/** @purpose Verbal Deconstructor with Predict-First choice blurring and inline word click-to-deck (07 §2.7) */
 'use client';
 
 import * as React from 'react';

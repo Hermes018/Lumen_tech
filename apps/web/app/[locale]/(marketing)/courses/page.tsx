@@ -2,6 +2,7 @@
 import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import { ArrowRight, CheckCircle } from 'lucide-react';
+import { ExamChooserGuide } from '../_components/ExamChooserGuide';
 import { Link } from '@/src/i18n/routing';
 
 export const metadata = {
@@ -64,16 +65,16 @@ export default async function CoursesPage({
                   <CheckCircle className="h-4 w-4 text-accent shrink-0" />
                   <span>
                     {isBn
-                      ? 'Magoosh + GregMat + Brilliant মানের সমন্বিত পাঠ্যক্রম'
-                      : 'Magoosh + GregMat + Brilliant Parity Suite'}
+                      ? 'অফিশিয়াল কম্পিউটার-ডেলিভার্ড ফরম্যাট'
+                      : 'Official Computer-Delivered Format'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-accent shrink-0" />
                   <span>
                     {isBn
-                      ? 'Rasch 1PL অ্যাবিলিটি স্কোরিংসহ সেকশন-অ্যাডাপটিভ সিবিটি মক টেস্ট'
-                      : 'Section-Adaptive CBT Mocks with Rasch 1PL Ability Scoring'}
+                      ? 'সেকশন-অ্যাডাপটিভ সিবিটি প্র্যাকটিস টেস্ট'
+                      : 'Section-Adaptive Practice Tests in the Official Computer Format'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -210,6 +211,7 @@ export default async function CoursesPage({
           </div>
         </div>
       </div>
+      <ExamChooserGuide isBn={isBn} />
     </div>
   );
 }

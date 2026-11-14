@@ -163,11 +163,7 @@ export default function SupportHelpCenterPage() {
   return (
     <div className="min-h-screen bg-slate-50/70 pb-20" data-locale={locale}>
       {/* High-Contrast Oxford Navy Hero Search Section (BUG-12) */}
-      <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950 py-14 text-white shadow-xs sm:py-16">
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-35"
-          aria-hidden="true"
-        />
+      <section className="relative overflow-hidden border-b border-slate-800 bg-[#001E42] py-14 text-white shadow-xs sm:py-16">
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1 text-xs font-semibold text-blue-200">
             <HelpCircle className="h-3.5 w-3.5 text-blue-400" />

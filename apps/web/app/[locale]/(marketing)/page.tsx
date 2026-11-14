@@ -3,17 +3,12 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/src/i18n/routing';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
-  Sparkles,
   Brain,
   Zap,
   ArrowRight,
   BarChart3,
   ShieldAlert,
-  CheckCircle2,
-  Award,
-  Receipt,
 } from 'lucide-react';
-import { BangladeshPaymentTrustBar } from './_components/BangladeshPaymentTrustBar';
 
 export default async function MarketingPage() {
   const tHero = await getTranslations('hero');
@@ -21,16 +16,10 @@ export default async function MarketingPage() {
   return (
     <div className="flex flex-col items-center">
       {/* High-Contrast Oxford Navy Hero Section (BUG-12) */}
-      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-slate-950 px-4 py-16 text-center text-white sm:py-24">
-        {/* Subtle Architectural Grid Accent */}
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-35"
-          aria-hidden="true"
-        />
+      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-[#001E42] px-4 py-16 text-center text-white sm:py-24">
 
         <div className="relative mx-auto max-w-5xl space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1.5 text-xs font-semibold text-blue-200">
-            <Sparkles className="h-3.5 w-3.5 text-blue-400" />
             <span>{tHero('badge')}</span>
           </div>
 
@@ -42,21 +31,6 @@ export default async function MarketingPage() {
             {tHero('subtitle')}
           </p>
 
-          {/* Crisp Metric Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-950/90 px-3.5 py-1 text-xs font-semibold text-indigo-200">
-              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400" />
-              130–170 Rasch IRT Adaptive
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-950/90 px-3.5 py-1 text-xs font-semibold text-emerald-200">
-              <Award className="h-3.5 w-3.5 text-emerald-400" />
-              Band 0–9 Official Rubric AI
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900 px-3.5 py-1 text-xs font-semibold text-slate-200">
-              <Receipt className="h-3.5 w-3.5 text-blue-400" />
-              Mushak 6.3 VAT Included
-            </span>
-          </div>
 
           {/* Primary CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
@@ -85,10 +59,6 @@ export default async function MarketingPage() {
             </Link>
           </div>
 
-          {/* Prominent Bangladeshi Payment & Trust Bar */}
-          <div className="pt-8">
-            <BangladeshPaymentTrustBar variant="dark" />
-          </div>
         </div>
       </section>
 
@@ -163,8 +133,7 @@ export default async function MarketingPage() {
                 <div className="space-y-3">
                   <h3 className="text-2xl font-bold text-slate-950">GRE® Prep Platform</h3>
                   <p className="text-slate-600 text-sm leading-relaxed">
-                    Featuring the complete Magoosh + GregMat + Brilliant Parity Suite: Section-Adaptive
-                    CBT Mocks, 3-Tier Hint Ladders, Distractor Trap Diagnostics, and Socratic
+                    Official computer-delivered format with Section-Adaptive Practice Tests, 3-Tier Hint Ladders, Distractor Trap Diagnostics, and Socratic
                     Step-by-Step Solvers.
                   </p>
                   <div className="pt-2">
@@ -225,7 +194,7 @@ export default async function MarketingPage() {
       </section>
 
       {/* Free Interactive Diagnostic Banner */}
-      <section className="w-full border-t border-slate-800 bg-slate-950 px-4 py-16 text-center text-white">
+      <section className="w-full border-t border-slate-800 bg-[#001E42] px-4 py-16 text-center text-white">
         <div className="mx-auto max-w-3xl space-y-5">
           <span className="inline-block rounded-full border border-blue-400/30 bg-blue-950 px-3 py-1 text-xs font-semibold text-blue-300">
             No Account Needed To Start
@@ -235,7 +204,7 @@ export default async function MarketingPage() {
           </h2>
           <p className="text-slate-300 text-base max-w-xl mx-auto">
             Experience our real Computer-Based Testing shell with an 8-question Express Diagnostic.
-            Receive an instant Rasch-calibrated ability score and trap breakdown.
+            Receive an instant estimated score and a breakdown of common errors.
           </p>
           <div className="pt-2">
             <Link href="/exam/diagnostic">

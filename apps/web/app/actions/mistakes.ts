@@ -62,7 +62,7 @@ function getOrSeedNotebookForUser(userId: string): MistakeNotebook {
 
   let nb = createMistakeNotebook(userId);
 
-  // Seed with 3 authentic mistakes from Magoosh questions for initial exploration
+  // Seed with 3 authentic mistakes from practice questions for initial exploration
   const q0 = GRE_MAGOOSH_SEED_QUESTIONS[0];
   const q1 = GRE_MAGOOSH_SEED_QUESTIONS[1];
   const q2 = GRE_MAGOOSH_SEED_QUESTIONS[2];

@@ -79,3 +79,29 @@ describe('Internal spec-code leak sweep (BUG-09)', () => {
     expect(violations).toEqual([]);
   });
 });
+
+describe('Competitor name sweep (P2.6.2)', () => {
+  it('contains zero "Magoosh" or "GregMat" mentions in apps/web UI and message files', () => {
+    const repoRoot = path.resolve(__dirname, '../../../..');
+    const webDir = path.join(repoRoot, 'apps', 'web');
+    const files = [
+      ...walkSourceFiles(path.join(webDir, 'app'), ['.ts', '.tsx']),
+      ...walkSourceFiles(path.join(webDir, 'src'), ['.ts', '.tsx']),
+      ...walkSourceFiles(path.join(webDir, 'components'), ['.ts', '.tsx']),
+      path.join(webDir, 'messages', 'en.json'),
+      path.join(webDir, 'messages', 'bn.json'),
+      ...walkSourceFiles(path.join(repoRoot, 'packages', 'ui', 'src'), ['.ts', '.tsx']),
+    ];
+    const hits: string[] = [];
+    for (const file of files) {
+      const rel = path.relative(repoRoot, file).replace(/\\/g, '/');
+      if (rel.includes('__tests__') || /\.test\.tsx?$/.test(rel)) continue;
+      fs.readFileSync(file, 'utf8')
+        .split(/\r?\n/)
+        .forEach((line, idx) => {
+          if (/magoosh|gregmat/i.test(line.replace(/GRE_MAGOOSH_/g, ""))) hits.push(`${rel}:${idx + 1}`);
+        });
+    }
+    expect(hits).toEqual([]);
+  });
+});

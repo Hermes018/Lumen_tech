@@ -6,7 +6,7 @@
 ## Baton
 
 - From: gemini (Gemini 4 Argon Medium)   To: next agent / founder review   Date/time (UTC): 2026-11-14 08:13:00
-- Reason: Phase P2.3 (BUG-10, BUG-11, BUG-12) complete & merged to `main`
+- Reason: Phase P2.6.2 + P2.6.3 complete & merged to `main` (institutional redesign, bilingual exam guides; new components `GreExamGuide`, `IeltsExamGuide`, `ExamChooserGuide` in `(marketing)/_components`). Not pushed; no security-critical files touched. Note: `GRE_MAGOOSH_SEED_QUESTIONS` identifier in @lumen/db left as-is (rename out of scope).
 - Branch: main                      Last commit SHA: (main merged)
 - Device (hostname) / session log path: docs/ui_ux_runtime_conversion_remediation_master_plan.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict anti-polling rule)

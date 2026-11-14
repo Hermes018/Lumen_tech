@@ -265,7 +265,7 @@ export function CheckoutReturnClient() {
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span>Socratic Step-by-Step Solver & GregMat Deconstructor</span>
+              <span>Socratic Step-by-Step Solver & Verbal Deconstructor</span>
             </li>
           </ul>
         </div>
