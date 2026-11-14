@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const STRICT_PAGES = process.argv.includes('--strict-pages');
+const STRICT_PAGES = !process.argv.includes('--no-strict-pages');
 
 const PROTECTED_I18N_FILES = [
   'apps/web/app/[locale]/_components/LocaleSwitcher.tsx',

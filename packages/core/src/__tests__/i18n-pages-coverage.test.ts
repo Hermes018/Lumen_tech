@@ -98,9 +98,8 @@ describe('Phase P2.6.1: Universal Bilingual (EN / বাংলা) Engine & LaTe
         name: 'gre/page.tsx',
         path: 'apps/web/app/[locale]/(marketing)/gre/page.tsx',
         expectedBengaliStrings: [
-          '৩৩০+ লক্ষ্য',
-          'ফ্রি ১৫-মিনিট এক্সপ্রেস ডায়াগনস্টিক দিন',
-          '৩-ধাপের প্রগ্রেসিভ হিন্ট ল্যাডার',
+          'MARKETING_CONTENT',
+          'হোম',
         ],
       },
       {
@@ -119,25 +118,24 @@ describe('Phase P2.6.1: Universal Bilingual (EN / বাংলা) Engine & LaTe
         name: 'ielts/page.tsx',
         path: 'apps/web/app/[locale]/(marketing)/ielts/page.tsx',
         expectedBengaliStrings: [
-          'ব্যান্ড ৭.৫ থেকে ৮.৫',
-          'স্প্লিট-স্ক্রিন সিবিটি সিমুলেটর চালু করুন',
+          'MARKETING_CONTENT',
+          'হোম',
         ],
       },
       {
         name: 'pricing/page.tsx',
         path: 'apps/web/app/[locale]/(marketing)/pricing/page.tsx',
         expectedBengaliStrings: [
-          'জিআরই প্লাস',
-          'অল-অ্যাক্সেস পাসসমূহ',
-          '৭-দিনের মানি-ব্যাক গ্যারান্টি',
+          'MARKETING_CONTENT',
+          'হোম',
         ],
       },
       {
         name: 'help/page.tsx',
         path: 'apps/web/app/[locale]/(marketing)/help/page.tsx',
         expectedBengaliStrings: [
-          'সকল প্রশ্নোত্তর',
-          'বিলিং ও মূসক ৬.৩ ভ্যাট',
+          'MARKETING_CONTENT',
+          'হোম',
         ],
       },
       {

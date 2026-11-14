@@ -808,3 +808,109 @@ export function Breadcrumb({ locale, items }: BreadcrumbProps) {
     </nav>
   );
 }
+
+/* 18. PricingSwitcherSection */
+export interface PricingPlanItem {
+  id: string;
+  title: string;
+  price: string;
+  period: string;
+  body: string;
+  bullets: string[];
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+export interface PricingSwitcherSectionProps {
+  locale: string;
+  fullCoursesLabel: string;
+  passesLabel: string;
+  fullCourses: PricingPlanItem[];
+  passes: PricingPlanItem[];
+}
+
+function PricingPlanGrid({ plans, locale }: { plans: PricingPlanItem[]; locale: string }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+      {plans.map((plan) => (
+        <div key={plan.id} className="flex flex-col justify-between">
+          <div>
+            <div className="h-[3px] w-full bg-[var(--brand)] mb-4" aria-hidden="true" />
+            <h3 className="text-xl font-bold text-[var(--brand-ink)]">{plan.title}</h3>
+            <p className="mt-2">
+              <span className="text-2xl font-bold text-[var(--brand)]">{plan.price}</span>
+              <span className="text-sm text-[var(--muted)] ml-1">{plan.period}</span>
+            </p>
+            <p className="lumen-body mt-3">{plan.body}</p>
+            <ul className="mt-4 space-y-2 text-sm text-[var(--text)]">
+              {plan.bullets.map((bullet) => (
+                <li key={bullet} className="flex items-start gap-2">
+                  <span className="text-[var(--brand)] font-bold" aria-hidden="true">
+                    •
+                  </span>
+                  <span>{bullet}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-6">
+            <Button href={plan.ctaHref} locale={locale} variant="filled">
+              {plan.ctaLabel}
+            </Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function PricingSwitcherSection({
+  locale,
+  fullCoursesLabel,
+  passesLabel,
+  fullCourses,
+  passes,
+}: PricingSwitcherSectionProps) {
+  return (
+    <Tabs
+      tabs={[
+        {
+          id: 'full-courses',
+          label: fullCoursesLabel,
+          content: <PricingPlanGrid plans={fullCourses} locale={locale} />,
+        },
+        {
+          id: 'passes',
+          label: passesLabel,
+          content: <PricingPlanGrid plans={passes} locale={locale} />,
+        },
+      ]}
+    />
+  );
+}
+
+/* 19. FaqDisclosureList */
+export interface FaqDisclosureItem {
+  question: string;
+  answer: string;
+}
+
+export interface FaqDisclosureListProps {
+  title: string;
+  items: FaqDisclosureItem[];
+}
+
+export function FaqDisclosureList({ title, items }: FaqDisclosureListProps) {
+  return (
+    <div>
+      <Heading level={2}>{title}</Heading>
+      <div className="mt-8 space-y-4">
+        {items.map((item) => (
+          <Disclosure key={item.question} summary={item.question}>
+            <p className="lumen-body">{item.answer}</p>
+          </Disclosure>
+        ))}
+      </div>
+    </div>
+  );
+}
