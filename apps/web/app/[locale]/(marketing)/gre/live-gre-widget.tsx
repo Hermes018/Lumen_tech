@@ -86,23 +86,23 @@ export function LiveGreWidget() {
   const isCorrect = selectedChoice === 'D';
 
   return (
-    <Card className="w-full max-w-3xl border-border bg-surface shadow-lg">
-      <CardHeader className="border-b border-border/60 pb-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-accent text-accent font-mono text-xs">
-              Quantitative Comparison
-            </Badge>
-            <span className="text-fg-muted text-xs">Seeded Live Demo • No sign-in required</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-fg-subtle">Hint Budget:</span>
-            <span className="rounded bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent">
-              {hintBudget} / 3 left
-            </span>
-          </div>
+    <Card className="w-full max-w-3xl overflow-hidden border border-slate-200/80 bg-white shadow-lg">
+      <div className="bg-indigo-950 px-6 py-2.5 text-white flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="rounded bg-blue-600 px-2 py-0.5 font-mono text-[11px] font-bold text-white">
+            Quantitative Comparison
+          </span>
+          <span className="text-indigo-200">Seeded Live Demo • No sign-in required</span>
         </div>
-        <CardTitle className="mt-3 text-lg font-bold text-fg">
+        <div className="flex items-center gap-2">
+          <span className="text-indigo-200">Hint Budget:</span>
+          <span className="rounded bg-indigo-800 px-2 py-0.5 font-semibold text-white">
+            {hintBudget} / 3 left
+          </span>
+        </div>
+      </div>
+      <CardHeader className="border-b border-slate-200/80 pb-4">
+        <CardTitle className="text-lg font-bold text-slate-950">
           Try a Real GRE Question Right Now
         </CardTitle>
       </CardHeader>

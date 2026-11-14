@@ -57,18 +57,22 @@ export default function SupportHelpCenterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/60 pb-20">
-      {/* Hero Search Section */}
-      <section className="border-b bg-white py-14 shadow-xs">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50/80 px-3.5 py-1 text-xs font-semibold text-blue-800">
-            <HelpCircle className="h-3.5 w-3.5" />
-            <span>{brand.name} Trust & Support Center</span>
+    <div className="min-h-screen bg-slate-50/70 pb-20">
+      {/* High-Contrast Oxford Navy Hero Search Section (BUG-12) */}
+      <section className="relative overflow-hidden border-b border-slate-800 bg-slate-950 py-14 text-white shadow-xs sm:py-16">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-35"
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1 text-xs font-semibold text-blue-200">
+            <HelpCircle className="h-3.5 w-3.5 text-blue-400" />
+            <span>{brand.name} Trust &amp; Support Center</span>
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             How can our student team assist you?
           </h1>
-          <p className="mt-3 max-w-2xl text-base text-slate-600">
+          <p className="mt-3 max-w-2xl text-base text-slate-300">
             Search our knowledge base for instant answers on test mock diagnostics, Mushak 6.3 VAT billing, AI scoring disclaimers, or transparent refunds.
           </p>
 
@@ -79,13 +83,13 @@ export default function SupportHelpCenterPage() {
               placeholder="Search by keywords: 'Mushak 6.3', 'AI essay score', 'disconnection', 'refund'..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-12 w-full rounded-xl border-slate-300 pl-11 pr-4 text-base shadow-xs focus:border-blue-600 focus:ring-blue-600"
+              className="h-12 w-full rounded-xl border-slate-700 bg-white pl-11 pr-4 text-base text-slate-900 shadow-md focus:border-blue-600 focus:ring-blue-600"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-3.5 text-xs font-medium text-slate-400 hover:text-slate-600"
+                className="absolute right-3.5 top-3.5 text-xs font-medium text-slate-500 hover:text-slate-800"
               >
                 Clear
               </button>
