@@ -13,7 +13,7 @@ import {
   Compass,
 } from 'lucide-react';
 import { brand } from '@lumen/config';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { LiveGreWidget } from './live-gre-widget';
 
 import { GreExamGuide } from '../_components/GreExamGuide';

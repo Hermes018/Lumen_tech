@@ -1,50 +1,34 @@
 'use client';
 
 /** @purpose Interactive EN / বাংলা language switcher with NEXT_LOCALE cookie persistence (BUG-05) */
-import React, { Suspense, useTransition } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Globe } from 'lucide-react';
+import { withLocale } from './LocaleLink';
 
 function LocaleSwitcherInner({ className = '' }: { className?: string }) {
   const locale = useLocale();
   const pathname = usePathname() || '/';
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   const switchLocale = (targetLocale: 'en' | 'bn') => {
-    if (targetLocale === locale) return;
+    if (targetLocale === locale || isPending) return;
+    setIsPending(true);
 
-    // 1. Calculate target pathname preserving sub-routes
-    let targetPath = pathname;
-    if (targetLocale === 'bn') {
-      if (pathname === '/') {
-        targetPath = '/bn';
-      } else if (!pathname.startsWith('/bn/') && pathname !== '/bn') {
-        targetPath = `/bn${pathname}`;
-      }
-    } else {
-      // Switching to 'en' (default locale with 'as-needed' prefix)
-      if (pathname === '/bn') {
-        targetPath = '/';
-      } else if (pathname.startsWith('/bn/')) {
-        targetPath = pathname.slice(3) || '/';
-      }
-    }
+    // 1. Calculate target pathname preserving sub-routes (e.g. /sign-in, /exam/diagnostic, /courses)
+    const targetPath = withLocale(targetLocale, pathname);
 
     // Preserve query parameters (e.g. ?plan=gre-core)
     const queryString = searchParams?.toString();
     const finalUrl = queryString ? `${targetPath}?${queryString}` : targetPath;
 
     // 2. Persist NEXT_LOCALE cookie for next-intl routing
-    document.cookie = `NEXT_LOCALE=${targetLocale};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+    document.cookie = `NEXT_LOCALE=${targetLocale}; path=/; max-age=31536000; SameSite=Lax`;
 
-    // 3. Smooth transition to target route
-    startTransition(() => {
-      router.push(finalUrl);
-      router.refresh();
-    });
+    // 3. Full navigation guarantees server components & middleware receive the updated cookie on every route
+    window.location.assign(finalUrl);
   };
 
   return (

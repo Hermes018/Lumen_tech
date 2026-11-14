@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useLocale } from 'next-intl';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { brand } from '@lumen/config';
 import {
   Card,

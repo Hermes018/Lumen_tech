@@ -12,7 +12,7 @@ import {
   Columns2,
   MonitorCheck,
 } from 'lucide-react';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 
 import { IeltsExamGuide } from '../_components/IeltsExamGuide';
 export const metadata = {

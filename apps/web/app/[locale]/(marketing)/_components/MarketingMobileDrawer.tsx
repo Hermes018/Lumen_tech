@@ -15,7 +15,7 @@ import {
   HelpCircle,
   ArrowRight,
 } from 'lucide-react';
-import { Link } from '@/src/i18n/routing';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { LocaleSwitcher } from '../../_components/LocaleSwitcher';
 
 export interface MarketingMobileDrawerProps {

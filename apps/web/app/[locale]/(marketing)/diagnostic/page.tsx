@@ -1,5 +1,5 @@
 /** @purpose Marketing landing gateway for Free GRE & IELTS Express Diagnostic tests */
-import Link from 'next/link';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
