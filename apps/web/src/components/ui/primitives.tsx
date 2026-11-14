@@ -70,7 +70,7 @@ const SECTION_TONE_CLASSES: Record<NonNullable<SectionProps['tone']>, string> = 
   white: 'bg-[var(--bg)] text-[var(--text)]',
   tint: 'bg-[var(--bg-tint)] text-[var(--text)]',
   warm: 'bg-[var(--bg-warm)] text-[var(--text)]',
-  brand: 'bg-[var(--brand)] text-white',
+  brand: 'bg-[var(--brand)] text-white lumen-hero-inverse',
 };
 
 export function Section({ tone = 'white', id, children }: SectionProps) {
@@ -147,16 +147,48 @@ export interface PlaceholderImageProps {
 }
 
 export function PlaceholderImage({ slot, aspect = '16:10', locale = 'en' }: PlaceholderImageProps) {
+  const gradId = useId();
   const entry = MEDIA_SLOTS[slot];
   const aspectClass = aspect === '4:3' ? 'aspect-[4/3]' : 'aspect-[16/10]';
   const alt = locale === 'bn' ? entry.altBn : entry.altEn;
 
   return (
-    <div className={`rounded-none ${aspectClass} overflow-hidden bg-[var(--bg-tint)] w-full`}>
+    <div
+      className={`rounded-none ${aspectClass} relative overflow-hidden bg-[var(--bg-tint)] w-full`}
+    >
+      <svg
+        viewBox="0 0 800 500"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 h-full w-full"
+      >
+        <defs>
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="var(--bg-warm)" />
+            <stop offset="55%" stopColor="var(--bg-tint)" />
+            <stop offset="100%" stopColor="var(--soft-btn)" />
+          </linearGradient>
+        </defs>
+        <rect width="800" height="500" fill={`url(#${gradId})`} />
+        <circle cx="660" cy="110" r="140" fill="var(--accent)" fillOpacity="0.14" />
+        <circle cx="140" cy="410" r="170" fill="var(--crimson)" fillOpacity="0.1" />
+        <rect
+          x="48"
+          y="48"
+          width="704"
+          height="404"
+          fill="none"
+          stroke="var(--brand)"
+          strokeWidth="2"
+          strokeOpacity="0.15"
+        />
+        <rect x="48" y="48" width="96" height="8" fill="var(--accent)" fillOpacity="0.7" />
+        <rect x="656" y="444" width="96" height="8" fill="var(--brand)" fillOpacity="0.7" />
+      </svg>
       <img
         src={entry.src}
         alt={alt}
-        className="w-full h-full object-cover block"
+        className="relative z-10 h-full w-full object-cover block"
         loading="lazy"
       />
     </div>
@@ -178,9 +210,9 @@ export interface HeroBandProps {
 }
 
 const HERO_TONE_CLASSES: Record<NonNullable<HeroBandProps['tone']>, string> = {
-  warm: 'bg-[var(--bg-warm)] text-[var(--brand-ink)]',
-  brand: 'bg-[var(--brand)] text-white',
-  crimson: 'bg-[var(--crimson)] text-white',
+  warm: 'relative overflow-hidden bg-[var(--bg-warm)] text-[var(--brand-ink)]',
+  brand: 'relative overflow-hidden bg-[var(--brand)] text-white lumen-hero-inverse',
+  crimson: 'relative overflow-hidden bg-[var(--crimson)] text-white lumen-hero-inverse',
 };
 
 export function HeroBand({
@@ -195,11 +227,34 @@ export function HeroBand({
   frame = 'blocks',
   tone = 'warm',
 }: HeroBandProps) {
+  const heroId = useId();
   const isDark = tone === 'brand' || tone === 'crimson';
 
   return (
     <section className={HERO_TONE_CLASSES[tone]}>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      {tone === 'warm' ? (
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 1200 600"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-0 h-full w-full"
+        >
+          <defs>
+            <radialGradient id={`${heroId}-crimson`} cx="18%" cy="25%" r="55%">
+              <stop offset="0%" stopColor="var(--crimson)" stopOpacity="0.06" />
+              <stop offset="100%" stopColor="var(--crimson)" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id={`${heroId}-accent`} cx="85%" cy="75%" r="55%">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.08" />
+              <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <rect width="1200" height="600" fill={`url(#${heroId}-crimson)`} />
+          <rect width="1200" height="600" fill={`url(#${heroId}-accent)`} />
+        </svg>
+      ) : null}
+
+      <div className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           <div className="lg:col-span-6 space-y-5">
             <Heading level={1} inverse={isDark}>
@@ -227,38 +282,46 @@ export function HeroBand({
           </div>
 
           <div className="lg:col-span-6">
-            <div className="relative px-4 pb-4">
-              <PlaceholderImage slot={photoSlot} aspect="16:10" locale={locale} />
+            <div className="relative px-4 pt-3 pb-4">
               {frame === 'blocks' ? (
-                <div aria-hidden="true">
-                  {/* Bottom-left L-bar */}
-                  <span className="absolute bottom-0 left-0 w-16 h-4 bg-[var(--accent)]" />
-                  <span className="absolute bottom-0 left-0 w-4 h-16 bg-[var(--accent)]" />
-                  {/* Bottom-right L-bar */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-0 left-8 right-0 bottom-4 bg-[var(--accent)]/12"
+                />
+              ) : null}
+              <div className="relative z-10">
+                <PlaceholderImage slot={photoSlot} aspect="16:10" locale={locale} />
+              </div>
+              {frame === 'blocks' ? (
+                <div aria-hidden="true" className="pointer-events-none">
+                  {/* Bottom-left Sunset Orange L-bar */}
+                  <span className="absolute bottom-0 left-0 z-20 w-16 h-4 bg-[var(--accent)]" />
+                  <span className="absolute bottom-0 left-0 z-20 w-4 h-16 bg-[var(--accent)]" />
+                  {/* Bottom-right Warm Crimson L-bar */}
                   <span
-                    className={`absolute bottom-0 right-0 w-16 h-4 ${
+                    className={`absolute bottom-0 right-0 z-20 w-16 h-4 ${
                       isDark ? 'bg-white' : 'bg-[var(--brand)]'
                     }`}
                   />
                   <span
-                    className={`absolute bottom-0 right-0 w-4 h-16 ${
+                    className={`absolute bottom-0 right-0 z-20 w-4 h-16 ${
                       isDark ? 'bg-white' : 'bg-[var(--brand)]'
                     }`}
                   />
-                  {/* 2x2 decorative circle motif */}
-                  <div className="absolute -top-2 right-0 grid grid-cols-2 gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--crimson)]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--crimson)]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]" />
+                  {/* Upper-right 4 translucent crimson/orange circles */}
+                  <div className="absolute -top-1 right-0 z-20 grid grid-cols-2 gap-1.5">
+                    <span className="w-3 h-3 rounded-full bg-[var(--accent)]/70" />
+                    <span className="w-3 h-3 rounded-full bg-[var(--crimson)]/60" />
+                    <span className="w-3 h-3 rounded-full bg-[var(--crimson)]/60" />
+                    <span className="w-3 h-3 rounded-full bg-[var(--accent)]/70" />
                   </div>
                 </div>
               ) : (
-                <div aria-hidden="true">
-                  <span className="absolute bottom-0 left-0 w-20 h-4 bg-[var(--crimson)]" />
-                  <span className="absolute bottom-0 left-0 w-4 h-20 bg-[var(--crimson)]" />
-                  <span className="absolute top-0 right-0 w-12 h-4 bg-[var(--accent)]" />
-                  <span className="absolute top-0 right-0 w-4 h-12 bg-[var(--accent)]" />
+                <div aria-hidden="true" className="pointer-events-none">
+                  <span className="absolute bottom-0 left-0 z-20 w-20 h-4 bg-[var(--crimson)]" />
+                  <span className="absolute bottom-0 left-0 z-20 w-4 h-20 bg-[var(--crimson)]" />
+                  <span className="absolute top-0 right-0 z-20 w-12 h-4 bg-[var(--accent)]" />
+                  <span className="absolute top-0 right-0 z-20 w-4 h-12 bg-[var(--accent)]" />
                 </div>
               )}
             </div>
@@ -278,7 +341,10 @@ export interface SubBarProps {
 export function SubBar({ locale, items }: SubBarProps) {
   const visibleItems = items.slice(0, 3);
   return (
-    <nav aria-label="Section navigation" className="w-full bg-[var(--brand)] text-white">
+    <nav
+      aria-label="Section navigation"
+      className="w-full bg-[var(--brand-deep)] text-white border-b-2 border-[var(--brand)]"
+    >
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center gap-2 py-2">
         {visibleItems.map((item) => (
           <LocaleLink
@@ -288,7 +354,7 @@ export function SubBar({ locale, items }: SubBarProps) {
             aria-current={item.active ? 'page' : undefined}
             className={
               item.active
-                ? 'bg-[var(--soft-btn)] text-[var(--brand-ink)] font-bold px-4 py-2 rounded-[4px] min-h-[44px] inline-flex items-center'
+                ? 'bg-[var(--brand)] text-white font-bold px-4 py-2 rounded-[4px] min-h-[44px] inline-flex items-center'
                 : 'text-white/90 hover:text-white hover:underline underline-offset-4 px-4 py-2 min-h-[44px] inline-flex items-center'
             }
           >

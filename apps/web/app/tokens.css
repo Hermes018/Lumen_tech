@@ -2,19 +2,21 @@
 :root {
   color-scheme: light;
   --bg: #FFFFFF;
-  --bg-tint: #F4EFFB;
-  --bg-warm: #F6F1EA;
-  --brand: #2D006B;
-  --brand-ink: #1A1038;
-  --text: #3B3552;
-  --link: #4B1FB8;
-  --accent: #FFB400;
-  --crimson: #E4002B;
-  --terracotta: #C84B31;
-  --soft-btn: #DCCBFF;
-  --focus: #005FCC;
-  --hairline: #E4DDF2;
-  --shadow-hard: 6px 6px 0px #1A1038;
+  --bg-warm: #FFF5F2;
+  --bg-tint: #FEF0EB;
+  --surface-translucent: rgba(255, 243, 238, 0.86);
+  --brand: #C8102E;
+  --brand-deep: #231116;
+  --brand-ink: #1E0F13;
+  --text: #4A3339;
+  --link: #B80D27;
+  --accent: #FF5A26;
+  --crimson: #D90429;
+  --terracotta: #E04F26;
+  --soft-btn: #FFE2D6;
+  --focus: #D90429;
+  --hairline: #F2D6CE;
+  --shadow-hard: 6px 6px 0px #231116;
 }
 
 .lumen-h1 {
@@ -37,7 +39,7 @@
   font-size: 1.25rem;
   line-height: 1.3;
   font-weight: 700;
-  color: var(--brand);
+  color: var(--brand-ink);
 }
 
 .lumen-body {
@@ -45,6 +47,17 @@
   line-height: 1.65;
   color: var(--text);
   max-width: 65ch;
+}
+
+/* High-contrast white typography inside crimson/deep-brand heroes & bands */
+.lumen-hero-inverse .lumen-h1,
+.lumen-hero-inverse .lumen-h2,
+.lumen-hero-inverse .lumen-h3 {
+  color: #FFFFFF !important;
+}
+
+.lumen-hero-inverse .lumen-body {
+  color: rgba(255, 245, 242, 0.94) !important;
 }
 
 :lang(bn) .lumen-h1,

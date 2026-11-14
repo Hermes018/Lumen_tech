@@ -133,7 +133,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
 
       {/* Tier 3: MainNav */}
       <div
-        className="bg-[var(--brand)] text-white relative"
+        className="bg-[var(--brand-deep)] text-white relative border-b-4 border-[var(--brand)]"
         onMouseLeave={scheduleClose}
       >
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
@@ -602,7 +602,7 @@ export function InstitutionalFooter({ locale }: InstitutionalFooterProps) {
   const data = NAV_DATA[locale].footer;
 
   return (
-    <footer className="bg-[var(--brand)] text-white">
+    <footer className="bg-[var(--brand-deep)] text-white border-t-4 border-[var(--accent)]">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         {/* Single Payment & Trust Bar */}
         <div className="mb-10">
