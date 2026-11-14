@@ -74,3 +74,65 @@ body {
   letter-spacing: 0 !important;
   text-transform: none !important;
 }
+
+/* Seamless contextual overrides for LocaleSwitcher without modifying protected LocaleSwitcher.tsx */
+.lumen-locale-dark > div[role="region"],
+.lumen-locale-dark > div {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  color: #FAF8F5 !important;
+}
+
+.lumen-locale-dark svg {
+  color: rgba(250, 248, 245, 0.72) !important;
+}
+
+.lumen-locale-dark span {
+  color: rgba(250, 248, 245, 0.45) !important;
+}
+
+.lumen-locale-dark button,
+.lumen-locale-dark a {
+  border-radius: 2px !important;
+  background: transparent !important;
+  color: rgba(250, 248, 245, 0.72) !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+.lumen-locale-dark button[aria-current="true"],
+.lumen-locale-dark button[aria-current="page"],
+.lumen-locale-dark button[data-active="true"],
+.lumen-locale-dark a[aria-current="page"],
+.lumen-locale-dark a[data-active="true"] {
+  background-color: var(--brand) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}
+
+.lumen-locale-light > div[role="region"],
+.lumen-locale-light > div {
+  background-color: var(--bg-warm) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+
+.lumen-locale-light button,
+.lumen-locale-light a {
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+.lumen-locale-light button[aria-current="true"],
+.lumen-locale-light button[aria-current="page"],
+.lumen-locale-light button[data-active="true"],
+.lumen-locale-light a[aria-current="page"],
+.lumen-locale-light a[data-active="true"] {
+  background-color: var(--brand-deep) !important;
+  color: #FFFFFF !important;
+  border-color: transparent !important;
+}

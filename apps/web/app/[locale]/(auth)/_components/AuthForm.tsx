@@ -241,7 +241,9 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
         </Link>
 
         <div className="flex items-center gap-5">
-          <LocaleSwitcher />
+          <div className="lumen-locale-dark inline-flex items-center">
+            <LocaleSwitcher />
+          </div>
           <Link
             href="/help"
             className="text-sm font-medium text-white underline underline-offset-4 hover:text-white/85"

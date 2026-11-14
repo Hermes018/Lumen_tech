@@ -915,7 +915,7 @@ export default function DiagnosticExamPage() {
 
         {/* Right: Single Unified LocaleSwitcher + Rectangular Calculator Button + Monospace Timer */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="rounded-[4px] bg-white/95 text-[var(--brand-ink)] px-1 py-0.5">
+          <div className="lumen-locale-dark inline-flex items-center">
             <LocaleSwitcher />
           </div>
 

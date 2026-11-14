@@ -114,7 +114,9 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
       <div className="hidden lg:block bg-[var(--surface-paper)] border-b border-[var(--hairline)]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center justify-between gap-4">
           <div className="flex items-center">
-            <LocaleSwitcher />
+            <div className="lumen-locale-light inline-flex items-center">
+              <LocaleSwitcher />
+            </div>
           </div>
           <nav aria-label="Utility navigation" className="flex items-center gap-6 text-xs font-semibold text-[var(--text)]">
             {data.utilityLinks.map((item) => (
@@ -429,7 +431,9 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               <span className="text-xs font-bold text-[var(--text)]">
                 {data.mobileMenu.languageLabel}
               </span>
-              <LocaleSwitcher />
+              <div className="lumen-locale-light inline-flex items-center">
+                <LocaleSwitcher />
+              </div>
             </div>
 
             {/* Single-open Accordion: Exams */}

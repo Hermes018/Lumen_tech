@@ -158,7 +158,7 @@ export default async function LearnerLayout({ children }: { children: ReactNode 
 
           {/* User Status Indicators & Profile */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="rounded-[4px] bg-[var(--surface-paper)] text-[var(--brand-ink)]">
+            <div className="lumen-locale-dark inline-flex items-center">
               <LocaleSwitcher />
             </div>
 

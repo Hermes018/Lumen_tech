@@ -525,7 +525,9 @@ export default function IeltsPreviewPage() {
             })}
           </nav>
 
-          <LocaleSwitcher className="rounded-[4px] border-white/20 bg-white/10 text-white" />
+          <div className="lumen-locale-dark inline-flex items-center">
+            <LocaleSwitcher />
+          </div>
 
           <div className="flex items-center gap-2 rounded-[4px] border border-white/20 bg-white/10 px-2.5 py-1.5">
             <Clock className="h-3.5 w-3.5 text-[var(--accent)] shrink-0" />
