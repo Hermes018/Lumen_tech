@@ -1,4 +1,5 @@
 /** @purpose Named media slot registry with deterministic offline-safe editorial SVG artwork and bilingual alt/caption metadata */
+import { brand } from '@lumen/config';
 
 export type MediaSlotId =
   | 'hero-home'
@@ -48,7 +49,7 @@ function buildEditorialSvg(bg: string, primary: string, accent: string, code: st
 
 export const MEDIA_SLOTS: Record<MediaSlotId, MediaSlotEntry> = {
   'hero-home': {
-    altEn: 'Lumen Academy computer-based GRE and IELTS preparation workspace',
+    altEn: `${brand.name} computer-based GRE and IELTS preparation workspace`,
     altBn: 'লুমেন একাডেমির কম্পিউটার-ভিত্তিক জিআরই ও আইইএলটিএস প্রস্তুতির কর্মক্ষেত্র',
     src: buildEditorialSvg('%23F4EFFB', '%232D006B', '%23FFB400', 'LUMEN • GRE & IELTS'),
     themeColor: 'var(--brand)',
@@ -88,7 +89,7 @@ export const MEDIA_SLOTS: Record<MediaSlotId, MediaSlotEntry> = {
     captionBn: 'মুসক ৬.৩ ভ্যাট চালানসহ এককালীন টাকায় এনরোলমেন্ট।',
   },
   'hero-help': {
-    altEn: 'Lumen Academy learner support and exam day guidance center',
+    altEn: `${brand.name} learner support and exam day guidance center`,
     altBn: 'লুমেন একাডেমির শিক্ষার্থী সহায়তা ও পরীক্ষা নির্দেশনা কেন্দ্র',
     src: buildEditorialSvg('%23F4EFFB', '%231A1038', '%23E4002B', 'SUPPORT • DHAKA'),
     themeColor: 'var(--crimson)',
@@ -160,7 +161,7 @@ export const MEDIA_SLOTS: Record<MediaSlotId, MediaSlotEntry> = {
     captionBn: 'এনরোল করার আগে আপনার বর্তমান ব্যান্ড বা জিআরই বেসলাইন যাচাই করুন।',
   },
   'mega-courses': {
-    altEn: 'Lumen Academy flagship GRE and IELTS curriculum overview',
+    altEn: `${brand.name} flagship GRE and IELTS curriculum overview`,
     altBn: 'লুমেন একাডেমির ফ্ল্যাগশিপ জিআরই ও আইইএলটিএস পাঠ্যক্রম',
     src: buildEditorialSvg('%23F6F1EA', '%232D006B', '%23C84B31', 'CURRICULUM • 2026'),
     themeColor: 'var(--brand)',

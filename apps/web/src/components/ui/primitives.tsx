@@ -1,4 +1,4 @@
-/** @purpose Closed vocabulary of 17 institutional UI primitives for Lumen Academy marketing pages */
+/** @purpose Closed vocabulary of 17 institutional UI primitives for marketing pages */
 'use client';
 
 import React, { useId, useState, type ReactNode } from 'react';
