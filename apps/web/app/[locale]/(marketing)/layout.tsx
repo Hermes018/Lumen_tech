@@ -7,6 +7,7 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/src/i18n/routing';
 import { LocaleSwitcher } from '../_components/LocaleSwitcher';
 import { MarketingMobileDrawer } from './_components/MarketingMobileDrawer';
+import { BangladeshPaymentTrustBar } from './_components/BangladeshPaymentTrustBar';
 
 export default async function MarketingLayout({ children }: { children: ReactNode }) {
   const tCommon = await getTranslations('common');
@@ -109,6 +110,9 @@ export default async function MarketingLayout({ children }: { children: ReactNod
       {/* Marketing Footer */}
       <footer className="border-border bg-surface text-fg-muted border-t">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mb-10">
+            <BangladeshPaymentTrustBar variant="light" />
+          </div>
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div>
               <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">

@@ -172,7 +172,7 @@ export default function DiagnosticExamPage() {
             <span>Primary Cognitive Trap Identified: {scoreSummary.topTrapArchetype.label}</span>
           </div>
           <p className="text-xs text-[#444] leading-relaxed">
-            {scoreSummary.topTrapArchetype.description}
+            <MathText content={scoreSummary.topTrapArchetype.description} />
           </p>
         </div>
 
