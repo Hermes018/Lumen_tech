@@ -1,6 +1,6 @@
-# LUMEN ACADEMY — MASTER UI/UX OVERHAUL RUNBOOK (BATCHES P0 $\rightarrow$ P5)
+# LUMEN ACADEMY — MASTER UI/UX OVERHAUL RUNBOOK (BATCHES P0 -> P9)
 
-**File Location:** `/home/ayra/Lumen_tech/Lumen_tech/docs/UI-OVERHAUL-RUNBOOK.md`  
+**File Location:** `/home/ayra/Lumen_tech/Lumen_tech/docs/lumen_ui_overhaul_master_runbook.md`  
 **Companion References:** `docs/LUMEN-DESIGN-STRATEGY.md` & `docs/LUMEN-FAILURE-MODES-AND-VERIFICATION.md`  
 **Target Environment:** Fedora Linux (8 GB RAM Ceiling — Always prefix Node/pnpm commands with `NODE_OPTIONS="--max-old-space-size=2048"`)  
 **Git Author:** `Ayman Rahman <aymanrahman30@gmail.com>` (Local commits only — **NEVER** run `git push`)
@@ -12,105 +12,106 @@
 You are operating in **Interactive Single-Batch Mode**. You MUST obey these 5 execution laws on every turn:
 
 1. **ONE BATCH PER TURN (STRICT STOP-GATE):**
-   - Execute **ONLY** the specific batch requested by the user (or the next uncompleted batch in sequence `P0` $\rightarrow$ `P1-A` $\rightarrow$ `P1-B` $\rightarrow$ `P2` $\rightarrow$ `P3` $\rightarrow$ `P4` $\rightarrow$ `P5` when the user says `"continue"` or `"next"`).
-   - **NEVER** chain two batches together in a single turn.
+   * Batches `P0` through `P5` are already completed and committed.
+   * Execute **ONLY** the specific batch requested by the user (`BATCH P6`, `BATCH P7`, `BATCH P8`, or `BATCH P9`), or the next uncompleted batch in sequence `P6` -> `P7` -> `P8` -> `P9` when the user says `"continue"` or `"next"`.
+   * **NEVER** chain two batches together in a single turn.
 2. **NO IMPROVISATION / ZERO GUESSING:**
-   - Every token, prop, file path, word cap, and layout sequence is locked in this document. Do not invent props, do not add extra cards/badges, and do not modify files outside the batch's **Allowed Files** list.
-   - If any check fails twice or a required file is missing, **STOP** immediately and report the exact error.
+   * Every CSS variable, hex code, image URL, prop, file path, and layout rule is explicitly specified below. Do not invent props, do not add extra cards or pill badges, and do not modify files outside the batch's **Allowed Files** list.
+   * Never hardcode the literal string `"Lumen Academy"` in `.ts` or `.tsx` files—always import `{ brand } from '@lumen/config'` and use `brand.name` so `brand-sweep.test.ts` passes.
 3. **PROTECTED i18n FILES (NEVER MODIFY):**
-   - The Bengali switcher and translation pipeline are working and locked. You must **NEVER** modify:
-     - `apps/web/app/[locale]/_components/LocaleSwitcher.tsx`
-     - `apps/web/app/[locale]/_components/LocaleLink.tsx`
-     - `apps/web/app/[locale]/_components/TranslatedText.tsx`
-     - `apps/web/app/api/translate/route.ts`
+   * The Bengali switcher and translation pipeline are working and locked. You must **NEVER** modify:
+     * `apps/web/app/[locale]/_components/LocaleSwitcher.tsx`
+     * `apps/web/app/[locale]/_components/LocaleLink.tsx`
+     * `apps/web/app/[locale]/_components/TranslatedText.tsx`
+     * `apps/web/app/api/translate/route.ts`
 4. **MANDATORY RECEIPTS BEFORE STOPPING:**
-   - A batch is NOT complete until you run its verification commands and paste the raw output of:
+   * A batch is NOT complete until you run its verification commands and paste the raw output of:
      1. `pnpm design:lint`
-     2. The batch's `vitest` test command
+     2. `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`
      3. `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`
      4. `git status -sb` and `git diff --stat HEAD~1`
 5. **END-OF-BATCH HALT MESSAGE:**
-   - After committing the completed batch locally to `main`, end your response with:
+   * After committing the completed batch locally to `main`, end your response with:
      > **`BATCH <ID> COMPLETE AND COMMITTED. Waiting for your instruction: reply "continue" to run Batch <NEXT_ID>, or tell me any adjustments you want first.`**
 
 ---
 
-## 1. THE CONSTITUTION & LOCKED DESIGN DECISIONS
+## 1. COMPLETED FOUNDATION SUMMARY (BATCHES P0 -> P5)
 
-### 1.1 The 12 Unbreakable Lumen UI Laws
-1. **Compose, don't invent.** Marketing pages (`apps/web/app/[locale]/(marketing)/**/page.tsx`) may only assemble primitives from `@/src/components/ui/primitives`. Zero raw layout `<div className="...">` inside marketing `page.tsx` files.
-2. **No bordered or shadowed content cards.** Content grids (`StatRow`, `StepRow`, `MediaColumns`, `SideHeadingBlocks`, `SplitFeature`) have **zero borders, zero box-shadows, and zero rounded card wrappers**. The only allowed boxes on a marketing page are: `CalloutNotice` ($\le 1$ per page), the single white card inside `CtaBand`, and buttons. Never nest a box inside a box.
-3. **No eyebrow labels.** Zero `ALL-CAPS` micro-text labels above headings or inside cards. Section `H2` headings use the geometric `<LumenSparkMotif />` SVG mark instead.
-4. **Tokens only.** Zero hex/rgb literals and zero arbitrary Tailwind bracket values (`text-[10px]`, `p-[13px]`) outside `apps/web/app/tokens.css`.
-5. **Whitespace budget.** Sections use `<Section>` (`py-14 md:py-20 lg:py-28`, `max-w-[1200px]`, `gap-8 lg:gap-12`). Never shrink spacing to fit more text; cut text instead.
-6. **Strict word caps.** Titles $\le 10$ words; Hero body $\le 35$ words; Section intro $\le 60$ words; Column/Step/Block body $\le 40$ words; Pricing bullets $\le 4$ items per plan ($\le 10$ words each).
-7. **Progressive disclosure.** Any list $> 3$ items, any syllabus module list, any comparison table, and any FAQ list must be placed inside `<Disclosure>` (closed by default) or `<Tabs>`. Zero raw `<table>` tags on marketing pages outside a `<Disclosure>` or `<Tabs>` panel.
-8. **One primary action per section.** Maximum one filled button per section; secondary actions are underlined text links.
-9. **Truthful, verified data only.** Never invent testimonials, student names, or unverified stats. Use only the locked content in `apps/web/src/content/marketing.ts` and named media slots in `apps/web/src/content/media.ts`.
-10. **Bilingual-first (`en` + `bn`).** Every string exists in both English and Bengali. No fixed heights (`h-...`) or `truncate` on text containers. Bengali (`:lang(bn)`) gets `line-height: 1.75`, `letter-spacing: 0`, and `text-transform: none`.
-11. **Protected i18n paths.** Never touch `LocaleSwitcher.tsx`, `LocaleLink.tsx`, `TranslatedText.tsx`, or `api/translate/route.ts`.
-12. **Receipts required.** Every batch requires raw CLI output of `pnpm design:lint`, tests, and `tsc`.
-
-### 1.2 Locked Answers to All Strategy Decisions (Zero Ambiguity)
-- **Decision 1 (Color Skin):** **Option A (Lumen Institutional Skin)** in `tokens.css`, with `--crimson: #E4002B` for numbered step squares and `/ielts` hero accent, and `--terracotta: #C84B31` for `/gre` mega-menu dashed arrows.
-- **Decision 2 (Photography):** Named slots in `apps/web/src/content/media.ts` rendered exclusively through `<PlaceholderImage slot="..." aspect="16:10" | "4:3" />` using clean, un-tilted `0px`-radius frames and deterministic SVG/WebP academic illustrations so pages never break offline or fail CSP.
-- **Decision 3 (Verified Stats for `StatRow`):**
-  1. `1h 58m` — Computer-Delivered GRE Format (`verified: true`)
-  2. `4 Skills` — IELTS Listening, Reading, Writing & Speaking (`verified: true`)
-  3. `1,500+` — Bilingual Active-Recall Vocabulary Cards (`verified: true`)
-  4. `15% VAT` — Official Mushak 6.3 Invoice Included (`verified: true`)
-- **Decision 4 (Courses & Pricing Data):** Centralized in `apps/web/src/content/marketing.ts` with Latin numerals (`৳ 5,990`) in `en` and Bengali numerals (`৳ ৫,৯৯০`) in `bn`.
-- **Decision 5 (Mobile Target):** $390\text{px}$ mobile viewport is a primary gate alongside $768\text{px}$ and $1440\text{px}$.
-- **Decision 6 (Trademark Line):** Standard non-affiliation disclaimer for ETS, British Council, IDP, and Cambridge included in `InstitutionalFooter`.
+* **P0–P5 Status:** Completed on `main` (`2be300f` -> `0c2fb7a`).
+* **What Exists:** `AGENTS.md`, `.claude/skills/institutional-ui/SKILL.md`, `apps/web/app/tokens.css`, `apps/web/src/components/ui/primitives.tsx`, `apps/web/src/components/ui/HeaderFooter.tsx`, `apps/web/src/content/media.ts`, `apps/web/src/content/nav.ts`, `apps/web/src/content/marketing.ts`, `tooling/design-lint.mjs`, and `tooling/design-shots.mjs`.
 
 ---
 
-## 2. SEQUENTIAL EXECUTION BATCHES
+## 2. FORENSIC DIAGNOSIS OF THE 5 VISUAL DEFECTS FIXED IN BATCHES P6 -> P9
+
+1. **Defect 1 — Broken Black Image Boxes (`PlaceholderImage` / `media.ts`):**
+   * **Root Cause:** `media.ts` used unencoded `#` hex characters inside `data:image/svg+xml;utf8,...` strings. Browsers treat `#` as a URL fragment identifier and truncate the SVG before the `fill` attribute, causing `<rect width="100%" height="100%" />` to render with SVG's default `#000000` solid black fill!
+   * **Fix (Batch P6):** Replace broken data-URI strings with verified open-source student/academic photography from `images.unsplash.com` (`<img>` with `loading="lazy"` / `eager`), ensure `apps/web/next.config.ts` CSP `img-src` allows `https://images.unsplash.com`, and render a rich inline React JSX SVG warm crimson/orange editorial illustration underneath as a fallback—never a `data:image/svg+xml` string and never a black rectangle.
+2. **Defect 2 — Dark Unreadable Hero Text on Crimson & Brand Heroes (`/pricing`, `/ielts`):**
+   * **Root Cause:** `.lumen-h1` and `.lumen-body` in `apps/web/app/tokens.css` hardcode `color: var(--brand-ink)` and `color: var(--text)`, overriding Tailwind's `text-white` inside dark/crimson `HeroBand` sections.
+   * **Fix (Batch P6):** Add `.lumen-hero-inverse .lumen-h1, .lumen-hero-inverse .lumen-h2, .lumen-hero-inverse .lumen-h3 { color: #FFFFFF !important; }` and `.lumen-hero-inverse .lumen-body { color: rgba(255, 255, 255, 0.92) !important; }` in `tokens.css` and apply `lumen-hero-inverse` whenever `HeroBand` has `tone="brand"` or `tone="crimson"`.
+3. **Defect 3 — Cold Purple Palette vs. Requested IELTS Warm Red, Orange & Translucent Backdrops:**
+   * **Fix (Batch P6):** Update `apps/web/app/tokens.css` to a cohesive **Warm IELTS Crimson, Sunset Orange & Translucent Rose/Peach Backdrop** palette:
+     * `--bg`: `#FFFFFF` (Pure Daylight White)
+     * `--bg-warm`: `#FFF5F2` (Light Translucent Warm Rose-Peach Hero Backdrop)
+     * `--bg-tint`: `#FEF0EB` (Light Translucent Coral-Alabaster Alternating Band)
+     * `--surface-translucent`: `rgba(255, 243, 238, 0.86)` (Translucent Warm Backdrop for panels/notices)
+     * `--brand`: `#C8102E` (Institutional IELTS Crimson Red)
+     * `--brand-deep`: `#231116` (Deep Warm Espresso-Aubergine for MainNav, SubBar & Footer)
+     * `--brand-ink`: `#1E0F13` (Deep Warm Charcoal-Espresso for headings)
+     * `--text`: `#4A3339` (Warm Umber-Slate body text, $\ge 7.5:1$ contrast)
+     * `--link`: `#B80D27` (Deep Crimson underlined action links)
+     * `--accent`: `#FF5A26` (Vibrant Warm Orange / Coral for TopRibbon, geometric photo L-bars, and step highlights)
+     * `--crimson`: `#D90429` (Vivid Crimson for `StepRow` numeral squares and hero bands)
+     * `--terracotta`: `#E04F26` (Warm Terracotta-Orange for dashed arrows and outline accents)
+     * `--soft-btn`: `#FFE2D6` (Soft Warm Peach-Orange button fill with `--brand-ink` text)
+     * `--hairline`: `#F2D6CE` (Warm Rose-Sand structural hairline divider)
+4. **Defect 4 — AI Rainbow Pill Box in `BangladeshPaymentTrustBar.tsx`:**
+   * **Root Cause:** `BangladeshPaymentTrustBar.tsx` still renders a dark `rounded-2xl` box with 6 neon pink/orange/purple/blue/green `rounded-full` pills.
+   * **Fix (Batch P7):** Rewrite `BangladeshPaymentTrustBar.tsx` into a flat, borderless institutional typographic ledger (`border-t border-b`, zero `rounded-full` pills, zero rainbow borders) that blends naturally into both the footer and checkout.
+5. **Defect 5 — `/sign-in`, `/sign-up`, and `/exam/diagnostic` Still Look Like Disconnected AI Templates:**
+   * **Root Cause:** `(auth)` pages still have fake unverified stats (`+11.4 Pts`, `78%`), a fake testimonial (`Farhan T., BUET`), `ALL-CAPS` eyebrows, and translucent rounded boxes; `/exam/diagnostic` still has 5 `rounded-full` header pills, `rounded-2xl` floating cards, and 3 nested dashed hint boxes.
+   * **Fix (Batches P8 & P9):** Rebuild `/sign-in`, `/sign-up`, and `/exam/diagnostic` using the exact same tokens (`tokens.css`), sharp `4px` (`rounded-[4px]`) geometry, `<LumenSparkMotif />`, open-source photography with geometric L-bar framing, and flat hairline dividers.
 
 ---
 
-### BATCH P0: Constitution Files, `tokens.css` & `pnpm design:lint` Gate
+## 3. SEQUENTIAL EXECUTION BATCHES (P6 -> P9)
 
-- **Recommended Model:** `Gemini 4 Hydrogen (Medium)` or `Gemini 4 Argon (Low/Medium)`
-- **Objective:** Install the 12 UI Laws into `AGENTS.md` and `.claude/skills/institutional-ui/SKILL.md`, create `docs/MISTAKE-LEDGER.md`, define `apps/web/app/tokens.css`, and wire `tooling/design-lint.mjs` (`pnpm design:lint`).
-- **Allowed Files to Create/Edit:**
-  - `AGENTS.md`
-  - `.claude/skills/institutional-ui/SKILL.md`
-  - `docs/MISTAKE-LEDGER.md`
-  - `apps/web/app/tokens.css`
-  - `apps/web/app/globals.css` (only to add `@import "./tokens.css";`)
-  - `tooling/design-lint.mjs`
-  - `package.json` (only to add `"design:lint": "node tooling/design-lint.mjs"`)
+---
 
-#### Step P0.1: Write `AGENTS.md` and `.claude/skills/institutional-ui/SKILL.md`
-Write the 12 Lumen UI Laws from Section 1.1 above and the Source-of-Truth Hierarchy (`AGENTS.md > tokens.css > primitives.tsx > content/marketing.ts > page blueprints`) into both `AGENTS.md` and `.claude/skills/institutional-ui/SKILL.md`.
+### BATCH P6: Warm Crimson/Orange/Translucent Palette (`tokens.css`), Hero Contrast Fix & Open-Source Photography (`media.ts` + `primitives.tsx`)
 
-#### Step P0.2: Initialize `docs/MISTAKE-LEDGER.md`
-Create `docs/MISTAKE-LEDGER.md` with the table header `| Date | Task | Model | Mistake Class | Caught By | Root Cause | Permanent Fix | Merged? |` and 4 initial rows documenting:
-1. `B1 Completeness Bias` (1,200-word course dump on `/courses` $\rightarrow$ Fixed by `<Disclosure>` & word caps).
-2. `B2 Template Pull` (34+ nested bordered cards on `/` $\rightarrow$ Fixed by `primitives.tsx` with zero `className` passthrough).
-3. `B3 Prompt Echoing` (Literal prompt text inside rounded pill badges $\rightarrow$ Fixed by banning eyebrows and `brand-sweep.test.ts`).
-4. `B8 Locale Digit Mismatch` (Bengali numerals on English `/pricing` $\rightarrow$ Fixed by locale-keyed `priceEn` / `priceBn` in `marketing.ts`).
+* **Recommended Model:** `Gemini 4 Hydrogen (Medium)` or `Gemini 4 Argon (Medium)`
+* **Objective:** Update `tokens.css` to the warm IELTS red/orange/translucent palette, fix the dark-on-dark hero text bug, allow `images.unsplash.com` in `next.config.ts`, and fix the broken black images in `media.ts` and `primitives.tsx` using real open-source photography + safe JSX graphic backdrops.
+* **Allowed Files to Edit:**
+  * `apps/web/app/tokens.css`
+  * `apps/web/next.config.ts`
+  * `apps/web/src/content/media.ts`
+  * `apps/web/src/components/ui/primitives.tsx`
+  * `apps/web/src/components/ui/HeaderFooter.tsx` (only if needed to reference `--brand-deep` for the main nav/footer bar so crimson/orange accents pop)
 
-#### Step P0.3: Create `apps/web/app/tokens.css` & Import in `apps/web/app/globals.css`
-Create `apps/web/app/tokens.css` with these exact tokens and typography classes:
+#### Step P6.1: Update `apps/web/app/tokens.css` (Warm Crimson, Orange & Translucent Backdrops + Inverse Hero Fix)
+Replace `apps/web/app/tokens.css` with:
 ```css
 :root {
   color-scheme: light;
   --bg: #FFFFFF;
-  --bg-tint: #F4EFFB;
-  --bg-warm: #F6F1EA;
-  --brand: #2D006B;
-  --brand-ink: #1A1038;
-  --text: #3B3552;
-  --link: #4B1FB8;
-  --accent: #FFB400;
-  --crimson: #E4002B;
-  --terracotta: #C84B31;
-  --soft-btn: #DCCBFF;
-  --focus: #005FCC;
-  --hairline: #E4DDF2;
-  --shadow-hard: 6px 6px 0px #1A1038;
+  --bg-warm: #FFF5F2;
+  --bg-tint: #FEF0EB;
+  --surface-translucent: rgba(255, 243, 238, 0.86);
+  --brand: #C8102E;
+  --brand-deep: #231116;
+  --brand-ink: #1E0F13;
+  --text: #4A3339;
+  --link: #B80D27;
+  --accent: #FF5A26;
+  --crimson: #D90429;
+  --terracotta: #E04F26;
+  --soft-btn: #FFE2D6;
+  --focus: #D90429;
+  --hairline: #F2D6CE;
+  --shadow-hard: 6px 6px 0px #231116;
 }
 
 .lumen-h1 {
@@ -133,7 +134,7 @@ Create `apps/web/app/tokens.css` with these exact tokens and typography classes:
   font-size: 1.25rem;
   line-height: 1.3;
   font-weight: 700;
-  color: var(--brand);
+  color: var(--brand-ink);
 }
 
 .lumen-body {
@@ -141,6 +142,17 @@ Create `apps/web/app/tokens.css` with these exact tokens and typography classes:
   line-height: 1.65;
   color: var(--text);
   max-width: 65ch;
+}
+
+/* High-contrast white typography inside crimson/deep-brand heroes & bands */
+.lumen-hero-inverse .lumen-h1,
+.lumen-hero-inverse .lumen-h2,
+.lumen-hero-inverse .lumen-h3 {
+  color: #FFFFFF !important;
+}
+
+.lumen-hero-inverse .lumen-body {
+  color: rgba(255, 245, 242, 0.94) !important;
 }
 
 :lang(bn) .lumen-h1,
@@ -152,234 +164,158 @@ Create `apps/web/app/tokens.css` with these exact tokens and typography classes:
   text-transform: none !important;
 }
 ```
-And import `@import "./tokens.css";` at the top of `apps/web/app/globals.css`.
 
-#### Step P0.4: Create `tooling/design-lint.mjs` & Add `"design:lint"` to Root `package.json`
-Create `tooling/design-lint.mjs` that checks:
-1. **Protected i18n Diff Guard:** Checks `git status --porcelain` and `git diff --name-only HEAD` to ensure `LocaleSwitcher.tsx`, `LocaleLink.tsx`, `TranslatedText.tsx`, and `api/translate/route.ts` have zero modifications.
-2. **Suppression Ban:** Scans `apps/web/src` (if present) for `@ts-ignore`, `@ts-nocheck`, `eslint-disable`, or `: any`.
-3. **Primitive-Only Page Guard:** For every `apps/web/app/[locale]/(marketing)/**/page.tsx` file that imports from `@/src/components/ui/primitives` (or for all 6 marketing pages once `--strict-pages` is enabled in Batch P4), fails if the `page.tsx` file contains `className=`, `style=`, `<table`, `#` hex codes, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, or `shadow-`.
+#### Step P6.2: Ensure `https://images.unsplash.com` Is Permitted in `apps/web/next.config.ts`
+In `apps/web/next.config.ts`:
+1. Ensure `images.remotePatterns` includes `{ protocol: 'https', hostname: 'images.unsplash.com' }`.
+2. In the Content-Security-Policy header (`img-src`), ensure `https://images.unsplash.com` is present alongside `'self' data: blob:`.
 
-#### Step P0.5: Verify, Commit & Halt
-1. Run `pnpm design:lint` and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Commit all changes to `main` as `Ayman Rahman <aymanrahman30@gmail.com>`.
-3. Print raw verification outputs and **HALT** waiting for user instruction.
+#### Step P6.3: Replace Broken SVG Data URIs in `apps/web/src/content/media.ts` with Open-Source Photography URLs
+Update `MEDIA_SLOTS` in `apps/web/src/content/media.ts` so every slot uses a verified, high-availability open-source student/university photograph from Unsplash (`auto=format&fit=crop&w=1000&q=80`), plus a warm fallback gradient (`themeColor`):
+* `hero-home`: `'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80'` (University scholars studying together in daylight)
+* `hero-gre`: `'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80'` (Graduate quantitative & analytical test preparation)
+* `hero-ielts`: `'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80'` (Student practicing computer-delivered IELTS with headphones)
+* `hero-courses`: `'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=80'` (Collaborative seminar & structured curriculum study)
+* `hero-pricing`: `'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=80'` (Transparent planning and academic investment)
+* `hero-help`: `'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=80'` (Dedicated student support & guidance team)
+* `track-gre`: `'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80'` (STEM & business graduate school preparation)
+* `track-ielts-ac`: `'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80'` (University campus graduation & international study)
+* `track-ielts-gt`: `'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'` (Global career & skilled migration pathways)
+* `dest-usa`: `'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=800&q=80'` (United States university & skyline)
+* `dest-uk`: `'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80'` (United Kingdom Westminster & academic heritage)
+* `dest-canada`: `'https://images.unsplash.com/photo-1517935706615-2717063c2225?auto=format&fit=crop&w=800&q=80'` (Canada Toronto skyline & campus life)
+* `dest-australia`: `'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=800&q=80'` (Australia Sydney harbor & university precinct)
+* `split-diagnostic`: `'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1000&q=80'` (Student taking timed computer-based diagnostic)
+* `mega-courses`: `'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80'` (Focused mentor-guided exam preparation)
 
----
+#### Step P6.4: Upgrade `<PlaceholderImage />` and `<HeroBand />` in `apps/web/src/components/ui/primitives.tsx`
+1. In `<PlaceholderImage />`:
+   * Render a warm translucent crimson/orange architectural backdrop (`bg-[var(--bg-tint)] relative overflow-hidden`) with a subtle geometric warm-orange/crimson SVG pattern underneath, and an `<img src={slotData.src} alt={...} className="relative z-10 h-full w-full object-cover" loading="lazy" />` on top. That way, real open-source photographs render crisply, and even before loading, the backdrop is warm rose/orange—**never a solid black rectangle**!
+2. In `<HeroBand />`:
+   * When `tone === 'crimson'` or `tone === 'brand'`, add the `lumen-hero-inverse` class to the hero section wrapper so `.lumen-h1` and `.lumen-body` render in crisp `#FFFFFF` white!
+   * When `tone === 'warm'` (default), use a layered warm translucent backdrop (`bg-[var(--bg-warm)]` with a soft translucent radial glow of `--crimson` at 6% and `--accent` orange at 8% opacity) and frame the right-hand photograph with **IELTS-style geometric offset blocks in Warm Crimson (`var(--brand)`) and Sunset Orange (`var(--accent)`)** + 4 translucent crimson/orange circles in the upper-right corner!
+3. In `HeaderFooter.tsx` and `<SubBar />` / `<CtaBand />`:
+   * Use `bg-[var(--brand-deep)]` (`#231116`) for the main navigation bar, sub-bar, and footer, with `bg-[var(--brand)]` (`#C8102E` crimson) and `bg-[var(--accent)]` (`#FF5A26` warm orange) accents so the entire site shares the warm red/orange IELTS visual harmony.
 
-### BATCH P1-A: Closed UI Primitives Catalog (`primitives.tsx`) & `/dev/ui` Gallery
-
-- **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
-- **Objective:** Build the closed vocabulary of 17 institutional UI primitives in `apps/web/src/components/ui/primitives.tsx`, the media slot registry in `apps/web/src/content/media.ts`, the `/dev/ui` gallery page, and the word-cap validator test in `packages/core/src/__tests__/ui-primitives-caps.test.ts`.
-- **Allowed Files to Create/Edit:**
-  - `apps/web/src/content/media.ts`
-  - `apps/web/src/components/ui/primitives.tsx`
-  - `apps/web/app/[locale]/(marketing)/dev/ui/page.tsx`
-  - `packages/core/src/__tests__/ui-primitives-caps.test.ts`
-
-#### Step P1-A.1: Create `apps/web/src/content/media.ts`
-Define and export `MediaSlotId`:
-```ts
-export type MediaSlotId =
-  | 'hero-home'
-  | 'hero-gre'
-  | 'hero-ielts'
-  | 'hero-courses'
-  | 'hero-pricing'
-  | 'hero-help'
-  | 'track-gre'
-  | 'track-ielts-ac'
-  | 'track-ielts-gt'
-  | 'dest-usa'
-  | 'dest-uk'
-  | 'dest-canada'
-  | 'dest-australia'
-  | 'split-diagnostic'
-  | 'mega-courses';
-```
-Map each slot to `{ altEn: string; altBn: string; src: string; themeColor: string; captionEn: string; captionBn: string }` (using your configured `images.unsplash.com` URLs or high-resolution SVG/canvas editorial art with graceful fallback so images never 404).
-
-#### Step P1-A.2: Create `apps/web/src/components/ui/primitives.tsx`
-Implement these 17 primitives. **CRITICAL:** None of these primitives may accept a `className` prop or an `eyebrow` prop!
-1. `LumenSparkMotif`: 3-ray geometric SVG mark (`width="28" height="16"`) in `var(--brand)` and `var(--accent)`.
-2. `Section`: `{ tone?: 'white' | 'tint' | 'warm' | 'brand'; id?: string; children: ReactNode }`. Renders full-bleed background (`#FFFFFF`, `var(--bg-tint)`, `var(--bg-warm)`, or `var(--brand)`) with `py-14 md:py-20 lg:py-28` and inner container `max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8`. Zero borders!
-3. `Heading`: `{ level: 1 | 2 | 3; children: string; showMotif?: boolean; inverse?: boolean }`. Renders `.lumen-h1`, `.lumen-h2` (preceded by `<LumenSparkMotif />` when `showMotif !== false`), or `.lumen-h3`.
-4. `Button`: `{ href: string; locale: string; variant?: 'filled' | 'soft' | 'outline' | 'link'; children: ReactNode }`. Wraps `<LocaleLink locale={locale} href={href}>` with `rounded-[4px]` (`4px` radius), `font-semibold`, `min-h-[44px] inline-flex items-center`.
-5. `PlaceholderImage`: `{ slot: MediaSlotId; aspect?: '16:10' | '4:3'; locale?: string }`. Renders sharp `0px`-corner (`rounded-none`) image container with `aspect-[16/10]` or `aspect-[4/3]`, `overflow-hidden bg-[var(--bg-tint)]`, zero shadow, zero text overlaid on top of faces.
-6. `HeroBand`: `{ locale: string; title: string; body: string; ctaLabel: string; ctaHref: string; secondaryLinkLabel?: string; secondaryLinkHref?: string; photoSlot: MediaSlotId; frame?: 'blocks' | 'petal'; tone?: 'warm' | 'brand' | 'crimson' }`.
-   - Desktop compact height (`py-12 lg:py-16`), 12-column grid (`grid-cols-1 lg:grid-cols-12 gap-10 items-center`).
-   - Left 6 cols: H1 + body ($\le 35$ words) + 1 primary button (+ optional underlined link).
-   - Right 6 cols: `<PlaceholderImage slot={photoSlot} aspect="16:10" />` framed on the outer bottom-left and bottom-right edges by `16px` solid geometric L-bars (`var(--accent)` amber & `var(--brand)` indigo) and a $2 \times 2$ decorative circle motif in the corner (`frame="blocks"`), or IDP-style asymmetric leaf blocks (`frame="petal"`).
-7. `SubBar`: `{ locale: string; items: Array<{ label: string; href: string; active?: boolean }> }`. Full-width `bg-[var(--brand)] text-white` bar under `HeroBand` with up to 3 horizontal tab links (active item styled with `bg-[var(--soft-btn)] text-[var(--brand-ink)] font-bold`).
-8. `StatRow`: `{ stats: Array<{ value: string; caption: string; verified: true }> }`. 3 or 4 borderless columns in open whitespace (`text-4xl lg:text-5xl font-extrabold text-[var(--brand)]` + `text-sm text-[var(--text)] mt-2`), followed below by a `1px` `bg-[var(--hairline)]` divider line with `<LumenSparkMotif />` centered in the middle (matching British Council's divider in `image_114659.png`).
-9. `StepRow`: `{ title: string; intro?: string; locale: string; steps: Array<{ num: '1' | '2' | '3' | '4'; title: string; body: string; linkLabel?: string; linkHref?: string }> }`.
-   - Renders H2 + intro, then a 4-column borderless grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10`).
-   - Each step has: Top row with a `60px x 60px` solid `bg-[var(--crimson)] text-white text-3xl font-extrabold flex items-center justify-center` square + a wide chevron arrow (`❯` in `#F497A9`) pointing right; middle `.lumen-h3` title + body ($\le 30$ words); bottom underlined link (`text-[var(--link)] underline underline-offset-4 decoration-2 font-semibold`). Zero borders or card backgrounds!
-10. `MediaColumns`: `{ title: string; intro?: string; columns: 2 | 3 | 4; locale: string; items: Array<{ photoSlot?: MediaSlotId; accentColor?: string; title: string; href: string; meta?: string; body: string; links?: Array<{ label: string; href: string }>; disclosureTitle?: string; disclosureItems?: string[] }> }`.
-    - Pure borderless editorial columns (`gap-8 lg:gap-10`): sharp `4:3` `<PlaceholderImage />` (or `8px` top color bar when `photoSlot` is omitted), clickable underlined H3 title (`text-[var(--brand)] hover:text-[var(--link)] underline underline-offset-4 decoration-2`), optional bold `meta` line (price/duration), short body ($\le 40$ words), underlined action links, and an optional closed `<Disclosure>` for syllabus modules. Zero card borders, zero drop shadows!
-11. `SplitFeature`: `{ photoSlot: MediaSlotId; photoSide?: 'left' | 'right'; title: string; body: string; ctaLabel: string; ctaHref: string; locale: string }`. 50/50 open-canvas split (`grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center`), zero borders.
-12. `SideHeadingBlocks`: `{ title: string; intro: string; ctaLabel?: string; ctaHref?: string; locale: string; blocks: Array<{ icon: 'calendar' | 'currency' | 'location' | 'shield' | 'clock' | 'check'; title: string; body: string; linkLabel?: string; linkHref?: string }> }`.
-    - Exact 1/3 Left Heading (`lg:col-span-4`) + 2/3 Right Icon-Led Q&A (`lg:col-span-8 space-y-8`) layout from `image_113f12.png`. Each right-hand block has a `32px` crimson (`var(--crimson)`) outline SVG icon in a left gutter + bold H3 + short paragraph + optional underlined link. Zero borders or boxes!
-13. `Disclosure`: `{ summary: string; children: ReactNode }`. Native `<details className="group border-b border-[var(--hairline)] py-4">` closed by default, with a clean `+` / `−` indicator.
-14. `Tabs`: Client component (`"use client"`) with accessible `role="tablist"`, keyboard Left/Right arrow support, and clean bottom border active indicator (`border-b-4 border-[var(--brand)]`), rendering `{ tabs: Array<{ id: string; label: string; content: ReactNode }> }`.
-15. `CalloutNotice`: `{ title: string; body: string; linkLabel?: string; linkHref?: string; locale: string }`. The single allowed soft-lavender notice box (`bg-[var(--bg-tint)] p-6 md:p-8 max-w-4xl`), zero border.
-16. `CtaBand`: `{ title: string; body: string; ctaLabel: string; ctaHref: string; locale: string }`. Full-bleed `bg-[var(--brand)] py-16` band containing ONE crisp white rectangular card (`bg-white p-8 md:p-12 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-center`) matching the bottom `"Still have questions?"` card in `image_113f12.png`.
-17. `Breadcrumb`: `{ locale: string; items: Array<{ label: string; href?: string }> }`. Compact top bar (`bg-[var(--brand)]` or `bg-[var(--bg-tint)] py-2.5 text-xs`) with underlined breadcrumb trail.
-
-#### Step P1-A.3: Create `/dev/ui` Gallery & Word-Cap Unit Test
-1. Create `apps/web/app/[locale]/(marketing)/dev/ui/page.tsx` rendering every primitive above using ONLY primitive imports (0 `className=` in `page.tsx`).
-2. Create `packages/core/src/__tests__/ui-primitives-caps.test.ts` exporting `countWords(text: string): number` and testing word-cap validation rules (`title <= 10`, `heroBody <= 35`, `sectionIntro <= 60`, `columnBody <= 40`).
-
-#### Step P1-A.4: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Commit to `main` and **HALT** with verification receipts.
-
----
-
-### BATCH P1-B: 3-Tier Header, Interactive ETS + British Council Mega-Menus, Mobile Accordion & Footer
-
-- **Recommended Model:** `Gemini 4 Argon (Medium)` or `Gemini 4 Hydrogen (Medium)`
-- **Objective:** Build the 3-tier institutional header (`TopRibbon`, `UtilityBar` with untouched `<LocaleSwitcher />`, `MainNav` with interactive ETS left-rail and British Council 3-column mega-menus + mobile accordion drawer) and `InstitutionalFooter` driven by `apps/web/src/content/nav.ts`.
-- **Allowed Files to Create/Edit:**
-  - `apps/web/src/content/nav.ts`
-  - `apps/web/src/components/ui/HeaderFooter.tsx`
-  - `apps/web/app/[locale]/(marketing)/layout.tsx`
-
-#### Step P1-B.1: Create `apps/web/src/content/nav.ts` (Bilingual `en` & `bn`)
-Define typed navigation data for both `en` and `bn`:
-- `topRibbon`: 1-line announcement + CTA link to `/exam/diagnostic`.
-- `utilityLinks`: `For Universities & Schools` (`/for-institutions`), `Help Center` (`/help`), `Log in` (`/sign-in`).
-- `megaGreIelts` (ETS Left-Rail Tab Pattern from `image_10e841.png`):
-  - 4 Left-Rail categories (`01. GRE® General Test`, `02. IELTS™ Academic`, `03. IELTS™ General Training`, `04. Which Exam Do I Need?`).
-  - Each category has 6 links (`title` + 1-line description $\le 10$ words) pointing to real routes (`/gre`, `/gre#format`, `/gre#sample`, `/ielts`, `/ielts#format`, `/exam/ielts-preview`, `/exam/diagnostic`, `/courses`, `/pricing`).
-  - Bottom 2-column conversion strip with long terracotta dashed arrows (`- - - - - - ->`) and rectangular `1px solid` outline buttons (`EXPLORE PREP COURSES` $\rightarrow$ `/courses`, `TAKE FREE DIAGNOSTIC` $\rightarrow$ `/exam/diagnostic`).
-- `megaCourses` (British Council 3-Column + Photo + Bottom Ribbon Pattern from `image_114203.png`):
-  - Col 1 (`bg-[var(--bg-tint)]`): Title (`Prepare with Lumen`) + 2-sentence overview.
-  - Col 2 (`bg-white`): Underlined heading (`Courses & Packages`) + 5 underlined links with `>` chevrons (`/courses`, `/pricing`, `/gre`, `/ielts`, `/for-institutions`).
-  - Col 3: `<PlaceholderImage slot="mega-courses" aspect="4:3" />`.
-  - Bottom full-width `bg-[var(--brand)] text-white` ribbon: `"Explore key areas"` horizontal links (`GRE® Quant & Verbal ⊕`, `IELTS™ Academic ⊕`, `IELTS™ General Training ⊕`, `bKash 0% Split-Pay ⊕`) + right inset CTA box (`Start 15-Min Free Diagnostic`).
-- `megaPractice`: 4 direct links (`15-Min Express Diagnostic`, `CD-IELTS Split-Screen Simulator`, `GRE Quantitative Workbench`, `Score & Band Calculators`).
-
-#### Step P1-B.2: Create `apps/web/src/components/ui/HeaderFooter.tsx` (`"use client"`)
-- Render Tier 1 (`TopRibbon` in `bg-[var(--accent)] text-[var(--brand-ink)]`), Tier 2 (`UtilityBar` in `bg-white` mounting `<LocaleSwitcher />` on the left and utility links on the right), and Tier 3 (`MainNav` in `bg-[var(--brand)] text-white h-20` with logo, 4 menu triggers, and soft-lilac `bg-[var(--soft-btn)] text-[var(--brand-ink)]` CTA button).
-- Implement hover-intent (`150ms`), click toggle, `Esc` key close, outside-click close, `aria-expanded`, and hard offset shadow (`shadow-[var(--shadow-hard)]`) on the desktop dropdown panels.
-- Implement `< 1024px` mobile drawer with single-open accordion sections, zero photos inside mobile menu, and `<LocaleSwitcher />` at the top.
-- Implement `InstitutionalFooter` (`bg-[var(--brand)] text-white`) with 4 collapsible/grid columns, single `BangladeshPaymentTrustBar`, and the ETS/IELTS non-affiliation trademark notice.
-- Mount `<InstitutionalHeader locale={locale} />` and `<InstitutionalFooter locale={locale} />` in `apps/web/app/[locale]/(marketing)/layout.tsx`.
-
-#### Step P1-B.3: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Commit to `main` and **HALT** with verification receipts.
-
----
-
-### BATCH P2: Word-Capped Bilingual Content Store (`marketing.ts`) & Cap Tests
-
-- **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
-- **Objective:** Create `apps/web/src/content/marketing.ts` containing all English (`en`) and Bengali (`bn`) copy for `/`, `/gre`, `/ielts`, `/courses`, `/pricing`, and `/help`, and enforce word caps and jargon bans in `packages/core/src/__tests__/ui-primitives-caps.test.ts`.
-- **Allowed Files to Create/Edit:**
-  - `apps/web/src/content/marketing.ts`
-  - `packages/core/src/__tests__/ui-primitives-caps.test.ts`
-
-#### Step P2.1: Create `apps/web/src/content/marketing.ts`
-Create `MARKETING_CONTENT` for `en` and `bn` strictly obeying:
-- Every `title` $\le 10$ words.
-- Every `hero.body` $\le 35$ words.
-- Every `intro` $\le 60$ words.
-- Every column/step/block `body` $\le 40$ words.
-- Pricing `bullets`: max 4 bullets per plan, each $\le 10$ words.
-- Zero banned words (`"protocol"`, `"matrix"`, `"architecture"`, `"Rasch"`, `"SM-2"`, `"Magoosh"`, `"GregMat"`, `"Seeded Live Demo"`).
-- Include complete data for `home`, `gre`, `ielts`, `courses`, `pricing`, and `help` (matching Section 8 of `docs/LUMEN-DESIGN-STRATEGY.md`).
-
-#### Step P2.2: Expand `packages/core/src/__tests__/ui-primitives-caps.test.ts`
-Write automated tests that traverse `MARKETING_CONTENT.en` and `MARKETING_CONTENT.bn` and assert:
-1. Key parity between `en` and `bn`.
-2. Every title, hero body, intro, column body, and pricing bullet is within its exact word cap.
-3. Zero banned jargon words appear anywhere in `MARKETING_CONTENT`.
-4. `en` prices use Latin digits (`৳ 5,990`) and `bn` prices use Bengali digits (`৳ ৫,৯৯০`).
-
-#### Step P2.3: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Commit to `main` and **HALT** with verification receipts.
-
----
-
-### BATCH P3: Assemble `/` (Home) and `/courses` Using Pure Primitives (Zero `className` in Pages)
-
-- **Recommended Model:** `Gemini 4 Hydrogen (Low/Medium)`
-- **Objective:** Rewrite `apps/web/app/[locale]/(marketing)/page.tsx` and `apps/web/app/[locale]/(marketing)/courses/page.tsx` so they ONLY compose primitives from `@/src/components/ui/primitives` and content from `@/src/content/marketing` with **zero `className=` attributes** in either page file.
-- **Allowed Files to Edit:**
-  - `apps/web/app/[locale]/(marketing)/page.tsx`
-  - `apps/web/app/[locale]/(marketing)/courses/page.tsx`
-  - `apps/web/src/components/ui/primitives.tsx` (only if adding a composite primitive like `CourseFilterCatalog` or `ComparisonDisclosureTable` so `courses/page.tsx` needs zero `className`)
-
-#### Step P3.1: Rewrite `apps/web/app/[locale]/(marketing)/page.tsx`
-Assemble `/` in 6 clean bands (zero tables, zero bordered cards):
-1. `<HeroBand ... />` + `<SubBar ... />`
-2. `<Section tone="white"><StatRow stats={c.stats} /></Section>`
-3. `<Section tone="white"><StepRow ... /></Section>` ("How does Lumen work?" — 4 crimson numeral squares + chevrons)
-4. `<Section tone="tint"><MediaColumns columns={3} ... /></Section>` ("Find out which exam you need" — 3 borderless photo columns)
-5. `<Section tone="white"><MediaColumns columns={4} ... /></Section>` ("Study, work or move abroad" — 4 borderless country photo columns)
-6. `<Section tone="white"><SplitFeature ... /></Section>` + `<CtaBand ... />`
-
-#### Step P3.2: Rewrite `apps/web/app/[locale]/(marketing)/courses/page.tsx`
-Assemble `/courses` in 4 clean bands:
-1. `<Breadcrumb ... />` + `<HeroBand ... />`
-2. `<Section tone="white">` with `<Tabs>` filtering the borderless 3-column `<MediaColumns>` course directory, where each course's 5 syllabus modules sit inside a closed `<Disclosure>` ("View syllabus modules").
-3. `<Section tone="tint">` with a closed `<Disclosure>` containing the "GRE vs. IELTS: Which exam do you need?" guide.
-4. `<CtaBand ... />`
-
-#### Step P3.3: Verify, Commit & Halt
-1. Confirm `grep -c "className" "apps/web/app/[locale]/(marketing)/page.tsx" "apps/web/app/[locale]/(marketing)/courses/page.tsx"` outputs `0` for both files.
-2. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-3. Commit to `main` and **HALT** with verification receipts.
-
----
-
-### BATCH P4: Assemble `/gre`, `/ielts`, `/pricing` & `/help` + Lock `--strict-pages` Lint Gate
-
-- **Recommended Model:** `Gemini 4 Hydrogen (Low/Medium)`
-- **Objective:** Rewrite `gre/page.tsx`, `ielts/page.tsx`, `pricing/page.tsx`, and `help/page.tsx` using ONLY primitives from `@/src/components/ui/primitives` and content from `@/src/content/marketing` (zero `className=` in `page.tsx`), and enable strict page checking across all 6 marketing routes in `tooling/design-lint.mjs`.
-- **Allowed Files to Edit:**
-  - `apps/web/app/[locale]/(marketing)/gre/page.tsx`
-  - `apps/web/app/[locale]/(marketing)/ielts/page.tsx`
-  - `apps/web/app/[locale]/(marketing)/pricing/page.tsx`
-  - `apps/web/app/[locale]/(marketing)/help/page.tsx`
-  - `apps/web/src/components/ui/primitives.tsx` (to export `PricingSwitcherSection` and `FaqDisclosureList` primitives so `pricing/page.tsx` and `help/page.tsx` have zero `className=`)
-  - `tooling/design-lint.mjs`
-  - `packages/core/src/__tests__/i18n-pages-coverage.test.ts`
-
-#### Step P4.1: Rewrite `/gre`, `/ielts`, `/pricing`, and `/help` (Zero `className` in `page.tsx`)
-1. **`gre/page.tsx`:** `<Breadcrumb />` $\rightarrow$ `<HeroBand />` $\rightarrow$ `<Section tone="white"><SideHeadingBlocks ... /></Section>` (1/3 heading + 2/3 icon-led blocks) $\rightarrow$ `<Section tone="tint"><Tabs ... /></Section>` (`Format & Timing` | `Adaptive Scoring` | `Try a Sample Question` rendering `<LiveGreWidget locale={locale} />` with no extra header box above it) $\rightarrow$ `<Section tone="white"><MediaColumns columns={4} ... /></Section>` $\rightarrow$ `<CtaBand />`.
-2. **`ielts/page.tsx`:** `<Breadcrumb />` $\rightarrow$ `<HeroBand tone="crimson" />` $\rightarrow$ `<Section tone="white"><SideHeadingBlocks ... /></Section>` $\rightarrow$ `<Section tone="tint"><Tabs ... /></Section>` (`4 Test Sections` | `Band Score Conversion` | `Split-Screen Simulator`) $\rightarrow$ `<Section tone="white"><MediaColumns columns={4} ... /></Section>` $\rightarrow$ `<CtaBand />`.
-3. **`pricing/page.tsx`:** `<Breadcrumb />` $\rightarrow$ `<HeroBand />` $\rightarrow$ `<Section tone="white"><PricingSwitcherSection ... /></Section>` (Tabs switching between `Self-Paced Courses`, `Live Cohorts & 1:1 Mentor`, and `Mock & AI Credit Passes` so only 3–4 borderless columns are visible at a time, with `BDT ৳` / `USD $` switcher) $\rightarrow$ `<Section tone="tint"><SideHeadingBlocks ... /></Section>` (Mushak 6.3 VAT, 0% bKash split-pay, 7-day refund) $\rightarrow$ `<Section tone="white"><FaqDisclosureList ... /></Section>` $\rightarrow$ `<CtaBand />`.
-4. **`help/page.tsx`:** `<Breadcrumb />` $\rightarrow$ `<HeroBand />` $\rightarrow$ `<Section tone="white"><SideHeadingBlocks ... /></Section>` $\rightarrow$ `<Section tone="tint"><FaqDisclosureList ... /></Section>` $\rightarrow$ `<CtaBand />`.
-
-#### Step P4.2: Enable Default Strict Mode in `tooling/design-lint.mjs`
-Update `tooling/design-lint.mjs` so running `pnpm design:lint` automatically checks all 6 marketing `page.tsx` files (`page.tsx`, `courses/page.tsx`, `gre/page.tsx`, `ielts/page.tsx`, `pricing/page.tsx`, `help/page.tsx`) and fails if any of them contains `className=`, `style=`, `<table`, or hex literals.
-
-#### Step P4.3: Verify, Commit & Halt
+#### Step P6.5: Verify, Commit & Halt
 1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
 2. Commit to `main` and **HALT** with verification receipts.
 
 ---
 
-### BATCH P5: Automated Visual & DOM Border-Count Audit (`pnpm design:shots`)
+### BATCH P7: De-AI `BangladeshPaymentTrustBar.tsx` (Eliminate Dark Bubble & Rainbow Pills)
 
-- **Recommended Model:** `Gemini 4 Argon (Low/Medium)` or `Gemini 4 Hydrogen (Medium)`
-- **Objective:** Create `tooling/design-shots.mjs` (`pnpm design:shots`) and update `docs/PROGRESS.md` & `docs/HANDOFF.md` to verify that all 6 marketing routes meet the DOM border-box budget, word-cap budget, and responsive layout rules across `en` and `bn`.
-- **Allowed Files to Create/Edit:**
-  - `tooling/design-shots.mjs`
-  - `package.json` (add `"design:shots": "node tooling/design-shots.mjs"`)
-  - `docs/logs/reviews/m2-9-institutional-ui-signoff.md`
-  - `docs/PROGRESS.md`
-  - `docs/HANDOFF.md`
+* **Recommended Model:** `Gemini 4 Hydrogen (Low/Medium)`
+* **Objective:** Rewrite `apps/web/app/[locale]/_components/BangladeshPaymentTrustBar.tsx` to eliminate the dark floating bubble box and neon rainbow pills (`bKash` pink pill, `Nagad` orange pill, `Rocket` purple pill, `Visa` blue pill, `SSLCommerz` green pill), replacing them with a clean, flat institutional typographic bar that matches the rest of the website.
+* **Allowed Files to Edit:**
+  * `apps/web/app/[locale]/_components/BangladeshPaymentTrustBar.tsx`
+  * `apps/web/src/components/ui/HeaderFooter.tsx` (if props/styling on `BangladeshPaymentTrustBar` in the footer need adjustment)
 
-#### Step P5.1: Create `tooling/design-shots.mjs`
-Write a Node verification script `tooling/design-shots.mjs` that:
-1. Verifies all 6 marketing routes + `/dev/ui` compile cleanly and contain zero `className=` attributes, zero raw `<table>` tags, and $\le 6$ bordered/boxed UI primitive invocations per page (`CalloutNotice`, `CtaBand`, `Button`).
-2. If a local server is reachable on `http://localhost:3000` (or when `--live` is passed), uses Playwright across $390\text{px}$, $768\text{px}$, and $1440\text{px}$ in `en` and `bn` to capture screenshots to `docs/logs/screenshots/` and assert `document.documentElement.scrollWidth <= window.innerWidth` (zero horizontal overflow).
+#### Step P7.1: Rewrite `apps/web/app/[locale]/_components/BangladeshPaymentTrustBar.tsx`
+1. **Zero `rounded-full` pills, zero `rounded-2xl` dark boxes, zero neon rainbow colors (`pink-500`, `amber-500`, `purple-500`, `blue-500`, `emerald-500`).**
+2. Support an optional `variant?: 'footer' | 'light'` prop (auto-detecting or defaulting cleanly):
+   * In the footer (or dark background): renders a flat, full-width horizontal strip (`border-t border-b border-white/15 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-white/85`).
+   * On light pages (`/checkout`): renders a flat horizontal strip (`border-t border-b border-[var(--hairline)] bg-[var(--bg-warm)] px-5 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-[var(--text)]`).
+3. Left side: simple lock SVG icon in `var(--accent)` + bold label (`Accepted Bangladesh & International Payment Methods` / `গ্রহণযোগ্য বাংলাদেশ ও আন্তর্জাতিক পেমেন্ট মাধ্যম`).
+4. Right side: clean typographic payment items separated by subtle vertical hairlines (`divide-x divide-current/20`):
+   * `bKash (0% Split-Pay)`
+   * `Nagad`
+   * `Rocket`
+   * `Visa / Mastercard`
+   * `SSLCommerz Verified`
+   * `Mushak 6.3 VAT Invoice`
+   *(Fully localized in English and Bengali, zero pill borders, zero background bubbles!)*
 
-#### Step P5.2: Final Sign-Off Report & Halt
+#### Step P7.2: Verify, Commit & Halt
+1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+2. Commit to `main` and **HALT** with verification receipts.
+
+---
+
+### BATCH P8: Overhaul `/sign-in` & `/sign-up` Into the Institutional Design Language (Zero Fake Stats, Zero Bubbles)
+
+* **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
+* **Objective:** Rebuild `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`, `sign-in/page.tsx`, and `sign-up/page.tsx` so `/sign-in` and `/sign-up` obey Constitution Laws 2, 3, 4, 6, and 9 and match the warm IELTS crimson/orange/translucent design language.
+* **Allowed Files to Edit:**
+  * `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`
+  * `apps/web/app/[locale]/(auth)/sign-in/page.tsx`
+  * `apps/web/app/[locale]/(auth)/sign-up/page.tsx`
+  * `apps/web/app/[locale]/(auth)/layout.tsx`
+
+#### Step P8.1: Eliminate All AI-Template & Constitution Violations on `/sign-in` & `/sign-up`
+1. **Delete Fake Stats & Fake Testimonials (Law 9):** Remove `"GRE +11.4 Pts Median Gain"`, `"IELTS Band 7.5+ Achieved by 78%"`, and the invented `"Farhan T., BUET Graduate"` testimonial quote in both English and Bengali.
+2. **Delete Uppercase Eyebrows & Rounded Pill Badges (Laws 2 & 3):** Remove `"CALIBRATED FOR 330+..."`, `"LUMEN ACADEMY ACCOUNT PORTAL"`, `"ETS / IELTS OFFICIAL FORMAT"`, and all `rounded-xl` / `rounded-2xl` / `rounded-full` boxes.
+3. **New Institutional Auth Layout (`AuthForm.tsx`):**
+   * **Top Institutional Bar (`bg-[var(--brand-deep)] text-white h-16 px-6 border-b-4 border-[var(--brand)] flex items-center justify-between`):**
+     * Left: `<LocaleLink>` back to `/` with the 3-ray `<LumenSparkMotif />` and `{brand.name}`.
+     * Right: `<LocaleSwitcher />` (untouched) + link to `Help Center` (`/help`).
+   * **Main Split Stage (`min-h-[calc(100dvh-4rem)] grid grid-cols-1 lg:grid-cols-12 bg-[var(--bg)]`):**
+     * **Left 6 Columns (`lg:col-span-6 bg-[var(--bg-warm)] px-8 py-12 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[var(--hairline)]`):**
+       * Top editorial block: `<LumenSparkMotif />` + `.lumen-h1` heading ($\le 10$ words: `"One Account for GRE® and IELTS™ Preparation"` / `"জিআরই এবং আইইএলটিএস প্রস্তুতির জন্য একটি অ্যাকাউন্ট"`) + `.lumen-body` ($\le 30$ words).
+       * Middle visual: Sharp `0px`-radius `<PlaceholderImage slot="hero-home" aspect="16:10" />` framed on the bottom-left and bottom-right by `14px` solid geometric L-bars in `var(--brand)` (`#C8102E` crimson) and `var(--accent)` (`#FF5A26` warm orange).
+       * Bottom verified facts row (3 borderless columns separated by `divide-x divide-[var(--hairline)] pt-6`):
+         * `1h 58m` — Adaptive GRE Format
+         * `4 Skills` — Computer-Delivered IELTS
+         * `15% VAT` — Official Mushak 6.3 Invoice
+     * **Right 6 Columns (`lg:col-span-6 bg-[var(--bg)] px-6 py-12 sm:px-12 lg:p-16 flex flex-col justify-center`):**
+       * Max-width `420px` centered container, **zero outer card border, zero drop shadow**:
+       * `<LumenSparkMotif />` + `.lumen-h2` (`Sign in to continue` / `Create your account`) + short 1-line subtitle.
+       * Sharp `rounded-[4px]` Google OAuth button (`border border-[var(--brand-ink)] bg-white text-[var(--brand-ink)] font-semibold h-12`).
+       * Clean horizontal hairline divider (`or continue with one-time code`).
+       * Flat underline tab switcher (`border-b border-[var(--hairline)]` with active tab `border-b-3 border-[var(--brand)] text-[var(--brand)] font-bold`): `Email code` | `Bangladesh mobile (+880)`.
+       * Sharp `rounded-[4px]` input field (`border border-[#B8A3A8] focus:border-[var(--brand)] h-12 px-4`) + solid crimson submit button (`bg-[var(--brand)] hover:bg-[#A50B24] text-white font-semibold h-12 rounded-[4px]`).
+       * Clean native `<details className="border-t border-[var(--hairline)] pt-4 text-sm">` disclosure for `Staff & Instructor Passkey / 2FA` (closed by default, zero bordered bubble!).
+       * Bottom underlined link switching between `/sign-in` and `/sign-up` via `<LocaleLink>`.
+
+#### Step P8.2: Verify, Commit & Halt
+1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+2. Commit to `main` and **HALT** with verification receipts.
+
+---
+
+### BATCH P9: Overhaul `/exam/diagnostic` Into the Warm Institutional Design Language & Lock Global Audit
+
+* **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
+* **Objective:** Overhaul `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx` so the diagnostic test workbench matches the warm crimson/orange/charcoal institutional aesthetic (zero `rounded-full` header pills, zero `rounded-2xl` floating bubbles, zero nested hint boxes), and update `tooling/design-lint.mjs` + `tooling/design-shots.mjs` to enforce these rules across Auth, Diagnostic, and Trust Bar.
+* **Allowed Files to Edit:**
+  * `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx`
+  * `tooling/design-lint.mjs`
+  * `tooling/design-shots.mjs`
+  * `docs/HANDOFF.md`
+  * `docs/MISTAKE-LEDGER.md`
+
+#### Step P9.1: Restyle `/exam/diagnostic` (`apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx`)
+Keep all 8 questions, math rendering (`<MathText />`), bilingual translation (`<TranslatedText />`), calculator, scratchpad, and scoring logic 100% intact, while transforming the visual chrome to match the new design system:
+1. **Top Institutional Assessment Bar (`bg-[var(--brand-deep)] text-white h-16 px-4 sm:px-8 border-b-4 border-[var(--brand)] sticky top-0 z-30`):**
+   * **Zero `rounded-full` pills!**
+   * Left: `<LocaleLink>` logo (`LumenSparkMotif` + `{brand.name}`) + vertical hairline divider + bold title (`GRE® Express Diagnostic`) + rectangular progress indicator (`Question 1 of 8` with a flat `4px`-tall `bg-[var(--accent)]` warm orange progress bar).
+   * Right: `<LocaleSwitcher />` (untouched) + sharp `rounded-[4px]` rectangular Calculator button (`border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-semibold`) + rectangular monospace timer (`bg-[#14090C] border border-white/20 px-3.5 py-1.5 rounded-[4px] font-mono text-sm text-[#FFB499]`).
+2. **Main Assessment Stage (`bg-[var(--bg-warm)] min-h-[calc(100dvh-4rem)] py-8 px-4 sm:px-6 lg:px-8`):**
+   * Container: `max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start`.
+   * **Left 8 Columns (`lg:col-span-8 bg-white border border-[var(--hairline)] rounded-none` — Sharp Exam Sheet, Zero Drop Shadow, Zero `rounded-2xl`):**
+     * Top Sheet Strip (`border-b border-[var(--hairline)] bg-[var(--bg-tint)] px-6 py-3 flex items-center justify-between`):
+       * Left: Bold crimson text label (`Quantitative Reasoning · Quantitative Comparison` — sentence case, NOT a dark rounded pill!).
+       * Right: Rectangular `rounded-[4px]` `Flag for Review` toggle button.
+     * Question Body (`p-6 sm:p-10`):
+       * Large `.lumen-h3` / `text-xl sm:text-2xl` question stem.
+       * Quantitative Comparison table (`grid grid-cols-2 divide-x divide-[var(--hairline)] border border-[var(--hairline)] my-6`) with `bg-[var(--bg-warm)] border-b border-[var(--hairline)] py-2.5 text-center text-xs font-bold text-[var(--brand-ink)]` column headers and `py-8 text-center text-2xl font-semibold` cells.
+       * Answer Choices A–D: Flat architectural rows (`w-full text-left p-4 border border-[var(--hairline)] rounded-[4px] transition-colors`)—when selected, highlighted with `border-[var(--brand)] bg-[var(--bg-warm)]` and a solid `bg-[var(--brand)] text-white` square `[A]`–`[D]` keycap.
+     * Bottom Sheet Action Bar (`border-t border-[var(--hairline)] px-6 py-4 flex items-center justify-between bg-white`):
+       * Underlined `← Previous` button on left, `X / 8 Answered` status in center, and solid crimson `bg-[var(--brand)] text-white px-6 py-2.5 rounded-[4px] font-semibold` `Next Question →` button on right.
+   * **Right 4 Columns (`lg:col-span-4 bg-white border border-[var(--hairline)] rounded-none` — Unified Companion Panel):**
+     * Top Question Palette (`p-5 border-b border-[var(--hairline)]`):
+       * Sentence-case heading (`Question Navigator (1–8)`) + 8 crisp square buttons (`h-9 w-9 rounded-[4px] font-mono text-sm font-bold`) using `bg-[var(--brand)] text-white` for current, `bg-[var(--bg-tint)] text-[var(--brand-ink)] border border-[var(--brand)]` for answered, and `var(--accent)` dot for flagged.
+     * Flat Underline Tab Bar (`border-b border-[var(--hairline)] flex`):
+       * `Hints (6)` | `Scratchpad` | `Formulas` (active tab uses `border-b-3 border-[var(--brand)] text-[var(--brand)] font-bold`).
+     * De-Nested Hints List (`divide-y divide-[var(--hairline)]`):
+       * Render Tier 1, Tier 2, and Tier 3 hints as **flat vertical rows separated by a single hairline (`py-3.5`)**—zero rounded boxes inside boxes! Unlock button at bottom is a crisp `w-full bg-[var(--brand-deep)] text-white py-2.5 rounded-[4px] text-sm font-semibold` button.
+
+#### Step P9.2: Expand `tooling/design-lint.mjs` & `tooling/design-shots.mjs`
+1. In `tooling/design-lint.mjs`, add checks verifying that:
+   * `BangladeshPaymentTrustBar.tsx`, `AuthForm.tsx`, and `diagnostic/page.tsx` contain **zero `rounded-full`**, **zero `rounded-2xl`**, and **zero `rounded-3xl`** classes.
+   * `AuthForm.tsx` contains zero fake testimonial strings (`Farhan T.`) or unverified gain claims (`+11.4`).
+2. Append the 5 caught issues from Batches P6–P9 into `docs/MISTAKE-LEDGER.md` and update `docs/HANDOFF.md`.
+
+#### Step P9.3: Verify, Commit & Halt
 1. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Write `docs/logs/reviews/m2-9-institutional-ui-signoff.md`, update `docs/PROGRESS.md` and `docs/HANDOFF.md`, commit to `main`, and print the final summary.
+2. Commit to `main` and print the final verification summary.
