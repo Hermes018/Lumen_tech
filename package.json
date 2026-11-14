@@ -11,6 +11,7 @@
     "build": "node tooling/run.js turbo run build --concurrency=2",
     "clean": "node tooling/run.js turbo run clean",
     "design:lint": "node tooling/design-lint.mjs",
+    "design:shots": "node tooling/design-shots.mjs",
     "dev": "node tooling/run.js turbo run dev --concurrency=2",
     "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,js}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json,mjs,js}\"",
