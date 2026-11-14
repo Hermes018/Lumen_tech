@@ -121,6 +121,7 @@ const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(marketing)/_components/BangladeshPaymentTrustBar.tsx',
   'apps/web/app/[locale]/(auth)/_components/AuthForm.tsx',
   'apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx',
+  'apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx',
 ];
 const FORBIDDEN_ROUNDED_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },

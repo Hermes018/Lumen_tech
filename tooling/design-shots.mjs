@@ -18,9 +18,10 @@ const WORKBENCH_SURFACES = [
   { label: "BangladeshPaymentTrustBar", file: "apps/web/app/[locale]/(marketing)/_components/BangladeshPaymentTrustBar.tsx" },
   { label: "AuthForm", file: "apps/web/app/[locale]/(auth)/_components/AuthForm.tsx" },
   { label: "/exam/diagnostic", file: "apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx" },
+  { label: "/exam/ielts-preview", file: "apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx" },
 ];
 
-const LIVE_EXTRA_ROUTES = ["/sign-in", "/sign-up", "/exam/diagnostic"];
+const LIVE_EXTRA_ROUTES = ["/sign-in", "/sign-up", "/exam/diagnostic", "/exam/ielts-preview"];
 
 const BOXED_PRIMITIVES = ["CalloutNotice", "CtaBand", "Button"];
 const MAX_BOXED_INVOCATIONS = 6;
