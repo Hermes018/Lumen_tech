@@ -1,2 +1,3 @@
 /** @purpose Global application styles for apps/web */
+@import "./tokens.css";
 @import "@lumen/ui/styles";

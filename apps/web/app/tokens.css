@@ -1,0 +1,57 @@
+/** @purpose Institutional UI design tokens and typography classes for Lumen Academy */
+:root {
+  color-scheme: light;
+  --bg: #FFFFFF;
+  --bg-tint: #F4EFFB;
+  --bg-warm: #F6F1EA;
+  --brand: #2D006B;
+  --brand-ink: #1A1038;
+  --text: #3B3552;
+  --link: #4B1FB8;
+  --accent: #FFB400;
+  --crimson: #E4002B;
+  --terracotta: #C84B31;
+  --soft-btn: #DCCBFF;
+  --focus: #005FCC;
+  --hairline: #E4DDF2;
+  --shadow-hard: 6px 6px 0px #1A1038;
+}
+
+.lumen-h1 {
+  font-size: clamp(2.25rem, 3.8vw, 3.25rem);
+  line-height: 1.12;
+  font-weight: 800;
+  color: var(--brand-ink);
+  letter-spacing: -0.02em;
+}
+
+.lumen-h2 {
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  line-height: 1.2;
+  font-weight: 800;
+  color: var(--brand-ink);
+  letter-spacing: -0.015em;
+}
+
+.lumen-h3 {
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.lumen-body {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text);
+  max-width: 65ch;
+}
+
+:lang(bn) .lumen-h1,
+:lang(bn) .lumen-h2,
+:lang(bn) .lumen-h3,
+:lang(bn) .lumen-body {
+  line-height: 1.75;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
