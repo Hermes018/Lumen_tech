@@ -10,11 +10,11 @@
 - Date updated: 2026-11-14
 - Active tool: Gemini / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Phase P2.1 Complete (Better Auth Drizzle sync, KaTeX MathText, exam geometry & footer routes)
+- Current milestone: Phase P2.3 Complete (Responsive Marketing Drawer, Oxford Navy/Indigo/Emerald Track Heroes, Bangladesh Payment Trust Strips & Split-Screen Auth)
 - Last session log: docs/ui_ux_runtime_conversion_remediation_master_plan.md
 - Active branch: main
-- Last green `pnpm verify`: P2.1 (All @lumen/db, @lumen/ui, and @lumen/auth tests passing, @lumen/web typecheck green)
-- Phase in progress: Phase P2.1 Runtime Stability, KaTeX Math & Exam Viewport Geometry
+- Last green `pnpm verify`: P2.3 (brand-sweep & spec-leak guard 2/2 green, @lumen/web typecheck 0 errors)
+- Phase in progress: Phase P2.3 Complete (Ready for Phase P2.4)
 
 ## Current task
 
@@ -576,6 +576,7 @@ Order below = order in `docs/12` section 11 (verified by script). Headings carry
 | 2026-11-13 | P1-42 | task-p1-42 | 3.8-flash | Playwright E2E suite setup (Chromium/Firefox/WebKit, baseURL :3000), checkout flow spec, and IELTS mock runner split-screen spec |
 | 2026-11-13 | P1-43 | task-p1-43 | 3.8-flash | Production security headers (CSP, HSTS, X-Frame-Options DENY, Bunny iframe allowlist), Vercel static asset cache rules (vercel.json), and Edge Runtime middleware (next-intl + Better Auth + PDPO) |
 | 2026-11-14 | P1-47 | task-p1-47 | 3.8-flash | Stage 11: Close all 4 residual Stage-10 audit gaps (P0-9 real @lumen/ai evaluators & IELTS state machine, P1-E/P1-F HMAC-signed PDPO cookies & real data export & AttemptRepo, P1-G support refund cap in executeRefund & role persistence & impersonation cookie, proxy dot-path hardening & crypto.randomUUID) |
+| 2026-11-14 | P2-3 | task-p2-3 | argon | Phase P2.3: Top cohort/trust announcement bar & mobile slide-over drawer (BUG-10), Oxford Navy / Royal Indigo / British Emerald hero banners & BD payment trust bar (BUG-12), and 2-column split-screen `/sign-in` & `/sign-up` auth experience with inline 2FA/Passkey drawer (BUG-11) |
 
 ## Parking lot (not scheduled, add a task ID before work)
 

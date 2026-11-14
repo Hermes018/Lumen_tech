@@ -28,7 +28,12 @@ import {
   ShieldCheck,
   CreditCard,
   Clock,
+  CheckCircle2,
+  Award,
+  Receipt,
+  Smartphone,
 } from 'lucide-react';
+import { BangladeshPaymentTrustBar } from '../_components/BangladeshPaymentTrustBar';
 
 type ExamType = 'gre' | 'ielts_academic' | 'ielts_gt';
 
@@ -500,23 +505,46 @@ export default function PricingPage() {
     : null;
 
   return (
-    <div className="flex flex-col items-center px-4 py-12 sm:py-20">
-      <div className="mx-auto max-w-7xl w-full space-y-12">
-        {/* Header & Philosophy */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <Badge variant="outline" className="border-accent text-accent text-xs">
-            {tPricing('badge')}
-          </Badge>
-          <h1 className="text-4xl font-extrabold tracking-tight text-fg sm:text-5xl">
+    <div className="flex flex-col items-center pb-20">
+      {/* High-Contrast Oxford Navy Hero Banner (BUG-12) */}
+      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-slate-950 px-4 py-14 text-white sm:py-20">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-35"
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto max-w-6xl space-y-6 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1 text-xs font-semibold text-blue-200">
+            <Sparkles className="h-3.5 w-3.5 text-blue-400" />
+            <span>{tPricing('badge')}</span>
+          </div>
+
+          <h1 className="mx-auto max-w-3xl text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
             {tPricing('title')}
           </h1>
-          <p className="text-fg-muted text-base sm:text-lg leading-relaxed">
+
+          <p className="mx-auto max-w-2xl text-base text-slate-300 sm:text-lg leading-relaxed">
             {tPricing('subtitle')}
           </p>
 
+          {/* Crisp Metric Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-950/90 px-3 py-1 text-xs font-semibold text-indigo-200">
+              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400" />
+              130–170 Rasch IRT Adaptive
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-950/90 px-3 py-1 text-xs font-semibold text-emerald-200">
+              <Award className="h-3.5 w-3.5 text-emerald-400" />
+              Band 0–9 Official Rubric AI
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-200">
+              <Receipt className="h-3.5 w-3.5 text-blue-400" />
+              Mushak 6.3 VAT Included
+            </span>
+          </div>
+
           {/* Region Switcher */}
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="text-fg-muted font-medium">{tPricing('currencyRegion')}</span>
+          <div className="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
+            <span className="text-slate-300 font-medium">{tPricing('currencyRegion')}</span>
             {[
               { id: 'BD', label: 'BD (৳ BDT - 15% VAT incl.)' },
               { id: 'A', label: 'Region A ($ USD - High Income)' },
@@ -527,10 +555,10 @@ export default function PricingPage() {
                 key={reg.id}
                 type="button"
                 onClick={() => setRegion(reg.id as Region)}
-                className={`rounded-lg px-3 py-1 font-semibold transition-all ${
+                className={`rounded-lg px-3 py-1.5 font-semibold transition-all ${
                   region === reg.id
-                    ? 'bg-accent text-accent-fg shadow-sm'
-                    : 'bg-surface text-fg-muted border border-border hover:text-fg'
+                    ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-400'
+                    : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 {reg.label}
@@ -539,7 +567,7 @@ export default function PricingPage() {
           </div>
 
           {/* Exam Selector Tabs */}
-          <div className="pt-4 flex justify-center gap-2">
+          <div className="pt-3 flex flex-wrap justify-center gap-2.5">
             {[
               { id: 'gre', label: tPricing('grePrep') },
               { id: 'ielts_academic', label: tPricing('ieltsAcademic') },
@@ -551,16 +579,23 @@ export default function PricingPage() {
                 onClick={() => setExam(tab.id as ExamType)}
                 className={`rounded-full px-5 py-2 text-sm font-bold transition-all ${
                   exam === tab.id
-                    ? 'bg-fg text-canvas shadow-md'
-                    : 'bg-surface text-fg-muted border border-border hover:text-fg'
+                    ? 'bg-white text-slate-950 shadow-md'
+                    : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-800'
                 }`}
               >
                 {tab.label}
               </button>
             ))}
           </div>
-        </div>
 
+          {/* Prominent Bangladeshi Payment & Trust Bar */}
+          <div className="pt-4">
+            <BangladeshPaymentTrustBar variant="dark" />
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl w-full space-y-12 px-4 pt-12 sm:px-6 lg:px-8">
         {/* Tier Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {currentTiers.map((tier) => {
@@ -570,69 +605,103 @@ export default function PricingPage() {
             return (
               <Card
                 key={tier.slug}
-                className={`border-border bg-surface transition-all flex flex-col justify-between relative ${
-                  tier.popular ? 'border-accent shadow-md ring-1 ring-accent' : 'hover:shadow-sm'
+                className={`overflow-hidden bg-white transition-all flex flex-col justify-between relative ${
+                  tier.popular
+                    ? 'border-2 border-indigo-900 shadow-xl ring-2 ring-indigo-950/10'
+                    : 'border-slate-200/90 shadow-xs hover:shadow-md'
                 }`}
               >
-                {tier.badge && (
-                  <div className="absolute -top-3 right-4">
-                    <Badge variant="default" className="text-[11px] font-bold">
-                      {tier.badge}
-                    </Badge>
+                {/* Elevated Dark-Navy / Indigo Top Header Ribbon for Most Popular (BUG-12) */}
+                {tier.popular ? (
+                  <div className="bg-indigo-950 text-white px-6 py-2.5 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                      {tier.badge ?? 'Most Popular'}
+                    </span>
+                    <span className="rounded-full bg-blue-600/40 px-2.5 py-0.5 text-[10px] font-semibold text-blue-100">
+                      Target Promise Included
+                    </span>
                   </div>
+                ) : (
+                  tier.badge && (
+                    <div className="absolute top-3 right-4">
+                      <Badge variant="default" className="text-[11px] font-bold">
+                        {tier.badge}
+                      </Badge>
+                    </div>
+                  )
                 )}
 
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl font-bold text-fg">{tier.name}</CardTitle>
-                    <span className="text-xs text-fg-subtle">{tier.duration}</span>
+                    <CardTitle className="text-xl font-bold text-slate-950">{tier.name}</CardTitle>
+                    <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                      {tier.duration}
+                    </span>
                   </div>
-                  <p className="text-xs text-fg-muted mt-1 min-h-[32px]">{tier.description}</p>
+                  <p className="text-xs text-slate-600 mt-1 min-h-[32px]">{tier.description}</p>
                   <div className="mt-4 pt-2">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-fg">{displayPrice}</span>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-extrabold text-slate-950">{displayPrice}</span>
                       {!isFree && region === 'BD' && (
-                        <span className="text-[11px] text-fg-subtle">(VAT incl.)</span>
+                        <span className="text-[11px] font-medium text-slate-500">
+                          (15% VAT &amp; Mushak 6.3 incl.)
+                        </span>
                       )}
                     </div>
                   </div>
                 </CardHeader>
 
                 <CardContent className="space-y-6 pt-0 flex-1 flex flex-col justify-between">
-                  <div className="space-y-2.5 border-t border-border/60 pt-4 text-xs text-fg">
+                  <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs text-slate-800">
                     {tier.perks.map((perk, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-                        <span>{perk}</span>
+                      <div key={i} className="flex items-start gap-2.5">
+                        <span
+                          className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
+                            tier.popular
+                              ? 'bg-indigo-950 text-white'
+                              : 'bg-blue-50 text-blue-600'
+                          }`}
+                        >
+                          <Check className="h-2.5 w-2.5" />
+                        </span>
+                        <span className="font-medium leading-relaxed">{perk}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-2 pt-4 border-t border-border/60">
+                  <div className="space-y-2.5 pt-4 border-t border-slate-100">
                     {isFree ? (
-                      <Link href="/diagnostic" className="w-full">
-                        <Button variant="outline" className="w-full">
+                      <Link href="/exam/diagnostic" className="block w-full">
+                        <Button variant="outline" className="w-full font-semibold">
                           Start Free Diagnostic
                         </Button>
                       </Link>
                     ) : (
-                      <Link href={`/checkout?plan=${tier.slug}`} className="w-full">
+                      <Link href={`/checkout?plan=${tier.slug}`} className="block w-full">
                         <Button
                           variant={tier.popular ? 'primary' : 'outline'}
-                          className="w-full gap-2 font-semibold"
+                          className={`w-full gap-2 font-semibold ${
+                            tier.popular ? 'bg-indigo-950 text-white hover:bg-indigo-900 shadow-md' : ''
+                          }`}
                         >
                           Enroll Now <ArrowRight className="h-4 w-4" />
                         </Button>
                       </Link>
                     )}
 
-                    {tier.hasInstallments && region === 'BD' && (
+                    {/* Highlighted bKash 2/3-Part 0% Split-Pay Banner underneath Most Popular & Installment tiers */}
+                    {(tier.popular || tier.hasInstallments) && region === 'BD' && (
                       <button
                         type="button"
-                        onClick={() => setInstallmentModalTier(tier.tier)}
-                        className="w-full text-center text-[11px] text-accent font-medium hover:underline pt-1"
+                        onClick={() => setInstallmentModalTier(tier.hasInstallments ? tier.tier : 'live')}
+                        className="flex w-full items-center justify-between rounded-xl border border-pink-200 bg-pink-50/80 px-3 py-2 text-left text-[11px] font-semibold text-pink-950 transition-colors hover:bg-pink-100"
                       >
-                        bKash Installments: 2 or 3 parts (৳ 0 fee) &rarr;
+                        <span className="flex items-center gap-1.5">
+                          <Smartphone className="h-3.5 w-3.5 text-pink-600 shrink-0" />
+                          <span>bKash 2/3-Part 0% Split-Pay Available</span>
+                        </span>
+                        <span className="text-pink-700 underline">Schedule &rarr;</span>
                       </button>
                     )}
                   </div>

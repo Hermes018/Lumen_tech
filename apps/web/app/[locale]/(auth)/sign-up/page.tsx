@@ -1,4 +1,4 @@
-/** @purpose Sign-up registration page */
+/** @purpose Split-screen Sign-up registration page (BUG-11) */
 import { Suspense } from 'react';
 import { brand } from '@lumen/config';
 import { AuthForm } from '../_components/AuthForm';
@@ -10,8 +10,10 @@ export const metadata = {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-center text-sm">Loading sign-up...</div>}>
-      <AuthForm mode="sign-up" />
-    </Suspense>
+    <div className="w-full" data-layout="split-screen-auth">
+      <Suspense fallback={<div className="p-6 text-center text-sm">Loading sign-up...</div>}>
+        <AuthForm mode="sign-up" />
+      </Suspense>
+    </div>
   );
 }

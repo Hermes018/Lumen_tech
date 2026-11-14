@@ -10,8 +10,10 @@ export const metadata = {
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-center text-sm">Loading onboarding...</div>}>
-      <OnboardingClient />
-    </Suspense>
+    <div className="mx-auto w-full max-w-lg">
+      <Suspense fallback={<div className="p-6 text-center text-sm">Loading onboarding...</div>}>
+        <OnboardingClient />
+      </Suspense>
+    </div>
   );
 }
