@@ -50,11 +50,16 @@ export function IeltsExamGuide({ isBn }: { isBn: boolean }) {
       ),
     ],
   ];
-  const conv: Array<[string, string]> = [
-    ['23/40', '6.0'],
-    ['30/40', '7.0'],
-    ['35/40', '8.0'],
-    ['39/40', '9.0'],
+  const conv: Array<[string, string, string]> = [
+    ['39–40', '39–40', '9.0'],
+    ['37–38', '37–38', '8.5'],
+    ['35–36', '35–36', '8.0'],
+    ['33–34', '32–34', '7.5'],
+    ['30–32', '30–31', '7.0'],
+    ['27–29', '26–29', '6.5'],
+    ['23–26', '23–25', '6.0'],
+    ['19–22', '18–22', '5.5'],
+    ['15–18', '16–17', '5.0'],
   ];
   return (
     <section id="how-ielts-works" className="w-full border-t border-slate-200 bg-white px-4 py-16 sm:py-20">
@@ -108,11 +113,13 @@ export function IeltsExamGuide({ isBn }: { isBn: boolean }) {
               'ব্যান্ড ০.০ থেকে ৯.০ পর্যন্ত এবং মোটামুটি CEFR B1 (প্রায় ব্যান্ড ৪.০–৫.০) থেকে C2 (ব্যান্ড ৮.৫–৯.০) এর সমতুল্য। ওভারঅল ব্যান্ড হলো চার স্কিলের গড়, নিকটতম ০.৫-এ রাউন্ড করা।',
             )}
           </p>
-          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {conv.map(([raw, band]) => (
-              <li key={raw} className="rounded-md border border-slate-200 bg-white p-3 text-center">
-                <span className="block text-sm text-slate-600">{t('Listening/Reading', 'লিসেনিং/রিডিং')} {raw}</span>
+          <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {conv.map(([readingRaw, listeningRaw, band]) => (
+              <li key={band} className="rounded-md border border-slate-200 bg-white p-3 text-center">
                 <span className={`block text-lg font-bold ${NAVY}`}>{t('Band', 'ব্যান্ড')} {band}</span>
+                <span className="mt-1 block text-xs text-slate-600">
+                  {t('Academic Reading:', 'অ্যাকাডেমিক রিডিং:')} {readingRaw}/40 • {t('Listening:', 'লিসেনিং:')} {listeningRaw}/40
+                </span>
               </li>
             ))}
           </ul>
