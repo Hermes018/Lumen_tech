@@ -1,10 +1,10 @@
-/** @purpose 4-Mode FSRS Vocab & Formula Flashcard Player (/app/vocab/play) */
+/** @purpose 4-Mode FSRS Vocab & Formula Flashcard Player (/app/vocab/play) in Pearl/Bone institutional stationery style */
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Button, Badge } from '@lumen/ui';
+import { useLocale } from 'next-intl';
+import { Button } from '@lumen/ui';
 import {
   FSRSRating,
   scheduleNextReview,
@@ -14,6 +14,7 @@ import {
 } from '@lumen/core';
 import { GRE_VOCAB_SEED_WORDS, type SeedVocabWord } from '@lumen/db';
 import { ArrowLeft, RotateCw, Volume2, Clock } from 'lucide-react';
+import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 
 type ReviewMode = 'flip' | 'cloze' | 'se_pair_drill' | 'quant_formula';
 
@@ -30,37 +31,41 @@ const QUANT_FORMULA_CARDS: QuantFormulaCard[] = [
     title: 'F.R.O.Z.E.N. QC Trap Checklist',
     category: 'Quantitative Comparison',
     frontMd: 'What is the "F.R.O.Z.E.N." checklist for Quant Comparison testing?',
-    backMd: 'F: Fractions (e.g. 1/2)\nR: Repeated numbers (same value for x & y)\nO: One (1)\nZ: Zero (0)\nE: Extremes (1,000,000)\nN: Negatives (-1, -10)',
+    backMd:
+      'F: Fractions (e.g. 1/2)\nR: Repeated numbers (same value for x & y)\nO: One (1)\nZ: Zero (0)\nE: Extremes (1,000,000)\nN: Negatives (-1, -10)',
     trapWarning: 'Testing only positive integers is the #1 reason learners miss QC questions.',
   },
   {
     title: 'Sum of Interior Angles of an n-sided Polygon',
     category: 'Geometry',
     frontMd: 'What is the formula for the sum of the interior angles of an n-sided polygon?',
-    backMd: 'Sum = (n - 2) * 180 degrees\n\nFor a hexagon (n=6): (6-2)*180 = 720 degrees.',
-    trapWarning: 'Do not confuse with the exterior angles sum, which is always 360 degrees for ANY convex polygon.',
+    backMd:
+      'Sum = (n - 2) * 180 degrees\n\nFor a hexagon (n=6): (6-2)*180 = 720 degrees.',
+    trapWarning:
+      'Do not confuse with the exterior angles sum, which is always 360 degrees for ANY convex polygon.',
   },
   {
     title: 'Even & Odd Exponent Roots ($x^2 = k$ vs $x^3 = k$)',
     category: 'Algebra',
     frontMd: 'If $x^2 = 25$, what are the values of $x$? If $y^3 = -64$, what is $y$?',
-    backMd: 'x = +5 or -5 (two roots for even powers)\ny = -4 (single root for odd powers, preserving sign)',
+    backMd:
+      'x = +5 or -5 (two roots for even powers)\ny = -4 (single root for odd powers, preserving sign)',
     trapWarning: 'Even exponents yield two roots (+ and -); odd exponents yield exactly one root.',
   },
 ];
 
 function VocabPlayerContent() {
   const searchParams = useSearchParams();
+  const locale = useLocale();
+  const isBn = locale === 'bn';
   const initialMode = (searchParams?.get('mode') as ReviewMode) || 'flip';
 
   const [mode, setMode] = React.useState<ReviewMode>(initialMode);
   const [currentIdx, setCurrentIdx] = React.useState(0);
   const [isFlipped, setIsFlipped] = React.useState(false);
 
-  // Vocab card bank
   const [words] = React.useState<SeedVocabWord[]>(GRE_VOCAB_SEED_WORDS);
 
-  // Card FSRS state
   const [cardStates, setCardStates] = React.useState<Record<string, CardState>>(() => {
     const initial: Record<string, CardState> = {};
     words.forEach((w) => {
@@ -75,11 +80,9 @@ function VocabPlayerContent() {
     return initial;
   });
 
-  // Cloze mode state
   const [clozeUserAnswer, setClozeUserAnswer] = React.useState('');
   const [clozeChecked, setClozeChecked] = React.useState(false);
 
-  // Synonym speed drill state
   const [timeLeft, setTimeLeft] = React.useState(15);
   const [timerActive, setTimerActive] = React.useState(false);
   const [selectedSynonyms, setSelectedSynonyms] = React.useState<string[]>([]);
@@ -93,12 +96,10 @@ function VocabPlayerContent() {
     state: 'new' as const,
   };
 
-  // Previews for FSRS ratings
   const ratingPreviews: Record<number, SchedulingResult> = React.useMemo(() => {
     return previewAllRatings(activeFSRSState);
   }, [activeFSRSState]);
 
-  // Handle rating button
   const handleRate = React.useCallback(
     (rating: FSRSRating) => {
       const result = scheduleNextReview(activeFSRSState, rating);
@@ -107,7 +108,6 @@ function VocabPlayerContent() {
         [activeWord.headword]: result.card,
       }));
 
-      // Next card
       setIsFlipped(false);
       setClozeChecked(false);
       setClozeUserAnswer('');
@@ -117,13 +117,12 @@ function VocabPlayerContent() {
       if (currentIdx < words.length - 1) {
         setCurrentIdx((prev) => prev + 1);
       } else {
-        setCurrentIdx(0); // loop or finish
+        setCurrentIdx(0);
       }
     },
     [activeFSRSState, activeWord.headword, currentIdx, words.length]
   );
 
-  // Keyboard shortcut listener (1-4 for ratings, Space to flip)
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
@@ -144,7 +143,6 @@ function VocabPlayerContent() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFlipped, handleRate]);
 
-  // 15-second speed drill countdown
   React.useEffect(() => {
     if (mode !== 'se_pair_drill' || !timerActive) return;
 
@@ -161,7 +159,6 @@ function VocabPlayerContent() {
     return () => clearInterval(interval);
   }, [mode, timerActive, timeLeft]);
 
-  // Start timer on card entry for speed drill
   React.useEffect(() => {
     if (mode === 'se_pair_drill') {
       setTimeLeft(15);
@@ -170,65 +167,81 @@ function VocabPlayerContent() {
     }
   }, [mode, currentIdx]);
 
+  const speakWord = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(activeWord.headword);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-12">
+    <div className="mx-auto max-w-3xl space-y-6 pb-12">
       {/* Top Header & Mode Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-control/30 pb-4">
+      <div className="flex flex-col justify-between gap-3 border-b border-[var(--hairline)] pb-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
-          <Link
+          <LocaleLink
             href="/app/vocab"
-            className="flex items-center gap-1 text-xs text-fg-muted hover:text-fg transition-colors"
+            className="flex items-center gap-1 text-xs font-semibold text-[var(--text)] transition-colors hover:text-[var(--brand)]"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Vocab Hub</span>
-          </Link>
-          <span className="text-fg-muted/40">|</span>
-          <span className="text-xs font-semibold text-fg">
-            Card {currentIdx + 1} of {words.length}
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>{isBn ? 'ভোকাব হাব' : 'Vocab Hub'}</span>
+          </LocaleLink>
+          <span className="text-[var(--hairline)]">|</span>
+          <span className="text-xs font-bold text-[var(--brand-ink)]">
+            {isBn
+              ? `কার্ড ${currentIdx + 1} / ${words.length}`
+              : `Card ${currentIdx + 1} of ${words.length}`}
           </span>
         </div>
 
-        {/* 4 Mode Pills */}
-        <div className="flex items-center gap-1 bg-surface-2 p-1 rounded-xl border border-control/40 text-xs">
+        {/* 4 Mode Tabs */}
+        <div className="flex flex-wrap items-center gap-1 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] p-1 text-xs">
           <button
             type="button"
             onClick={() => setMode('flip')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-              mode === 'flip' ? 'bg-surface text-fg font-bold shadow-xs' : 'text-fg-muted hover:text-fg'
+            className={`cursor-pointer rounded-[4px] px-2.5 py-1 font-semibold transition-colors ${
+              mode === 'flip'
+                ? 'bg-[var(--brand-deep)] text-white'
+                : 'text-[var(--text)] hover:text-[var(--brand-ink)]'
             }`}
           >
-            Classic Flip
+            {isBn ? 'ক্লাসিক ফ্লিপ' : 'Classic Flip'}
           </button>
           <button
             type="button"
             onClick={() => setMode('cloze')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-              mode === 'cloze' ? 'bg-surface text-fg font-bold shadow-xs' : 'text-fg-muted hover:text-fg'
+            className={`cursor-pointer rounded-[4px] px-2.5 py-1 font-semibold transition-colors ${
+              mode === 'cloze'
+                ? 'bg-[var(--brand-deep)] text-white'
+                : 'text-[var(--text)] hover:text-[var(--brand-ink)]'
             }`}
           >
-            Cloze
+            {isBn ? 'ক্লোজ' : 'Cloze'}
           </button>
           <button
             type="button"
             onClick={() => setMode('se_pair_drill')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+            className={`cursor-pointer rounded-[4px] px-2.5 py-1 font-semibold transition-colors ${
               mode === 'se_pair_drill'
-                ? 'bg-warning-soft text-warning font-bold shadow-xs'
-                : 'text-fg-muted hover:text-fg'
+                ? 'bg-[var(--brand)] text-white'
+                : 'text-[var(--text)] hover:text-[var(--brand-ink)]'
             }`}
           >
-            15s Synonym
+            {isBn ? '১৫ সেকেন্ড সমার্থক' : '15s Synonym'}
           </button>
           <button
             type="button"
             onClick={() => setMode('quant_formula')}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+            className={`cursor-pointer rounded-[4px] px-2.5 py-1 font-semibold transition-colors ${
               mode === 'quant_formula'
-                ? 'bg-info-soft text-info font-bold shadow-xs'
-                : 'text-fg-muted hover:text-fg'
+                ? 'bg-[var(--brand-deep)] text-white'
+                : 'text-[var(--text)] hover:text-[var(--brand-ink)]'
             }`}
           >
-            Quant Traps
+            {isBn ? 'কোয়ান্ট ফাঁদ' : 'Quant Traps'}
           </button>
         </div>
       </div>
@@ -237,18 +250,22 @@ function VocabPlayerContent() {
       {mode === 'se_pair_drill' && (
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="flex items-center gap-1 text-warning">
-              <Clock className="w-3.5 h-3.5" />
-              15-Second Speed Drill
+            <span className="flex items-center gap-1 text-[var(--terracotta)]">
+              <Clock className="h-3.5 w-3.5" />
+              {isBn ? '১৫-সেকেন্ড স্পিড ড্রিল' : '15-Second Speed Drill'}
             </span>
-            <span className={timeLeft <= 3 ? 'text-danger font-bold animate-pulse' : 'text-fg-muted'}>
-              {timeLeft}s remaining
+            <span className={timeLeft <= 3 ? 'font-bold text-[var(--brand)]' : 'text-[var(--text)]'}>
+              {isBn ? `${timeLeft} সেকেন্ড বাকি` : `${timeLeft}s remaining`}
             </span>
           </div>
-          <div className="h-2 w-full rounded-full bg-surface-2 overflow-hidden border border-control/40">
+          <div className="h-2 w-full overflow-hidden rounded-none border border-[var(--hairline)] bg-[var(--bg-warm)]">
             <div
               className={`h-full transition-all duration-1000 ease-linear ${
-                timeLeft <= 3 ? 'bg-danger' : timeLeft <= 7 ? 'bg-warning' : 'bg-accent'
+                timeLeft <= 3
+                  ? 'bg-[var(--crimson)]'
+                  : timeLeft <= 7
+                    ? 'bg-[var(--accent)]'
+                    : 'bg-[var(--brand)]'
               }`}
               style={{ width: `${(timeLeft / 15) * 100}%` }}
             />
@@ -260,75 +277,86 @@ function VocabPlayerContent() {
       {mode === 'flip' && (
         <div
           onClick={() => setIsFlipped(!isFlipped)}
-          className="min-h-[340px] rounded-2xl border border-control bg-surface p-8 shadow-sm cursor-pointer hover:border-accent/40 transition-all flex flex-col justify-between select-none"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') setIsFlipped((prev) => !prev);
+          }}
+          className="flex min-h-[340px] cursor-pointer flex-col justify-between rounded-[4px] border border-[var(--hairline)] border-t-4 border-t-[var(--brand)] bg-[var(--surface-paper)] p-8 transition-colors select-none hover:border-[var(--brand)]"
         >
           {/* Card Front / Back Header */}
           <div className="flex items-center justify-between">
-            <Badge variant="outline" className="text-xs font-mono uppercase">
+            <span className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] px-2.5 py-0.5 font-mono text-xs font-semibold text-[var(--brand-ink)] uppercase">
               {activeWord.frequencyTier} &bull; {activeWord.partOfSpeech}
-            </Badge>
-            <div className="flex items-center gap-1.5 text-xs text-fg-muted">
-              <RotateCw className="w-3.5 h-3.5" />
-              <span>Tap or Space to Flip</span>
+            </span>
+            <div className="flex items-center gap-1.5 text-xs text-[var(--text)]">
+              <RotateCw className="h-3.5 w-3.5" />
+              <span>{isBn ? 'উল্টাতে ক্লিক বা Space চাপুন' : 'Tap or Space to Flip'}</span>
             </div>
           </div>
 
           {/* Main Card Content */}
           {!isFlipped ? (
-            <div className="my-auto text-center space-y-3">
-              <h2 className="text-4xl font-extrabold tracking-tight text-fg font-serif">
+            <div className="my-auto space-y-3 text-center">
+              <h2 className="font-serif text-4xl font-extrabold tracking-tight text-[var(--brand-ink)]">
                 {activeWord.headword}
               </h2>
-              <div className="flex items-center justify-center gap-2 text-sm text-fg-muted font-mono">
+              <div className="flex items-center justify-center gap-2 font-mono text-sm text-[var(--text)]">
                 <span>/əˈnɒm.ə.li/</span>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="rounded-full p-1 hover:bg-surface-2 text-accent transition-colors"
-                  aria-label="Play audio"
+                  onClick={speakWord}
+                  className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] p-1.5 text-[var(--brand)] transition-colors hover:bg-[var(--bg-tint)]"
+                  aria-label={isBn ? 'উচ্চারণ শুনুন' : 'Play audio'}
                 >
-                  <Volume2 className="w-4 h-4" />
+                  <Volume2 className="h-4 w-4" />
                 </button>
               </div>
             </div>
           ) : (
-            <div className="my-auto space-y-4 animate-in fade-in duration-200">
-              <div className="border-b border-control/30 pb-3 text-center">
-                <h3 className="text-2xl font-bold text-fg">{activeWord.headword}</h3>
-                <p className="text-base text-accent font-semibold mt-1">
+            <div className="my-auto space-y-4">
+              <div className="border-b border-[var(--hairline)] pb-3 text-center">
+                <h3 className="text-2xl font-bold text-[var(--brand-ink)]">{activeWord.headword}</h3>
+                <p className="mt-1 text-base font-semibold text-[var(--brand)]">
                   বাংলা: {activeWord.bnMeaning}
                 </p>
               </div>
 
-              <div className="space-y-2 text-sm">
+              <div className="space-y-2.5 text-sm">
                 <div>
-                  <span className="font-semibold text-fg-muted uppercase text-xs">Definition:</span>
-                  <p className="text-fg font-medium">{activeWord.definition}</p>
+                  <span className="text-xs font-semibold text-[var(--text)] uppercase">
+                    {isBn ? 'সংজ্ঞা:' : 'Definition:'}
+                  </span>
+                  <p className="font-medium text-[var(--brand-ink)]">{activeWord.definition}</p>
                 </div>
 
                 <div>
-                  <span className="font-semibold text-fg-muted uppercase text-xs">GRE Context:</span>
-                  <p className="text-fg italic font-serif opacity-90">
+                  <span className="text-xs font-semibold text-[var(--text)] uppercase">
+                    {isBn ? 'জিআরই বাক্য:' : 'GRE Context:'}
+                  </span>
+                  <p className="font-serif italic text-[var(--brand-ink)]">
                     &ldquo;{activeWord.exampleSentenceGre}&rdquo;
                   </p>
                 </div>
 
                 {activeWord.mnemonicMd && (
-                  <div className="rounded-lg bg-accent-soft/40 border border-accent/20 p-2 text-xs text-fg">
-                    <span className="font-bold text-accent">Mnemonic Hook: </span>
+                  <div className="rounded-[4px] border border-[var(--brand)]/25 bg-[var(--bg-tint)] p-3 text-xs text-[var(--brand-ink)]">
+                    <span className="font-bold text-[var(--brand)]">
+                      {isBn ? 'মনে রাখার কৌশল: ' : 'Mnemonic Hook: '}
+                    </span>
                     {activeWord.mnemonicMd}
                   </div>
                 )}
 
                 {activeWord.synonyms.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span className="text-xs font-semibold text-fg-muted">Synonyms:</span>
+                    <span className="text-xs font-semibold text-[var(--text)]">
+                      {isBn ? 'সমার্থক শব্দ:' : 'Synonyms:'}
+                    </span>
                     {activeWord.synonyms.map((syn: string) => (
                       <span
                         key={syn}
-                        className="rounded px-2 py-0.5 text-xs bg-surface-2 border border-control/40 font-mono text-fg"
+                        className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] px-2 py-0.5 font-mono text-xs text-[var(--brand-ink)]"
                       >
                         {syn}
                       </span>
@@ -340,24 +368,30 @@ function VocabPlayerContent() {
           )}
 
           {/* Footer cue */}
-          <div className="text-center text-[11px] text-fg-muted">
-            {!isFlipped ? 'Click card to reveal definition & Bangla gloss' : 'Rate your recall below to schedule next review'}
+          <div className="text-center text-xs text-[var(--text)]">
+            {!isFlipped
+              ? isBn
+                ? 'অর্থ ও বাংলা ব্যাখ্যা দেখতে কার্ডে ক্লিক করুন'
+                : 'Click card to reveal definition & Bangla gloss'
+              : isBn
+                ? 'পরবর্তী রিভিউ নির্ধারণ করতে নিচে রেটিং দিন'
+                : 'Rate your recall below to schedule next review'}
           </div>
         </div>
       )}
 
       {/* MODE 2: CLOZE CONTEXT */}
       {mode === 'cloze' && (
-        <div className="min-h-[340px] rounded-2xl border border-control bg-surface p-8 shadow-sm flex flex-col justify-between space-y-4">
+        <div className="flex min-h-[340px] flex-col justify-between space-y-4 rounded-[4px] border border-[var(--hairline)] border-t-4 border-t-[var(--brand-deep)] bg-[var(--surface-paper)] p-8">
           <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="text-xs">
-              Cloze Context Mode
-            </Badge>
-            <span className="text-xs text-fg-muted font-mono">{activeWord.partOfSpeech}</span>
+            <span className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] px-2.5 py-0.5 text-xs font-semibold text-[var(--brand-ink)]">
+              {isBn ? 'ক্লোজ কনটেক্সট মোড' : 'Cloze Context Mode'}
+            </span>
+            <span className="font-mono text-xs text-[var(--text)]">{activeWord.partOfSpeech}</span>
           </div>
 
-          <div className="space-y-4 my-auto">
-            <p className="text-lg text-fg font-serif leading-relaxed">
+          <div className="my-auto space-y-4">
+            <p className="font-serif text-lg leading-relaxed text-[var(--brand-ink)]">
               &ldquo;
               {activeWord.exampleSentenceGre.replace(
                 new RegExp(activeWord.headword, 'gi'),
@@ -366,59 +400,66 @@ function VocabPlayerContent() {
               &rdquo;
             </p>
 
-            <div className="flex items-center gap-2 max-w-sm">
+            <div className="flex max-w-sm items-center gap-2">
               <input
                 type="text"
                 value={clozeUserAnswer}
                 onChange={(e) => setClozeUserAnswer(e.target.value)}
-                placeholder="Type the target word..."
-                className="w-full rounded-lg border border-control bg-surface-2 px-3 py-2 text-sm text-fg focus:outline-none focus:ring-2 focus:ring-accent"
+                placeholder={isBn ? 'লক্ষ্য শব্দটি লিখুন...' : 'Type the target word...'}
+                className="w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
               />
               <Button
                 size="sm"
+                className="rounded-[4px] bg-[var(--brand)] text-white hover:bg-[var(--brand-deep)]"
                 onClick={() => {
                   setClozeChecked(true);
                   setIsFlipped(true);
                 }}
               >
-                Check
+                {isBn ? 'যাচাই করুন' : 'Check'}
               </Button>
             </div>
 
             {clozeChecked && (
-              <div className="rounded-xl border border-accent/40 bg-accent-soft/30 p-4 space-y-2 animate-in fade-in duration-200">
-                <div className="flex items-center gap-2 font-bold text-fg">
-                  <span>Target: {activeWord.headword}</span>
-                  <span className="text-accent text-sm">({activeWord.bnMeaning})</span>
+              <div className="space-y-2 rounded-[4px] border border-[var(--brand)]/30 bg-[var(--bg-tint)] p-4">
+                <div className="flex flex-wrap items-center gap-2 font-bold text-[var(--brand-ink)]">
+                  <span>
+                    {isBn ? 'সঠিক শব্দ:' : 'Target:'} {activeWord.headword}
+                  </span>
+                  <span className="text-sm text-[var(--brand)]">({activeWord.bnMeaning})</span>
                 </div>
-                <p className="text-xs text-fg opacity-90">{activeWord.definition}</p>
+                <p className="text-xs text-[var(--text)]">{activeWord.definition}</p>
               </div>
             )}
           </div>
 
-          <div className="text-center text-[11px] text-fg-muted">
-            Sentence completion strengthens active recall in contextual GRE reading.
+          <div className="text-center text-xs text-[var(--text)]">
+            {isBn
+              ? 'প্রাসঙ্গিক বাক্য পূরণ জিআরই রিডিংয়ে সক্রিয় স্মরণ বাড়ায়।'
+              : 'Sentence completion strengthens active recall in contextual GRE reading.'}
           </div>
         </div>
       )}
 
       {/* MODE 3: 15s SYNONYM SPEED DRILL */}
       {mode === 'se_pair_drill' && (
-        <div className="min-h-[340px] rounded-2xl border border-warning/40 bg-surface p-8 shadow-sm flex flex-col justify-between space-y-4">
+        <div className="flex min-h-[340px] flex-col justify-between space-y-4 rounded-[4px] border border-[var(--hairline)] border-t-4 border-t-[var(--accent)] bg-[var(--surface-paper)] p-8">
           <div>
-            <div className="flex items-center justify-between">
-              <Badge variant="warning" className="text-xs">
-                Sentence Equivalence Pair Matching
-              </Badge>
-              <span className="text-xs text-fg-muted font-mono">Select exactly 2 synonyms</span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="rounded-[4px] border border-[var(--accent)]/40 bg-[var(--bg-warm)] px-2.5 py-0.5 text-xs font-semibold text-[var(--terracotta)]">
+                {isBn ? 'সেন্টেন্স ইকুইভ্যালেন্স জোড়া ম্যাচিং' : 'Sentence Equivalence Pair Matching'}
+              </span>
+              <span className="font-mono text-xs text-[var(--text)]">
+                {isBn ? 'ঠিক ২টি সমার্থক শব্দ বাছাই করুন' : 'Select exactly 2 synonyms'}
+              </span>
             </div>
-            <h3 className="text-2xl font-extrabold text-fg font-serif mt-2">
-              Target: {activeWord.headword}
+            <h3 className="mt-2 font-serif text-2xl font-extrabold text-[var(--brand-ink)]">
+              {isBn ? 'শব্দ:' : 'Target:'} {activeWord.headword}
             </h3>
           </div>
 
-          {/* 6 Choices (2 correct synonyms + 4 distractors) */}
-          <div className="grid grid-cols-2 gap-2.5 my-auto">
+          {/* 6 Choices */}
+          <div className="my-auto grid grid-cols-2 gap-2.5">
             {[
               activeWord.synonyms[0] || 'divergence',
               activeWord.synonyms[1] || 'departure',
@@ -443,10 +484,10 @@ function VocabPlayerContent() {
                       }
                     }
                   }}
-                  className={`rounded-xl border p-3 text-left text-xs font-semibold transition-all ${
+                  className={`cursor-pointer rounded-[4px] border p-3 text-left text-xs font-semibold transition-colors ${
                     isSelected
-                      ? 'border-warning bg-warning-soft text-warning ring-1 ring-warning'
-                      : 'border-control/60 bg-surface-2 text-fg hover:border-warning/60'
+                      ? 'border-[var(--brand)] bg-[var(--bg-tint)] text-[var(--brand)]'
+                      : 'border-[var(--hairline)] bg-[var(--bg)] text-[var(--brand-ink)] hover:border-[var(--brand)]/60'
                   }`}
                 >
                   {synOption}
@@ -456,8 +497,10 @@ function VocabPlayerContent() {
           </div>
 
           {isFlipped && (
-            <div className="rounded-lg border border-warning/30 bg-warning-soft/40 p-3 text-xs text-fg">
-              <span className="font-bold text-warning">Synonym Pair: </span>
+            <div className="rounded-[4px] border border-[var(--accent)]/40 bg-[var(--bg-warm)] p-3 text-xs text-[var(--brand-ink)]">
+              <span className="font-bold text-[var(--terracotta)]">
+                {isBn ? 'সমার্থক জোড়া: ' : 'Synonym Pair: '}
+              </span>
               {activeWord.synonyms.join(' & ')} &bull; বাংলা: {activeWord.bnMeaning}
             </div>
           )}
@@ -468,41 +511,52 @@ function VocabPlayerContent() {
       {mode === 'quant_formula' && (
         <div
           onClick={() => setIsFlipped(!isFlipped)}
-          className="min-h-[340px] rounded-2xl border border-info/40 bg-surface p-8 shadow-sm cursor-pointer hover:border-info transition-all flex flex-col justify-between select-none"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') setIsFlipped((prev) => !prev);
+          }}
+          className="flex min-h-[340px] cursor-pointer flex-col justify-between rounded-[4px] border border-[var(--hairline)] border-t-4 border-t-[var(--terracotta)] bg-[var(--surface-paper)] p-8 transition-colors select-none hover:border-[var(--brand)]"
         >
           {(() => {
             const card = QUANT_FORMULA_CARDS[currentIdx % QUANT_FORMULA_CARDS.length]!;
             return (
               <>
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="text-info border-info/40 text-xs">
+                  <span className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] px-2.5 py-0.5 text-xs font-semibold text-[var(--brand-ink)]">
                     {card.category}
-                  </Badge>
-                  <span className="text-xs text-fg-muted">Tap to Flip</span>
+                  </span>
+                  <span className="text-xs text-[var(--text)]">
+                    {isBn ? 'উল্টাতে ক্লিক করুন' : 'Tap to Flip'}
+                  </span>
                 </div>
 
                 {!isFlipped ? (
-                  <div className="my-auto text-center space-y-3">
-                    <h3 className="text-xl font-bold text-fg">{card.title}</h3>
-                    <p className="text-sm text-fg-muted font-medium">{card.frontMd}</p>
+                  <div className="my-auto space-y-3 text-center">
+                    <h3 className="text-xl font-bold text-[var(--brand-ink)]">{card.title}</h3>
+                    <p className="text-sm font-medium text-[var(--text)]">{card.frontMd}</p>
                   </div>
                 ) : (
-                  <div className="my-auto space-y-4 animate-in fade-in duration-200">
-                    <div className="border-b border-control/30 pb-2">
-                      <h4 className="text-lg font-bold text-fg">{card.title}</h4>
+                  <div className="my-auto space-y-4">
+                    <div className="border-b border-[var(--hairline)] pb-2">
+                      <h4 className="text-lg font-bold text-[var(--brand-ink)]">{card.title}</h4>
                     </div>
-                    <div className="text-sm leading-relaxed whitespace-pre-wrap font-medium text-fg">
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed font-medium text-[var(--brand-ink)]">
                       {card.backMd}
                     </div>
-                    <div className="rounded-lg border border-warning/40 bg-warning-soft p-2.5 text-xs text-warning">
-                      <span className="font-bold">Trap Diagnostic: </span>
+                    <div className="rounded-[4px] border border-[var(--brand)]/30 bg-[var(--bg-tint)] p-3 text-xs text-[var(--brand-ink)]">
+                      <span className="font-bold text-[var(--brand)]">
+                        {isBn ? 'ফাঁদ সতর্কতা: ' : 'Trap Diagnostic: '}
+                      </span>
                       {card.trapWarning}
                     </div>
                   </div>
                 )}
 
-                <div className="text-center text-[11px] text-fg-muted">
-                  Quant Trap Mastery Deck &bull; High-Yield GRE Principles
+                <div className="text-center text-xs text-[var(--text)]">
+                  {isBn
+                    ? 'কোয়ান্ট ফাঁদ মাস্টারি ডেক • উচ্চ-গুরুত্বপূর্ণ জিআরই নীতি'
+                    : 'Quant Trap Mastery Deck • High-Yield GRE Principles'}
                 </div>
               </>
             );
@@ -511,71 +565,87 @@ function VocabPlayerContent() {
       )}
 
       {/* 4-Button FSRS Rating Bar (Keyboard 1, 2, 3, 4) */}
-      <div className="space-y-2">
-        <div className="grid grid-cols-4 gap-2">
-          {/* Rating 1: Again */}
+      <div className="space-y-2.5">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <button
             type="button"
             onClick={() => handleRate(FSRSRating.Again)}
-            className="flex flex-col items-center justify-center rounded-xl border border-danger/30 bg-danger/10 p-2.5 text-center text-danger hover:bg-danger/20 active:scale-95 transition-all cursor-pointer"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-[4px] border border-[var(--crimson)] bg-[var(--bg-tint)] p-3 text-center text-[var(--crimson)] transition-colors hover:bg-[var(--crimson)] hover:text-white"
           >
-            <span className="text-xs font-bold flex items-center gap-1">
-              <span className="px-1 py-0.2 rounded bg-danger/20 text-[10px]">1</span> Again
+            <span className="flex items-center gap-1.5 text-xs font-bold">
+              <span className="rounded-[2px] border border-current px-1 text-[10px]">1</span>
+              <span>{isBn ? 'আবার (Again)' : 'Again'}</span>
             </span>
-            <span className="text-[11px] font-mono mt-0.5 opacity-90">
+            <span className="mt-1 font-mono text-[11px]">
               {ratingPreviews[FSRSRating.Again]?.intervalLabel ?? '< 10m'}
             </span>
           </button>
 
-          {/* Rating 2: Hard */}
           <button
             type="button"
             onClick={() => handleRate(FSRSRating.Hard)}
-            className="flex flex-col items-center justify-center rounded-xl border border-warning/30 bg-warning/10 p-2.5 text-center text-warning hover:bg-warning/20 active:scale-95 transition-all cursor-pointer"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-[4px] border border-[var(--terracotta)] bg-[var(--bg-warm)] p-3 text-center text-[var(--terracotta)] transition-colors hover:bg-[var(--terracotta)] hover:text-white"
           >
-            <span className="text-xs font-bold flex items-center gap-1">
-              <span className="px-1 py-0.2 rounded bg-warning/20 text-[10px]">2</span> Hard
+            <span className="flex items-center gap-1.5 text-xs font-bold">
+              <span className="rounded-[2px] border border-current px-1 text-[10px]">2</span>
+              <span>{isBn ? 'কঠিন (Hard)' : 'Hard'}</span>
             </span>
-            <span className="text-[11px] font-mono mt-0.5 opacity-90">
+            <span className="mt-1 font-mono text-[11px]">
               {ratingPreviews[FSRSRating.Hard]?.intervalLabel ?? '1d'}
             </span>
           </button>
 
-          {/* Rating 3: Good */}
           <button
             type="button"
             onClick={() => handleRate(FSRSRating.Good)}
-            className="flex flex-col items-center justify-center rounded-xl border border-accent/30 bg-accent-soft p-2.5 text-center text-accent hover:bg-accent hover:text-accent-fg active:scale-95 transition-all cursor-pointer"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-[4px] border border-[var(--brand)] bg-[var(--surface-paper)] p-3 text-center text-[var(--brand)] transition-colors hover:bg-[var(--brand)] hover:text-white"
           >
-            <span className="text-xs font-bold flex items-center gap-1">
-              <span className="px-1 py-0.2 rounded bg-accent/20 text-[10px]">3</span> Good
+            <span className="flex items-center gap-1.5 text-xs font-bold">
+              <span className="rounded-[2px] border border-current px-1 text-[10px]">3</span>
+              <span>{isBn ? 'ভালো (Good)' : 'Good'}</span>
             </span>
-            <span className="text-[11px] font-mono mt-0.5 opacity-90">
+            <span className="mt-1 font-mono text-[11px]">
               {ratingPreviews[FSRSRating.Good]?.intervalLabel ?? '3d'}
             </span>
           </button>
 
-          {/* Rating 4: Easy */}
           <button
             type="button"
             onClick={() => handleRate(FSRSRating.Easy)}
-            className="flex flex-col items-center justify-center rounded-xl border border-success/30 bg-success/10 p-2.5 text-center text-success hover:bg-success/20 active:scale-95 transition-all cursor-pointer"
+            className="flex cursor-pointer flex-col items-center justify-center rounded-[4px] border border-[var(--brand-deep)] bg-[var(--surface-paper)] p-3 text-center text-[var(--brand-deep)] transition-colors hover:bg-[var(--brand-deep)] hover:text-white"
           >
-            <span className="text-xs font-bold flex items-center gap-1">
-              <span className="px-1 py-0.2 rounded bg-success/20 text-[10px]">4</span> Easy
+            <span className="flex items-center gap-1.5 text-xs font-bold">
+              <span className="rounded-[2px] border border-current px-1 text-[10px]">4</span>
+              <span>{isBn ? 'সহজ (Easy)' : 'Easy'}</span>
             </span>
-            <span className="text-[11px] font-mono mt-0.5 opacity-90">
+            <span className="mt-1 font-mono text-[11px]">
               {ratingPreviews[FSRSRating.Easy]?.intervalLabel ?? '14d'}
             </span>
           </button>
         </div>
 
-        <p className="text-center text-[11px] text-fg-muted">
-          Keyboard shortcuts: Press <kbd className="px-1 rounded bg-surface-2 border border-control">1</kbd> Again &bull;{' '}
-          <kbd className="px-1 rounded bg-surface-2 border border-control">2</kbd> Hard &bull;{' '}
-          <kbd className="px-1 rounded bg-surface-2 border border-control">3</kbd> Good &bull;{' '}
-          <kbd className="px-1 rounded bg-surface-2 border border-control">4</kbd> Easy &bull;{' '}
-          <kbd className="px-1 rounded bg-surface-2 border border-control">Space</kbd> Flip
+        <p className="text-center text-xs text-[var(--text)]">
+          {isBn ? 'কীবোর্ড শর্টকাট:' : 'Keyboard shortcuts:'}{' '}
+          <kbd className="rounded-[2px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-1.5 py-0.5 font-mono text-[11px]">
+            1
+          </kbd>{' '}
+          Again &bull;{' '}
+          <kbd className="rounded-[2px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-1.5 py-0.5 font-mono text-[11px]">
+            2
+          </kbd>{' '}
+          Hard &bull;{' '}
+          <kbd className="rounded-[2px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-1.5 py-0.5 font-mono text-[11px]">
+            3
+          </kbd>{' '}
+          Good &bull;{' '}
+          <kbd className="rounded-[2px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-1.5 py-0.5 font-mono text-[11px]">
+            4
+          </kbd>{' '}
+          Easy &bull;{' '}
+          <kbd className="rounded-[2px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-1.5 py-0.5 font-mono text-[11px]">
+            Space
+          </kbd>{' '}
+          {isBn ? 'ফ্লিপ' : 'Flip'}
         </p>
       </div>
     </div>
@@ -586,7 +656,7 @@ export default function VocabFlashcardPlayerPage() {
   return (
     <React.Suspense
       fallback={
-        <div className="max-w-3xl mx-auto p-12 text-center text-xs text-fg-muted">
+        <div className="mx-auto max-w-3xl p-12 text-center text-xs text-[var(--text)]">
           Loading FSRS Vocab Player...
         </div>
       }

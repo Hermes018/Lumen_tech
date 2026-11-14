@@ -1,153 +1,202 @@
-/** @purpose Responsive learner portal shell with sidebar, track switcher, streak pill, and AI credit badge */
+/** @purpose Responsive learner portal shell with Deep Espresso sidebar/header, crimson rule, bilingual navigation, and Pearl/Bone canvas */
 import type { ReactNode } from 'react';
-import Link from 'next/link';
-
-export const dynamic = 'force-dynamic';
+import { getLocale } from 'next-intl/server';
 import { brand } from '@lumen/config';
-import { Badge, Button } from '@lumen/ui';
 import {
   LayoutDashboard,
   Target,
   Award,
   Brain,
   AlertTriangle,
-  GraduationCap,
+  Calendar,
+  Settings,
+  FileText,
   Flame,
   Zap,
   User,
-  Menu,
 } from 'lucide-react';
+import { LumenSparkMotif } from '@/src/components/ui/primitives';
+import { LocaleLink } from '../_components/LocaleLink';
 import { LocaleSwitcher } from '../_components/LocaleSwitcher';
 
-export default function LearnerLayout({ children }: { children: ReactNode }) {
+export const dynamic = 'force-dynamic';
+
+export default async function LearnerLayout({ children }: { children: ReactNode }) {
+  const locale = await getLocale();
+  const isBn = locale === 'bn';
+
+  const navItems = [
+    {
+      href: '/app',
+      label: isBn ? 'ড্যাশবোর্ড' : 'Dashboard',
+      icon: LayoutDashboard,
+    },
+    {
+      href: '/app/progress',
+      label: isBn ? 'দক্ষতা ও বিশ্লেষণ' : 'Mastery & Analytics',
+      icon: Award,
+    },
+    {
+      href: '/app/practice',
+      label: isBn ? 'অনুশীলন ও ড্রিল' : 'Practice & Drills',
+      icon: Target,
+    },
+    {
+      href: '/app/vocab',
+      label: isBn ? 'এফএসআরএস ভোকাব' : 'FSRS Vocab',
+      icon: Brain,
+    },
+    {
+      href: '/app/mistakes',
+      label: isBn ? 'ভুলের নোটবুক' : 'Mistake Notebook',
+      icon: AlertTriangle,
+    },
+    {
+      href: '/app/plan',
+      label: isBn ? 'স্টাডি প্ল্যান' : 'Study Plan',
+      icon: Calendar,
+    },
+    {
+      href: '/app/settings',
+      label: isBn ? 'সেটিংস ও বিলিং' : 'Settings & Billing',
+      icon: Settings,
+    },
+    {
+      href: '/exam/ielts-preview',
+      label: isBn ? 'আইইএলটিএস সিমুলেটর' : 'CD-IELTS Simulator',
+      icon: FileText,
+    },
+  ];
+
   return (
-    <div className="learner-shell bg-canvas text-fg flex min-h-screen">
-      {/* Desktop Sidebar */}
-      <aside className="learner-sidebar border-border bg-surface hidden w-64 flex-col border-r lg:flex">
+    <div className="learner-shell flex min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      {/* Desktop Deep Espresso Sidebar */}
+      <aside className="learner-sidebar hidden w-64 shrink-0 flex-col border-r border-white/15 bg-[var(--brand-deep)] text-white lg:flex">
         {/* Brand Header */}
-        <div className="border-border flex h-16 items-center gap-2 border-b px-6">
-          <span className="bg-accent text-accent-fg flex h-8 w-8 items-center justify-center rounded-lg font-bold">
-            {brand.shortName.charAt(0)}
-          </span>
-          <div className="flex flex-col">
-            <span className="leading-tight font-bold">{brand.name}</span>
-            <span className="text-fg-muted text-xs">Learner Portal</span>
-          </div>
+        <div className="flex h-16 items-center border-b border-white/15 px-6">
+          <LocaleLink
+            href="/app"
+            className="flex items-center gap-3 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+          >
+            <span className="pt-2" aria-hidden="true">
+              <LumenSparkMotif inverse />
+            </span>
+            <span className="flex flex-col">
+              <span className="text-base leading-tight font-extrabold tracking-tight">{brand.name}</span>
+              <span className="text-xs font-medium text-white/70">
+                {isBn ? 'শিক্ষার্থী ওয়ার্কস্পেস' : 'Learner Workspace'}
+              </span>
+            </span>
+          </LocaleLink>
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 space-y-1 px-4 py-6 text-sm font-medium">
-          <Link
-            href="/app"
-            className="bg-surface-2 text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <LayoutDashboard className="text-accent h-4 w-4" />
-            <span>Dashboard</span>
-          </Link>
-          <Link
-            href="/app/progress"
-            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <Award className="h-4 w-4" />
-            <span>Mastery & Analytics</span>
-          </Link>
-          <Link
-            href="/app/practice"
-            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <Target className="h-4 w-4" />
-            <span>Practice & Drills</span>
-          </Link>
-          <Link
-            href="/app/mistakes"
-            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <AlertTriangle className="h-4 w-4" />
-            <span>Mistake Notebook</span>
-          </Link>
-          <Link
-            href="/app/flashcards"
-            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <Brain className="h-4 w-4" />
-            <span>Vocab Decks (FSRS)</span>
-          </Link>
-          <Link
-            href="/app/error-log"
-            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <AlertTriangle className="h-4 w-4" />
-            <span>Trap Diagnostics</span>
-          </Link>
-          <Link
-            href="/app/admissions"
-            className="text-fg-muted hover:bg-surface-2 hover:text-fg flex items-center gap-3 rounded-md px-3 py-2 transition-colors"
-          >
-            <GraduationCap className="h-4 w-4" />
-            <span>Admissions (P2)</span>
-          </Link>
+        <nav aria-label={isBn ? 'শিক্ষার্থী নেভিগেশন' : 'Learner navigation'} className="flex-1 space-y-1 px-3 py-5 text-sm font-medium">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <LocaleLink
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-3 rounded-[4px] border border-transparent px-3 py-2 text-white/85 transition-colors hover:border-white/15 hover:bg-white/10 hover:text-white"
+              >
+                <Icon className="h-4 w-4 shrink-0 text-[var(--accent)]" />
+                <span>{item.label}</span>
+              </LocaleLink>
+            );
+          })}
         </nav>
 
-        {/* Sidebar Footer with Session / Diagnostics Info */}
-        <div className="border-border text-fg-muted border-t p-4 text-xs">
-          <div className="text-fg font-medium">GRE Diagnostic Target</div>
-          <p className="mt-1">Current: 318 → Goal: 330+</p>
+        {/* Sidebar Footer with Diagnostic Target */}
+        <div className="border-t border-white/15 p-4 text-xs text-white/80">
+          <div className="font-semibold text-white">
+            {isBn ? 'জিআরই ডায়াগনস্টিক লক্ষ্য' : 'GRE Diagnostic Target'}
+          </div>
+          <p className="mt-1 text-white/70">
+            {isBn ? 'বর্তমান: ৩১৮ → লক্ষ্য: ৩৩০+' : 'Current: 318 → Goal: 330+'}
+          </p>
+          <LocaleLink
+            href="/app/plan"
+            className="mt-2 inline-block font-semibold text-[var(--soft-btn)] underline underline-offset-4 hover:text-white"
+          >
+            {isBn ? 'রোডম্যাপ দেখুন' : 'View Study Roadmap'}
+          </LocaleLink>
         </div>
       </aside>
 
       {/* Main Workspace Area */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top Header Bar */}
-        <header className="border-border bg-surface/90 sticky top-0 z-30 flex h-16 items-center justify-between border-b px-4 backdrop-blur-md sm:px-6">
-          {/* Mobile menu and current track indicator */}
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b-4 border-[var(--brand)] bg-[var(--brand-deep)] px-4 text-white sm:px-6">
+          {/* Mobile Brand + Track Switcher Links */}
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="text-fg-muted hover:text-fg p-2 lg:hidden"
-              aria-label="Open menu"
+            <LocaleLink
+              href="/app"
+              className="flex items-center gap-2 font-extrabold text-white lg:hidden"
             >
-              <Menu className="h-5 w-5" />
-            </button>
+              <span className="pt-2" aria-hidden="true">
+                <LumenSparkMotif inverse />
+              </span>
+              <span className="text-sm tracking-tight">{brand.name}</span>
+            </LocaleLink>
 
-            {/* Track Switcher */}
-            <div className="border-control bg-surface-2 flex items-center rounded-lg border p-0.5 text-xs font-semibold">
-              <button type="button" className="bg-surface text-fg rounded-md px-3 py-1 shadow-xs">
-                GRE Prep
-              </button>
-              <button type="button" className="text-fg-muted hover:text-fg rounded-md px-3 py-1">
-                IELTS
-              </button>
+            <div className="hidden items-center rounded-[4px] border border-white/20 bg-white/10 p-0.5 text-xs font-semibold sm:flex">
+              <LocaleLink
+                href="/app/practice"
+                className="rounded-[4px] bg-[var(--brand)] px-3 py-1 text-white"
+              >
+                {isBn ? 'জিআরই প্রস্তুতি' : 'GRE Prep'}
+              </LocaleLink>
+              <LocaleLink
+                href="/exam/ielts-preview"
+                className="rounded-[4px] px-3 py-1 text-white/80 transition-colors hover:text-white"
+              >
+                {isBn ? 'আইইএলটিএস' : 'IELTS'}
+              </LocaleLink>
             </div>
           </div>
 
-          {/* User Status Pills & Profile */}
-          <div className="flex items-center gap-3">
-            {/* Interactive Language Switcher */}
-            <LocaleSwitcher />
-
-            {/* Study Streak Pill */}
-            <div className="bg-warning-soft text-warning-fg border-warning/20 flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold">
-              <Flame className="fill-warning text-warning h-4 w-4" />
-              <span>7 Day Streak</span>
+          {/* User Status Indicators & Profile */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="rounded-[4px] bg-[var(--surface-paper)] text-[var(--brand-ink)]">
+              <LocaleSwitcher />
             </div>
 
-            {/* AI Credits Counter Badge */}
-            <Badge variant="default" className="hidden gap-1 px-2.5 py-1 sm:inline-flex">
-              <Zap className="fill-accent h-3.5 w-3.5" />
-              <span>120 Credits</span>
-            </Badge>
+            <div className="hidden items-center gap-1.5 rounded-[4px] border border-[var(--accent)]/50 bg-[var(--brand-ink)] px-3 py-1 text-xs font-semibold text-white md:flex">
+              <Flame className="h-3.5 w-3.5 text-[var(--accent)]" />
+              <span>{isBn ? '৭ দিনের ধারা' : '7 Day Streak'}</span>
+            </div>
 
-            {/* Profile Avatar Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 w-8 rounded-full p-0"
-              aria-label="User Profile"
+            <div className="hidden items-center gap-1 rounded-[4px] border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white sm:inline-flex">
+              <Zap className="h-3.5 w-3.5 text-[var(--accent)]" />
+              <span>{isBn ? '১২০ ক্রেডিট' : '120 Credits'}</span>
+            </div>
+
+            <LocaleLink
+              href="/app/settings"
+              className="flex h-8 w-8 items-center justify-center rounded-[4px] border border-white/25 bg-white/10 text-white transition-colors hover:bg-white/20"
+              aria-label={isBn ? 'অ্যাকাউন্ট সেটিংস' : 'Account Settings'}
             >
               <User className="h-4 w-4" />
-            </Button>
+            </LocaleLink>
           </div>
         </header>
+
+        {/* Mobile Quick Navigation Strip */}
+        <nav
+          aria-label={isBn ? 'মোবাইল নেভিগেশন' : 'Mobile navigation'}
+          className="flex items-center gap-1.5 overflow-x-auto border-b border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-2 text-xs font-semibold lg:hidden"
+        >
+          {navItems.map((item) => (
+            <LocaleLink
+              key={item.href}
+              href={item.href}
+              className="shrink-0 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-[var(--brand-ink)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+            >
+              {item.label}
+            </LocaleLink>
+          ))}
+        </nav>
 
         {/* Page Content Body */}
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 lg:p-8">{children}</main>

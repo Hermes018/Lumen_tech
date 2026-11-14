@@ -1,15 +1,9 @@
-/** @purpose Main Learner Dashboard (/app) with study streaks, XP levels, and GRE score predictor */
-import Link from 'next/link';
+/** @purpose Main Learner Dashboard (/app) with study streaks, XP levels, and GRE score predictor in Pearl/Bone stationery style */
+import { getLocale } from 'next-intl/server';
 import {
-  Button,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
   StreakPill,
   LevelProgressBar,
   ScorePredictorChart,
-  Badge,
 } from '@lumen/ui';
 import {
   ArrowRight,
@@ -21,19 +15,22 @@ import {
   Sparkles,
   BookOpen,
 } from 'lucide-react';
+import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import { getLearnerDashboardData } from '../../../actions/analytics';
 
 export default async function LearnerAppPage() {
-  const data = await getLearnerDashboardData();
+  const [data, locale] = await Promise.all([getLearnerDashboardData(), getLocale()]);
+  const isBn = locale === 'bn';
+  const firstName = data.actor.name.split(' ')[0] ?? data.actor.name;
 
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-surface border-border flex flex-col justify-between gap-4 rounded-xl border p-6 shadow-xs sm:flex-row sm:items-center">
+      <section className="flex flex-col justify-between gap-4 rounded-[4px] border border-[var(--hairline)] border-l-4 border-l-[var(--brand)] bg-[var(--surface-paper)] p-6 sm:flex-row sm:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-fg text-2xl font-bold tracking-tight">
-              Welcome back, {data.actor.name.split(' ')[0]}
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--brand-ink)]">
+              {isBn ? `স্বাগতম, ${firstName}` : `Welcome back, ${firstName}`}
             </h1>
             <StreakPill
               streak={data.streak.currentStreak}
@@ -42,25 +39,31 @@ export default async function LearnerAppPage() {
               variant="highlight"
             />
           </div>
-          <p className="text-fg-muted mt-1 text-sm">
-            Target exam date: {data.actor.targetDate} • {data.actor.daysRemaining} days remaining • Target Score: {data.actor.targetScore}+
+          <p className="mt-1.5 text-sm text-[var(--text)]">
+            {isBn
+              ? `লক্ষ্য পরীক্ষার তারিখ: ${data.actor.targetDate} • বাকি ${data.actor.daysRemaining} দিন • লক্ষ্য স্কোর: ${data.actor.targetScore}+`
+              : `Target exam date: ${data.actor.targetDate} • ${data.actor.daysRemaining} days remaining • Target Score: ${data.actor.targetScore}+`}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/app/progress">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              Analytics View <ArrowRight className="h-3.5 w-3.5" />
-            </Button>
-          </Link>
-          <Link href="/exam/mock-session-01">
-            <Button className="shrink-0 gap-2">
-              <PlayCircle className="h-4 w-4" /> Resume Mock
-            </Button>
-          </Link>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <LocaleLink
+            href="/app/progress"
+            className="inline-flex h-9 items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3.5 text-xs font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+          >
+            <span>{isBn ? 'বিশ্লেষণ দেখুন' : 'Analytics View'}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </LocaleLink>
+          <LocaleLink
+            href="/exam/mock-session-01"
+            className="inline-flex h-9 items-center gap-2 rounded-[4px] bg-[var(--brand)] px-4 text-xs font-semibold text-white transition-colors hover:bg-[var(--brand-deep)]"
+          >
+            <PlayCircle className="h-4 w-4" />
+            <span>{isBn ? 'মক পরীক্ষা চালান' : 'Resume Mock'}</span>
+          </LocaleLink>
         </div>
-      </div>
+      </section>
 
-      {/* Khan Academy Style XP Level Progress */}
+      {/* XP Level Progress */}
       <LevelProgressBar
         level={data.level.level}
         title={data.level.title}
@@ -71,93 +74,100 @@ export default async function LearnerAppPage() {
         nextLevelTitle={data.level.nextLevelTitle}
       />
 
-      {/* Next Best Action (Hero Widget W-S-NBA) */}
-      <div className="bg-surface border-border overflow-hidden rounded-xl border p-5 shadow-xs">
+      {/* Next Best Action */}
+      <section className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Badge variant="default" className="text-xs">
-                Next Best Action
-              </Badge>
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-block rounded-[4px] border border-[var(--brand)]/25 bg-[var(--bg-tint)] px-2 py-0.5 text-xs font-semibold text-[var(--brand)]">
+                {isBn ? 'পরবর্তী সেরা পদক্ষেপ' : 'Next Best Action'}
+              </span>
               {data.nextBestAction.badge && (
-                <span className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 text-[11px] font-semibold rounded-md px-2 py-0.5">
+                <span className="inline-block rounded-[4px] border border-[var(--accent)]/30 bg-[var(--bg-warm)] px-2 py-0.5 text-xs font-semibold text-[var(--terracotta)]">
                   {data.nextBestAction.badge}
                 </span>
               )}
             </div>
-            <h2 className="text-fg text-lg font-bold">
+            <h2 className="text-lg font-bold text-[var(--brand-ink)]">
               {data.nextBestAction.title}
             </h2>
-            <p className="text-fg-muted text-sm">
+            <p className="text-sm text-[var(--text)]">
               {data.nextBestAction.description}
             </p>
           </div>
-          <Link href={data.nextBestAction.href}>
-            <Button className="shrink-0 gap-2">
-              <Sparkles className="h-4 w-4" /> {data.nextBestAction.actionLabel}
-            </Button>
-          </Link>
+          <LocaleLink
+            href={data.nextBestAction.href}
+            className="inline-flex h-10 shrink-0 items-center gap-2 rounded-[4px] bg-[var(--brand)] px-4 text-sm font-semibold text-white transition-colors hover:bg-[var(--brand-deep)]"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>{data.nextBestAction.actionLabel}</span>
+          </LocaleLink>
         </div>
-      </div>
+      </section>
 
-      {/* Quick Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-fg-muted text-xs font-semibold uppercase flex items-center justify-between">
-              <span>Quant Accuracy</span>
-              <Target className="h-4 w-4 text-accent" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-fg text-2xl font-bold">{data.stats.quantAccuracy}%</div>
-            <p className="text-emerald-600 dark:text-emerald-400 mt-1 text-xs">+4% from diagnostic</p>
-          </CardContent>
-        </Card>
+      {/* Quick Stats Exposed Hairline Grid */}
+      <section className="grid divide-y divide-[var(--hairline)] rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] sm:grid-cols-2 sm:divide-x sm:divide-y-0 lg:grid-cols-4">
+        <div className="p-5">
+          <div className="flex items-center justify-between text-xs font-semibold text-[var(--text)]">
+            <span>{isBn ? 'কোয়ান্ট নির্ভুলতা' : 'Quant Accuracy'}</span>
+            <Target className="h-4 w-4 text-[var(--brand)]" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-[var(--brand-ink)]">
+            {data.stats.quantAccuracy}%
+          </div>
+          <p className="mt-1 text-xs font-medium text-emerald-700">
+            {isBn ? 'ডায়াগনস্টিক থেকে +৪%' : '+4% from diagnostic'}
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-fg-muted text-xs font-semibold uppercase flex items-center justify-between">
-              <span>Verbal Mastery</span>
-              <BookOpen className="h-4 w-4 text-sky-500" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-fg text-2xl font-bold">{data.stats.verbalMastery}%</div>
-            <p className="text-amber-600 dark:text-amber-400 mt-1 text-xs">Text Completion traps detected</p>
-          </CardContent>
-        </Card>
+        <div className="p-5">
+          <div className="flex items-center justify-between text-xs font-semibold text-[var(--text)]">
+            <span>{isBn ? 'ভার্বাল দক্ষতা' : 'Verbal Mastery'}</span>
+            <BookOpen className="h-4 w-4 text-[var(--brand-deep)]" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-[var(--brand-ink)]">
+            {data.stats.verbalMastery}%
+          </div>
+          <p className="mt-1 text-xs font-medium text-[var(--terracotta)]">
+            {isBn ? 'টেক্সট কমপ্লিশন ফাঁদ শনাক্ত হয়েছে' : 'Text Completion traps detected'}
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-fg-muted text-xs font-semibold uppercase flex items-center justify-between">
-              <span>FSRS Vocab Cards</span>
-              <Brain className="h-4 w-4 text-accent" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-fg text-2xl font-bold">{data.stats.fsrsCardsDue} due</div>
-            <Link href="/app/flashcards" className="text-accent hover:underline mt-1 text-xs block">
-              Review deck ({data.stats.fsrsCardsTotal} total) →
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="p-5">
+          <div className="flex items-center justify-between text-xs font-semibold text-[var(--text)]">
+            <span>{isBn ? 'এফএসআরএস ভোকাব কার্ড' : 'FSRS Vocab Cards'}</span>
+            <Brain className="h-4 w-4 text-[var(--brand)]" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-[var(--brand-ink)]">
+            {data.stats.fsrsCardsDue} {isBn ? 'বাকি' : 'due'}
+          </div>
+          <LocaleLink
+            href="/app/vocab"
+            className="mt-1 block text-xs font-semibold text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand-deep)]"
+          >
+            {isBn
+              ? `ডেক রিভিউ করুন (মোট ${data.stats.fsrsCardsTotal})`
+              : `Review deck (${data.stats.fsrsCardsTotal} total)`}{' '}
+            →
+          </LocaleLink>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-fg-muted text-xs font-semibold uppercase flex items-center justify-between">
-              <span>Mistake Notebook</span>
-              <AlertTriangle className="h-4 w-4 text-amber-500" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-fg text-2xl font-bold">{data.stats.openMistakesCount} open</div>
-            <Link href="/app/mistakes" className="text-amber-600 dark:text-amber-400 hover:underline mt-1 text-xs block">
-              Resolve mistakes →
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="p-5">
+          <div className="flex items-center justify-between text-xs font-semibold text-[var(--text)]">
+            <span>{isBn ? 'ভুলের নোটবুক' : 'Mistake Notebook'}</span>
+            <AlertTriangle className="h-4 w-4 text-[var(--accent)]" />
+          </div>
+          <div className="mt-2 text-2xl font-extrabold text-[var(--brand-ink)]">
+            {data.stats.openMistakesCount} {isBn ? 'খোলা' : 'open'}
+          </div>
+          <LocaleLink
+            href="/app/mistakes"
+            className="mt-1 block text-xs font-semibold text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand-deep)]"
+          >
+            {isBn ? 'ভুল সমাধান করুন' : 'Resolve mistakes'} →
+          </LocaleLink>
+        </div>
+      </section>
 
       {/* Estimated GRE Score Predictor Component */}
       <ScorePredictorChart
@@ -171,59 +181,63 @@ export default async function LearnerAppPage() {
       />
 
       {/* Study Activities & Direct Drill Links */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="text-accent h-4 w-4" />
-              Active Pedagogy & Practice
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-fg-muted text-sm">
-              Practice authentic GRE-style questions with 3-tier progressive hints, second-chance trap diagnostics, and Socratic walkthroughs.
-            </p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Link href="/app/practice">
-                <Button size="sm" className="gap-1.5">
-                  Start Practice Quiz <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-              <Link href="/app/vocab/play">
-                <Button variant="outline" size="sm" className="gap-1.5">
-                  Play Vocab <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+      <section className="grid divide-y divide-[var(--hairline)] rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] md:grid-cols-2 md:divide-x md:divide-y-0">
+        <div className="space-y-3 p-6">
+          <div className="flex items-center gap-2 text-base font-bold text-[var(--brand-ink)]">
+            <Brain className="h-4 w-4 text-[var(--brand)]" />
+            <h2>{isBn ? 'সক্রিয় অনুশীলন ও ভোকাবুলারি' : 'Active Pedagogy & Practice'}</h2>
+          </div>
+          <p className="text-sm leading-relaxed text-[var(--text)]">
+            {isBn
+              ? '৩-স্তরের হিন্ট, ডিস্ট্রাক্টর ফাঁদ বিশ্লেষণ এবং ধাপে ধাপে সমাধানের সাথে জিআরই অনুশীলন করুন।'
+              : 'Practice authentic GRE-style questions with 3-tier progressive hints, second-chance trap diagnostics, and Socratic walkthroughs.'}
+          </p>
+          <div className="flex flex-wrap gap-2.5 pt-1">
+            <LocaleLink
+              href="/app/practice"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[4px] bg-[var(--brand)] px-3.5 text-xs font-semibold text-white transition-colors hover:bg-[var(--brand-deep)]"
+            >
+              <span>{isBn ? 'অনুশীলন শুরু করুন' : 'Start Practice Quiz'}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </LocaleLink>
+            <LocaleLink
+              href="/app/vocab/play"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3.5 text-xs font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+            >
+              <span>{isBn ? 'ভোকাব খেলুন' : 'Play Vocab'}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </LocaleLink>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="text-sky-500 h-4 w-4" />
-              Pacing & Full CBT Mocks
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-fg-muted text-sm">
-              Experience the authentic computer-based GRE testing engine with on-screen calculator, review navigator, and section-level adaptive routing.
-            </p>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Link href="/exam/mock-session-01">
-                <Button size="sm" variant="outline" className="gap-1.5">
-                  Sectional Mock <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-              <Link href="/app/mistakes">
-                <Button variant="outline" size="sm" className="gap-1.5 text-amber-600 dark:text-amber-400">
-                  Mistake Notebook <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="space-y-3 p-6">
+          <div className="flex items-center gap-2 text-base font-bold text-[var(--brand-ink)]">
+            <Clock className="h-4 w-4 text-[var(--brand-deep)]" />
+            <h2>{isBn ? 'পেসিং ও পূর্ণ সিবিটি মক' : 'Pacing & Full CBT Mocks'}</h2>
+          </div>
+          <p className="text-sm leading-relaxed text-[var(--text)]">
+            {isBn
+              ? 'অন-স্ক্রিন ক্যালকুলেটর, রিভিউ নেভিগেটর এবং সেকশন-অ্যাডাপ্টিভ রাউটিং সহ কম্পিউটার-ভিত্তিক মক পরীক্ষা দিন।'
+              : 'Experience the authentic computer-based GRE testing engine with on-screen calculator, review navigator, and section-level adaptive routing.'}
+          </p>
+          <div className="flex flex-wrap gap-2.5 pt-1">
+            <LocaleLink
+              href="/exam/mock-session-01"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3.5 text-xs font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+            >
+              <span>{isBn ? 'সেকশনাল মক' : 'Sectional Mock'}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </LocaleLink>
+            <LocaleLink
+              href="/app/mistakes"
+              className="inline-flex h-8 items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] px-3.5 text-xs font-semibold text-[var(--brand-ink)] transition-colors hover:border-[var(--brand)] hover:text-[var(--brand)]"
+            >
+              <span>{isBn ? 'ভুলের নোটবুক' : 'Mistake Notebook'}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </LocaleLink>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

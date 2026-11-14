@@ -1,321 +1,247 @@
-# LUMEN ACADEMY — MASTER UI/UX OVERHAUL RUNBOOK (BATCHES P0 -> P9)
+# LUMEN ACADEMY — MASTER UI/UX OVERHAUL RUNBOOK (BATCHES P0 -> P14)
 
-**File Location:** `/home/ayra/Lumen_tech/Lumen_tech/docs/lumen_ui_overhaul_master_runbook.md`  
-**Companion References:** `docs/LUMEN-DESIGN-STRATEGY.md` & `docs/LUMEN-FAILURE-MODES-AND-VERIFICATION.md`  
-**Target Environment:** Fedora Linux (8 GB RAM Ceiling — Always prefix Node/pnpm commands with `NODE_OPTIONS="--max-old-space-size=2048"`)  
+**File Location:** `/home/ayra/Lumen_tech/Lumen_tech/docs/lumen_ui_overhaul_master_runbook.md`
+
+**Companion References:** `docs/LUMEN-DESIGN-STRATEGY.md` & `docs/LUMEN-FAILURE-MODES-AND-VERIFICATION.md`
+
+**Target Environment:** Fedora Linux (8 GB RAM Ceiling — Always prefix Node/pnpm commands with `NODE_OPTIONS="--max-old-space-size=2048"`)
+
 **Git Author:** `Ayman Rahman <aymanrahman30@gmail.com>` (Local commits only — **NEVER** run `git push`)
-
----
 
 ## 0. INTERACTIVE CLI EXECUTION PROTOCOL (READ FIRST — MANDATORY FOR AGENT)
 
 You are operating in **Interactive Single-Batch Mode**. You MUST obey these 5 execution laws on every turn:
 
 1. **ONE BATCH PER TURN (STRICT STOP-GATE):**
-   * Batches `P0` through `P5` are already completed and committed.
-   * Execute **ONLY** the specific batch requested by the user (`BATCH P6`, `BATCH P7`, `BATCH P8`, or `BATCH P9`), or the next uncompleted batch in sequence `P6` -> `P7` -> `P8` -> `P9` when the user says `"continue"` or `"next"`.
+   * Batches `P0` through `P9` are already completed and committed (`2be300f` -> `10a3b4a`).
+   * Execute **ONLY** the specific batch requested by the user (`BATCH P10`, `BATCH P11`, `BATCH P12`, `BATCH P13`, or `BATCH P14`), or the next uncompleted batch in sequence `P10` -> `P11` -> `P12` -> `P13` -> `P14` when the user says `"continue"` or `"next"`.
    * **NEVER** chain two batches together in a single turn.
-2. **NO IMPROVISATION / ZERO GUESSING:**
-   * Every CSS variable, hex code, image URL, prop, file path, and layout rule is explicitly specified below. Do not invent props, do not add extra cards or pill badges, and do not modify files outside the batch's **Allowed Files** list.
+
+2. **NO IMPROVISATION / ZERO GUESSING / ZERO DEAD LINKS:**
+   * Every CSS variable, hex code, prop, file path, and interactive handler is explicitly specified below. Do not invent props, do not add extra cards or pill badges, and do not modify files outside the batch's **Allowed Files** list.
    * Never hardcode the literal string `"Lumen Academy"` in `.ts` or `.tsx` files—always import `{ brand } from '@lumen/config'` and use `brand.name` so `brand-sweep.test.ts` passes.
+   * **Functional Mandate:** Every button, tab, accordion, calculator input, simulator control, and checkout selector MUST work interactively with zero broken links (`404`) and zero unhandled runtime errors.
+
 3. **PROTECTED i18n FILES (NEVER MODIFY):**
    * The Bengali switcher and translation pipeline are working and locked. You must **NEVER** modify:
      * `apps/web/app/[locale]/_components/LocaleSwitcher.tsx`
      * `apps/web/app/[locale]/_components/LocaleLink.tsx`
      * `apps/web/app/[locale]/_components/TranslatedText.tsx`
      * `apps/web/app/api/translate/route.ts`
+
 4. **MANDATORY RECEIPTS BEFORE STOPPING:**
    * A batch is NOT complete until you run its verification commands and paste the raw output of:
      1. `pnpm design:lint`
-     2. `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`
-     3. `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`
-     4. `git status -sb` and `git diff --stat HEAD~1`
+     2. `pnpm design:shots`
+     3. `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`
+     4. `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`
+     5. `git status -sb` and `git diff --stat HEAD~1`
+
 5. **END-OF-BATCH HALT MESSAGE:**
    * After committing the completed batch locally to `main`, end your response with:
      > **`BATCH <ID> COMPLETE AND COMMITTED. Waiting for your instruction: reply "continue" to run Batch <NEXT_ID>, or tell me any adjustments you want first.`**
 
 ---
 
-## 1. COMPLETED FOUNDATION SUMMARY (BATCHES P0 -> P5)
+## 1. COMPLETED FOUNDATION SUMMARY (BATCHES P0 -> P9)
 
-* **P0–P5 Status:** Completed on `main` (`2be300f` -> `0c2fb7a`).
-* **What Exists:** `AGENTS.md`, `.claude/skills/institutional-ui/SKILL.md`, `apps/web/app/tokens.css`, `apps/web/src/components/ui/primitives.tsx`, `apps/web/src/components/ui/HeaderFooter.tsx`, `apps/web/src/content/media.ts`, `apps/web/src/content/nav.ts`, `apps/web/src/content/marketing.ts`, `tooling/design-lint.mjs`, and `tooling/design-shots.mjs`.
-
----
-
-## 2. FORENSIC DIAGNOSIS OF THE 5 VISUAL DEFECTS FIXED IN BATCHES P6 -> P9
-
-1. **Defect 1 — Broken Black Image Boxes (`PlaceholderImage` / `media.ts`):**
-   * **Root Cause:** `media.ts` used unencoded `#` hex characters inside `data:image/svg+xml;utf8,...` strings. Browsers treat `#` as a URL fragment identifier and truncate the SVG before the `fill` attribute, causing `<rect width="100%" height="100%" />` to render with SVG's default `#000000` solid black fill!
-   * **Fix (Batch P6):** Replace broken data-URI strings with verified open-source student/academic photography from `images.unsplash.com` (`<img>` with `loading="lazy"` / `eager`), ensure `apps/web/next.config.ts` CSP `img-src` allows `https://images.unsplash.com`, and render a rich inline React JSX SVG warm crimson/orange editorial illustration underneath as a fallback—never a `data:image/svg+xml` string and never a black rectangle.
-2. **Defect 2 — Dark Unreadable Hero Text on Crimson & Brand Heroes (`/pricing`, `/ielts`):**
-   * **Root Cause:** `.lumen-h1` and `.lumen-body` in `apps/web/app/tokens.css` hardcode `color: var(--brand-ink)` and `color: var(--text)`, overriding Tailwind's `text-white` inside dark/crimson `HeroBand` sections.
-   * **Fix (Batch P6):** Add `.lumen-hero-inverse .lumen-h1, .lumen-hero-inverse .lumen-h2, .lumen-hero-inverse .lumen-h3 { color: #FFFFFF !important; }` and `.lumen-hero-inverse .lumen-body { color: rgba(255, 255, 255, 0.92) !important; }` in `tokens.css` and apply `lumen-hero-inverse` whenever `HeroBand` has `tone="brand"` or `tone="crimson"`.
-3. **Defect 3 — Cold Purple Palette vs. Requested IELTS Warm Red, Orange & Translucent Backdrops:**
-   * **Fix (Batch P6):** Update `apps/web/app/tokens.css` to a cohesive **Warm IELTS Crimson, Sunset Orange & Translucent Rose/Peach Backdrop** palette:
-     * `--bg`: `#FFFFFF` (Pure Daylight White)
-     * `--bg-warm`: `#FFF5F2` (Light Translucent Warm Rose-Peach Hero Backdrop)
-     * `--bg-tint`: `#FEF0EB` (Light Translucent Coral-Alabaster Alternating Band)
-     * `--surface-translucent`: `rgba(255, 243, 238, 0.86)` (Translucent Warm Backdrop for panels/notices)
-     * `--brand`: `#C8102E` (Institutional IELTS Crimson Red)
-     * `--brand-deep`: `#231116` (Deep Warm Espresso-Aubergine for MainNav, SubBar & Footer)
-     * `--brand-ink`: `#1E0F13` (Deep Warm Charcoal-Espresso for headings)
-     * `--text`: `#4A3339` (Warm Umber-Slate body text, $\ge 7.5:1$ contrast)
-     * `--link`: `#B80D27` (Deep Crimson underlined action links)
-     * `--accent`: `#FF5A26` (Vibrant Warm Orange / Coral for TopRibbon, geometric photo L-bars, and step highlights)
-     * `--crimson`: `#D90429` (Vivid Crimson for `StepRow` numeral squares and hero bands)
-     * `--terracotta`: `#E04F26` (Warm Terracotta-Orange for dashed arrows and outline accents)
-     * `--soft-btn`: `#FFE2D6` (Soft Warm Peach-Orange button fill with `--brand-ink` text)
-     * `--hairline`: `#F2D6CE` (Warm Rose-Sand structural hairline divider)
-4. **Defect 4 — AI Rainbow Pill Box in `BangladeshPaymentTrustBar.tsx`:**
-   * **Root Cause:** `BangladeshPaymentTrustBar.tsx` still renders a dark `rounded-2xl` box with 6 neon pink/orange/purple/blue/green `rounded-full` pills.
-   * **Fix (Batch P7):** Rewrite `BangladeshPaymentTrustBar.tsx` into a flat, borderless institutional typographic ledger (`border-t border-b`, zero `rounded-full` pills, zero rainbow borders) that blends naturally into both the footer and checkout.
-5. **Defect 5 — `/sign-in`, `/sign-up`, and `/exam/diagnostic` Still Look Like Disconnected AI Templates:**
-   * **Root Cause:** `(auth)` pages still have fake unverified stats (`+11.4 Pts`, `78%`), a fake testimonial (`Farhan T., BUET`), `ALL-CAPS` eyebrows, and translucent rounded boxes; `/exam/diagnostic` still has 5 `rounded-full` header pills, `rounded-2xl` floating cards, and 3 nested dashed hint boxes.
-   * **Fix (Batches P8 & P9):** Rebuild `/sign-in`, `/sign-up`, and `/exam/diagnostic` using the exact same tokens (`tokens.css`), sharp `4px` (`rounded-[4px]`) geometry, `<LumenSparkMotif />`, open-source photography with geometric L-bar framing, and flat hairline dividers.
+* **P0–P5 Status:** Completed on `main` (`2be300f` -> `0c2fb7a`). Installed the 12 UI Laws, `tokens.css`, closed UI primitives (`primitives.tsx`), 3-tier `HeaderFooter.tsx`, `marketing.ts` bilingual store, primitive-only marketing pages (`/`, `/courses`, `/gre`, `/ielts`, `/pricing`, `/help`, `/dev/ui`), `tooling/design-lint.mjs`, and `tooling/design-shots.mjs`.
+* **P6–P9 Status:** Completed on `main` (`e770cb6` -> `10a3b4a`). Applied the warm IELTS crimson (`#C8102E`) and sunset orange (`#FF5A26`) palette, replaced broken SVG data URIs with open-source Unsplash photography + JSX graphic backdrops, flattened `BangladeshPaymentTrustBar.tsx`, and overhauled `/sign-in`, `/sign-up`, and `/exam/diagnostic`.
 
 ---
 
-## 3. SEQUENTIAL EXECUTION BATCHES (P6 -> P9)
+## 2. SEQUENTIAL ROADMAP FOR BATCHES P10 -> P14 (ALL 3 OPTIONS IN ORDER)
+
+| Batch | Scope | Target Routes & Components | Recommended Model |
+| :--- | :--- | :--- | :--- |
+| **BATCH P10** | **Bespoke Pearl/Bone Stationery Canvas Upgrade** | `tokens.css`, `primitives.tsx`, `HeaderFooter.tsx`, `AuthForm.tsx`, `diagnostic/page.tsx` | `Gemini 4 Hydrogen (Low/Med)` |
+| **BATCH P11** | **Option 1A — Checkout, Institution Portal & Score Calculators** | `/checkout`, `/for-institutions`, `/tools/gre-score-calculator`, `/tools/ielts-band-calculator`, `live-gre-widget.tsx` | `Gemini 4 Hydrogen (Medium)` |
+| **BATCH P12** | **Option 1B — CD-IELTS Split-Screen Simulator Overhaul** | `/exam/ielts-preview` (Reading Split-Pane, Highlighter, Listening Runner, Writing Word Counter, Speaking Timer) | `Gemini 4 Hydrogen (Medium)` |
+| **BATCH P13** | **Option 3 — Unify Learner Workspace (`(learner)` / `/app/*`)** | `(learner)/layout.tsx`, `/app`, `/app/vocab`, `/app/vocab/play`, `/app/flashcards`, `/app/practice`, `/app/mistakes`, `/app/progress`, `/app/plan`, `/app/settings` | `Gemini 4 Hydrogen (Medium)` |
+| **BATCH P14** | **Option 2 — Full-Site Link Integrity, E2E Functional & Visual Audit** | `tooling/design-lint.mjs`, `tooling/design-shots.mjs`, internal link crawler, 0-broken-route verification | `Gemini 4 Hydrogen (Medium)` |
 
 ---
 
-### BATCH P6: Warm Crimson/Orange/Translucent Palette (`tokens.css`), Hero Contrast Fix & Open-Source Photography (`media.ts` + `primitives.tsx`)
+## 3. STEP-BY-STEP EXECUTION BATCHES (P10 -> P14)
 
-* **Recommended Model:** `Gemini 4 Hydrogen (Medium)` or `Gemini 4 Argon (Medium)`
-* **Objective:** Update `tokens.css` to the warm IELTS red/orange/translucent palette, fix the dark-on-dark hero text bug, allow `images.unsplash.com` in `next.config.ts`, and fix the broken black images in `media.ts` and `primitives.tsx` using real open-source photography + safe JSX graphic backdrops.
+### BATCH P10: Bespoke Pearl / Bone Stationery Canvas Upgrade (`tokens.css` & Surface Paper Hierarchy)
+
+* **Recommended Model:** `Gemini 4 Hydrogen (Low)` or `Gemini 4 Hydrogen (Medium)`
+* **Objective:** Move away from harsh `#FFFFFF` white to a subtle, tactile **Pearl / Bone cotton-paper backdrop (`#FAF7F2`)** with **Crisp Alabaster elevated sheets (`#FDFCFB`)**, **Warm Eggshell hero stone (`#F3EDE2`)**, **Pale Rose-Champagne alternating bands (`#F6ECE8`)**, and **Warm Letterpress Hairline rules (`#E5DDD3`)** across all primitives and layouts.
 * **Allowed Files to Edit:**
   * `apps/web/app/tokens.css`
-  * `apps/web/next.config.ts`
-  * `apps/web/src/content/media.ts`
   * `apps/web/src/components/ui/primitives.tsx`
-  * `apps/web/src/components/ui/HeaderFooter.tsx` (only if needed to reference `--brand-deep` for the main nav/footer bar so crimson/orange accents pop)
+  * `apps/web/src/components/ui/HeaderFooter.tsx`
+  * `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`
+  * `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx`
 
-#### Step P6.1: Update `apps/web/app/tokens.css` (Warm Crimson, Orange & Translucent Backdrops + Inverse Hero Fix)
-Replace `apps/web/app/tokens.css` with:
+#### Step P10.1: Update `apps/web/app/tokens.css` to the Pearl / Bone Stationery Palette
+Update `:root` and `body` in `apps/web/app/tokens.css`:
 ```css
 :root {
   color-scheme: light;
-  --bg: #FFFFFF;
-  --bg-warm: #FFF5F2;
-  --bg-tint: #FEF0EB;
-  --surface-translucent: rgba(255, 243, 238, 0.86);
-  --brand: #C8102E;
-  --brand-deep: #231116;
-  --brand-ink: #1E0F13;
-  --text: #4A3339;
-  --link: #B80D27;
-  --accent: #FF5A26;
-  --crimson: #D90429;
-  --terracotta: #E04F26;
-  --soft-btn: #FFE2D6;
-  --focus: #D90429;
-  --hairline: #F2D6CE;
+  --bg: #FAF7F2;              /* Subtle Pearl / Bone Cotton Paper Default Canvas */
+  --surface-paper: #FDFCFB;   /* Crisp Alabaster Elevated Sheet (MegaMenu, UtilityBar, Exam Sheet, CtaBand Card) */
+  --bg-warm: #F3EDE2;         /* Warm Eggshell / Silian Rail Hero & Editorial Backdrop */
+  --bg-tint: #F6ECE8;         /* Pale Rose-Champagne Alternating Band & Notice Surface */
+  --surface-translucent: rgba(250, 247, 242, 0.90);
+  --brand: #C8102E;           /* Institutional IELTS Crimson Red */
+  --brand-deep: #231116;      /* Deep Warm Espresso-Aubergine for MainNav, SubBar & Footer */
+  --brand-ink: #1E0F13;       /* Deep Warm Charcoal-Espresso for Headings */
+  --text: #4A3339;            /* Warm Umber-Slate Body Text (>= 7.5:1 contrast on #FAF7F2) */
+  --link: #B80D27;            /* Deep Crimson Underlined Action Links */
+  --accent: #FF5A26;          /* Vibrant Sunset Orange / Coral Accent */
+  --crimson: #D90429;         /* Vivid Crimson Step Squares & Hero Bands */
+  --terracotta: #E04F26;      /* Warm Terracotta-Orange Dashed Arrows & Accents */
+  --soft-btn: #FFE2D6;        /* Soft Warm Peach-Orange Button Fill */
+  --focus: #D90429;           /* Focus Ring */
+  --hairline: #E5DDD3;        /* Warm Letterpress Stone Hairline Divider */
   --shadow-hard: 6px 6px 0px #231116;
 }
 
-.lumen-h1 {
-  font-size: clamp(2.25rem, 3.8vw, 3.25rem);
-  line-height: 1.12;
-  font-weight: 800;
-  color: var(--brand-ink);
-  letter-spacing: -0.02em;
-}
-
-.lumen-h2 {
-  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
-  line-height: 1.2;
-  font-weight: 800;
-  color: var(--brand-ink);
-  letter-spacing: -0.015em;
-}
-
-.lumen-h3 {
-  font-size: 1.25rem;
-  line-height: 1.3;
-  font-weight: 700;
-  color: var(--brand-ink);
-}
-
-.lumen-body {
-  font-size: 1.0625rem;
-  line-height: 1.65;
+html,
+body {
+  background-color: var(--bg);
   color: var(--text);
-  max-width: 65ch;
-}
-
-/* High-contrast white typography inside crimson/deep-brand heroes & bands */
-.lumen-hero-inverse .lumen-h1,
-.lumen-hero-inverse .lumen-h2,
-.lumen-hero-inverse .lumen-h3 {
-  color: #FFFFFF !important;
-}
-
-.lumen-hero-inverse .lumen-body {
-  color: rgba(255, 245, 242, 0.94) !important;
-}
-
-:lang(bn) .lumen-h1,
-:lang(bn) .lumen-h2,
-:lang(bn) .lumen-h3,
-:lang(bn) .lumen-body {
-  line-height: 1.75;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
 }
 ```
 
-#### Step P6.2: Ensure `https://images.unsplash.com` Is Permitted in `apps/web/next.config.ts`
-In `apps/web/next.config.ts`:
-1. Ensure `images.remotePatterns` includes `{ protocol: 'https', hostname: 'images.unsplash.com' }`.
-2. In the Content-Security-Policy header (`img-src`), ensure `https://images.unsplash.com` is present alongside `'self' data: blob:`.
+#### Step P10.2: Wire `var(--bg)` and `var(--surface-paper)` Cleanly
+1. In `apps/web/src/components/ui/primitives.tsx`:
+   * Ensure `<Section tone="white">` uses `bg-[var(--bg)]` (`#FAF7F2` pearl/bone) so the default page canvas is warm pearl/bone rather than sterile `#FFFFFF`.
+   * Ensure the single elevated card inside `<CtaBand>` and interactive tab panels use `bg-[var(--surface-paper)]` (`#FDFCFB` crisp alabaster) with `border border-[var(--hairline)]`.
+2. In `apps/web/src/components/ui/HeaderFooter.tsx`:
+   * Ensure `UtilityBar` and open `MegaMenu` panels use `bg-[var(--surface-paper)]`.
+3. In `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx` and `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx`:
+   * Replace any remaining hardcoded `bg-white` on elevated sheets/inputs with `bg-[var(--surface-paper)]` so the pearl/alabaster paper hierarchy is 100% consistent.
 
-#### Step P6.3: Replace Broken SVG Data URIs in `apps/web/src/content/media.ts` with Open-Source Photography URLs
-Update `MEDIA_SLOTS` in `apps/web/src/content/media.ts` so every slot uses a verified, high-availability open-source student/university photograph from Unsplash (`auto=format&fit=crop&w=1000&q=80`), plus a warm fallback gradient (`themeColor`):
-* `hero-home`: `'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1000&q=80'` (University scholars studying together in daylight)
-* `hero-gre`: `'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=80'` (Graduate quantitative & analytical test preparation)
-* `hero-ielts`: `'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1000&q=80'` (Student practicing computer-delivered IELTS with headphones)
-* `hero-courses`: `'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=80'` (Collaborative seminar & structured curriculum study)
-* `hero-pricing`: `'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1000&q=80'` (Transparent planning and academic investment)
-* `hero-help`: `'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1000&q=80'` (Dedicated student support & guidance team)
-* `track-gre`: `'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80'` (STEM & business graduate school preparation)
-* `track-ielts-ac`: `'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80'` (University campus graduation & international study)
-* `track-ielts-gt`: `'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80'` (Global career & skilled migration pathways)
-* `dest-usa`: `'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=800&q=80'` (United States university & skyline)
-* `dest-uk`: `'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=800&q=80'` (United Kingdom Westminster & academic heritage)
-* `dest-canada`: `'https://images.unsplash.com/photo-1517935706615-2717063c2225?auto=format&fit=crop&w=800&q=80'` (Canada Toronto skyline & campus life)
-* `dest-australia`: `'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=800&q=80'` (Australia Sydney harbor & university precinct)
-* `split-diagnostic`: `'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1000&q=80'` (Student taking timed computer-based diagnostic)
-* `mega-courses`: `'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80'` (Focused mentor-guided exam preparation)
-
-#### Step P6.4: Upgrade `<PlaceholderImage />` and `<HeroBand />` in `apps/web/src/components/ui/primitives.tsx`
-1. In `<PlaceholderImage />`:
-   * Render a warm translucent crimson/orange architectural backdrop (`bg-[var(--bg-tint)] relative overflow-hidden`) with a subtle geometric warm-orange/crimson SVG pattern underneath, and an `<img src={slotData.src} alt={...} className="relative z-10 h-full w-full object-cover" loading="lazy" />` on top. That way, real open-source photographs render crisply, and even before loading, the backdrop is warm rose/orange—**never a solid black rectangle**!
-2. In `<HeroBand />`:
-   * When `tone === 'crimson'` or `tone === 'brand'`, add the `lumen-hero-inverse` class to the hero section wrapper so `.lumen-h1` and `.lumen-body` render in crisp `#FFFFFF` white!
-   * When `tone === 'warm'` (default), use a layered warm translucent backdrop (`bg-[var(--bg-warm)]` with a soft translucent radial glow of `--crimson` at 6% and `--accent` orange at 8% opacity) and frame the right-hand photograph with **IELTS-style geometric offset blocks in Warm Crimson (`var(--brand)`) and Sunset Orange (`var(--accent)`)** + 4 translucent crimson/orange circles in the upper-right corner!
-3. In `HeaderFooter.tsx` and `<SubBar />` / `<CtaBand />`:
-   * Use `bg-[var(--brand-deep)]` (`#231116`) for the main navigation bar, sub-bar, and footer, with `bg-[var(--brand)]` (`#C8102E` crimson) and `bg-[var(--accent)]` (`#FF5A26` warm orange) accents so the entire site shares the warm red/orange IELTS visual harmony.
-
-#### Step P6.5: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+#### Step P10.3: Verify, Commit & Halt
+1. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
 2. Commit to `main` and **HALT** with verification receipts.
 
 ---
 
-### BATCH P7: De-AI `BangladeshPaymentTrustBar.tsx` (Eliminate Dark Bubble & Rainbow Pills)
-
-* **Recommended Model:** `Gemini 4 Hydrogen (Low/Medium)`
-* **Objective:** Rewrite `apps/web/app/[locale]/_components/BangladeshPaymentTrustBar.tsx` to eliminate the dark floating bubble box and neon rainbow pills (`bKash` pink pill, `Nagad` orange pill, `Rocket` purple pill, `Visa` blue pill, `SSLCommerz` green pill), replacing them with a clean, flat institutional typographic bar that matches the rest of the website.
-* **Allowed Files to Edit:**
-  * `apps/web/app/[locale]/_components/BangladeshPaymentTrustBar.tsx`
-  * `apps/web/src/components/ui/HeaderFooter.tsx` (if props/styling on `BangladeshPaymentTrustBar` in the footer need adjustment)
-
-#### Step P7.1: Rewrite `apps/web/app/[locale]/_components/BangladeshPaymentTrustBar.tsx`
-1. **Zero `rounded-full` pills, zero `rounded-2xl` dark boxes, zero neon rainbow colors (`pink-500`, `amber-500`, `purple-500`, `blue-500`, `emerald-500`).**
-2. Support an optional `variant?: 'footer' | 'light'` prop (auto-detecting or defaulting cleanly):
-   * In the footer (or dark background): renders a flat, full-width horizontal strip (`border-t border-b border-white/15 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-white/85`).
-   * On light pages (`/checkout`): renders a flat horizontal strip (`border-t border-b border-[var(--hairline)] bg-[var(--bg-warm)] px-5 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-[var(--text)]`).
-3. Left side: simple lock SVG icon in `var(--accent)` + bold label (`Accepted Bangladesh & International Payment Methods` / `গ্রহণযোগ্য বাংলাদেশ ও আন্তর্জাতিক পেমেন্ট মাধ্যম`).
-4. Right side: clean typographic payment items separated by subtle vertical hairlines (`divide-x divide-current/20`):
-   * `bKash (0% Split-Pay)`
-   * `Nagad`
-   * `Rocket`
-   * `Visa / Mastercard`
-   * `SSLCommerz Verified`
-   * `Mushak 6.3 VAT Invoice`
-   *(Fully localized in English and Bengali, zero pill borders, zero background bubbles!)*
-
-#### Step P7.2: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Commit to `main` and **HALT** with verification receipts.
-
----
-
-### BATCH P8: Overhaul `/sign-in` & `/sign-up` Into the Institutional Design Language (Zero Fake Stats, Zero Bubbles)
+### BATCH P11: Option 1A — Unify Checkout (`/checkout`), Score Calculators (`/tools/*`), Institutional Portal (`/for-institutions`) & Live GRE Widget
 
 * **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
-* **Objective:** Rebuild `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`, `sign-in/page.tsx`, and `sign-up/page.tsx` so `/sign-in` and `/sign-up` obey Constitution Laws 2, 3, 4, 6, and 9 and match the warm IELTS crimson/orange/translucent design language.
-* **Allowed Files to Edit:**
-  * `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`
-  * `apps/web/app/[locale]/(auth)/sign-in/page.tsx`
-  * `apps/web/app/[locale]/(auth)/sign-up/page.tsx`
-  * `apps/web/app/[locale]/(auth)/layout.tsx`
+* **Objective:** Bring `/checkout`, `/for-institutions`, `/tools/gre-score-calculator`, `/tools/ielts-band-calculator`, and `live-gre-widget.tsx` into the exact same Pearl/Crimson/Orange institutional design system (zero `rounded-2xl`/`3xl`/`full` bubbles, zero dark glassmorphic cards, 100% working interactive calculators and checkout plan selector).
+* **Allowed Files to Edit/Create:**
+  * `apps/web/app/[locale]/(marketing)/checkout/page.tsx`
+  * `apps/web/app/[locale]/(marketing)/for-institutions/page.tsx`
+  * `apps/web/app/[locale]/(marketing)/tools/gre-score-calculator/page.tsx`
+  * `apps/web/app/[locale]/(marketing)/tools/ielts-band-calculator/page.tsx`
+  * `apps/web/app/[locale]/(marketing)/_components/live-gre-widget.tsx`
+  * `apps/web/src/components/ui/primitives.tsx` (if adding clean composite wrappers so marketing pages remain 100% compliant with `design:lint`)
 
-#### Step P8.1: Eliminate All AI-Template & Constitution Violations on `/sign-in` & `/sign-up`
-1. **Delete Fake Stats & Fake Testimonials (Law 9):** Remove `"GRE +11.4 Pts Median Gain"`, `"IELTS Band 7.5+ Achieved by 78%"`, and the invented `"Farhan T., BUET Graduate"` testimonial quote in both English and Bengali.
-2. **Delete Uppercase Eyebrows & Rounded Pill Badges (Laws 2 & 3):** Remove `"CALIBRATED FOR 330+..."`, `"LUMEN ACADEMY ACCOUNT PORTAL"`, `"ETS / IELTS OFFICIAL FORMAT"`, and all `rounded-xl` / `rounded-2xl` / `rounded-full` boxes.
-3. **New Institutional Auth Layout (`AuthForm.tsx`):**
-   * **Top Institutional Bar (`bg-[var(--brand-deep)] text-white h-16 px-6 border-b-4 border-[var(--brand)] flex items-center justify-between`):**
-     * Left: `<LocaleLink>` back to `/` with the 3-ray `<LumenSparkMotif />` and `{brand.name}`.
-     * Right: `<LocaleSwitcher />` (untouched) + link to `Help Center` (`/help`).
-   * **Main Split Stage (`min-h-[calc(100dvh-4rem)] grid grid-cols-1 lg:grid-cols-12 bg-[var(--bg)]`):**
-     * **Left 6 Columns (`lg:col-span-6 bg-[var(--bg-warm)] px-8 py-12 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[var(--hairline)]`):**
-       * Top editorial block: `<LumenSparkMotif />` + `.lumen-h1` heading ($\le 10$ words: `"One Account for GRE® and IELTS™ Preparation"` / `"জিআরই এবং আইইএলটিএস প্রস্তুতির জন্য একটি অ্যাকাউন্ট"`) + `.lumen-body` ($\le 30$ words).
-       * Middle visual: Sharp `0px`-radius `<PlaceholderImage slot="hero-home" aspect="16:10" />` framed on the bottom-left and bottom-right by `14px` solid geometric L-bars in `var(--brand)` (`#C8102E` crimson) and `var(--accent)` (`#FF5A26` warm orange).
-       * Bottom verified facts row (3 borderless columns separated by `divide-x divide-[var(--hairline)] pt-6`):
-         * `1h 58m` — Adaptive GRE Format
-         * `4 Skills` — Computer-Delivered IELTS
-         * `15% VAT` — Official Mushak 6.3 Invoice
-     * **Right 6 Columns (`lg:col-span-6 bg-[var(--bg)] px-6 py-12 sm:px-12 lg:p-16 flex flex-col justify-center`):**
-       * Max-width `420px` centered container, **zero outer card border, zero drop shadow**:
-       * `<LumenSparkMotif />` + `.lumen-h2` (`Sign in to continue` / `Create your account`) + short 1-line subtitle.
-       * Sharp `rounded-[4px]` Google OAuth button (`border border-[var(--brand-ink)] bg-white text-[var(--brand-ink)] font-semibold h-12`).
-       * Clean horizontal hairline divider (`or continue with one-time code`).
-       * Flat underline tab switcher (`border-b border-[var(--hairline)]` with active tab `border-b-3 border-[var(--brand)] text-[var(--brand)] font-bold`): `Email code` | `Bangladesh mobile (+880)`.
-       * Sharp `rounded-[4px]` input field (`border border-[#B8A3A8] focus:border-[var(--brand)] h-12 px-4`) + solid crimson submit button (`bg-[var(--brand)] hover:bg-[#A50B24] text-white font-semibold h-12 rounded-[4px]`).
-       * Clean native `<details className="border-t border-[var(--hairline)] pt-4 text-sm">` disclosure for `Staff & Instructor Passkey / 2FA` (closed by default, zero bordered bubble!).
-       * Bottom underlined link switching between `/sign-in` and `/sign-up` via `<LocaleLink>`.
+#### Step P11.1: Overhaul `live-gre-widget.tsx` (Embedded on `/gre` & `/courses`)
+1. Remove all `rounded-2xl`, `rounded-3xl`, `rounded-full`, and nested dashed hint boxes inside `apps/web/app/[locale]/(marketing)/_components/live-gre-widget.tsx`.
+2. Style the widget as a crisp `bg-[var(--surface-paper)] border border-[var(--hairline)] rounded-none` ETS assessment sheet with:
+   * Top status strip (`bg-[var(--bg-tint)] border-b border-[var(--hairline)] px-6 py-3 flex items-center justify-between`).
+   * Classic 2-column Quantitative Comparison table (`grid grid-cols-2 divide-x divide-[var(--hairline)] border border-[var(--hairline)] my-6`).
+   * Rectangular `rounded-[4px]` answer choices `[A]`–`[D]` with instant interactive Distractor Trap Forensic feedback and a flat hairline-divided 3-tier progressive hint list.
 
-#### Step P8.2: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+#### Step P11.2: Overhaul `/checkout` (`apps/web/app/[locale]/(marketing)/checkout/page.tsx`)
+1. Read `?plan=` query param (`gre-core`, `gre-plus`, `gre-live`, `ielts-complete`, `all-access`, etc.) and allow switching plans interactively on the page.
+2. Style `/checkout` with the Pearl/Bone (`var(--bg)`) canvas and a clean 12-column architectural split (`lg:grid-cols-12 gap-10`):
+   * **Left 7 Columns (`lg:col-span-7`):** Step 1: Plan & Schedule Selection (Full Payment vs. `0% bKash 2-Part / 3-Part Split-Pay` toggle on eligible plans); Step 2: Payment Method Selector (`bKash`, `Nagad`, `Rocket`, `Visa / Mastercard via SSLCommerz`) using sharp `rounded-[4px]` architectural radio rows (zero neon pills!).
+   * **Right 5 Columns (`lg:col-span-5 bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8`):** Transparent Order Ledger showing Subtotal, included `15% Mushak 6.3 VAT` breakdown (English digits in `en`, Bengali digits in `bn`), installment schedule dates if Split-Pay is selected, `<BangladeshPaymentTrustBar variant="light" locale={locale} />`, and a working interactive **"Proceed to Verified Checkout →"** flow (with instant demo entitlement activation / receipt preview so the user can test the complete purchase journey end-to-end!).
+
+#### Step P11.3: Overhaul `/tools/gre-score-calculator` & `/tools/ielts-band-calculator` & `/for-institutions`
+1. Ensure all three routes exist, compile cleanly, and use the Pearl/Crimson/Orange institutional design tokens (`var(--bg)`, `var(--surface-paper)`, `var(--bg-warm)`, `var(--brand)`, `var(--hairline)`, `rounded-[4px]`):
+   * **GRE Raw-to-Scaled Score Calculator (`/tools/gre-score-calculator`):** Interactive sliders/inputs for Verbal Section 1 (0–12) & Section 2 (0–15) and Quant Section 1 (0–12) & Section 2 (0–15), computing real-time adaptive routing (`Easy` / `Medium` / `Hard` panel), Scaled Score (`260–340`), and Percentile Rank, with a direct CTA to `/exam/diagnostic`.
+   * **IELTS 4-Skill Band Calculator (`/tools/ielts-band-calculator`):** Interactive inputs for Listening raw score (0–40), Reading raw score (0–40, Academic vs. General Training toggle), Writing Band (0.0–9.0), and Speaking Band (0.0–9.0), computing exact 0.5-rounded Overall Band Score and CEFR level (`B1`–`C2`), with a direct CTA to `/exam/ielts-preview`.
+   * **Universities & Schools Portal (`/for-institutions`):** Clean institutional page using closed primitives (`Breadcrumb`, `HeroBand`, `StatRow`, `SideHeadingBlocks`, `CtaBand`) for university departments and partner schools.
+
+#### Step P11.4: Verify, Commit & Halt
+1. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
 2. Commit to `main` and **HALT** with verification receipts.
 
 ---
 
-### BATCH P9: Overhaul `/exam/diagnostic` Into the Warm Institutional Design Language & Lock Global Audit
+### BATCH P12: Option 1B — Overhaul CD-IELTS Split-Screen Simulator (`/exam/ielts-preview`)
 
 * **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
-* **Objective:** Overhaul `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx` so the diagnostic test workbench matches the warm crimson/orange/charcoal institutional aesthetic (zero `rounded-full` header pills, zero `rounded-2xl` floating bubbles, zero nested hint boxes), and update `tooling/design-lint.mjs` + `tooling/design-shots.mjs` to enforce these rules across Auth, Diagnostic, and Trust Bar.
+* **Objective:** Bring `/exam/ielts-preview` (`apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx`) into the unified Pearl/Crimson/Espresso institutional CBT design language while ensuring all 4 interactive skill tabs (`Reading Split-Pane`, `Listening Audio Runner`, `Writing Task 2 Word-Counter & Rubric`, `Speaking Cue-Card Timer`) work smoothly in both `en` and `bn`.
 * **Allowed Files to Edit:**
-  * `apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx`
+  * `apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx`
+  * `tooling/design-lint.mjs` (to add `ielts-preview/page.tsx` to `[surface-guard]`)
+  * `tooling/design-shots.mjs` (to add `/exam/ielts-preview` to the static & live audit list)
+
+#### Step P12.1: Restyle & Verify All Interactive Controls on `/exam/ielts-preview`
+1. **Zero `rounded-full`, zero `rounded-2xl`, zero `rounded-3xl` bubbles!**
+2. **Top Institutional CD-IELTS Header Bar (`bg-[var(--brand-deep)] text-white h-16 px-4 sm:px-8 border-b-4 border-[var(--brand)] flex items-center justify-between`):**
+   * Left: `<LocaleLink>` back to `/ielts` with `<LumenSparkMotif inverse />` + `{brand.name}` + vertical hairline + `CD-IELTS™ Official-Format Workbench`.
+   * Center/Right: 4 rectangular skill switcher buttons (`Listening`, `Reading`, `Writing`, `Speaking` in `rounded-[4px]`), `<LocaleSwitcher />` (untouched), and rectangular countdown timer.
+3. **Interactive Split-Pane Workbench (`bg-[var(--bg-warm)] min-h-[calc(100dvh-8rem)]`):**
+   * **Reading Tab:** Left pane (`bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8`) with passage text and working **Yellow / Coral Text Highlighter buttons**; Right pane (`bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8`) with interactive True / False / Not Given & Matching Heading questions and instant band explanation on check.
+   * **Listening Tab:** Single-play simulated audio progress bar with play/pause control, transcript reveal toggle, and interactive completion items.
+   * **Writing Tab:** Split screen with Task 2 prompt on left and live word-counting essay editor on right + 1-click **"Evaluate Sample Band Breakdown"** showing the 4-criterion rubric (`Task Response`, `Coherence & Cohesion`, `Lexical Resource`, `Grammatical Range`).
+   * **Speaking Tab:** Part 2 Cue Card with working 1-minute prep timer / 2-minute speaking timer and band descriptor checklist.
+4. **Bottom Question Palette Bar (`bg-[var(--brand-deep)] text-white h-14 px-6 border-t border-white/15 flex items-center justify-between`):**
+   * Square `h-8 w-8 rounded-[4px]` question number buttons + `Submit & View Band Report` action.
+
+#### Step P12.2: Verify, Commit & Halt
+1. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+2. Commit to `main` and **HALT** with verification receipts.
+
+---
+
+### BATCH P13: Option 3 — Unify Learner Workspace (`(learner)` / `/app/*`)
+
+* **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
+* **Objective:** Bring the existing `(learner)` workspace routes (`(learner)/layout.tsx`, `/app`, `/app/vocab`, `/app/vocab/play`, `/app/flashcards`, `/app/practice`, `/app/mistakes`, `/app/progress`, `/app/plan`, `/app/settings`) into the Pearl/Bone (`--bg`), Alabaster (`--surface-paper`), Warm Eggshell (`--bg-warm`), Deep Espresso (`--brand-deep`), IELTS Crimson (`--brand`), and Hairline (`--hairline`) design language so every tool and workspace screen feels like one cohesive institutional stationery product and works interactively in `en` and `bn`.
+* **Allowed Files to Edit:**
+  * `apps/web/app/[locale]/(learner)/layout.tsx`
+  * `apps/web/app/[locale]/(learner)/app/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/vocab/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/flashcards/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/practice/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/mistakes/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/progress/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/plan/page.tsx`
+  * `apps/web/app/[locale]/(learner)/app/settings/page.tsx`
+  * `docs/lumen_ui_overhaul_master_runbook.md`
+
+#### Step P13.1: Restyle `(learner)/layout.tsx` & Core Learner Screens
+1. **Learner Workspace Shell (`(learner)/layout.tsx`):**
+   * Sidebar & Top Header using `bg-[var(--brand-deep)] text-white` with `border-b-4 border-[var(--brand)]`, `<LumenSparkMotif inverse />`, `{brand.name}`, `<LocaleSwitcher />` (untouched), `<LocaleLink>` navigation, and crisp `rounded-[4px]` nav items (`Dashboard`, `Mastery & Analytics`, `Practice & Drills`, `FSRS Vocab`, `Mistake Notebook`, `Study Plan`, `Settings & Allowances`, `IELTS Simulator`).
+   * Main canvas background set to `bg-[var(--bg)] text-[var(--text)]`.
+2. **Eliminate Rounded Bubble Soup Across `/app/*`:**
+   * Replace all `rounded-2xl`, `rounded-3xl`, `rounded-full` pill badges, and `shadow-lg`/`shadow-xl`/`shadow-sm` with crisp `rounded-none` or `rounded-[4px]` containers using `bg-[var(--surface-paper)] border border-[var(--hairline)]` and exposed hairline grids (`divide-y` / `divide-x divide-[var(--hairline)]`).
+   * Keep all existing interactive state, FSRS flashcard flip & rating buttons on `/app/vocab/play` (`Again`, `Hard`, `Good`, `Easy`), practice launchers on `/app/practice`, mistake filters on `/app/mistakes`, study-plan toggles on `/app/plan`, and settings/allowance panels on `/app/settings` 100% functional in both `en` and `bn`.
+
+#### Step P13.2: Verify, Commit & Halt
+1. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+2. Commit to `main` and **HALT** with verification receipts.
+
+---
+
+### BATCH P14: Option 2 — Full-Site Route, Link Integrity & Visual Sign-Off Audit (`pnpm design:lint` + `pnpm design:shots`)
+
+* **Recommended Model:** `Gemini 4 Hydrogen (Medium)`
+* **Objective:** Add an automated internal route & link integrity checker to `tooling/design-lint.mjs` so every `href` in `nav.ts`, `marketing.ts`, `HeaderFooter.tsx`, and `primitives.tsx` is verified to resolve to a real route in `apps/web/app/[locale]`, expand `[surface-guard]` to cover all newly unified routes, and record the final sign-off report.
+* **Allowed Files to Edit:**
   * `tooling/design-lint.mjs`
   * `tooling/design-shots.mjs`
-  * `docs/HANDOFF.md`
+  * `packages/core/src/__tests__/ui-primitives-caps.test.ts`
   * `docs/MISTAKE-LEDGER.md`
+  * `docs/HANDOFF.md`
+  * `docs/logs/reviews/m2-9-institutional-ui-signoff.md`
 
-#### Step P9.1: Restyle `/exam/diagnostic` (`apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx`)
-Keep all 8 questions, math rendering (`<MathText />`), bilingual translation (`<TranslatedText />`), calculator, scratchpad, and scoring logic 100% intact, while transforming the visual chrome to match the new design system:
-1. **Top Institutional Assessment Bar (`bg-[var(--brand-deep)] text-white h-16 px-4 sm:px-8 border-b-4 border-[var(--brand)] sticky top-0 z-30`):**
-   * **Zero `rounded-full` pills!**
-   * Left: `<LocaleLink>` logo (`LumenSparkMotif` + `{brand.name}`) + vertical hairline divider + bold title (`GRE® Express Diagnostic`) + rectangular progress indicator (`Question 1 of 8` with a flat `4px`-tall `bg-[var(--accent)]` warm orange progress bar).
-   * Right: `<LocaleSwitcher />` (untouched) + sharp `rounded-[4px]` rectangular Calculator button (`border border-white/25 bg-white/10 px-3.5 py-1.5 text-xs font-semibold`) + rectangular monospace timer (`bg-[#14090C] border border-white/20 px-3.5 py-1.5 rounded-[4px] font-mono text-sm text-[#FFB499]`).
-2. **Main Assessment Stage (`bg-[var(--bg-warm)] min-h-[calc(100dvh-4rem)] py-8 px-4 sm:px-6 lg:px-8`):**
-   * Container: `max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start`.
-   * **Left 8 Columns (`lg:col-span-8 bg-white border border-[var(--hairline)] rounded-none` — Sharp Exam Sheet, Zero Drop Shadow, Zero `rounded-2xl`):**
-     * Top Sheet Strip (`border-b border-[var(--hairline)] bg-[var(--bg-tint)] px-6 py-3 flex items-center justify-between`):
-       * Left: Bold crimson text label (`Quantitative Reasoning · Quantitative Comparison` — sentence case, NOT a dark rounded pill!).
-       * Right: Rectangular `rounded-[4px]` `Flag for Review` toggle button.
-     * Question Body (`p-6 sm:p-10`):
-       * Large `.lumen-h3` / `text-xl sm:text-2xl` question stem.
-       * Quantitative Comparison table (`grid grid-cols-2 divide-x divide-[var(--hairline)] border border-[var(--hairline)] my-6`) with `bg-[var(--bg-warm)] border-b border-[var(--hairline)] py-2.5 text-center text-xs font-bold text-[var(--brand-ink)]` column headers and `py-8 text-center text-2xl font-semibold` cells.
-       * Answer Choices A–D: Flat architectural rows (`w-full text-left p-4 border border-[var(--hairline)] rounded-[4px] transition-colors`)—when selected, highlighted with `border-[var(--brand)] bg-[var(--bg-warm)]` and a solid `bg-[var(--brand)] text-white` square `[A]`–`[D]` keycap.
-     * Bottom Sheet Action Bar (`border-t border-[var(--hairline)] px-6 py-4 flex items-center justify-between bg-white`):
-       * Underlined `← Previous` button on left, `X / 8 Answered` status in center, and solid crimson `bg-[var(--brand)] text-white px-6 py-2.5 rounded-[4px] font-semibold` `Next Question →` button on right.
-   * **Right 4 Columns (`lg:col-span-4 bg-white border border-[var(--hairline)] rounded-none` — Unified Companion Panel):**
-     * Top Question Palette (`p-5 border-b border-[var(--hairline)]`):
-       * Sentence-case heading (`Question Navigator (1–8)`) + 8 crisp square buttons (`h-9 w-9 rounded-[4px] font-mono text-sm font-bold`) using `bg-[var(--brand)] text-white` for current, `bg-[var(--bg-tint)] text-[var(--brand-ink)] border border-[var(--brand)]` for answered, and `var(--accent)` dot for flagged.
-     * Flat Underline Tab Bar (`border-b border-[var(--hairline)] flex`):
-       * `Hints (6)` | `Scratchpad` | `Formulas` (active tab uses `border-b-3 border-[var(--brand)] text-[var(--brand)] font-bold`).
-     * De-Nested Hints List (`divide-y divide-[var(--hairline)]`):
-       * Render Tier 1, Tier 2, and Tier 3 hints as **flat vertical rows separated by a single hairline (`py-3.5`)**—zero rounded boxes inside boxes! Unlock button at bottom is a crisp `w-full bg-[var(--brand-deep)] text-white py-2.5 rounded-[4px] text-sm font-semibold` button.
+#### Step P14.1: Add Automated Internal Route & Link Integrity Guard (`[link-guard]`)
+1. In `tooling/design-lint.mjs`:
+   * Extract all internal `/...` href paths from `apps/web/src/content/nav.ts` and `apps/web/src/content/marketing.ts`.
+   * Verify that every path (stripping `#hash` and `?query`) resolves to an existing `page.tsx` under `apps/web/app/[locale]`! If any link points to a non-existent route, `pnpm design:lint` must fail with a clear error.
+   * Expand `[surface-guard]` (`rounded-full`, `rounded-2xl`, `rounded-3xl` ban) to cover `BangladeshPaymentTrustBar.tsx`, `AuthForm.tsx`, `diagnostic/page.tsx`, `ielts-preview/page.tsx`, `live-gre-widget.tsx`, and `checkout/page.tsx`.
+2. In `tooling/design-shots.mjs`:
+   * Include `/checkout`, `/for-institutions`, `/tools/gre-score-calculator`, `/tools/ielts-band-calculator`, `/exam/ielts-preview`, `/dashboard`, and `/vocab` in the static & live Playwright verification matrix (`390px`, `768px`, `1440px` across `en` and `bn`).
 
-#### Step P9.2: Expand `tooling/design-lint.mjs` & `tooling/design-shots.mjs`
-1. In `tooling/design-lint.mjs`, add checks verifying that:
-   * `BangladeshPaymentTrustBar.tsx`, `AuthForm.tsx`, and `diagnostic/page.tsx` contain **zero `rounded-full`**, **zero `rounded-2xl`**, and **zero `rounded-3xl`** classes.
-   * `AuthForm.tsx` contains zero fake testimonial strings (`Farhan T.`) or unverified gain claims (`+11.4`).
-2. Append the 5 caught issues from Batches P6–P9 into `docs/MISTAKE-LEDGER.md` and update `docs/HANDOFF.md`.
-
-#### Step P9.3: Verify, Commit & Halt
-1. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
-2. Commit to `main` and print the final verification summary.
+#### Step P14.2: Final Verification, Documentation Update & Commit
+1. Run:
+   * `pnpm design:lint`
+   * `pnpm design:shots`
+   * `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run src/__tests__/brand-sweep.test.ts src/__tests__/i18n-pages-coverage.test.ts src/__tests__/ui-primitives-caps.test.ts`
+   * `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`
+2. Update `docs/HANDOFF.md`, `docs/MISTAKE-LEDGER.md`, and `docs/logs/reviews/m2-9-institutional-ui-signoff.md` with the final P10–P14 sign-off metrics.
+3. Commit to `main` and print the complete verification report.
