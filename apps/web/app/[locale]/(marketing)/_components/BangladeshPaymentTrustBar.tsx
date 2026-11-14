@@ -1,11 +1,21 @@
-/** @purpose Prominent Bangladeshi Payment & Trust Bar displaying bKash, Nagad, Rocket, Visa / Mastercard, and SSLCommerz Verified badges (BUG-12) */
+/** @purpose Prominent Bangladeshi Payment & Trust Bar displaying bKash, Nagad, Rocket, Visa / Mastercard, and SSLCommerz Verified badges (BUG-12, P2.6.1 Bilingual) */
+'use client';
+
+import { useLocale } from 'next-intl';
 import { ShieldCheck, CreditCard, Lock, Smartphone, CheckCircle2 } from 'lucide-react';
 
 export interface BangladeshPaymentTrustBarProps {
   variant?: 'dark' | 'light';
+  locale?: 'en' | 'bn';
 }
 
-export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymentTrustBarProps) {
+export function BangladeshPaymentTrustBar({
+  variant = 'dark',
+  locale: propLocale,
+}: BangladeshPaymentTrustBarProps) {
+  const hookLocale = useLocale();
+  const locale = propLocale ?? (hookLocale === 'bn' ? 'bn' : 'en');
+  const isBn = locale === 'bn';
   const isDark = variant === 'dark';
 
   return (
@@ -19,7 +29,11 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 sm:flex-row">
         <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
           <Lock className={`h-4 w-4 shrink-0 ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`} />
-          <span>Trusted Bangladesh &amp; Global Checkout • Instant Entitlement Activation</span>
+          <span>
+            {isBn
+              ? 'বিশ্বস্ত বাংলাদেশ ও গ্লোবাল চেকআউট • তাৎক্ষণিক কোর্স অ্যাক্সেস অ্যাক্টিভেশন'
+              : 'Trusted Bangladesh & Global Checkout • Instant Entitlement Activation'}
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-2">
@@ -32,7 +46,7 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
             }`}
           >
             <Smartphone className="h-3.5 w-3.5 text-pink-500" />
-            bKash (0% Split-Pay)
+            {isBn ? 'বিকাশ (০% কিস্তি)' : 'bKash (0% Split-Pay)'}
           </span>
 
           {/* Nagad */}
@@ -44,7 +58,7 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
             }`}
           >
             <Smartphone className="h-3.5 w-3.5 text-amber-500" />
-            Nagad
+            {isBn ? 'নগদ' : 'Nagad'}
           </span>
 
           {/* Rocket */}
@@ -56,7 +70,7 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
             }`}
           >
             <Smartphone className="h-3.5 w-3.5 text-purple-400" />
-            Rocket
+            {isBn ? 'রকেট' : 'Rocket'}
           </span>
 
           {/* Visa / Mastercard */}
@@ -68,7 +82,7 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
             }`}
           >
             <CreditCard className="h-3.5 w-3.5 text-blue-400" />
-            Visa / Mastercard
+            {isBn ? 'ভিসা / মাস্টারকার্ড' : 'Visa / Mastercard'}
           </span>
 
           {/* SSLCommerz Verified */}
@@ -80,7 +94,7 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
             }`}
           >
             <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-            SSLCommerz Verified
+            {isBn ? 'SSLCommerz যাচাইকৃত' : 'SSLCommerz Verified'}
           </span>
 
           {/* Mushak 6.3 */}
@@ -92,7 +106,7 @@ export function BangladeshPaymentTrustBar({ variant = 'dark' }: BangladeshPaymen
             }`}
           >
             <CheckCircle2 className="h-3 w-3 text-blue-400" />
-            Mushak 6.3 VAT Receipt
+            {isBn ? 'মূসক ৬.৩ ভ্যাট রসিদ' : 'Mushak 6.3 VAT Receipt'}
           </span>
         </div>
       </div>

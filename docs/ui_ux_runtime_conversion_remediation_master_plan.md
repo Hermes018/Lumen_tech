@@ -1,114 +1,127 @@
-# UI/UX, Runtime & Conversion Remediation Master Plan (Milestone M2.5 $\rightarrow$ M3)
+# Master Plan: Institutional Design Overhaul, Universal Bilingual Engine, Official Exam Guides & Cloud Cutover (Milestones M2.6 $\rightarrow$ M5)
 
-**Status:** Active Remediation Blueprint  
-**Target Environment:** Fedora 44 KDE Plasma / Windows 11 (8 GB RAM Ceiling, `NODE_OPTIONS="--max-old-space-size=2048"`)  
-**Objective:** Eliminate every runtime error, raw LaTeX leak, broken link/toggle, layout overflow, and internal spec reference uncovered during live browser testing, while upgrading the visual identity and conversion architecture to match top-tier commercial leaders (**Magoosh, GregMat, 10 Minute School, Shikho**) across both **Mobile (`360px–767px`)** and **Desktop (`1024px–1920px+`)**.
-
----
-
-## 1. Exhaustive Forensic Issue Map (12 Root-Cause Defects)
-
-Every defect below was directly observed in live browser testing (`localhost:3000`) or traced from the component tree:
-
-| ID | Severity | Surface / Route | Observed Defect | Root Cause |
-| :--- | :--- | :--- | :--- | :--- |
-| **BUG-01** | **P0 Blocker** | All Routes (`/pricing`, `/exam/*`, `/checkout`, `/help`, `/sign-in`) | Red Next.js Console Error overlay: `ERROR [Better Auth]: Drizzle schema mismatch — Missing tables: twoFactor; Missing columns: user.twoFactorEnabled, user.phoneNumber, user.phoneNumberVerified`. | `packages/db/src/schema/auth.ts` is missing the `twoFactor` table and the 3 plugin columns required by Better Auth's `twoFactor()` and `phoneNumber()` plugins at initialization. |
-| **BUG-02** | **P0 Blocker** | `/exam/diagnostic`, `/gre`, `/app/practice` | Raw unrendered LaTeX strings shown to learners: `Let $x$ be an integer such that $x^2 = 16$`, `$x$`, `$0$`, and `($x = \pm 4$)`. | Question stems, Quantitative Comparison boxes, choice explanations, and hints render raw strings without a KaTeX (`katex`) math renderer. |
-| **BUG-03** | **P0 Blocker** | `/exam/diagnostic`, `/exam/ielts-preview` | **Duplicate Stacked Exam Headers:** `(exam)/layout.tsx` renders a hardcoded GRE header (`Section 1 of 2 — Quantitative Reasoning | 34:52`) above the inner GRE Diagnostic bar AND above the IELTS simulator header! | `(exam)/layout.tsx` contains hardcoded GRE chrome instead of letting each specific exam runner mount its own single, authentic top bar. |
-| **BUG-04** | **P0 Blocker** | `/exam/ielts-preview`, `/exam/ielts/[attemptId]` | **IELTS Split-Screen Horizontal Overflow & Left Dead Space:** 25% empty gray column on the left; right-hand Questions pane overflows off the right edge of the monitor, cutting off text (`...during pe`, `...approaching`). | Parent flex/grid container constrains width and applies bad horizontal margins instead of using a locked `w-full h-[100dvh] overflow-hidden` split pane on desktop and tabbed switcher on mobile. |
-| **BUG-05** | **P0 Blocker** | Global Navbar (`EN / বাংলা` Toggle) | Clicking `EN / বাংলা` in the top navigation bar does nothing. | The toggle is a static button not wired to `next-intl` router navigation (`usePathname` / `useRouter`), and marketing pages contain hardcoded English JSX instead of translation dictionary lookups. |
-| **BUG-06** | **P0 Blocker** | Global Footer & Marketing Bottom Links | Clicking **Grievance Officer**, **For Universities & Schools**, **Interactive Pedagogy**, or **FSRS Vocab Engine** in the footer either does nothing (plain text) or returns a **404 Not Found**. | Footer items in `(marketing)/layout.tsx` are either unlinked text or point to unbuilt routes (`/legal/grievance`, `/b2b`, `/vocab`, `/pedagogy`). |
-| **BUG-07** | **P1 High** | `/pricing` & `/checkout` | Clicking **Add to Account** on add-on cards or selecting a plan on `/pricing` doesn't pre-populate `/checkout?plan=...`; `/checkout` form is squeezed into ~650px, truncating `EMAIL ADDRESS` (`aymanrahman30@`) and plan dropdown (`IELTS Academic Core — B[`). | Narrow container (`max-w-2xl` instead of `max-w-6xl`), cramped 2-col input sub-grid, and missing URL query-param (`?plan=`) state synchronization. |
-| **BUG-08** | **P1 High** | `/checkout` | Shows `5% Educational VAT (Included): BDT 190.00`, contradicting the `15% VAT incl.` stated on `/pricing` and `/help`. | Hardcoded `0.05` tax display in `checkout/page.tsx` instead of calling the canonical 15% BD VAT calculator from `@lumen/core`. |
-| **BUG-09** | **P1 High** | `/pricing`, `/checkout`, `/sign-in` | **Internal Blueprint Spec Leaks in Customer UI:** Badges display `(D12 C14)`, `Per D12 C14, compare_at prices...`, `(docs/00 §D5)`, `Staff / Instructor / Org Admin (D4)`, and hardcoded `support@lumenacademy.com`. | `Gemini 3.8 Flash` copied internal specification section numbers directly into public UI copy and hardcoded the support email. |
-| **BUG-10** | **P1 High** | Mobile & Tablet Viewports (`360px–768px`) | Top navbar has 9 horizontal items with **no mobile hamburger menu drawer**; exam top bar overflows on phones; IELTS split-screen is unreadable on narrow screens. | Missing responsive breakpoints (`md:hidden` mobile drawer, compact exam toolbar, and mobile `Passage | Questions` tab bar). |
-| **BUG-11** | **P1 High** | `/sign-in`, `/sign-up` | `Phone OTP` and `Passkey / 2FA` buttons on `/sign-in` lack complete interactive feedback/drawers, and the page is a sterile white box with zero trust signals. | Stubbed UI states and lack of a two-column conversion layout on auth screens. |
-| **BUG-12** | **P1 High** | Global Visual Identity (`/`, `/gre`, `/ielts`, `/pricing`, `/help`) | **Wireframe Sterility:** 95% flat white background with thin gray borders. Lacks the color vibrancy, structured hero banners, payment trust badges (bKash/Nagad/SSLCommerz), and visual product hierarchy of **10 Minute School / Shikho / Magoosh**. | Over-minimalist Tailwind styling without track-specific color themes, dark navy hero bands, or visual social proof components. |
+**Status:** Active Master Blueprint (Neurosurgical Specification)  
+**Target Environment:** Fedora 44 KDE Plasma (8 GB RAM Ceiling, `NODE_OPTIONS="--max-old-space-size=2048"`)  
+**Design Benchmarks:** [ETS GRE (`gre.org`)](https://www.gre.org/), [British Council Take IELTS (`takeielts.britishcouncil.org`)](https://takeielts.britishcouncil.org/), [IDP IELTS (`ielts.idp.com`)](https://ielts.idp.com/)
 
 ---
 
-## 2. Industry-Standard Stack, Open-Source Libraries & Conversion Patterns
+## 1. Forensic Root-Cause Diagnosis (From Latest Browser Screenshots)
 
-To fix these permanently without reinventing the wheel or writing fragile custom parsers, we will use standard production libraries and UX patterns:
+Inspecting your latest screenshots (`localhost:3000/bn`, `/gre`, `/pricing`, `/sign-in`, `/bn/sign-up`, `/bn/courses`) reveals **4 core structural problems**:
 
-1. **Mathematical Typesetting (`katex`):**
-   - Install `katex` (MIT licensed, industry standard used by Khan Academy, Magoosh, and Notion).
-   - Build a unified `<MathText text={...} />` component in `@lumen/ui` that parses inline `$...$` and display `$$...$$` blocks into crisp, accessible HTML+MathML with zero layout shift.
-2. **Bilingual Typography (`Plus Jakarta Sans` + `Hind Siliguri` + `JetBrains Mono`):**
-   - Load Google Fonts `Hind Siliguri` (the gold-standard Bangladeshi UI font used by 10 Minute School and Prothom Alo) alongside `Plus Jakarta Sans` and `Instrument Serif` so switching to `/bn` looks natively designed for Bangladesh.
-3. **Color & Visual Hierarchy System (Anti-AI-Slop, High-Conversion EdTech):**
-   - **Primary Brand Authority:** Deep Oxford Navy (`#0B132B` / `slate-950`) for hero banners, announcement bars, and CBT headers.
-   - **Track 1 — GRE® General Test Theme:** Royal Indigo & Electric Cobalt (`#1E40AF` $\rightarrow$ `#3B82F6`, soft tint `#EFF6FF`) signaling analytical rigor.
-   - **Track 2 — IELTS™ Academic & GT Theme:** British Emerald & Teal (`#065F46` $\rightarrow$ `#059669`, soft tint `#ECFDF5`) signaling fluency and global mobility.
-   - **High-Intent Conversion Accents:** Warm Amber Gold (`#D97706` / `#F59E0B`) for "Most Popular", "Target Promise", and streak badges; recognizable **bKash Magenta (`#E2136E`)** and **Nagad Orange (`#F7941D`)** payment trust pills.
-4. **Conversion Psychology & Product Placement (How 10MS, Shikho & Magoosh Convert Visitors):**
-   - **Top Announcement & Cohort Ribbon:** A subtle, dismissible top bar highlighting live cohort dates, the free 15-minute diagnostic CTA, and 0% bKash split-pay.
-   - **Interactive "Try Before You Sign Up" Above the Fold:** Keep the live GRE Quant & IELTS Reading mini-samplers interactive, with rendered KaTeX math and an instant **"Unlock Your Predicted Band / GRE Percentile $\rightarrow$ Free 15-Min Diagnostic"** trigger upon answering.
-   - **Anchored Pricing Cards:** Visual distinction on the middle/recommended tier (**GRE Plus / IELTS Plus**) with a solid navy/indigo top ribbon, clear "Everything in Core, plus:" grouping, clickable **Add-On Pack cards** that pass `?plan=<slug>` directly into `/checkout`, and a **Payment Trust Strip** (SSLCommerz, bKash, Nagad, Visa, Mastercard, Mushak 6.3 VAT).
+### Problem A: Fake/Partial Bilingual Support (`EN / বাংলা` Only Works on the Navbar & Homepage Hero)
+* **Evidence in Screenshots:**
+  * In `image_3b8142.png`, the browser URL is **`localhost:3000/bn/sign-up`** and the `বাংলা` pill is active, yet the entire page is in English (`Create your Lumen Academy account`, `Precision Diagnostics & Active Recall...`).
+  * In `image_3b2f64.png`, the browser URL is **`localhost:3000/bn/courses`** and the navbar is in Bengali (`কোর্সসমূহ`), yet the entire body is in English (`Choose Your Preparation Track`, `GRE General Test Prep`...).
+  * In `image_3b8539.png`, the GRE practice question (`Let x be an integer...`) has no Bengali translation when the user is in Bengali mode.
+* **Root Cause:** `Gemini 3.8 Flash` took a shortcut in Phase P2.2—it wired `LocaleSwitcher.tsx` to change the URL prefix to `/bn/...`, and translated *only* the navbar and homepage hero, while leaving hardcoded English strings inside `/courses`, `/gre`, `/ielts`, `/pricing`, `/help`, `/sign-in`, `/sign-up`, `/checkout`, and the question bank!
+
+### Problem B: "AI-Generated SaaS" Clutter vs. Real Institutional Design (`gre.org` / British Council / IDP)
+* **Evidence in Screenshots:**
+  1. **Dark-Mode Cyber Grid Wallpaper (`image_3b885e.png`, `image_3b857a.png`, `image_3b84ff.png`):** The dark navy background with visible square grid lines (`bg-[linear-gradient(...)]`), sparkle emojis (`✨`), and glowing neon-bordered pills is the #1 giveaway of an AI-generated template.
+  2. **17-Pill Visual Clutter on `/pricing` (`image_3b84ff.png`):** Stacking a top sparkle badge + 3 metric pills + 4 region pills + 3 track pills + a floating dark box with 6 colorful payment pills (`bKash`, `Nagad`, `Rocket`, `Visa`, `SSLCommerz`, `Mushak 6.3`) creates visual chaos. Furthermore, `BangladeshPaymentTrustBar` was rendered **twice** on the same page (once in the hero and once above the footer in `image_3b84a3.png`)!
+  3. **Developer Jargon & Competitor Name-Dropping (`image_3b857a.png`, `image_3b81b5.png`, `image_3b2f64.png`):** Real institutions like ETS, British Council, and IDP never write `"✨ Magoosh + GregMat + Brilliant Parity Suite"`, `"Seeded Live Demo"`, `"Rasch 1PL IRT"`, or `"30% fewer flashcard repetitions than legacy SM-2"` on student-facing pages. That reads like internal engineering notes rather than an authoritative test-prep academy.
+
+### Problem C: Missing "What is GRE / IELTS & How the Real Exam Works" Guides
+* **Customer Reality:** First-time test takers in Bangladesh visiting `/gre`, `/ielts`, or `/courses` need a crystal-clear, authoritative explanation of **how the real exam works** (sections, exact timing, question types, score scales, computer-delivered interface rules, and Academic vs. General Training differences) before they understand *why* they need our adaptive mocks and courses.
+
+### Problem D: Question Bank & Dynamic Translation Architecture (Google Translate API + Pre-Compiled Cache)
+* **Engineering Question:** *Can we use a Google Translate API or automated translation layer so questions and pages work in Bengali (and any future language) without manual hardcoding?*
+* **Neurosurgical Solution:** **Yes—via a Two-Tier LaTeX-Safe Translation Engine (`packages/core/src/i18n/translator.ts`)**:
+  1. **Why not raw client-side Google Translate widget alone?** Raw Google Translate breaks KaTeX math (`$x^2 = 16$` gets mangled into broken spans) and mistranslates exam terms (like translating *"Quantitative Comparison"* or *"True / False / Not Given"* into confusing literal phrases).
+  2. **The Production Architecture:**
+     * **LaTeX-Safe Translation Pipeline (`translateWithMathMask`):** Extracts all `$...$` and `$$...$$` math blocks into placeholders (`__MATH_0__`), translates the text via **Google Translate API (`translate.googleapis.com` / Cloud Translate v2)** or **Gemini Batch Translator**, and restores the exact KaTeX formulas untouched.
+     * **Bilingual Question Schema (`en` + `bn`):** Every question in the diagnostic and sampler renders in **Bengali (`bn`)** when the user is on `/bn/*` (with a 1-click **"Show Original English Exam Text / ইংরেজি মূল প্রশ্ন দেখুন"** toggle, because the real ETS GRE and IDP/British Council IELTS exams are administered in English, so students need both Bengali conceptual clarity and English exam familiarity!).
 
 ---
 
-## 3. Model Selection & Token-Optimization Strategy
+## 2. Official Design System Specification (ETS `gre.org` + British Council + IDP Cues)
 
-Because **`Gemini 3.8 Flash`** tends to take shortcuts when given too many tasks at once (hardcoding strings, leaving stub buttons, or leaking spec codes like `D12 C14`), we enforce a strict **Model-per-Role Split**:
+To make Lumen Academy look 100% human-designed, institutional, and trustworthy, we enforce the **Institutional Daylight Design System**:
 
-| Phase / Subphase | Assigned Model & Effort | Why This Model Is Best & Most Cost-Effective |
+| Design Element | ❌ Banned "AI Template" Pattern | ✅ Official ETS / British Council / IDP Standard |
 | :--- | :--- | :--- |
-| **Phase P2.1:** Runtime Auth Schema, KaTeX Math Engine, Exam Shell Layout & Missing Legal/Footer Pages | **`Gemini 4 Argon (Low)`** *(or `Gemini 3.8 Flash (High)` if saving Argon)* | Deterministic schema/layout fixes with strict file-level acceptance tests that forbid shortcuts. |
-| **Phase P2.2:** Full Bilingual (`EN / বাংলা`) Switcher, Mobile Drawer, Pricing $\rightarrow$ Checkout Query Wiring & Spec-Leak Sweep | **`Gemini 3.8 Flash (High)`** | High-volume dictionary wiring (`en.json` / `bn.json`) and mechanical prop plumbing—ideal for burning the `GEMINI MODELS` bucket with a grep verification gate. |
-| **Phase P2.3:** Visual Identity, Hero Banners, Split-Screen Auth & Mobile/Desktop Conversion Polish | **`Claude Sonnet 5.5 (Medium)`** *or* **`Gemini 4 Argon (Medium)`** | Frontend aesthetic polish, responsive flexbox/grid geometry, and persuasive conversion copy require higher taste and zero wireframe laziness. |
-| **Phase P2.4:** Two-Key Audit + Automated Link/Route Crawler + Mobile/Desktop Playwright Verification | **`Claude Sonnet 5.5 (Low)`** | Fast, surgical verification that zero 404 links, zero `D12`/`D4` spec leaks, and zero horizontal scrollbars remain on `375px` mobile or `1440px` desktop. |
+| **Hero Backgrounds** | Dark cyber grids (`bg-slate-950` with square grid lines) and glowing radial blurs. | **Clean Daylight Editorial Split** (`#FFFFFF` and warm alabaster `#F4F6F9`) or **Solid Flat Institutional Navy (`#001E42` / `#002B49`)** with crisp white typography and zero grid lines. |
+| **Color Palette** | Neon cyan/purple/emerald glowing pills on black backgrounds. | • **Core Brand (British Council Navy):** `#001E42` (Primary text/headers) & `#005EB8` (Action Blue)<br>• **GRE Track (ETS Academic Teal/Navy):** `#003057` & `#006699` on `#F2F7FA` surface<br>• **IELTS Track (British Council / IDP Crimson & Deep Teal):** `#C8102E` (IELTS accent) & `#005A70` on `#F7F9FA` surface |
+| **Badges & Pills** | Emoji-stuffed pills (`✨ Next-Gen...`, `🎯 130-170...`), >3 pills per section. | **Maximum 1 clean uppercase typographic kicking label** per section (e.g., `OFFICIAL EXAM STRUCTURE` or `GRE® GENERAL TEST PREP`) with zero sparkle emojis. |
+| **Copywriting Tone** | Tech-stack bragging (`Magoosh + GregMat + Brilliant Parity`, `Rasch 1PL`, `SM-2`, `Seeded Live Demo`). | **Clear Academic & Outcome Language** (`Computer-Delivered Mock Tests`, `Section-Adaptive Practice`, `Official Band 0–9 Scoring Criteria`, `Interactive Practice Question`). |
+| **Payment Trust Strip** | 6 neon-colored bordered pills inside a dark rounded box repeated twice per page. | **Single, understated Footer & Checkout Trust Row** using clean, uniform neutral badges (`bKash`, `Nagad`, `Visa`, `Mastercard`, `SSLCommerz`, `15% VAT Invoice Included`). |
+| **Sign-In / Sign-Up** | Floating dark card on left with fake-looking tech metrics (`30% fewer flashcard repetitions than SM-2`). | **Clean Institutional Split Screen:** Left column features a calm `#001E42` academic panel explaining what is included in a free student account (Free Diagnostic, Study Planner, Score Tracker); Right column is a crisp, fully localized (`en`/`bn`) authentication form. |
 
 ---
 
-## 4. Phased Execution Roadmap (Phases $\rightarrow$ Subphases $\rightarrow$ Sub-Subphases)
+## 3. Phased Execution Roadmap (Milestones M2.6 $\rightarrow$ M5)
 
-### Milestone M2.5: Zero Runtime Errors, Zero Dead Links & Authentic CBT Geometry
+### MILESTONE M2.6: Universal Bilingual (`EN / বাংলা`) Engine, Institutional Redesign & Official Exam Guides
 
-#### Phase P2.1: Runtime Stability, KaTeX Math & Exam Viewport Geometry
-* **Subphase P2.1.1 — Better Auth Drizzle Schema Synchronization (`BUG-01`)**
-  * `P2.1.1a`: Add `twoFactor` table (`id`, `secret`, `backupCodes`, `userId`) to `packages/db/src/schema/auth.ts`.
-  * `P2.1.1b`: Add `twoFactorEnabled` (`boolean`), `phoneNumber` (`text`), and `phoneNumberVerified` (`boolean`) columns to the `user` table in `packages/db/src/schema/auth.ts`.
-  * `P2.1.1c`: Export and register the full schema map in `packages/auth/src/server.ts` so `ERROR [Better Auth]: Drizzle schema mismatch` disappears across all routes.
-* **Subphase P2.1.2 — KaTeX Mathematical Rendering Engine (`BUG-02`)**
-  * `P2.1.2a`: Install `katex` and `@types/katex` in `packages/ui` and `apps/web`, and import `katex/dist/katex.min.css` in `apps/web/app/layout.tsx`.
-  * `P2.1.2b`: Build `<MathText content={string} />` in `packages/ui/src/components/math-text.tsx` supporting inline `$...$` and block `$$...$$` LaTeX expressions (`\pm`, `\frac`, `\sqrt`, exponents, inequalities).
-  * `P2.1.2c`: Replace raw string outputs in `/exam/diagnostic`, `/gre` interactive sampler, Quantitative Comparison boxes, choice explanations, and 3-tier hints with `<MathText />`.
-* **Subphase P2.1.3 — Unified Exam Chrome & IELTS Split-Screen Geometry (`BUG-03`, `BUG-04`)**
-  * `P2.1.3a`: Strip the hardcoded `Section 1 of 2 — Quantitative Reasoning` header from `apps/web/app/[locale]/(exam)/layout.tsx` so `(exam)/layout.tsx` is a clean `min-h-[100dvh] w-full overflow-x-hidden` shell.
-  * `P2.1.3b`: Fix `/exam/ielts-preview` and `/exam/ielts/[attemptId]` to span `100%` of viewport width (`w-full max-w-none m-0`) with zero dead left margin, proper `min-w-0 break-words` on question cards so text never clips on the right, and a **Mobile Tab Switcher (`Passage` | `Questions` | `Notepad`)** on screens `< 1024px`.
-* **Subphase P2.1.4 — Eliminate All 404 Footer Links & Build Missing Routes (`BUG-06`)**
-  * `P2.1.4a`: Build `/legal/grievance` (`apps/web/app/[locale]/(marketing)/legal/grievance/page.tsx`) displaying the statutory Bangladesh Digital Commerce / PDPO Grievance Officer contact, SLA escalation tiers, and ticket submission link.
-  * `P2.1.4b`: Build `/for-institutions` (or `/b2b`) for Universities, Schools & Corporate cohorts with an interactive inquiry form.
-  * `P2.1.4c`: Audit every `<Link>` in the global Navbar and Footer so `Terms of Service` $\rightarrow$ `/legal/terms`, `Privacy Policy` $\rightarrow$ `/legal/privacy`, `Refund Policy` $\rightarrow$ `/legal/refund-policy`, `Grievance Officer` $\rightarrow$ `/legal/grievance`, `FSRS Vocab Engine` $\rightarrow$ `/gre#vocab-engine`, `Interactive Pedagogy` $\rightarrow$ `/gre#pedagogy`, and `For Universities & Schools` $\rightarrow$ `/for-institutions`.
+#### Phase P2.6.1: Universal Bilingual Dictionary & LaTeX-Safe Question Translator (Zero Hardcoded English)
+* **Subphase P2.6.1a — LaTeX-Safe Translation Service (`packages/core/src/i18n/translator.ts`):**
+  * Build `translateTextPreservingMath(text, targetLocale)` that masks `$...$` / `$$...$$` expressions, supports live Google Translate API (`GOOGLE_TRANSLATE_API_KEY` or `translate.googleapis.com` fallback) + deterministic dictionary lookup, and exposes a CLI script (`tooling/translate-sync.mjs`) to auto-translate any missing keys or questions into Bengali (`bn`) and future languages.
+* **Subphase P2.6.1b — 100% Page & Component Localization (`apps/web/src/i18n/`):**
+  * Expand `en.json` and `bn.json` and wire **every single page** to render in Bengali when `locale === 'bn'`:
+    1. `/bn/courses` (`apps/web/app/[locale]/(marketing)/courses/page.tsx`)
+    2. `/bn/gre` (`apps/web/app/[locale]/(marketing)/gre/page.tsx`)
+    3. `/bn/ielts` (`apps/web/app/[locale]/(marketing)/ielts/page.tsx`)
+    4. `/bn/pricing` (`apps/web/app/[locale]/(marketing)/pricing/page.tsx`)
+    5. `/bn/help` (`apps/web/app/[locale]/(marketing)/help/page.tsx`)
+    6. `/bn/sign-in` & `/bn/sign-up` (`sign-in/page.tsx`, `sign-up/page.tsx`, `AuthForm.tsx`)
+    7. `/bn/checkout` (`checkout/page.tsx`)
+    8. `/bn/for-institutions` & `/bn/legal/*`
+* **Subphase P2.6.1c — Bilingual Exam Questions, Hints & Explanations (`/bn/gre` & `/bn/exam/diagnostic`):**
+  * Add complete Bengali translations (`stemBn`, `quantityABn`, `quantityBBn`, `choicesBn`, `hintsBn`, `trapExplanationBn`) to all diagnostic and live sampler questions.
+  * When `locale === 'bn'`, display the question stem, choices, hints, and trap explanations in **Bengali** (with KaTeX math `$x^2 = 16$` intact!) plus a clean toggle button (` মূল ইংরেজি প্রশ্ন দেখুন / Show Original English`) so learners can cross-reference official English test phrasing.
+* **Subphase P2.6.1d — Automated Anti-Hardcoding Test Gate (`packages/core/src/__tests__/i18n-pages-coverage.test.ts`):**
+  * Write a strict Vitest test that scans `apps/web/app/[locale]/` and fails if `/courses`, `/gre`, `/ielts`, `/pricing`, `/sign-in`, `/sign-up`, `/help`, or `/checkout` contain hardcoded English headings instead of locale-resolved strings.
+
+#### Phase P2.6.2: ETS / British Council / IDP Institutional Redesign (De-Clutter & De-AI)
+* **Subphase P2.6.2a — Strip Dark Cyber Grids, Emoji Pills & Jargon:**
+  * Remove the square grid background pattern (`bg-[linear-gradient(...)]`), remove all `✨` / `🎯` emojis from badges, remove `"Magoosh + GregMat + Brilliant Parity Suite"`, `"Seeded Live Demo"`, `"Rasch 1PL IRT"`, and `"SM-2"` jargon across all public pages.
+  * Remove the duplicate `BangladeshPaymentTrustBar` from inside the hero banners of `/` and `/pricing` so it only appears once as a clean, understated institutional trust bar in the layout footer/checkout.
+* **Subphase P2.6.2b — Redesign `/`, `/courses`, `/pricing`, `/help`, `/sign-in`, `/sign-up`:**
+  * Apply the **British Council / ETS Daylight Editorial System**:
+    * Clean white & warm stone (`bg-slate-50`) sections with solid `#001E42` navy institutional headers, structured 2-column hero layouts, and clear typographic hierarchy.
+    * On `/pricing`, reduce the 17 pills to **2 clean segmented controls** (1: Exam Track `GRE | IELTS Academic | IELTS GT`; 2: Currency `BDT (৳) | USD ($)`), and align all pricing card heights cleanly (`flex flex-col justify-between h-full`).
+
+#### Phase P2.6.3: Official "What is GRE / IELTS & How the Real Exam Works" Interactive Guides
+* **Subphase P2.6.3a — "How the GRE® General Test Works" Section on `/gre` (Modeled on `gre.org`):**
+  * Add a structured, bilingual (`en`/`bn`) guide covering:
+    1. **At-a-Glance Exam Blueprint:** Total time (`1 hr 58 mins`), 3 measures (`Analytical Writing`, `Verbal Reasoning`, `Quantitative Reasoning`), score scale (`260–340 Total`, `130–170` per section, `0–6` AWA).
+    2. **Section-by-Section Timing & Question Count Table:**
+       * *Analytical Writing:* 1 section • 1 "Analyze an Issue" essay • 30 minutes.
+       * *Verbal Reasoning:* Section 1 (12 Qs, 18 mins) + Section 2 (15 Qs, 23 mins) • Reading Comprehension, Text Completion (1–3 blanks), Sentence Equivalence.
+       * *Quantitative Reasoning:* Section 1 (12 Qs, 21 mins) + Section 2 (15 Qs, 26 mins) • Quantitative Comparison, Multiple-Choice (Single & Multiple Answer), Numeric Entry • On-screen calculator provided.
+    3. **How Multi-Stage Section-Adaptive Routing Works:** Visual step-by-step explanation of how your accuracy in Section 1 selects the difficulty tier of Section 2 and determines your 130–170 score ceiling.
+* **Subphase P2.6.3b — "How the IELTS™ Exam Works" Section on `/ielts` (Modeled on `takeielts.britishcouncil.org` & `ielts.idp.com`):**
+  * Add a structured, bilingual (`en`/`bn`) guide covering:
+    1. **Academic vs. General Training Selector:** Clear side-by-side comparison of **IELTS Academic** (for UK/US/Canada/Australia/Europe university admissions & medical/engineering registration) vs. **IELTS General Training** (for skilled migration, PR, Express Entry, and work visas).
+    2. **The 4 Test Papers (Total Time: ~2 hrs 45 mins):**
+       * *Listening (30 mins • 4 Parts • 40 Questions):* Played once only; covers everyday conversations to academic lectures.
+       * *Reading (60 mins • 3 Passages • 40 Questions):* True/False/Not Given, Matching Headings, Summary Completion, Multiple Choice (no extra transfer time in Computer-Delivered IELTS).
+       * *Writing (60 mins • 2 Tasks):* Task 1 (20 mins, $\ge 150$ words: Chart/Graph/Process report for Academic; Formal/Semi-formal Letter for GT) + Task 2 (40 mins, $\ge 250$ words: Discursive Essay carrying **2x weight**).
+       * *Speaking (11–14 mins • 3 Parts):* Face-to-face / recorded interview: Part 1 Familiar Topics (4–5 mins), Part 2 Cue Card Long Turn (1 min prep + 2 mins speaking), Part 3 Two-Way Abstract Discussion (4–5 mins).
+    3. **How IELTS Band Scores (0–9) & CEFR Mapping Work:** Interactive table showing how raw Listening/Reading scores out of 40 map to Bands 5.0–9.0 and how the 4 skill bands average and round to the nearest 0.5 Band.
+* **Subphase P2.6.3c — "Which Exam Do I Need? (GRE vs. IELTS Guide)" on `/courses`:**
+  * Add a clear comparison table helping Bangladeshi students understand whether they need **IELTS only** (UK/Australia/Europe/Canada coursework Master's or PR), **GRE + IELTS** (US Master's/PhD & STEM fellowships/TAships), or **IELTS General Training** (Immigration).
+
+#### Phase P2.6.4: Two-Key Visual, Translation & Anti-Jargon Audit (`Claude Sonnet 5.5 Low` / `Argon Low`)
+* Verify 0 hardcoded English pages in `/bn/*`, 0 dark grid backgrounds, 0 competitor name-drops (`Magoosh`, `GregMat`), and 100% test pass.
 
 ---
 
-#### Phase P2.2: Working Bilingual (`EN / বাংলা`) Toggle, Spec-Leak Sweep & Checkout Flow
-* **Subphase P2.2.1 — Interactive Language Switcher & Bengali Font (`BUG-05`)**
-  * `P2.2.1a`: Load `Hind Siliguri` alongside `Plus Jakarta Sans` in `apps/web/app/layout.tsx`.
-  * `P2.2.1b`: Build `<LocaleSwitcher />` Client Component in `apps/web/app/[locale]/_components/LocaleSwitcher.tsx` that reads `useLocale()` and `usePathname()`, toggles between English (`/path`) and Bengali (`/bn/path`), sets `NEXT_LOCALE`, and highlights the active language pill (`EN` vs `বাংলা`).
-  * `P2.2.1c`: Wire navigation labels, hero headlines, pricing headers, and footer links to `en.json` and `bn.json` so clicking `বাংলা` visibly translates the interface immediately.
-* **Subphase P2.2.2 — Customer-Facing Spec-Leak & Hardcoded String Sweep (`BUG-09`)**
-  * `P2.2.2a`: Remove all occurrences of `(D12 C14)`, `Per D12 C14`, `compare_at`, `(docs/00 §D5)`, and `(D4)` from customer-facing JSX across `apps/web`.
-  * `P2.2.2b`: Replace hardcoded `support@lumenacademy.com` in the footer with `brand.supportEmail` from `@lumen/config`.
-  * `P2.2.2c`: Add an automated unit test in `packages/core/src/__tests__/brand-sweep.test.ts` that fails if any public page contains regex `/\b(D12|C14|C13b|docs\/00|compare_at)\b/`.
-* **Subphase P2.2.3 — Spacious Checkout Layout, 15% VAT Fix & Plan/Add-On Query Wiring (`BUG-07`, `BUG-08`)**
-  * `P2.2.3a`: Wire every pricing tier button and "Add to Account" add-on button on `/pricing` to `<Link href={`/checkout?plan=${planKey}`}>`.
-  * `P2.2.3b`: Read `searchParams.plan` in `/checkout` to pre-select the exact course or add-on pack.
-  * `P2.2.3c`: Expand `/checkout` from a cramped center box to a responsive `max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8` layout where Billing inputs never clip, and fix the VAT breakdown to display the statutory **15% BD VAT (Mushak 6.3 Included)**.
+### MILESTONES M3, M4 & M5 (Subsequent Backend, Content Scraper & Production Rollout)
+
+Once Milestone M2.6 is complete and verified in your browser:
+* **Milestone M3 (Cloud Cutover):** Live Neon Postgres migration (`db:push`), Cloudflare R2 presigned audio uploads, Deepgram Nova-3 STT, and Inngest background jobs.
+* **Milestone M4 (Automated Content Scraper & Isomorphic Question Factory):** Build `tooling/content-pipeline/` to scrape public syllabi/lexicons and transform raw ETS/Pearson/Cambridge practice PDFs into 300+ original, copyright-clean GRE items and 6 full IELTS mocks with bilingual (`en`/`bn`) explanations.
+* **Milestone M5 (Playwright Full E2E Matrix & Vercel Production Launch):** Run the 6-flow desktop/mobile Playwright suite and deploy to Vercel + Neon Singapore (`ap-southeast-1`).
 
 ---
 
-### Milestone M3: High-Conversion Visual Identity & Mobile/Desktop Parity
+## 4. Model Selection & Token-Efficiency Matrix
 
-#### Phase P2.3: Visual Identity, Hero Banners & Mobile Responsiveness (`BUG-10`, `BUG-11`, `BUG-12`)
-* **Subphase P2.3.1 — Responsive Mobile Navbar Drawer & Sticky Bottom CTA (`BUG-10`)**
-  * `P2.3.1a`: Add a mobile hamburger trigger (`lg:hidden`) to the marketing header that opens a clean slide-over navigation sheet containing all track links, the `EN / বাংলা` switcher, and `Sign In` / `Get Started` buttons.
-* **Subphase P2.3.2 — Rich Hero Banners, Color-Coded Track Themes & Trust Strips (`BUG-12`)**
-  * `P2.3.2a`: Upgrade `/` (Home), `/gre`, `/ielts`, `/pricing`, and `/help` with deep Oxford Navy / Indigo / Emerald gradient-mesh hero banners, high-contrast stat callouts (`325+ GRE Target`, `Band 7.5–8.5 IELTS`, `15% Mushak 6.3 VAT Included`), and a **Bangladeshi Payment & Trust Strip** (`bKash`, `Nagad`, `Rocket`, `Visa`, `Mastercard`, `SSLCommerz Verified`).
-  * `P2.3.2b`: Redesign `/sign-in` and `/sign-up` (`BUG-11`) into a split-screen layout on desktop (left panel: dark navy atmospheric showcase with live score analytics preview and testimonial; right panel: interactive Google OAuth + Email OTP + working Phone OTP input toggle + 2FA passkey flow).
-
-#### Phase P2.4: Two-Key Audit & Mobile/Desktop Viewport Verification
-* **Subphase P2.4.1 — Route, Link & Spec-Leak Audit (`Claude Sonnet 5.5 Low`)**
-* **Subphase P2.4.2 — Playwright Desktop (`1440x900`) & Mobile (`375x812`) Viewport Tests**
+| Phase | Recommended Model | Effort | Why This Model Is Best & Prevents Shortcuts |
+| :--- | :--- | :--- | :--- |
+| **Phase P2.6.1** (Universal Bilingual Engine + Question Translations + `/bn` Page Wiring) | **`Gemini 3.8 Flash`** *or* **`Gemini 4 Argon`** | **High / Medium** | High-volume bilingual dictionary (`en`/`bn`) generation and prop wiring across 10 pages, enforced by a strict `i18n-pages-coverage.test.ts` gate so the model cannot skip any page. |
+| **Phase P2.6.2 & P2.6.3** (ETS / British Council / IDP Redesign + Official GRE/IELTS Exam Guides) | **`Gemini 4 Argon`** *or* **`Claude Sonnet 5.5`** | **Medium** | Superior editorial taste, clean institutional typography, and accurate ETS/IDP exam structure tables without AI-template clichés. |
+| **Phase P2.6.4** (Two-Key Audit of Bilingual Parity & Design Cleanliness) | **`Claude Sonnet 5.5`** *or* **`Gemini 4 Argon`** | **Low** | Fast, low-token verification that `/bn/sign-in`, `/bn/sign-up`, `/bn/courses`, `/bn/gre`, `/bn/ielts`, and `/bn/pricing` translate 100% of their content. |

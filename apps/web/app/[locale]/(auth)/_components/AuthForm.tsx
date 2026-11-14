@@ -1,9 +1,10 @@
-/** @purpose High-conversion 2-column split-screen client auth experience supporting Google OAuth, Email OTP, Phone OTP (+880), inline Staff Passkey/TOTP 2FA drawer, and guest diagnostic token claim (BUG-11) */
+/** @purpose High-conversion 2-column split-screen client auth experience supporting Google OAuth, Email OTP, Phone OTP (+880), inline Staff Passkey/TOTP 2FA drawer, and guest diagnostic token claim (BUG-11, P2.6.1 Bilingual) */
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { Link } from '@/src/i18n/routing';
 import { authClient } from '@lumen/auth';
 import { brand } from '@lumen/config';
 import {
@@ -38,9 +39,14 @@ import { LocaleSwitcher } from '../../_components/LocaleSwitcher';
 
 export interface AuthFormProps {
   mode: 'sign-in' | 'sign-up';
+  locale?: 'en' | 'bn';
 }
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
+  const hookLocale = useLocale();
+  const locale = propLocale ?? (hookLocale === 'bn' ? 'bn' : 'en');
+  const isBn = locale === 'bn';
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<'email' | 'phone'>('email');
@@ -81,12 +87,13 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
   }, [searchParams]);
 
+  const basePrefix = isBn ? '/bn' : '';
   const nextUrl =
     mode === 'sign-up'
-      ? `/onboarding${diagnosticToken ? `?diagnosticToken=${encodeURIComponent(diagnosticToken)}` : ''}`
+      ? `${basePrefix}/onboarding${diagnosticToken ? `?diagnosticToken=${encodeURIComponent(diagnosticToken)}` : ''}`
       : diagnosticToken
-        ? `/onboarding?diagnosticToken=${encodeURIComponent(diagnosticToken)}`
-        : '/app';
+        ? `${basePrefix}/onboarding?diagnosticToken=${encodeURIComponent(diagnosticToken)}`
+        : `${basePrefix}/app`;
 
   async function handleGoogleAuth() {
     setLoading(true);
@@ -97,7 +104,13 @@ export function AuthForm({ mode }: AuthFormProps) {
         callbackURL: nextUrl,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed');
+      setError(
+        err instanceof Error
+          ? err.message
+          : isBn
+            ? 'Google লগইন ব্যর্থ হয়েছে'
+            : 'Google sign-in failed'
+      );
       setLoading(false);
     }
   }
@@ -115,12 +128,24 @@ export function AuthForm({ mode }: AuthFormProps) {
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { message?: string };
-        throw new Error(body.message || 'Unable to send email OTP');
+        throw new Error(
+          body.message || (isBn ? 'ইমেইল ওটিপি পাঠানো সম্ভব হয়নি' : 'Unable to send email OTP')
+        );
       }
       setEmailOtpSent(true);
-      setStatusMessage('6-digit verification code sent to your email (valid for 5 minutes).');
+      setStatusMessage(
+        isBn
+          ? 'আপনার ইমেইলে ৬-ডিজিটের ভেরিফিকেশন কোড পাঠানো হয়েছে (মেয়াদ ৫ মিনিট)।'
+          : '6-digit verification code sent to your email (valid for 5 minutes).'
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send email OTP');
+      setError(
+        err instanceof Error
+          ? err.message
+          : isBn
+            ? 'ইমেইল ওটিপি পাঠাতে ব্যর্থ হয়েছে'
+            : 'Failed to send email OTP'
+      );
     } finally {
       setLoading(false);
     }
@@ -138,12 +163,20 @@ export function AuthForm({ mode }: AuthFormProps) {
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { message?: string };
-        throw new Error(body.message || 'Invalid or expired OTP');
+        throw new Error(
+          body.message || (isBn ? 'ভুল বা মেয়াদোত্তীর্ণ ওটিপি কোড' : 'Invalid or expired OTP')
+        );
       }
       router.push(nextUrl);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'OTP verification failed');
+      setError(
+        err instanceof Error
+          ? err.message
+          : isBn
+            ? 'ওটিপি যাচাইকরণ ব্যর্থ হয়েছে'
+            : 'OTP verification failed'
+      );
     } finally {
       setLoading(false);
     }
@@ -158,9 +191,19 @@ export function AuthForm({ mode }: AuthFormProps) {
       const res = await sendPhoneOtpStubAction({ phone });
       setPhoneOtpSent(true);
       setPhoneHint(res.devHint ?? null);
-      setStatusMessage(`6-digit SMS OTP dispatched to ${res.maskedPhone}.`);
+      setStatusMessage(
+        isBn
+          ? `${res.maskedPhone} নম্বরে ৬-ডিজিটের এসএমএস ওটিপি পাঠানো হয়েছে।`
+          : `6-digit SMS OTP dispatched to ${res.maskedPhone}.`
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send phone OTP');
+      setError(
+        err instanceof Error
+          ? err.message
+          : isBn
+            ? 'ফোন ওটিপি পাঠাতে ব্যর্থ হয়েছে'
+            : 'Failed to send phone OTP'
+      );
     } finally {
       setLoading(false);
     }
@@ -178,7 +221,13 @@ export function AuthForm({ mode }: AuthFormProps) {
       router.push(nextUrl);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Phone OTP verification failed');
+      setError(
+        err instanceof Error
+          ? err.message
+          : isBn
+            ? 'ফোন ওটিপি যাচাইকরণ ব্যর্থ হয়েছে'
+            : 'Phone OTP verification failed'
+      );
     } finally {
       setLoading(false);
     }
@@ -187,13 +236,21 @@ export function AuthForm({ mode }: AuthFormProps) {
   function handleStaffTotpPrecheck(e: React.FormEvent) {
     e.preventDefault();
     if (totpCode.trim().length !== 6) {
-      setTotpVerifiedMsg('Please enter a valid 6-digit authenticator code.');
+      setTotpVerifiedMsg(
+        isBn
+          ? 'অনুগ্রহ করে ৬-ডিজিটের সঠিক অথেনটিকেটর কোড দিন।'
+          : 'Please enter a valid 6-digit authenticator code.'
+      );
       return;
     }
     setTotpVerifiedMsg(
-      'TOTP factor pre-staged. Complete your primary Email or Phone OTP sign-in above to enter the Staff & Grader console.'
+      isBn
+        ? 'TOTP ফ্যাক্টর প্রস্তুত। স্টাফ ও গ্রেডার কনসোলে প্রবেশ করতে উপরে আপনার ইমেইল বা ফোন ওটিপি লগইন সম্পন্ন করুন।'
+        : 'TOTP factor pre-staged. Complete your primary Email or Phone OTP sign-in above to enter the Staff & Grader console.'
     );
   }
+
+  const brandDisplayName = isBn ? 'লুমেন একাডেমি' : brand.name;
 
   return (
     <div className="space-y-6">
@@ -204,7 +261,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-950"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to {brand.name}</span>
+          <span>{isBn ? `${brandDisplayName}-এ ফিরে যান` : `Back to ${brand.name}`}</span>
         </Link>
         <LocaleSwitcher />
       </div>
@@ -223,20 +280,27 @@ export function AuthForm({ mode }: AuthFormProps) {
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
                 <GraduationCap className="h-5 w-5" />
               </span>
-              <span className="text-lg font-extrabold tracking-tight text-white">{brand.name}</span>
+              <span className="text-lg font-extrabold tracking-tight text-white">
+                {brandDisplayName}
+              </span>
             </div>
 
             <div className="space-y-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/30 bg-blue-950/90 px-3 py-1 text-[11px] font-semibold text-blue-200">
                 <Sparkles className="h-3 w-3 text-blue-400" />
-                Calibrated for 330+ GRE &amp; Band 8.0+ IELTS
+                {isBn
+                  ? '৩৩০+ জিআরই এবং ব্যান্ড ৮.০+ আইইএলটিএসের জন্য ক্যালিব্রেটেড'
+                  : 'Calibrated for 330+ GRE & Band 8.0+ IELTS'}
               </span>
               <h2 className="text-2xl font-extrabold leading-snug text-white sm:text-3xl">
-                Precision Diagnostics &amp; Active Recall Built for Bangladesh Scholars.
+                {isBn
+                  ? 'বাংলাদেশি শিক্ষার্থীদের জন্য নির্মিত নিখুঁত ডায়াগনস্টিক ও অ্যাক্টিভ রিকল ইঞ্জিন।'
+                  : 'Precision Diagnostics & Active Recall Built for Bangladesh Scholars.'}
               </h2>
               <p className="text-xs leading-relaxed text-slate-300">
-                Every practice item adapts to your latent ability using Rasch 1PL IRT and schedules
-                vocabulary reviews at your exact 90% memory stability threshold.
+                {isBn
+                  ? 'প্রতিটি অনুশীলন প্রশ্ন Rasch 1PL IRT অ্যালগরিদম ব্যবহার করে আপনার দক্ষতার সাথে খাপ খাইয়ে নেয় এবং ৯০% স্মৃতি স্থায়িত্ব বজায় রাখতে ভোকাবুলারি রিভিউ নির্ধারণ করে।'
+                  : 'Every practice item adapts to your latent ability using Rasch 1PL IRT and schedules vocabulary reviews at your exact 90% memory stability threshold.'}
               </p>
             </div>
 
@@ -245,19 +309,27 @@ export function AuthForm({ mode }: AuthFormProps) {
               <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-3.5">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-400">
                   <TrendingUp className="h-3.5 w-3.5" />
-                  <span>GRE Improvement</span>
+                  <span>{isBn ? 'জিআরই স্কোর উন্নতি' : 'GRE Improvement'}</span>
                 </div>
-                <div className="mt-1 text-2xl font-black text-white">+11.4 pts</div>
-                <div className="text-[11px] text-slate-400">Median 8-week cohort gain</div>
+                <div className="mt-1 text-2xl font-black text-white">
+                  {isBn ? '+১১.৪ পয়েন্ট' : '+11.4 pts'}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  {isBn ? '৮ সপ্তাহের ব্যাচে গড় উন্নতি' : 'Median 8-week cohort gain'}
+                </div>
               </div>
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-3.5">
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>IELTS Outcome</span>
+                  <span>{isBn ? 'আইইএলটিএস ফলাফল' : 'IELTS Outcome'}</span>
                 </div>
-                <div className="mt-1 text-2xl font-black text-white">Band 7.5+</div>
-                <div className="text-[11px] text-slate-400">Achieved by 78% of Plus learners</div>
+                <div className="mt-1 text-2xl font-black text-white">
+                  {isBn ? 'ব্যান্ড ৭.৫+' : 'Band 7.5+'}
+                </div>
+                <div className="text-[11px] text-slate-400">
+                  {isBn ? '৭৮% প্লাস শিক্ষার্থীর অর্জিত স্কোর' : 'Achieved by 78% of Plus learners'}
+                </div>
               </div>
             </div>
 
@@ -265,11 +337,16 @@ export function AuthForm({ mode }: AuthFormProps) {
             <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/60 p-4 space-y-1.5">
               <div className="flex items-center gap-2 text-xs font-bold text-indigo-200">
                 <Brain className="h-4 w-4 text-indigo-400 shrink-0" />
-                <span>FSRS-4.5 Retention Guarantee &amp; 7-Day Refund</span>
+                <span>
+                  {isBn
+                    ? 'FSRS-4.5 স্মৃতি গ্যারান্টি ও ৭-দিনের রিফান্ড নীতি'
+                    : 'FSRS-4.5 Retention Guarantee & 7-Day Refund'}
+                </span>
               </div>
               <p className="text-[11px] leading-relaxed text-indigo-100/80">
-                30% fewer flashcard repetitions than legacy SM-2 for the same 90% exam-day recall,
-                backed by our transparent 7-day money-back guarantee.
+                {isBn
+                  ? 'পুরাতন SM-2 পদ্ধতির তুলনায় ৩০% কম ফ্ল্যাশকার্ড রিভিউতে পরীক্ষার দিন ৯০% মনে রাখার নিশ্চয়তা, সাথে থাকছে ৭-দিনের সম্পূর্ণ মানি-ব্যাক গ্যারান্টি।'
+                  : '30% fewer flashcard repetitions than legacy SM-2 for the same 90% exam-day recall, backed by our transparent 7-day money-back guarantee.'}
               </p>
             </div>
           </div>
@@ -278,17 +355,21 @@ export function AuthForm({ mode }: AuthFormProps) {
           <div className="relative mt-8 rounded-2xl border border-slate-800 bg-slate-900/90 p-4 space-y-2.5">
             <div className="flex items-center justify-between text-[11px] text-slate-400">
               <span className="inline-flex items-center gap-1 font-semibold text-emerald-400">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Verified Bangladeshi Scholar
+                <CheckCircle2 className="h-3.5 w-3.5" />{' '}
+                {isBn ? 'যাচাইকৃত বাংলাদেশি স্কলার' : 'Verified Bangladeshi Scholar'}
               </span>
               <span className="font-mono text-slate-300">GRE 332 (Q169, V163)</span>
             </div>
             <p className="text-xs italic leading-relaxed text-slate-200">
               <Quote className="mr-1 inline h-3.5 w-3.5 text-blue-400" />
-              The Distractor Trap Diagnostics and 3-Tier Hint Ladder stopped my careless root-sign
-              mistakes in Quantitative Comparison. I jumped from 161 to 169 Quant in 5 weeks.
+              {isBn
+                ? 'ডিস্ট্রাক্টর ট্র্যাপ ডায়াগনস্টিকস এবং ৩-ধাপের হিন্ট ল্যাডার কোয়ান্টিটেটিভ কম্প্যারিজনে আমার নেগেটিভ রুট সংক্রান্ত ভুলগুলো পুরোপুরি বন্ধ করেছে। মাত্র ৫ সপ্তাহে আমার কোয়ান্ট স্কোর ১৬১ থেকে ১৬৯ হয়েছে।'
+                : 'The Distractor Trap Diagnostics and 3-Tier Hint Ladder stopped my careless root-sign mistakes in Quantitative Comparison. I jumped from 161 to 169 Quant in 5 weeks.'}
             </p>
             <div className="text-[11px] font-semibold text-slate-300">
-              — Farhan T., BUET CSE Graduate • Admitted to Fall PhD Cohort
+              {isBn
+                ? '— ফারহান টি., বুয়েট সিএসই গ্র্যাজুয়েট • ফল পিএইচডি ব্যাচে ভর্তিকৃত'
+                : '— Farhan T., BUET CSE Graduate • Admitted to Fall PhD Cohort'}
             </div>
           </div>
         </div>
@@ -299,35 +380,44 @@ export function AuthForm({ mode }: AuthFormProps) {
             <CardHeader className="space-y-2">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <Badge variant="outline" className="border-slate-300 text-slate-700 text-xs font-semibold">
-                  {brand.name} Account Portal
+                  {isBn ? `${brandDisplayName} অ্যাকাউন্ট পোর্টাল` : `${brand.name} Account Portal`}
                 </Badge>
                 {diagnosticToken && (
                   <Badge variant="default" className="bg-blue-600 text-white gap-1 text-xs">
-                    <Sparkles className="h-3 w-3" /> Diagnostic Ready to Claim
+                    <Sparkles className="h-3 w-3" />{' '}
+                    {isBn ? 'ডায়াগনস্টিক ফলাফল সংরক্ষণের জন্য প্রস্তুত' : 'Diagnostic Ready to Claim'}
                   </Badge>
                 )}
               </div>
               <CardTitle className="text-2xl font-extrabold text-slate-950 sm:text-3xl">
                 {mode === 'sign-in'
-                  ? `Sign in to ${brand.name}`
-                  : `Create your ${brand.name} account`}
+                  ? isBn
+                    ? `${brandDisplayName}-এ লগইন করুন`
+                    : `Sign in to ${brand.name}`
+                  : isBn
+                    ? `আপনার ${brandDisplayName} অ্যাকাউন্ট তৈরি করুন`
+                    : `Create your ${brand.name} account`}
               </CardTitle>
               <CardDescription className="text-slate-600">
                 {mode === 'sign-in'
-                  ? 'Access your courses, section-adaptive mock exams, and AI score analytics.'
-                  : 'Start with a free diagnostic, 2 AI evaluation credits, and a tailored study plan.'}
+                  ? isBn
+                    ? 'আপনার কোর্সসমূহ, সেকশন-অ্যাডাপটিভ মক টেস্ট এবং এআই স্কোর অ্যানালিটিক্স অ্যাক্সেস করুন।'
+                    : 'Access your courses, section-adaptive mock exams, and AI score analytics.'
+                  : isBn
+                    ? 'ফ্রি ডায়াগনস্টিক টেস্ট, ২টি এআই ইভ্যালুয়েশন ক্রেডিট এবং কাস্টম স্টাডি প্ল্যান দিয়ে শুরু করুন।'
+                    : 'Start with a free diagnostic, 2 AI evaluation credits, and a tailored study plan.'}
               </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-5">
               {error && (
-                <Callout type="trap" title="Authentication Error">
+                <Callout type="trap" title={isBn ? 'লগইন ত্রুটি' : 'Authentication Error'}>
                   {error}
                 </Callout>
               )}
 
               {statusMessage && (
-                <Callout type="concept" title="Verification Sent">
+                <Callout type="concept" title={isBn ? 'ভেরিফিকেশন কোড পাঠানো হয়েছে' : 'Verification Sent'}>
                   {statusMessage}
                 </Callout>
               )}
@@ -340,13 +430,13 @@ export function AuthForm({ mode }: AuthFormProps) {
                 disabled={loading}
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Continue with Google
+                {isBn ? 'Google দিয়ে চালিয়ে যান' : 'Continue with Google'}
               </Button>
 
               <div className="relative flex items-center py-1">
                 <div className="flex-grow border-t border-slate-200" />
                 <span className="mx-3 shrink text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  or passwordless OTP
+                  {isBn ? 'অথবা পাসওয়ার্ডবিহীন ওটিপি' : 'or passwordless OTP'}
                 </span>
                 <div className="flex-grow border-t border-slate-200" />
               </div>
@@ -356,7 +446,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <div
                   className="grid w-full grid-cols-2 rounded-xl border border-slate-200 bg-slate-100 p-1"
                   role="tablist"
-                  aria-label="OTP Method"
+                  aria-label={isBn ? 'ওটিপি পদ্ধতি' : 'OTP Method'}
                 >
                   <button
                     type="button"
@@ -373,7 +463,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                     }`}
                   >
                     <Mail className="h-3.5 w-3.5 text-blue-600" />
-                    <span>Email OTP</span>
+                    <span>{isBn ? 'ইমেইল ওটিপি' : 'Email OTP'}</span>
                   </button>
                   <button
                     type="button"
@@ -390,7 +480,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                     }`}
                   >
                     <Phone className="h-3.5 w-3.5 text-emerald-600" />
-                    <span>Phone OTP (+880)</span>
+                    <span>{isBn ? 'ফোন ওটিপি (+880)' : 'Phone OTP (+880)'}</span>
                   </button>
                 </div>
 
@@ -400,7 +490,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                       <form onSubmit={handleSendEmailOtp} className="space-y-3">
                         <div className="space-y-1.5">
                           <label htmlFor="auth-email" className="text-sm font-semibold text-slate-800">
-                            Email address
+                            {isBn ? 'ইমেইল ঠিকানা' : 'Email address'}
                           </label>
                           <Input
                             id="auth-email"
@@ -416,14 +506,22 @@ export function AuthForm({ mode }: AuthFormProps) {
                           className="w-full bg-slate-950 text-white hover:bg-slate-900 font-semibold"
                           disabled={loading}
                         >
-                          {loading ? 'Sending code...' : 'Send 6-digit Email OTP'}
+                          {loading
+                            ? isBn
+                              ? 'কোড পাঠানো হচ্ছে...'
+                              : 'Sending code...'
+                            : isBn
+                              ? '৬-ডিজিটের ইমেইল ওটিপি পাঠান'
+                              : 'Send 6-digit Email OTP'}
                         </Button>
                       </form>
                     ) : (
                       <form onSubmit={handleVerifyEmailOtp} className="space-y-3">
                         <div className="space-y-1.5">
                           <label htmlFor="auth-email-otp" className="text-sm font-semibold text-slate-800">
-                            6-digit code sent to {email}
+                            {isBn
+                              ? `${email}-এ পাঠানো ৬-ডিজিটের কোড`
+                              : `6-digit code sent to ${email}`}
                           </label>
                           <Input
                             id="auth-email-otp"
@@ -443,7 +541,13 @@ export function AuthForm({ mode }: AuthFormProps) {
                             className="flex-1 bg-blue-600 text-white hover:bg-blue-500 font-semibold"
                             disabled={loading}
                           >
-                            {loading ? 'Verifying...' : 'Verify & Continue'}
+                            {loading
+                              ? isBn
+                                ? 'যাচাই করা হচ্ছে...'
+                                : 'Verifying...'
+                              : isBn
+                                ? 'যাচাই করে এগিয়ে যান'
+                                : 'Verify & Continue'}
                           </Button>
                           <Button
                             type="button"
@@ -451,7 +555,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                             onClick={() => setEmailOtpSent(false)}
                             disabled={loading}
                           >
-                            Change
+                            {isBn ? 'পরিবর্তন করুন' : 'Change'}
                           </Button>
                         </div>
                       </form>
@@ -463,7 +567,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                       <form onSubmit={handleSendPhoneOtp} className="space-y-3">
                         <div className="space-y-1.5">
                           <label htmlFor="auth-phone" className="text-sm font-semibold text-slate-800">
-                            Bangladesh Mobile Number (+880)
+                            {isBn ? 'বাংলাদেশ মোবাইল নম্বর (+880)' : 'Bangladesh Mobile Number (+880)'}
                           </label>
                           <Input
                             id="auth-phone"
@@ -479,14 +583,22 @@ export function AuthForm({ mode }: AuthFormProps) {
                           className="w-full bg-emerald-950 text-white hover:bg-emerald-900 font-semibold"
                           disabled={loading}
                         >
-                          {loading ? 'Dispatching SMS...' : 'Send Phone OTP (+880)'}
+                          {loading
+                            ? isBn
+                              ? 'এসএমএস পাঠানো হচ্ছে...'
+                              : 'Dispatching SMS...'
+                            : isBn
+                              ? 'ফোন ওটিপি পাঠান (+880)'
+                              : 'Send Phone OTP (+880)'}
                         </Button>
                       </form>
                     ) : (
                       <form onSubmit={handleVerifyPhoneOtp} className="space-y-3">
                         <div className="space-y-1.5">
                           <label htmlFor="auth-phone-otp" className="text-sm font-semibold text-slate-800">
-                            6-digit SMS code {phoneHint ? `(${phoneHint})` : ''}
+                            {isBn
+                              ? `৬-ডিজিটের এসএমএস কোড ${phoneHint ? `(${phoneHint})` : ''}`
+                              : `6-digit SMS code ${phoneHint ? `(${phoneHint})` : ''}`}
                           </label>
                           <Input
                             id="auth-phone-otp"
@@ -506,7 +618,13 @@ export function AuthForm({ mode }: AuthFormProps) {
                             className="flex-1 bg-teal-600 text-white hover:bg-teal-500 font-semibold"
                             disabled={loading}
                           >
-                            {loading ? 'Verifying...' : 'Verify Phone'}
+                            {loading
+                              ? isBn
+                                ? 'যাচাই করা হচ্ছে...'
+                                : 'Verifying...'
+                              : isBn
+                                ? 'ফোন যাচাই করুন'
+                                : 'Verify Phone'}
                           </Button>
                           <Button
                             type="button"
@@ -514,7 +632,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                             onClick={() => setPhoneOtpSent(false)}
                             disabled={loading}
                           >
-                            Change
+                            {isBn ? 'পরিবর্তন করুন' : 'Change'}
                           </Button>
                         </div>
                       </form>
@@ -528,7 +646,9 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <div className="flex items-center justify-between gap-2">
                   <span className="flex items-center gap-1.5 font-semibold text-slate-800">
                     <ShieldCheck className="h-4 w-4 text-blue-600" />
-                    Staff / Instructor Passkey &amp; 2FA
+                    {isBn
+                      ? 'স্টাফ / ইন্সট্রাক্টর পাসকি ও ২এফএ (2FA)'
+                      : 'Staff / Instructor Passkey & 2FA'}
                   </span>
                   <button
                     type="button"
@@ -536,15 +656,22 @@ export function AuthForm({ mode }: AuthFormProps) {
                     className="font-semibold text-blue-600 underline hover:text-blue-800"
                     onClick={() => setStaff2faMode((v) => !v)}
                   >
-                    {staff2faMode ? 'Hide 2FA Drawer' : 'Open Passkey / 2FA Drawer'}
+                    {staff2faMode
+                      ? isBn
+                        ? '২এফএ ড্রয়ার লুকান'
+                        : 'Hide 2FA Drawer'
+                      : isBn
+                        ? 'পাসকি / ২এফএ ড্রয়ার খুলুন'
+                        : 'Open Passkey / 2FA Drawer'}
                   </button>
                 </div>
 
                 {staff2faMode && (
                   <div className="mt-3 space-y-3 border-t border-slate-200 pt-3">
                     <p className="leading-relaxed text-slate-600">
-                      Grader, instructor, finance, support, and organization administrator accounts
-                      require a hardware Passkey or TOTP authenticator verification factor.
+                      {isBn
+                        ? 'গ্রেডার, ইন্সট্রাক্টর, ফিন্যান্স, সাপোর্ট এবং অর্গানাইজেশন অ্যাডমিন অ্যাকাউন্টের জন্য হার্ডওয়্যার পাসকি বা TOTP অথেনটিকেটর যাচাইকরণ বাধ্যতামূলক।'
+                        : 'Grader, instructor, finance, support, and organization administrator accounts require a hardware Passkey or TOTP authenticator verification factor.'}
                     </p>
 
                     <form onSubmit={handleStaffTotpPrecheck} className="space-y-2.5">
@@ -553,14 +680,14 @@ export function AuthForm({ mode }: AuthFormProps) {
                           type="text"
                           inputMode="numeric"
                           maxLength={6}
-                          placeholder="6-digit TOTP code"
+                          placeholder={isBn ? '৬-ডিজিটের TOTP কোড' : '6-digit TOTP code'}
                           value={totpCode}
                           onChange={(e) => setTotpCode(e.target.value)}
                           className="bg-white text-xs"
-                          aria-label="6-digit TOTP code"
+                          aria-label={isBn ? '৬-ডিজিটের TOTP কোড' : '6-digit TOTP code'}
                         />
                         <Button type="submit" size="sm" variant="outline" className="shrink-0 font-semibold">
-                          Stage TOTP Factor
+                          {isBn ? 'TOTP যাচাই করুন' : 'Stage TOTP Factor'}
                         </Button>
                         <Button
                           type="button"
@@ -568,13 +695,15 @@ export function AuthForm({ mode }: AuthFormProps) {
                           variant="outline"
                           onClick={() =>
                             setTotpVerifiedMsg(
-                              'Passkey challenge ready. Complete primary sign-in above or insert your WebAuthn security key.'
+                              isBn
+                                ? 'পাসকি চ্যালেঞ্জ প্রস্তুত। উপরে প্রাথমিক সাইন-ইন সম্পন্ন করুন অথবা আপনার WebAuthn সিকিউরিটি কী সংযুক্ত করুন।'
+                                : 'Passkey challenge ready. Complete primary sign-in above or insert your WebAuthn security key.'
                             )
                           }
                           className="shrink-0 gap-1 font-semibold"
                         >
                           <Fingerprint className="h-3.5 w-3.5 text-blue-600" />
-                          Passkey
+                          {isBn ? 'পাসকি' : 'Passkey'}
                         </Button>
                       </div>
                       {totpVerifiedMsg && (
@@ -591,7 +720,9 @@ export function AuthForm({ mode }: AuthFormProps) {
                 <div className="flex items-center gap-2 text-xs text-slate-500">
                   <KeyRound className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                   <span>
-                    Protected by Cloudflare Turnstile bot-prevention &amp; server-side OTP throttling.
+                    {isBn
+                      ? 'Cloudflare Turnstile বট-প্রতিরোধ এবং সার্ভার-সাইড ওটিপি রেট লিমিটিং দ্বারা সুরক্ষিত।'
+                      : 'Protected by Cloudflare Turnstile bot-prevention & server-side OTP throttling.'}
                   </span>
                 </div>
               )}
@@ -599,13 +730,25 @@ export function AuthForm({ mode }: AuthFormProps) {
 
             <CardFooter className="justify-between border-t border-slate-100 pt-4 text-xs">
               <span className="text-slate-600">
-                {mode === 'sign-in' ? 'New to the platform?' : 'Already have an account?'}
+                {mode === 'sign-in'
+                  ? isBn
+                    ? 'প্ল্যাটফর্মে নতুন?'
+                    : 'New to the platform?'
+                  : isBn
+                    ? 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?'
+                    : 'Already have an account?'}
               </span>
               <Link
                 href={mode === 'sign-in' ? '/sign-up' : '/sign-in'}
                 className="font-bold text-blue-600 hover:underline"
               >
-                {mode === 'sign-in' ? 'Create an account →' : 'Sign in →'}
+                {mode === 'sign-in'
+                  ? isBn
+                    ? 'অ্যাকাউন্ট তৈরি করুন →'
+                    : 'Create an account →'
+                  : isBn
+                    ? 'লগইন করুন →'
+                    : 'Sign in →'}
               </Link>
             </CardFooter>
           </Card>

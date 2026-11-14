@@ -1,7 +1,8 @@
-/** @purpose Interactive checkout client with VAT breakdown, payment method selector, and SSLCommerz redirection */
+/** @purpose Interactive checkout client with VAT breakdown, payment method selector, and SSLCommerz redirection (P2.6.1 Bilingual) */
 'use client';
 
 import React, { useState, useTransition } from 'react';
+import { useLocale } from 'next-intl';
 import {
   ShieldCheck,
   CreditCard,
@@ -12,16 +13,22 @@ import {
 import { CANONICAL_PRODUCTS, type ProductDefinition } from '@lumen/core';
 import { initiateCheckoutAction, submitManualCheckoutAction } from '@/app/actions/checkout';
 
-interface CheckoutClientProps {
+export interface CheckoutClientProps {
   initialProduct: ProductDefinition;
+  locale?: 'en' | 'bn';
 }
 
-export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
+export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutClientProps) {
+  const hookLocale = useLocale();
+  const locale = propLocale ?? (hookLocale === 'bn' ? 'bn' : 'en');
+  const isBn = locale === 'bn';
+
   const [selectedProduct, setSelectedProduct] = useState<ProductDefinition>(initialProduct);
 
   React.useEffect(() => {
     setSelectedProduct(initialProduct);
   }, [initialProduct]);
+
   const [name, setName] = useState('Ayman Rahman');
   const [email, setEmail] = useState('aymanrahman30@gmail.com');
   const [phone, setPhone] = useState('01712345678');
@@ -65,12 +72,20 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
           if (res.redirectUrl) {
             window.location.href = res.redirectUrl;
           } else {
-            setErrorMsg('Failed to initialize SSLCommerz gateway session.');
+            setErrorMsg(
+              isBn
+                ? 'SSLCommerz গেটওয়ে সেশন শুরু করতে ব্যর্থ হয়েছে।'
+                : 'Failed to initialize SSLCommerz gateway session.'
+            );
           }
         } else {
           // Manual bKash / Nagad payment fallback
           if (!trxId || trxId.trim().length < 6) {
-            setErrorMsg('Please enter a valid Transaction ID (at least 6 alphanumeric characters).');
+            setErrorMsg(
+              isBn
+                ? 'অনুগ্রহ করে একটি সঠিক ট্রানজেকশন আইডি (কমপক্ষে ৬ অক্ষরের TrxID) লিখুন।'
+                : 'Please enter a valid Transaction ID (at least 6 alphanumeric characters).'
+            );
             return;
           }
 
@@ -88,13 +103,21 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
 
           if (res.ok) {
             setManualSuccessMsg(
-              `Manual payment submitted successfully! Order #${res.orderId} is now pending verification. Entitlements will activate once our finance team confirms TrxID ${res.trxId}.`
+              isBn
+                ? `ম্যানুয়াল পেমেন্ট সফলভাবে জমা হয়েছে! অর্ডার #${res.orderId} এখন যাচাইয়ের অপেক্ষায় রয়েছে। আমাদের ফিন্যান্স টিম TrxID ${res.trxId} নিশ্চিত করার সাথে সাথে আপনার কোর্স অ্যাক্সেস চালু হবে।`
+                : `Manual payment submitted successfully! Order #${res.orderId} is now pending verification. Entitlements will activate once our finance team confirms TrxID ${res.trxId}.`
             );
             setTrxId('');
           }
         }
       } catch (err) {
-        setErrorMsg(err instanceof Error ? err.message : 'Checkout initiation failed');
+        setErrorMsg(
+          err instanceof Error
+            ? err.message
+            : isBn
+              ? 'চেকআউট প্রক্রিয়া শুরু করতে ব্যর্থ হয়েছে'
+              : 'Checkout initiation failed'
+        );
       }
     });
   };
@@ -109,13 +132,15 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
         <div className="rounded-lg border border-[#e0e0e0] bg-white p-6 shadow-xs sm:p-8">
           <div className="flex items-center gap-2 border-b border-[#eee] pb-4">
             <Lock className="h-4 w-4 text-emerald-600" />
-            <h2 className="text-lg font-bold text-[#111]">Student Billing Details</h2>
+            <h2 className="text-lg font-bold text-[#111]">
+              {isBn ? 'শিক্ষার্থীর বিলিং তথ্য' : 'Student Billing Details'}
+            </h2>
           </div>
 
           <form onSubmit={handleCheckoutSubmit} className="mt-6 space-y-4">
             <div>
               <label className="block text-xs font-bold text-[#444] uppercase tracking-wider">
-                Full Name
+                {isBn ? 'পূর্ণ নাম' : 'Full Name'}
               </label>
               <input
                 type="text"
@@ -129,7 +154,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-bold text-[#444] uppercase tracking-wider">
-                  Email Address
+                  {isBn ? 'ইমেইল ঠিকানা' : 'Email Address'}
                 </label>
                 <input
                   type="email"
@@ -142,7 +167,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
 
               <div>
                 <label className="block text-xs font-bold text-[#444] uppercase tracking-wider">
-                  Mobile Number (BD)
+                  {isBn ? 'মোবাইল নম্বর (বাংলাদেশ)' : 'Mobile Number (BD)'}
                 </label>
                 <input
                   type="tel"
@@ -158,7 +183,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-[#444] uppercase tracking-wider">
-                  Billing Address
+                  {isBn ? 'বিলিং ঠিকানা' : 'Billing Address'}
                 </label>
                 <input
                   type="text"
@@ -170,7 +195,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
 
               <div>
                 <label className="block text-xs font-bold text-[#444] uppercase tracking-wider">
-                  City
+                  {isBn ? 'শহর' : 'City'}
                 </label>
                 <input
                   type="text"
@@ -184,7 +209,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
             {/* Payment Method Tabs */}
             <div className="mt-6">
               <label className="block text-xs font-bold text-[#444] uppercase tracking-wider mb-2">
-                Select Payment Method
+                {isBn ? 'পেমেন্ট পদ্ধতি নির্বাচন করুন' : 'Select Payment Method'}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -197,7 +222,9 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
                   }`}
                 >
                   <CreditCard className="h-4 w-4" />
-                  <span>Online Gateway (SSLCommerz)</span>
+                  <span>
+                    {isBn ? 'অনলাইন গেটওয়ে (SSLCommerz)' : 'Online Gateway (SSLCommerz)'}
+                  </span>
                 </button>
                 <button
                   type="button"
@@ -209,7 +236,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
                   }`}
                 >
                   <ShieldCheck className="h-4 w-4" />
-                  <span>Manual bKash / Nagad</span>
+                  <span>{isBn ? 'ম্যানুয়াল বিকাশ / নগদ' : 'Manual bKash / Nagad'}</span>
                 </button>
               </div>
             </div>
@@ -221,16 +248,19 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-[#1a56db]" />
                     <span className="text-xs font-bold text-[#111]">
-                      SSLCommerz Secure Bangladesh Gateway
+                      {isBn
+                        ? 'SSLCommerz নিরাপদ বাংলাদেশ পেমেন্ট গেটওয়ে'
+                        : 'SSLCommerz Secure Bangladesh Gateway'}
                     </span>
                   </div>
                   <span className="rounded bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-900">
-                    SANDBOX VERIFIED
+                    {isBn ? 'স্যান্ডবক্স যাচাইকৃত' : 'SANDBOX VERIFIED'}
                   </span>
                 </div>
                 <p className="mt-2 text-xs text-[#555]">
-                  Supports bKash, Nagad, Rocket, Upay, Visa, Mastercard, and Islamic Banking.
-                  Transaction security verified by secondary Order Validation API.
+                  {isBn
+                    ? 'বিকাশ, নগদ, রকেট, উপায়, ভিসা, মাস্টারকার্ড এবং ইসলামিক ব্যাংকিং সমর্থিত। অর্ডার ভ্যালিডেশন API দ্বারা শতভাগ সুরক্ষিত।'
+                    : 'Supports bKash, Nagad, Rocket, Upay, Visa, Mastercard, and Islamic Banking. Transaction security verified by secondary Order Validation API.'}
                 </p>
               </div>
             ) : (
@@ -238,10 +268,12 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
               <div className="space-y-4 rounded-lg border border-amber-200 bg-amber-50/40 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-950">
-                    Direct Merchant Payment (Fallback)
+                    {isBn
+                      ? 'সরাসরি মার্চেন্ট পেমেন্ট (বিকল্প)'
+                      : 'Direct Merchant Payment (Fallback)'}
                   </span>
                   <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900">
-                    OFFICIAL MERCHANT
+                    {isBn ? 'অফিসিয়াল মার্চেন্ট' : 'OFFICIAL MERCHANT'}
                   </span>
                 </div>
 
@@ -255,7 +287,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
                         : 'border-[#ddd] bg-white text-[#666]'
                     }`}
                   >
-                    bKash Merchant
+                    {isBn ? 'বিকাশ মার্চেন্ট' : 'bKash Merchant'}
                   </button>
                   <button
                     type="button"
@@ -266,26 +298,46 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
                         : 'border-[#ddd] bg-white text-[#666]'
                     }`}
                   >
-                    Nagad Merchant
+                    {isBn ? 'নগদ মার্চেন্ট' : 'Nagad Merchant'}
                   </button>
                 </div>
 
                 <div className="rounded border border-amber-200/80 bg-white p-3 text-xs text-[#444] space-y-1.5">
                   <div className="flex justify-between font-mono font-bold text-sm text-[#111]">
-                    <span>Merchant No:</span>
+                    <span>{isBn ? 'মার্চেন্ট নম্বর:' : 'Merchant No:'}</span>
                     <span className="text-[#1a56db]">
                       {manualMethod === 'bkash' ? '01894928001' : '01894928002'}
                     </span>
                   </div>
                   <p className="text-[11px] text-[#666]">
-                    <strong>Instructions:</strong> Open {manualMethod === 'bkash' ? 'bKash App → "Make Payment"' : 'Nagad App → "Merchant Pay"'} → Enter merchant number above → Enter total amount (BDT {(selectedProduct.prices.BD / 100).toLocaleString()}) → Use your mobile number as reference → Enter PIN → Copy TrxID.
+                    {isBn ? (
+                      <>
+                        <strong>নির্দেশনা:</strong>{' '}
+                        {manualMethod === 'bkash'
+                          ? 'বিকাশ অ্যাপ → "Make Payment"'
+                          : 'নগদ অ্যাপ → "Merchant Pay"'}{' '}
+                        খুলুন → উপরের মার্চেন্ট নম্বর দিন → মোট পরিমাণ (BDT{' '}
+                        {(selectedProduct.prices.BD / 100).toLocaleString()}) লিখুন → রেফারেন্সে আপনার
+                        মোবাইল নম্বর দিন → পিন দিয়ে পেমেন্ট সম্পন্ন করে TrxID কপি করুন।
+                      </>
+                    ) : (
+                      <>
+                        <strong>Instructions:</strong> Open{' '}
+                        {manualMethod === 'bkash'
+                          ? 'bKash App → "Make Payment"'
+                          : 'Nagad App → "Merchant Pay"'}{' '}
+                        → Enter merchant number above → Enter total amount (BDT{' '}
+                        {(selectedProduct.prices.BD / 100).toLocaleString()}) → Use your mobile
+                        number as reference → Enter PIN → Copy TrxID.
+                      </>
+                    )}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className="block text-[11px] font-bold text-[#444] uppercase">
-                      Sender Mobile Number
+                      {isBn ? 'প্রেরকের মোবাইল নম্বর' : 'Sender Mobile Number'}
                     </label>
                     <input
                       type="tel"
@@ -298,7 +350,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-[#444] uppercase">
-                      Transaction ID (TrxID)
+                      {isBn ? 'ট্রানজেকশন আইডি (TrxID)' : 'Transaction ID (TrxID)'}
                     </label>
                     <input
                       type="text"
@@ -333,11 +385,19 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
               <span>
                 {isPending
                   ? paymentTab === 'sslcommerz'
-                    ? 'Redirecting to Gateway...'
-                    : 'Submitting TrxID...'
+                    ? isBn
+                      ? 'গেটওয়েতে নিয়ে যাওয়া হচ্ছে...'
+                      : 'Redirecting to Gateway...'
+                    : isBn
+                      ? 'TrxID জমা দেওয়া হচ্ছে...'
+                      : 'Submitting TrxID...'
                   : paymentTab === 'sslcommerz'
-                  ? 'Pay with SSLCommerz'
-                  : 'Submit Manual TrxID for Verification'}
+                    ? isBn
+                      ? 'SSLCommerz দিয়ে পেমেন্ট করুন'
+                      : 'Pay with SSLCommerz'
+                    : isBn
+                      ? 'যাচাইয়ের জন্য ম্যানুয়াল TrxID জমা দিন'
+                      : 'Submit Manual TrxID for Verification'}
               </span>
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -349,12 +409,14 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
       <div className="space-y-6 lg:col-span-5">
         <div className="sticky top-24 rounded-xl border border-border bg-surface p-6 shadow-xs">
           <h3 className="border-b border-border pb-3 text-sm font-bold tracking-tight text-fg">
-            Order Summary
+            {isBn ? 'অর্ডার সারসংক্ষেপ' : 'Order Summary'}
           </h3>
 
           {/* Product Picker */}
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-fg-muted">Select Plan / Package:</label>
+            <label className="block text-xs font-semibold text-fg-muted">
+              {isBn ? 'প্ল্যান / প্যাকেজ নির্বাচন করুন:' : 'Select Plan / Package:'}
+            </label>
             <select
               value={selectedProduct.slug}
               onChange={(e) => handleProductChange(e.target.value)}
@@ -372,45 +434,74 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
           <div className="mt-6 space-y-2 border-b border-border pb-6 text-xs text-fg-muted">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Full Computer-Based Mock Test Engine</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
               <span>
-                {selectedProduct.allowances.ai_credits} AI Writing / AWA Rubric Evaluations
+                {isBn
+                  ? 'পূর্ণাঙ্গ কম্পিউটার-ভিত্তিক মক টেস্ট ইঞ্জিন'
+                  : 'Full Computer-Based Mock Test Engine'}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              <span>{selectedProduct.allowances.full_mocks} Full Adaptive Mock Tests</span>
+              <span>
+                {isBn
+                  ? `${selectedProduct.allowances.ai_credits}টি এআই রাইটিং / AWA রুব্রিক মূল্যায়ন`
+                  : `${selectedProduct.allowances.ai_credits} AI Writing / AWA Rubric Evaluations`}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-              <span>FSRS Spaced-Repetition Active Recall Flashcards</span>
+              <span>
+                {isBn
+                  ? `${selectedProduct.allowances.full_mocks}টি পূর্ণাঙ্গ অ্যাডাপটিভ মক টেস্ট`
+                  : `${selectedProduct.allowances.full_mocks} Full Adaptive Mock Tests`}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+              <span>
+                {isBn
+                  ? 'FSRS স্পেসড-রিপিটিশন অ্যাক্টিভ রিকল ফ্ল্যাশকার্ড'
+                  : 'FSRS Spaced-Repetition Active Recall Flashcards'}
+              </span>
             </div>
           </div>
 
           {/* Price Breakdown */}
           <div className="mt-6 space-y-2 text-xs">
             <div className="flex justify-between text-fg-muted">
-              <span>Base Subtotal:</span>
-              <span>BDT {(basePriceMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span>{isBn ? 'মূল মূল্য (ভ্যাট ব্যতীত):' : 'Base Subtotal:'}</span>
+              <span>
+                BDT {(basePriceMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
             </div>
             <div className="flex justify-between text-fg-muted">
-              <span>15% BD VAT (Mushak 6.3 Included):</span>
-              <span>BDT {(vatMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span>
+                {isBn
+                  ? '১৫% বাংলাদেশ ভ্যাট (মূসক ৬.৩ অন্তর্ভুক্ত):'
+                  : '15% BD VAT (Mushak 6.3 Included):'}
+              </span>
+              <span>
+                BDT {(vatMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+              </span>
             </div>
             <div className="flex justify-between border-t border-border pt-3 text-base font-extrabold text-fg">
-              <span>Grand Total:</span>
+              <span>{isBn ? 'সর্বমোট পরিশোধযোগ্য:' : 'Grand Total:'}</span>
               <span className="text-accent">
-                BDT {(selectedProduct.prices.BD / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                BDT{' '}
+                {(selectedProduct.prices.BD / 100).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                })}
               </span>
             </div>
           </div>
 
           <div className="mt-6 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-800 dark:text-emerald-300">
             <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-            <span>100% refund within 7 days if less than 20% of course content is consumed.</span>
+            <span>
+              {isBn
+                ? 'কোর্সের ২০%-এর কম সম্পন্ন হলে ৭ দিনের মধ্যে ১০০% মানি-ব্যাক গ্যারান্টি।'
+                : '100% refund within 7 days if less than 20% of course content is consumed.'}
+            </span>
           </div>
         </div>
       </div>

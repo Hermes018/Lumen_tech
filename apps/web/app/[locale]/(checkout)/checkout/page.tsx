@@ -1,4 +1,4 @@
-/** @purpose Checkout payment page with plan preselection, 15% BD VAT breakdown, and SSLCommerz gateway integration */
+/** @purpose Checkout payment page with plan preselection, 15% BD VAT breakdown, and SSLCommerz gateway integration (P2.6.1 Bilingual) */
 
 import React from 'react';
 import { CANONICAL_PRODUCTS, type ProductDefinition } from '@lumen/core';
@@ -52,25 +52,31 @@ function resolveProduct(planParam?: string): ProductDefinition {
 }
 
 export default async function CheckoutPage({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ plan?: string; product?: string }>;
 }) {
-  const params = await searchParams;
-  const initialProduct = resolveProduct(params.plan || params.product);
+  const { locale } = await params;
+  const resolvedSearchParams = await searchParams;
+  const isBn = locale === 'bn';
+  const initialProduct = resolveProduct(resolvedSearchParams.plan || resolvedSearchParams.product);
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-locale={locale}>
       <React.Suspense
         fallback={
           <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
             <div className="flex h-64 items-center justify-center rounded-xl border border-border bg-surface">
-              <span className="font-mono text-sm text-fg-muted">Loading checkout session...</span>
+              <span className="font-mono text-sm text-fg-muted">
+                {isBn ? 'চেকআউট সেশন লোড হচ্ছে...' : 'Loading checkout session...'}
+              </span>
             </div>
           </div>
         }
       >
-        <CheckoutClient initialProduct={initialProduct} />
+        <CheckoutClient initialProduct={initialProduct} locale={isBn ? 'bn' : 'en'} />
       </React.Suspense>
     </div>
   );

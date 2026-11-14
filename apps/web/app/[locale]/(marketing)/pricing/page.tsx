@@ -1,13 +1,10 @@
-/** @purpose Interactive Honest Pricing Page with tier matrices, regional switcher, bKash installments modal, and pass packs (docs/17) */
+/** @purpose Interactive Honest Pricing Page with tier matrices, regional switcher, bKash installments modal, and pass packs (docs/17, P2.6.1 Bilingual) */
 'use client';
 
 import * as React from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Link } from '@/src/i18n/routing';
-import {
-  type Region,
-  getInstallmentSchedule,
-} from '@lumen/core';
+import { type Region, getInstallmentSchedule } from '@lumen/core';
 import {
   Button,
   Badge,
@@ -40,16 +37,21 @@ type ExamType = 'gre' | 'ielts_academic' | 'ielts_gt';
 interface TierData {
   slug: string;
   name: string;
+  nameBn: string;
   tier: 'free' | 'core' | 'plus' | 'live' | 'crash' | 'mentor';
   badge?: string;
+  badgeBn?: string;
   popular?: boolean;
   priceBD: string;
   priceA: string;
   priceB: string;
   priceC: string;
   duration: string;
+  durationBn: string;
   description: string;
+  descriptionBn: string;
   perks: string[];
+  perksBn: string[];
   hasInstallments?: boolean;
 }
 
@@ -58,13 +60,16 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
     {
       slug: 'gre-free',
       name: 'Free Diagnostic',
+      nameBn: 'ফ্রি ডায়াগনস্টিক',
       tier: 'free',
-      priceBD: '৳ 0',
+      priceBD: '৳ ০',
       priceA: '$0',
       priceB: '$0',
       priceC: '$0',
       duration: 'Lifetime',
+      durationBn: 'আজীবন',
       description: 'Find your baseline with our authentic CBT diagnostic.',
+      descriptionBn: 'আমাদের প্রামাণিক সিবিটি ডায়াগনস্টিকের মাধ্যমে আপনার বর্তমান দক্ষতা যাচাই করুন।',
       perks: [
         '1 Express Diagnostic Mock (15 min)',
         'Rasch 1PL Ability Score Estimate',
@@ -73,17 +78,28 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         '1 AI Evaluation Credit / month',
         'Community Access (Discord & FB)',
       ],
+      perksBn: [
+        '১টি এক্সপ্রেস ডায়াগনস্টিক মক টেস্ট (১৫ মিনিট)',
+        'Rasch 1PL অ্যাবিলিটি স্কোর প্রাক্কলন',
+        'শীর্ষ ডিস্ট্রাক্টর ট্র্যাপ ডায়াগনস্টিকস',
+        'সাইন-আপেই ২টি এআই ইভ্যালুয়েশন ক্রেডিট',
+        'প্রতি মাসে ১টি ফ্রি এআই ইভ্যালুয়েশন ক্রেডিট',
+        'কমিউনিটি অ্যাক্সেস (ডিসকর্ড ও ফেসবুক)',
+      ],
     },
     {
       slug: 'gre-core',
       name: 'GRE Core',
+      nameBn: 'জিআরই কোর (GRE Core)',
       tier: 'core',
-      priceBD: '৳ 5,990',
+      priceBD: '৳ ৫,৯৯০',
       priceA: '$149',
       priceB: '$89',
       priceC: '$59',
       duration: '6 Months (183 days)',
+      durationBn: '৬ মাস (১৮৩ দিন)',
       description: 'The complete self-paced section-adaptive curriculum.',
+      descriptionBn: 'নিজের গতিতে শেখার জন্য সম্পূর্ণ সেকশন-অ্যাডাপটিভ পাঠ্যক্রম।',
       perks: [
         '4 Full Section-Adaptive CBT Mocks',
         '3-Tier Progressive Hint Ladders',
@@ -95,19 +111,34 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'Official Certificate of Completion',
         '7-Day Money-Back Guarantee',
       ],
+      perksBn: [
+        '৪টি পূর্ণাঙ্গ সেকশন-অ্যাডাপটিভ সিবিটি মক টেস্ট',
+        '৩-ধাপের প্রগ্রেসিভ হিন্ট ল্যাডার',
+        'সম্পূর্ণ ডিস্ট্রাক্টর ট্র্যাপ বিশ্লেষণ',
+        'প্রেডিক্ট-ফার্স্ট ভার্বাল ডিকনস্ট্রাক্টর',
+        '১,৫০০+ শব্দের FSRS ভোক্যাব ইঞ্জিন',
+        '৬টি এআই ইভ্যালুয়েশন ক্রেডিট (AWA)',
+        'প্রতিদিন ৩০টি এআই টিউটর মেসেজ',
+        'অফিসিয়াল কোর্স সম্পন্ন সার্টিফিকেট',
+        '৭-দিনের মানি-ব্যাক গ্যারান্টি',
+      ],
     },
     {
       slug: 'gre-plus',
       name: 'GRE Plus',
+      nameBn: 'জিআরই প্লাস (GRE Plus)',
       tier: 'plus',
       popular: true,
       badge: 'Most Popular',
-      priceBD: '৳ 8,490',
+      badgeBn: 'সবচেয়ে জনপ্রিয়',
+      priceBD: '৳ ৮,৪৯০',
       priceA: '$199',
       priceB: '$119',
       priceC: '$79',
       duration: '6 Months (183 days)',
+      durationBn: '৬ মাস (১৮৩ দিন)',
       description: 'Mastery with AI Tutor, Human Reviews, and Target Promise.',
+      descriptionBn: 'এআই টিউটর, হিউম্যান এসে রিভিউ এবং টার্গেট প্রমিজসহ পূর্ণাঙ্গ প্রস্তুতি।',
       perks: [
         'Everything in GRE Core',
         '10 Full Section-Adaptive CBT Mocks',
@@ -119,17 +150,31 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'Target Promise (+5 Point Improvement)',
         '7-Day Money-Back Guarantee',
       ],
+      perksBn: [
+        'জিআরই কোর-এর সকল সুবিধা অন্তর্ভুক্ত',
+        '১০টি পূর্ণাঙ্গ সেকশন-অ্যাডাপটিভ সিবিটি মক টেস্ট',
+        'সিনিয়র গ্রেডার দ্বারা ২টি হিউম্যান AWA এসে রিভিউ',
+        'লিড ইন্সট্রাক্টরের সাথে সাপ্তাহিক লাইভ স্ট্র্যাটেজি Q&A',
+        'প্রতিদিন ১৫০টি এআই টিউটর মেসেজ',
+        '২০টি এআই ইভ্যালুয়েশন ক্রেডিট',
+        'অ্যাডাপটিভ রিশিডিউলিং স্টাডি প্ল্যান',
+        'টার্গেট প্রমিজ (+৫ পয়েন্ট উন্নতির গ্যারান্টি)',
+        '৭-দিনের মানি-ব্যাক গ্যারান্টি',
+      ],
     },
     {
       slug: 'gre-crash',
       name: 'GRE Live Crash',
+      nameBn: 'জিআরই লাইভ ক্র্যাশ ব্যাচ',
       tier: 'crash',
-      priceBD: '৳ 9,990',
+      priceBD: '৳ ৯,৯৯০',
       priceA: '$229',
       priceB: '$129',
       priceC: '$89',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: '4-week high-velocity live intensive for immediate test dates.',
+      descriptionBn: 'আসন্ন পরীক্ষার তারিখের জন্য ৪-সপ্তাহের দ্রুতগতির লাইভ ইনটেনসিভ ব্যাচ।',
       hasInstallments: true,
       perks: [
         '12 Intensive Live Zoom Classes (4 weeks)',
@@ -139,17 +184,28 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 2-Part Installment Available',
         'Refundable before Class 2',
       ],
+      perksBn: [
+        '১২টি ইনটেনসিভ লাইভ জুম ক্লাস (৪ সপ্তাহ)',
+        'জিআরই কোর সেলফ-পেসড পাথের সকল সুবিধা',
+        '১০টি পূর্ণাঙ্গ সেকশন-অ্যাডাপটিভ মক টেস্ট',
+        '২টি হিউম্যান AWA এসে রিভিউ',
+        'বিকাশে ২-কিস্তিতে পরিশোধের সুবিধা',
+        '২য় ক্লাসের আগে সম্পূর্ণ রিফান্ডযোগ্য',
+      ],
     },
     {
       slug: 'gre-live',
       name: 'GRE Live Cohort',
+      nameBn: 'জিআরই লাইভ কোহর্ট ব্যাচ',
       tier: 'live',
-      priceBD: '৳ 12,990',
+      priceBD: '৳ ১২,৯৯০',
       priceA: '$299',
       priceB: '$179',
       priceC: '$119',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: '8-week live cohort with expert instructors and peer problem clinics.',
+      descriptionBn: 'অভিজ্ঞ ইন্সট্রাক্টর ও প্রবলেম ক্লিনিকসহ ৮-সপ্তাহের পূর্ণাঙ্গ লাইভ ব্যাচ।',
       hasInstallments: true,
       perks: [
         '24 Interactive Live Masterclasses (8 weeks)',
@@ -160,17 +216,29 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 2 or 3-Part Installment Available',
         'Full Refund before Class 3',
       ],
+      perksBn: [
+        '২৪টি ইন্টারেক্টিভ লাইভ মাস্টারক্লাস (৮ সপ্তাহ)',
+        'পূর্ণাঙ্গ প্লাস লাইব্রেরি ও অ্যাডাপটিভ ইঞ্জিন অ্যাক্সেস',
+        'রুব্রিকসহ ৪টি হিউম্যান AWA এসে রিভিউ',
+        '১০টি সেকশন-অ্যাডাপটিভ পূর্ণাঙ্গ মক টেস্ট',
+        'ছোট গ্রুপের প্রবলেম ক্লিনিক (সর্বোচ্চ ৪০ জন)',
+        'বিকাশে ২ বা ৩ কিস্তিতে পরিশোধের সুবিধা',
+        '৩য় ক্লাসের আগে সম্পূর্ণ রিফান্ডযোগ্য',
+      ],
     },
     {
       slug: 'gre-mentor',
       name: 'GRE 1:1 Mentor',
+      nameBn: 'জিআরই ১:১ মেন্টরশিপ',
       tier: 'mentor',
-      priceBD: '৳ 19,990',
+      priceBD: '৳ ১৯,৯৯০',
       priceA: '$399',
       priceB: '$249',
       priceC: '$169',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: 'Private 1:1 mentorship and custom graduate school guidance.',
+      descriptionBn: 'ব্যক্তিগত ১:১ মেন্টরশিপ এবং কাস্টম গ্র্যাজুয়েট স্কুল অ্যাডমিশন গাইডেন্স।',
       hasInstallments: true,
       perks: [
         'Everything in GRE Live Cohort',
@@ -180,19 +248,30 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 3-Part Installment Schedule',
         'Progress Promise Guarantee',
       ],
+      perksBn: [
+        'জিআরই লাইভ কোহর্ট-এর সকল সুবিধা',
+        '৩টি ব্যক্তিগত ৪৫-মিনিটের ১:১ মেন্টরিং সেশন',
+        '৩৩৫+ স্কোরারদের দ্বারা ৬টি হিউম্যান AWA রিভিউ',
+        'কাস্টম SOP ও গ্র্যাজুয়েট স্কুল অ্যালাইনমেন্ট রিভিউ',
+        'বিকাশে ৩-কিস্তিতে পরিশোধের সুবিধা',
+        'প্রগ্রেস প্রমিজ গ্যারান্টি',
+      ],
     },
   ],
   ielts_academic: [
     {
       slug: 'ielts-academic-free',
       name: 'Free Diagnostic',
+      nameBn: 'ফ্রি ডায়াগনস্টিক',
       tier: 'free',
-      priceBD: '৳ 0',
+      priceBD: '৳ ০',
       priceA: '$0',
       priceB: '$0',
       priceC: '$0',
       duration: 'Lifetime',
+      durationBn: 'আজীবন',
       description: 'Test your initial IELTS band level across skills.',
+      descriptionBn: '৪টি স্কিলে আপনার প্রাথমিক আইইএলটিএস ব্যান্ড লেভেল যাচাই করুন।',
       perks: [
         '1 CD-IELTS Sectional Diagnostic Mock',
         'Instant Band Score Estimation (1.0-9.0)',
@@ -200,17 +279,27 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         '1 AI Evaluation Credit / month',
         'Community Discord & Facebook Group',
       ],
+      perksBn: [
+        '১টি সিডি-আইইএলটিএস সেকশনাল ডায়াগনস্টিক মক',
+        'তাৎক্ষণিক ব্যান্ড স্কোর প্রাক্কলন (১.০-৯.০)',
+        'সাইন-আপেই ২টি এআই রাইটিং ও স্পিকিং ক্রেডিট',
+        'প্রতি মাসে ১টি ফ্রি এআই ইভ্যালুয়েশন ক্রেডিট',
+        'কমিউনিটি ডিসকর্ড ও ফেসবুক গ্রুপ',
+      ],
     },
     {
       slug: 'ielts-academic-core',
       name: 'IELTS Academic Core',
+      nameBn: 'আইইএলটিএস একাডেমিক কোর',
       tier: 'core',
-      priceBD: '৳ 3,990',
+      priceBD: '৳ ৩,৯৯০',
       priceA: '$89',
       priceB: '$49',
       priceC: '$34',
       duration: '6 Months (183 days)',
+      durationBn: '৬ মাস (১৮৩ দিন)',
       description: 'Complete CD-IELTS preparation engine for self-study.',
+      descriptionBn: 'নিজে প্রস্তুতির জন্য সম্পূর্ণ সিডি-আইইএলটিএস প্রিপারেশন ইঞ্জিন।',
       perks: [
         '4 Full Computer-Delivered Mocks',
         'Authentic Single-Play Listening Stream',
@@ -221,19 +310,33 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'Official Course Certificate',
         '7-Day Money-Back Guarantee',
       ],
+      perksBn: [
+        '৪টি পূর্ণাঙ্গ কম্পিউটার-ডেলিভার্ড মক টেস্ট',
+        'প্রামাণিক সিঙ্গেল-প্লে লিসেনিং অডিও স্ট্রিম',
+        'হাইলাইটারসহ স্প্লিট-পেইন রিডিং ওয়ার্কবেঞ্চ',
+        '১০টি এআই রাইটিং ও স্পিকিং ইভ্যালুয়েশন ক্রেডিট',
+        'প্রতিদিন ৩০টি এআই টিউটর মেসেজ',
+        '১২-সপ্তাহের স্টাডি প্ল্যান',
+        'অফিসিয়াল কোর্স সার্টিফিকেট',
+        '৭-দিনের মানি-ব্যাক গ্যারান্টি',
+      ],
     },
     {
       slug: 'ielts-academic-plus',
       name: 'IELTS Academic Plus',
+      nameBn: 'আইইএলটিএস একাডেমিক প্লাস',
       tier: 'plus',
       popular: true,
       badge: 'Best Value',
-      priceBD: '৳ 6,490',
+      badgeBn: 'সেরা সাশ্রয়ী প্ল্যান',
+      priceBD: '৳ ৬,৪৯০',
       priceA: '$149',
       priceB: '$89',
       priceC: '$59',
       duration: '6 Months (183 days)',
+      durationBn: '৬ মাস (১৮৩ দিন)',
       description: 'Mastery with 2 Human Essay Reviews and Weekly Live Q&A.',
+      descriptionBn: '২টি হিউম্যান এসে রিভিউ এবং সাপ্তাহিক লাইভ Q&A-সহ পূর্ণাঙ্গ প্রস্তুতি।',
       perks: [
         'Everything in IELTS Core',
         '10 Full CD-IELTS Mocks (Listening/Reading/Writing/Speaking)',
@@ -245,17 +348,31 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'Target Promise (Band 7.0+ Guarantee)',
         '7-Day Money-Back Guarantee',
       ],
+      perksBn: [
+        'আইইএলটিএস কোর-এর সকল সুবিধা অন্তর্ভুক্ত',
+        '১০টি পূর্ণাঙ্গ সিডি-আইইএলটিএস মক (লিসেনিং/রিডিং/রাইটিং/স্পিকিং)',
+        'কেমব্রিজ রুব্রিক বিশ্লেষণসহ ২টি হিউম্যান এসে রিভিউ',
+        'ব্যান্ড ৮.৫ ইন্সট্রাক্টরের সাথে সাপ্তাহিক লাইভ Q&A',
+        '৪০টি এআই রাইটিং ও স্পিকিং ক্রেডিট',
+        'প্রতিদিন ১৫০টি এআই টিউটর মেসেজ',
+        'অ্যাডাপটিভ রিশিডিউলিং স্টাডি প্ল্যান',
+        'টার্গেট প্রমিজ (ব্যান্ড ৭.০+ গ্যারান্টি)',
+        '৭-দিনের মানি-ব্যাক গ্যারান্টি',
+      ],
     },
     {
       slug: 'ielts-academic-crash',
       name: 'IELTS Live Crash',
+      nameBn: 'আইইএলটিএস লাইভ ক্র্যাশ ব্যাচ',
       tier: 'crash',
-      priceBD: '৳ 9,990',
+      priceBD: '৳ ৯,৯৯০',
       priceA: '$229',
       priceB: '$129',
       priceC: '$89',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: '4-week intensive live batch for upcoming test bookings.',
+      descriptionBn: 'আসন্ন পরীক্ষার বুকিংয়ের জন্য ৪-সপ্তাহের ইনটেনসিভ লাইভ ব্যাচ।',
       hasInstallments: true,
       perks: [
         '16 Live Interactive Classes (4 weeks)',
@@ -265,17 +382,28 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 2-Part Installment Available',
         'Full Refund before Class 2',
       ],
+      perksBn: [
+        '১৬টি লাইভ ইন্টারেক্টিভ ক্লাস (৪ সপ্তাহ)',
+        '৩টি স্পিকিং ক্লাব সেশন',
+        '১০টি পূর্ণাঙ্গ সিডি-আইইএলটিএস মক টেস্ট',
+        '২টি হিউম্যান এসে রিভিউ + ১টি স্পিকিং মক',
+        'বিকাশে ২-কিস্তিতে পরিশোধের সুবিধা',
+        '২য় ক্লাসের আগে সম্পূর্ণ রিফান্ডযোগ্য',
+      ],
     },
     {
       slug: 'ielts-academic-live',
       name: 'IELTS Live Cohort',
+      nameBn: 'আইইএলটিএস লাইভ কোহর্ট ব্যাচ',
       tier: 'live',
-      priceBD: '৳ 13,990',
+      priceBD: '৳ ১৩,৯৯০',
       priceA: '$299',
       priceB: '$179',
       priceC: '$119',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: '12-week comprehensive live training with human speaking mocks.',
+      descriptionBn: 'হিউম্যান স্পিকিং মকসহ ১২-সপ্তাহের পূর্ণাঙ্গ লাইভ প্রশিক্ষণ।',
       hasInstallments: true,
       perks: [
         '36 Live Sessions (Regular, Weekend, or Evening)',
@@ -285,17 +413,28 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 2 or 3-Part Installment (৳ 5,600 / ৳ 4,200 / ৳ 4,190)',
         'Full Refund before Class 3',
       ],
+      perksBn: [
+        '৩৬টি লাইভ সেশন (রেগুলার, উইকেন্ড বা ইভনিং ব্যাচ)',
+        'পূর্ণাঙ্গ প্লাস লাইব্রেরি ও অ্যাডাপটিভ মক অ্যাক্সেস',
+        '৪টি হিউম্যান এসে রিভিউ + ২টি হিউম্যান স্পিকিং মক',
+        '৬টি স্পিকিং ক্লাব সেশন',
+        'বিকাশে ২ বা ৩ কিস্তি সুবিধা (৳ ৫,৬০০ / ৳ ৪,২০০ / ৳ ৪,১৯০)',
+        '৩য় ক্লাসের আগে সম্পূর্ণ রিফান্ডযোগ্য',
+      ],
     },
     {
       slug: 'ielts-academic-mentor',
       name: 'IELTS 1:1 Mentor',
+      nameBn: 'আইইএলটিএস ১:১ মেন্টরশিপ',
       tier: 'mentor',
-      priceBD: '৳ 19,990',
+      priceBD: '৳ ১৯,৯৯০',
       priceA: '$399',
       priceB: '$249',
       priceC: '$169',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: 'Private 1:1 coaching with IELTS 8.5+ mentors.',
+      descriptionBn: 'ব্যান্ড ৮.৫+ মেন্টরদের সাথে ব্যক্তিগত ১:১ কোচিং।',
       hasInstallments: true,
       perks: [
         'Everything in IELTS Live Cohort',
@@ -305,36 +444,56 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 3-Part Installment (৳ 8,000 / ৳ 6,000 / ৳ 5,990)',
         'Progress Promise Guarantee',
       ],
+      perksBn: [
+        'আইইএলটিএস লাইভ কোহর্ট-এর সকল সুবিধা',
+        'লিড ইন্সট্রাক্টরের সাথে ৩টি ৪৫-মিনিটের ১:১ সেশন',
+        '৬টি হিউম্যান এসে রিভিউ + ৩টি হিউম্যান স্পিকিং মক',
+        'কাস্টম ইউনিভার্সিটি অ্যাডমিশন গাইডেন্স',
+        'বিকাশে ৩-কিস্তি সুবিধা (৳ ৮,০০০ / ৳ ৬,০০০ / ৳ ৫,৯৯০)',
+        'প্রগ্রেস প্রমিজ গ্যারান্টি',
+      ],
     },
   ],
   ielts_gt: [
     {
       slug: 'ielts-gt-free',
       name: 'Free Diagnostic',
+      nameBn: 'ফ্রি ডায়াগনস্টিক',
       tier: 'free',
-      priceBD: '৳ 0',
+      priceBD: '৳ ০',
       priceA: '$0',
       priceB: '$0',
       priceC: '$0',
       duration: 'Lifetime',
+      durationBn: 'আজীবন',
       description: 'General Training diagnostic for immigration candidates.',
+      descriptionBn: 'ইমিগ্রেশন প্রার্থীদের জন্য জেনারেল ট্রেনিং ডায়াগনস্টিক।',
       perks: [
         '1 GT Sectional Diagnostic Mock',
         'Instant Band Score Estimation',
         '2 AI Writing & Speaking Credits',
         'Community Access',
       ],
+      perksBn: [
+        '১টি জিটি সেকশনাল ডায়াগনস্টিক মক',
+        'তাৎক্ষণিক ব্যান্ড স্কোর প্রাক্কলন',
+        '২টি এআই রাইটিং ও স্পিকিং ক্রেডিট',
+        'কমিউনিটি অ্যাক্সেস',
+      ],
     },
     {
       slug: 'ielts-gt-core',
       name: 'IELTS GT Core',
+      nameBn: 'আইইএলটিএস জিটি কোর',
       tier: 'core',
-      priceBD: '৳ 3,490',
+      priceBD: '৳ ৩,৪৯০',
       priceA: '$79',
       priceB: '$49',
       priceC: '$29.99',
       duration: '6 Months (183 days)',
+      durationBn: '৬ মাস (১৮৩ দিন)',
       description: 'Tailored for Express Entry & Canada/Australia PR seekers.',
+      descriptionBn: 'এক্সপ্রেস এন্ট্রি এবং কানাডা/অস্ট্রেলিয়া পিআর প্রত্যাশীদের জন্য বিশেষভাবে তৈরি।',
       perks: [
         '4 Full Computer-Delivered GT Mocks',
         'GT Letter Writing & Workplace Reading modules',
@@ -343,19 +502,31 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'Official Course Certificate',
         '7-Day Money-Back Guarantee',
       ],
+      perksBn: [
+        '৪টি পূর্ণাঙ্গ কম্পিউটার-ডেলিভার্ড জিটি মক টেস্ট',
+        'জিটি লেটার রাইটিং ও ওয়ার্কপ্লেস রিডিং মডিউল',
+        '১০টি এআই ইভ্যালুয়েশন ক্রেডিট',
+        'প্রতিদিন ৩০টি এআই টিউটর মেসেজ',
+        'অফিসিয়াল কোর্স সার্টিফিকেট',
+        '৭-দিনের মানি-ব্যাক গ্যারান্টি',
+      ],
     },
     {
       slug: 'ielts-gt-plus',
       name: 'IELTS GT Plus',
+      nameBn: 'আইইএলটিএস জিটি প্লাস',
       tier: 'plus',
       popular: true,
       badge: 'PR Target CLB 9',
-      priceBD: '৳ 6,490',
+      badgeBn: 'পিআর টার্গেট CLB 9',
+      priceBD: '৳ ৬,৪৯০',
       priceA: '$149',
       priceB: '$89',
       priceC: '$59',
       duration: '6 Months (183 days)',
+      durationBn: '৬ মাস (১৮৩ দিন)',
       description: 'Mastery designed to hit the crucial CLB 9/10 PR points.',
+      descriptionBn: 'গুরুত্বপূর্ণ CLB 9/10 পিআর পয়েন্ট অর্জনের জন্য পূর্ণাঙ্গ প্রস্তুতি।',
       perks: [
         'Everything in IELTS GT Core',
         '10 Full CD-IELTS GT Mocks',
@@ -365,17 +536,29 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         '150 AI Tutor Messages / day',
         'Target Promise (CLB 9 Guarantee)',
       ],
+      perksBn: [
+        'আইইএলটিএস জিটি কোর-এর সকল সুবিধা',
+        '১০টি পূর্ণাঙ্গ সিডি-আইইএলটিএস জিটি মক টেস্ট',
+        'রুব্রিকসহ ২টি হিউম্যান লেটার/এসে রিভিউ',
+        'সাপ্তাহিক লাইভ ইমিগ্রেশন স্ট্র্যাটেজি Q&A',
+        '৪০টি এআই ক্রেডিট',
+        'প্রতিদিন ১৫০টি এআই টিউটর মেসেজ',
+        'টার্গেট প্রমিজ (CLB 9 গ্যারান্টি)',
+      ],
     },
     {
       slug: 'ielts-gt-live',
       name: 'IELTS GT Live Cohort',
+      nameBn: 'আইইএলটিএস জিটি লাইভ ব্যাচ',
       tier: 'live',
-      priceBD: '৳ 12,990',
+      priceBD: '৳ ১২,৯৯০',
       priceA: '$299',
       priceB: '$179',
       priceC: '$119',
       duration: '12 Months Access',
+      durationBn: '১২ মাসের অ্যাক্সেস',
       description: '12-week evening batch for working professionals.',
+      descriptionBn: 'চাকরিজীবী ও পেশাজীবীদের জন্য ১২-সপ্তাহের সান্ধ্যকালীন লাইভ ব্যাচ।',
       hasInstallments: true,
       perks: [
         '36 Live Evening Classes (after 8:30 PM)',
@@ -384,56 +567,99 @@ const PRICING_DATA: Record<ExamType, TierData[]> = {
         'bKash 2 or 3-Part Installment Available',
         'Full Refund before Class 3',
       ],
+      perksBn: [
+        '৩৬টি লাইভ সান্ধ্যকালীন ক্লাস (রাত ৮:৩০-এর পর)',
+        'পূর্ণাঙ্গ জিটি প্লাস লাইব্রেরি ও মক টেস্ট',
+        '৪টি হিউম্যান রাইটিং রিভিউ + ২টি হিউম্যান স্পিকিং মক',
+        'বিকাশে ২ বা ৩ কিস্তিতে পরিশোধের সুবিধা',
+        '৩য় ক্লাসের আগে সম্পূর্ণ রিফান্ডযোগ্য',
+      ],
     },
   ],
 };
 
-const ALL_ACCESS_PASSES = [
+interface AllAccessPassData {
+  slug: string;
+  name: string;
+  nameBn: string;
+  badge?: string;
+  badgeBn?: string;
+  priceBD: string;
+  priceA: string;
+  priceB: string;
+  priceC: string;
+  duration: string;
+  durationBn: string;
+  description: string;
+  descriptionBn: string;
+  features: string[];
+  featuresBn: string[];
+}
+
+const ALL_ACCESS_PASSES: AllAccessPassData[] = [
   {
     slug: 'pass-1m',
     name: '1-Month Pass',
-    priceBD: '৳ 1,190',
+    nameBn: '১-মাসের পাস',
+    priceBD: '৳ ১,১৯০',
     priceA: '$24.99',
     priceB: '$14.99',
     priceC: '$9.99',
     duration: '30 Days',
+    durationBn: '৩০ দিন',
     description: 'Quick sprint across GRE and IELTS mock test series.',
+    descriptionBn: 'জিআরই এবং আইইএলটিএস মক টেস্ট সিরিজে দ্রুত প্রস্তুতির জন্য।',
     features: ['10 AI Credits / month', '2 Full Mocks / month', 'Daily AI cap: 4', 'All test banks'],
+    featuresBn: ['মাসে ১০টি এআই ক্রেডিট', 'মাসে ২টি পূর্ণাঙ্গ মক', 'দৈনিক এআই সীমা: ৪', 'সকল প্রশ্ন ব্যাংক'],
   },
   {
     slug: 'pass-3m',
     name: '3-Month Pass',
+    nameBn: '৩-মাসের পাস',
     badge: 'Popular',
-    priceBD: '৳ 2,990',
+    badgeBn: 'জনপ্রিয়',
+    priceBD: '৳ ২,৯৯০',
     priceA: '$59',
     priceB: '$39',
     priceC: '$24.99',
     duration: '90 Days',
+    durationBn: '৯০ দিন',
     description: 'Breadth across all GRE & IELTS sections without lock-in.',
+    descriptionBn: 'কোনো দীর্ঘমেয়াদি লক-ইন ছাড়াই জিআরই ও আইইএলটিএসের সকল সেকশনে অ্যাক্সেস।',
     features: ['30 AI Credits total', '6 Full Mocks total', 'Daily AI cap: 4', '2 Concurrent devices'],
+    featuresBn: ['মোট ৩০টি এআই ক্রেডিট', 'মোট ৬টি পূর্ণাঙ্গ মক', 'দৈনিক এআই সীমা: ৪', '২টি ডিভাইসে ব্যবহারযোগ্য'],
   },
   {
     slug: 'pass-6m',
     name: '6-Month Pass',
-    priceBD: '৳ 4,490',
+    nameBn: '৬-মাসের পাস',
+    priceBD: '৳ ৪,৪৯০',
     priceA: '$99',
     priceB: '$59',
     priceC: '$39',
     duration: '183 Days',
+    durationBn: '১৮৩ দিন',
     description: 'Complete cross-exam preparation window.',
+    descriptionBn: 'উভয় পরীক্ষার পূর্ণাঙ্গ প্রস্তুতির জন্য আদর্শ সময়সীমা।',
     features: ['60 AI Credits total', '12 Full Mocks total', 'Daily AI cap: 4', '2 Concurrent devices'],
+    featuresBn: ['মোট ৬০টি এআই ক্রেডিট', 'মোট ১২টি পূর্ণাঙ্গ মক', 'দৈনিক এআই সীমা: ৪', '২টি ডিভাইসে ব্যবহারযোগ্য'],
   },
   {
     slug: 'pass-12m',
     name: '12-Month Annual Pass',
+    nameBn: '১২-মাসের বার্ষিক পাস',
     badge: 'Best Long-Term',
-    priceBD: '৳ 6,990',
+    badgeBn: 'সেরা দীর্ঘমেয়াদি',
+    priceBD: '৳ ৬,৯৯০',
     priceA: '$149',
     priceB: '$89',
     priceC: '$59',
     duration: '365 Days',
+    durationBn: '৩৬৫ দিন',
     description: 'Full unconstrained platform breadth for serious study abroad prep.',
+    descriptionBn: 'উচ্চশিক্ষার দীর্ঘমেয়াদি প্রস্তুতির জন্য সম্পূর্ণ প্ল্যাটফর্মের অবাধ অ্যাক্সেস।',
     features: ['120 AI Credits total', '24 Full Mocks total', 'Daily AI cap: 4', '2 Concurrent devices'],
+    featuresBn: ['মোট ১২০টি এআই ক্রেডিট', 'মোট ২৪টি পূর্ণাঙ্গ মক', 'দৈনিক এআই সীমা: ৪', '২টি ডিভাইসে ব্যবহারযোগ্য'],
   },
 ];
 
@@ -441,27 +667,35 @@ const ADD_ON_PACKS = [
   {
     slug: 'ai-credits-10',
     name: '10 AI Evaluation Credits',
-    priceBD: '৳ 490',
+    nameBn: '১০টি এআই ইভ্যালুয়েশন ক্রেডিট',
+    priceBD: '৳ ৪৯০',
     priceUSD: '$4.99',
     description: 'Refill 10 instant Writing or Speaking evaluations. Never expires.',
+    descriptionBn: '১০টি তাৎক্ষণিক রাইটিং বা স্পিকিং মূল্যায়ন রিফিল করুন। মেয়াদ কখনো শেষ হয় না।',
   },
   {
     slug: 'mock-pack-4',
     name: '4 Adaptive CBT Mocks Pack',
-    priceBD: '৳ 990',
+    nameBn: '৪টি অ্যাডাপটিভ সিবিটি মক প্যাক',
+    priceBD: '৳ ৯৯০',
     priceUSD: '$9.99',
     description: '4 full section-adaptive GRE or CD-IELTS computer-delivered mocks.',
+    descriptionBn: '৪টি পূর্ণাঙ্গ সেকশন-অ্যাডাপটিভ জিআরই বা সিডি-আইইএলটিএস কম্পিউটার-ডেলিভার্ড মক টেস্ট।',
   },
   {
     slug: 'human-review-pack',
     name: 'Human Feedback Bundle',
-    priceBD: '৳ 1,490',
+    nameBn: 'হিউম্যান ফিডব্যাক বান্ডেল',
+    priceBD: '৳ ১,৪৯০',
     priceUSD: '$14.99',
     description: '2 detailed Essay Reviews with rubrics + 1 live 15-min Speaking Mock.',
+    descriptionBn: 'রুব্রিকসহ ২টি বিস্তারিত এসে রিভিউ + ১টি লাইভ ১৫-মিনিটের স্পিকিং মক।',
   },
 ];
 
 export default function PricingPage() {
+  const locale = useLocale();
+  const isBn = locale === 'bn';
   const tPricing = useTranslations('pricingPage');
   const [exam, setExam] = React.useState<ExamType>('gre');
   const [region, setRegion] = React.useState<Region>('BD');
@@ -505,7 +739,7 @@ export default function PricingPage() {
     : null;
 
   return (
-    <div className="flex flex-col items-center pb-20">
+    <div className="flex flex-col items-center pb-20" data-locale={locale}>
       {/* High-Contrast Oxford Navy Hero Banner (BUG-12) */}
       <section className="relative w-full overflow-hidden border-b border-slate-800 bg-slate-950 px-4 py-14 text-white sm:py-20">
         <div
@@ -530,15 +764,15 @@ export default function PricingPage() {
           <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-950/90 px-3 py-1 text-xs font-semibold text-indigo-200">
               <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400" />
-              130–170 Rasch IRT Adaptive
+              {isBn ? '১৩০–১৭০ Rasch IRT অ্যাডাপটিভ' : '130–170 Rasch IRT Adaptive'}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-950/90 px-3 py-1 text-xs font-semibold text-emerald-200">
               <Award className="h-3.5 w-3.5 text-emerald-400" />
-              Band 0–9 Official Rubric AI
+              {isBn ? 'ব্যান্ড ০–৯ অফিসিয়াল রুব্রিক এআই' : 'Band 0–9 Official Rubric AI'}
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-200">
               <Receipt className="h-3.5 w-3.5 text-blue-400" />
-              Mushak 6.3 VAT Included
+              {isBn ? 'মূসক ৬.৩ ভ্যাট অন্তর্ভুক্ত' : 'Mushak 6.3 VAT Included'}
             </span>
           </div>
 
@@ -546,10 +780,30 @@ export default function PricingPage() {
           <div className="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
             <span className="text-slate-300 font-medium">{tPricing('currencyRegion')}</span>
             {[
-              { id: 'BD', label: 'BD (৳ BDT - 15% VAT incl.)' },
-              { id: 'A', label: 'Region A ($ USD - High Income)' },
-              { id: 'B', label: 'Region B ($ USD - Upper-Middle)' },
-              { id: 'C', label: 'Region C ($ USD - South Asia / Emerging)' },
+              {
+                id: 'BD',
+                label: isBn
+                  ? 'বাংলাদেশ (৳ BDT - ১৫% ভ্যাটসহ)'
+                  : 'BD (৳ BDT - 15% VAT incl.)',
+              },
+              {
+                id: 'A',
+                label: isBn
+                  ? 'অঞ্চল A ($ USD - উচ্চ আয়)'
+                  : 'Region A ($ USD - High Income)',
+              },
+              {
+                id: 'B',
+                label: isBn
+                  ? 'অঞ্চল B ($ USD - উচ্চ-মধ্যম)'
+                  : 'Region B ($ USD - Upper-Middle)',
+              },
+              {
+                id: 'C',
+                label: isBn
+                  ? 'অঞ্চল C ($ USD - দক্ষিণ এশিয়া)'
+                  : 'Region C ($ USD - South Asia / Emerging)',
+              },
             ].map((reg) => (
               <button
                 key={reg.id}
@@ -590,7 +844,7 @@ export default function PricingPage() {
 
           {/* Prominent Bangladeshi Payment & Trust Bar */}
           <div className="pt-4">
-            <BangladeshPaymentTrustBar variant="dark" />
+            <BangladeshPaymentTrustBar variant="dark" locale={isBn ? 'bn' : 'en'} />
           </div>
         </div>
       </section>
@@ -601,6 +855,11 @@ export default function PricingPage() {
           {currentTiers.map((tier) => {
             const displayPrice = getDisplayPrice(tier);
             const isFree = tier.tier === 'free';
+            const tierName = isBn ? tier.nameBn : tier.name;
+            const tierDuration = isBn ? tier.durationBn : tier.duration;
+            const tierDesc = isBn ? tier.descriptionBn : tier.description;
+            const tierPerks = isBn ? tier.perksBn : tier.perks;
+            const tierBadge = isBn ? tier.badgeBn ?? tier.badge : tier.badge;
 
             return (
               <Card
@@ -616,17 +875,17 @@ export default function PricingPage() {
                   <div className="bg-indigo-950 text-white px-6 py-2.5 flex items-center justify-between text-xs font-bold uppercase tracking-wider">
                     <span className="flex items-center gap-1.5">
                       <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                      {tier.badge ?? 'Most Popular'}
+                      {tierBadge ?? (isBn ? 'সবচেয়ে জনপ্রিয়' : 'Most Popular')}
                     </span>
                     <span className="rounded-full bg-blue-600/40 px-2.5 py-0.5 text-[10px] font-semibold text-blue-100">
-                      Target Promise Included
+                      {isBn ? 'টার্গেট প্রমিজ অন্তর্ভুক্ত' : 'Target Promise Included'}
                     </span>
                   </div>
                 ) : (
-                  tier.badge && (
+                  tierBadge && (
                     <div className="absolute top-3 right-4">
                       <Badge variant="default" className="text-[11px] font-bold">
-                        {tier.badge}
+                        {tierBadge}
                       </Badge>
                     </div>
                   )
@@ -634,18 +893,20 @@ export default function PricingPage() {
 
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-xl font-bold text-slate-950">{tier.name}</CardTitle>
+                    <CardTitle className="text-xl font-bold text-slate-950">{tierName}</CardTitle>
                     <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                      {tier.duration}
+                      {tierDuration}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 mt-1 min-h-[32px]">{tier.description}</p>
+                  <p className="text-xs text-slate-600 mt-1 min-h-[32px]">{tierDesc}</p>
                   <div className="mt-4 pt-2">
                     <div className="flex items-baseline gap-1.5">
                       <span className="text-3xl font-extrabold text-slate-950">{displayPrice}</span>
                       {!isFree && region === 'BD' && (
                         <span className="text-[11px] font-medium text-slate-500">
-                          (15% VAT &amp; Mushak 6.3 incl.)
+                          {isBn
+                            ? '(১৫% ভ্যাট ও মূসক ৬.৩ অন্তর্ভুক্ত)'
+                            : '(15% VAT & Mushak 6.3 incl.)'}
                         </span>
                       )}
                     </div>
@@ -654,7 +915,7 @@ export default function PricingPage() {
 
                 <CardContent className="space-y-6 pt-0 flex-1 flex flex-col justify-between">
                   <div className="space-y-2.5 border-t border-slate-100 pt-4 text-xs text-slate-800">
-                    {tier.perks.map((perk, i) => (
+                    {tierPerks.map((perk, i) => (
                       <div key={i} className="flex items-start gap-2.5">
                         <span
                           className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full ${
@@ -674,7 +935,7 @@ export default function PricingPage() {
                     {isFree ? (
                       <Link href="/exam/diagnostic" className="block w-full">
                         <Button variant="outline" className="w-full font-semibold">
-                          Start Free Diagnostic
+                          {isBn ? 'ফ্রি ডায়াগনস্টিক শুরু করুন' : 'Start Free Diagnostic'}
                         </Button>
                       </Link>
                     ) : (
@@ -685,7 +946,8 @@ export default function PricingPage() {
                             tier.popular ? 'bg-indigo-950 text-white hover:bg-indigo-900 shadow-md' : ''
                           }`}
                         >
-                          Enroll Now <ArrowRight className="h-4 w-4" />
+                          {isBn ? 'এখনই ভর্তি হোন' : 'Enroll Now'}{' '}
+                          <ArrowRight className="h-4 w-4" />
                         </Button>
                       </Link>
                     )}
@@ -699,9 +961,15 @@ export default function PricingPage() {
                       >
                         <span className="flex items-center gap-1.5">
                           <Smartphone className="h-3.5 w-3.5 text-pink-600 shrink-0" />
-                          <span>bKash 2/3-Part 0% Split-Pay Available</span>
+                          <span>
+                            {isBn
+                              ? 'বিকাশ ২/৩-কিস্তি ০% স্প্লিট-পে সুবিধা রয়েছে'
+                              : 'bKash 2/3-Part 0% Split-Pay Available'}
+                          </span>
                         </span>
-                        <span className="text-pink-700 underline">Schedule &rarr;</span>
+                        <span className="text-pink-700 underline">
+                          {isBn ? 'কিস্তির তালিকা →' : 'Schedule →'}
+                        </span>
                       </button>
                     )}
                   </div>
@@ -715,12 +983,15 @@ export default function PricingPage() {
         <div className="border-t border-border pt-16 space-y-8">
           <div className="text-center space-y-2 max-w-2xl mx-auto">
             <Badge variant="outline" className="border-accent text-accent text-xs">
-              Breadth Option
+              {isBn ? 'বিস্তৃত অনুশীলনের সুযোগ' : 'Breadth Option'}
             </Badge>
-            <h2 className="text-3xl font-extrabold text-fg">All-Access Passes</h2>
+            <h2 className="text-3xl font-extrabold text-fg">
+              {isBn ? 'অল-অ্যাক্সেস পাসসমূহ' : 'All-Access Passes'}
+            </h2>
             <p className="text-fg-muted text-sm leading-relaxed">
-              Preparing for multiple tests or just need open practice across our GRE and IELTS mock
-              libraries? Passes provide unconstrained practice without structured course lock-in.
+              {isBn
+                ? 'একাধিক পরীক্ষার প্রস্তুতি নিচ্ছেন অথবা আমাদের জিআরই ও আইইএলটিএস মক লাইব্রেরিতে উন্মুক্ত অনুশীলন করতে চান? অল-অ্যাক্সেস পাস আপনাকে কোনো নির্দিষ্ট কোর্সে সীমাবদ্ধ না রেখেই অবাধ অনুশীলনের সুযোগ দেয়।'
+                : 'Preparing for multiple tests or just need open practice across our GRE and IELTS mock libraries? Passes provide unconstrained practice without structured course lock-in.'}
             </p>
           </div>
 
@@ -729,20 +1000,26 @@ export default function PricingPage() {
               <Card key={pass.slug} className="border-border bg-surface flex flex-col justify-between">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-bold text-fg">{pass.name}</CardTitle>
+                    <CardTitle className="text-lg font-bold text-fg">
+                      {isBn ? pass.nameBn : pass.name}
+                    </CardTitle>
                     {pass.badge && (
                       <Badge variant="default" className="text-[10px]">
-                        {pass.badge}
+                        {isBn ? pass.badgeBn ?? pass.badge : pass.badge}
                       </Badge>
                     )}
                   </div>
                   <div className="text-2xl font-black text-accent mt-2">{getPassPrice(pass)}</div>
-                  <div className="text-xs text-fg-subtle">{pass.duration}</div>
+                  <div className="text-xs text-fg-subtle">
+                    {isBn ? pass.durationBn : pass.duration}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-0">
-                  <p className="text-xs text-fg-muted">{pass.description}</p>
+                  <p className="text-xs text-fg-muted">
+                    {isBn ? pass.descriptionBn : pass.description}
+                  </p>
                   <ul className="space-y-1.5 text-xs text-fg border-t border-border/60 pt-3">
-                    {pass.features.map((f, i) => (
+                    {(isBn ? pass.featuresBn : pass.features).map((f, i) => (
                       <li key={i} className="flex items-center gap-1.5">
                         <Check className="h-3.5 w-3.5 text-accent shrink-0" />
                         <span>{f}</span>
@@ -752,7 +1029,7 @@ export default function PricingPage() {
                   <div className="pt-2">
                     <Link href={`/checkout?plan=${pass.slug}`}>
                       <Button variant="outline" size="sm" className="w-full">
-                        Get Pass
+                        {isBn ? 'পাস নিন' : 'Get Pass'}
                       </Button>
                     </Link>
                   </div>
@@ -766,11 +1043,15 @@ export default function PricingPage() {
         <div className="border-t border-border pt-16 space-y-8">
           <div className="text-center space-y-2 max-w-2xl mx-auto">
             <Badge variant="outline" className="text-xs">
-              Credit Refills
+              {isBn ? 'ক্রেডিট রিফিল' : 'Credit Refills'}
             </Badge>
-            <h3 className="text-2xl font-bold text-fg">Add-on Packs</h3>
+            <h3 className="text-2xl font-bold text-fg">
+              {isBn ? 'অ্যাড-অন প্যাকসমূহ' : 'Add-on Packs'}
+            </h3>
             <p className="text-fg-muted text-sm">
-              Need extra AI evaluation credits or additional human essay reviews? Add packs to any tier.
+              {isBn
+                ? 'অতিরিক্ত এআই ইভ্যালুয়েশন ক্রেডিট বা বাড়তি হিউম্যান এসে রিভিউ প্রয়োজন? যেকোনো প্ল্যানের সাথে প্যাক যুক্ত করুন।'
+                : 'Need extra AI evaluation credits or additional human essay reviews? Add packs to any tier.'}
             </p>
           </div>
 
@@ -778,16 +1059,20 @@ export default function PricingPage() {
             {ADD_ON_PACKS.map((pack) => (
               <Card key={pack.slug} className="border-border bg-surface flex flex-col justify-between">
                 <CardHeader>
-                  <CardTitle className="text-base font-bold text-fg">{pack.name}</CardTitle>
+                  <CardTitle className="text-base font-bold text-fg">
+                    {isBn ? pack.nameBn : pack.name}
+                  </CardTitle>
                   <div className="text-xl font-extrabold text-accent mt-1">
                     {region === 'BD' ? pack.priceBD : pack.priceUSD}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <p className="text-xs text-fg-muted leading-relaxed">{pack.description}</p>
+                  <p className="text-xs text-fg-muted leading-relaxed">
+                    {isBn ? pack.descriptionBn : pack.description}
+                  </p>
                   <Link href={`/checkout?plan=${pack.slug}`}>
                     <Button variant="outline" size="sm" className="w-full">
-                      Add to Account
+                      {isBn ? 'অ্যাকাউন্টে যুক্ত করুন' : 'Add to Account'}
                     </Button>
                   </Link>
                 </CardContent>
@@ -800,41 +1085,50 @@ export default function PricingPage() {
         <div className="rounded-2xl border border-border bg-surface p-8 sm:p-10 space-y-6">
           <div className="text-center space-y-2">
             <h3 className="text-xl font-bold text-fg flex items-center justify-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-accent" /> Our Honest Pricing Guarantee
+              <ShieldCheck className="h-5 w-5 text-accent" />{' '}
+              {isBn ? 'আমাদের স্বচ্ছ মূল্যতালিকার প্রতিশ্রুতি' : 'Our Honest Pricing Guarantee'}
             </h3>
             <p className="text-fg-muted text-xs max-w-xl mx-auto">
-              We abide by the Bangladesh Digital Commerce Operation Guidelines 2021 and ethical
-              pricing standards.
+              {isBn
+                ? 'আমরা বাংলাদেশ ডিজিটাল কমার্স পরিচালনা নির্দেশিকা ২০২১ এবং নৈতিক মূল্য নির্ধারণ মানদণ্ড মেনে চলি।'
+                : 'We abide by the Bangladesh Digital Commerce Operation Guidelines 2021 and ethical pricing standards.'}
             </p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-3 text-xs text-fg">
             <div className="space-y-1 rounded-lg border border-border/70 bg-canvas p-4">
               <div className="font-semibold text-fg flex items-center gap-1.5">
-                <Clock className="h-4 w-4 text-accent" /> 7-Day Money-Back Guarantee
+                <Clock className="h-4 w-4 text-accent" />{' '}
+                {isBn ? '৭-দিনের মানি-ব্যাক গ্যারান্টি' : '7-Day Money-Back Guarantee'}
               </div>
               <p className="text-fg-muted leading-relaxed">
-                If you have completed &lt; 20% of course content and took &le; 1 full mock, receive a
-                100% full refund within 7 days. No questions asked.
+                {isBn
+                  ? 'আপনি যদি কোর্সের ২০%-এর কম সম্পন্ন করে থাকেন এবং সর্বোচ্চ ১টি মক টেস্ট দিয়ে থাকেন, তবে ৭ দিনের মধ্যে কোনো প্রশ্ন ছাড়াই ১০০% রিফান্ড পাবেন।'
+                  : 'If you have completed < 20% of course content and took ≤ 1 full mock, receive a 100% full refund within 7 days. No questions asked.'}
               </p>
             </div>
 
             <div className="space-y-1 rounded-lg border border-border/70 bg-canvas p-4">
               <div className="font-semibold text-fg flex items-center gap-1.5">
-                <CreditCard className="h-4 w-4 text-accent" /> Zero bKash Financing Fees
+                <CreditCard className="h-4 w-4 text-accent" />{' '}
+                {isBn ? 'বিকাশ কিস্তিতে কোনো অতিরিক্ত চার্জ নেই' : 'Zero bKash Financing Fees'}
               </div>
               <p className="text-fg-muted leading-relaxed">
-                Pay in 2 or 3 parts on Live and Mentor tiers. The sum of the parts exactly equals the
-                cash list price. No hidden interest or admin surcharge.
+                {isBn
+                  ? 'লাইভ এবং মেন্টর প্ল্যানে ২ বা ৩ কিস্তিতে পরিশোধ করুন। কিস্তিগুলোর যোগফল মূল তালিকার মূল্যের সমান—কোনো সুদ বা লুকানো চার্জ নেই।'
+                  : 'Pay in 2 or 3 parts on Live and Mentor tiers. The sum of the parts exactly equals the cash list price. No hidden interest or admin surcharge.'}
               </p>
             </div>
 
             <div className="space-y-1 rounded-lg border border-border/70 bg-canvas p-4">
               <div className="font-semibold text-fg flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4 text-accent" /> Banned Fake Strikethroughs
+                <Sparkles className="h-4 w-4 text-accent" />{' '}
+                {isBn ? 'ভুয়া ডিসকাউন্ট সম্পূর্ণ নিষিদ্ধ' : 'Banned Fake Strikethroughs'}
               </div>
               <p className="text-fg-muted leading-relaxed">
-                Discount strikethroughs are displayed only when the prior price was active for at least 28 consecutive days in the past 90 days.
+                {isBn
+                  ? 'বিগত ৯০ দিনের মধ্যে কমপক্ষে ২৮ দিন কোনো পূর্ববর্তী মূল্য কার্যকর থাকলেই কেবল ডিসকাউন্ট স্ট্রাইকথ্রু প্রদর্শিত হয়।'
+                  : 'Discount strikethroughs are displayed only when the prior price was active for at least 28 consecutive days in the past 90 days.'}
               </p>
             </div>
           </div>
@@ -849,10 +1143,13 @@ export default function PricingPage() {
             <DialogContent className="max-w-lg bg-surface border-border">
               <DialogHeader>
                 <DialogTitle className="text-lg font-bold text-fg flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-accent" /> bKash Installment Breakdown
+                  <CreditCard className="h-5 w-5 text-accent" />{' '}
+                  {isBn ? 'বিকাশ কিস্তির বিস্তারিত হিসাব' : 'bKash Installment Breakdown'}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-fg-muted">
-                  No financing or interest charge. The total equals the cash list price.
+                  {isBn
+                    ? 'কোনো সুদ বা অতিরিক্ত চার্জ নেই। কিস্তির মোট পরিমাণ নগদ মূল্যের সমান।'
+                    : 'No financing or interest charge. The total equals the cash list price.'}
                 </DialogDescription>
               </DialogHeader>
 
@@ -860,8 +1157,13 @@ export default function PricingPage() {
                 {activeInstallmentSchedule.threePart && (
                   <div className="rounded-xl border border-border bg-canvas p-4 space-y-3">
                     <div className="flex justify-between items-center text-sm font-bold text-fg">
-                      <span>3-Part Installment Schedule</span>
-                      <span className="text-accent">৳ {(activeInstallmentSchedule.threePart.totalMinor / 100).toLocaleString()} Total</span>
+                      <span>
+                        {isBn ? '৩-কিস্তির পরিশোধ সূচি' : '3-Part Installment Schedule'}
+                      </span>
+                      <span className="text-accent">
+                        ৳ {(activeInstallmentSchedule.threePart.totalMinor / 100).toLocaleString()}{' '}
+                        {isBn ? 'মোট' : 'Total'}
+                      </span>
                     </div>
                     <div className="space-y-2 text-xs">
                       {activeInstallmentSchedule.threePart.parts.map((part) => (
@@ -870,7 +1172,9 @@ export default function PricingPage() {
                           className="flex justify-between items-center border-b border-border/50 py-1.5"
                         >
                           <span className="text-fg-muted">{part.label}</span>
-                          <span className="font-mono font-semibold text-fg">{part.amountFormatted}</span>
+                          <span className="font-mono font-semibold text-fg">
+                            {part.amountFormatted}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -880,8 +1184,13 @@ export default function PricingPage() {
                 {activeInstallmentSchedule.twoPart && (
                   <div className="rounded-xl border border-border bg-canvas p-4 space-y-3">
                     <div className="flex justify-between items-center text-sm font-bold text-fg">
-                      <span>2-Part Installment Schedule</span>
-                      <span className="text-accent">৳ {(activeInstallmentSchedule.twoPart.totalMinor / 100).toLocaleString()} Total</span>
+                      <span>
+                        {isBn ? '২-কিস্তির পরিশোধ সূচি' : '2-Part Installment Schedule'}
+                      </span>
+                      <span className="text-accent">
+                        ৳ {(activeInstallmentSchedule.twoPart.totalMinor / 100).toLocaleString()}{' '}
+                        {isBn ? 'মোট' : 'Total'}
+                      </span>
                     </div>
                     <div className="space-y-2 text-xs">
                       {activeInstallmentSchedule.twoPart.parts.map((part) => (
@@ -890,7 +1199,9 @@ export default function PricingPage() {
                           className="flex justify-between items-center border-b border-border/50 py-1.5"
                         >
                           <span className="text-fg-muted">{part.label}</span>
-                          <span className="font-mono font-semibold text-fg">{part.amountFormatted}</span>
+                          <span className="font-mono font-semibold text-fg">
+                            {part.amountFormatted}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -898,8 +1209,9 @@ export default function PricingPage() {
                 )}
 
                 <div className="text-[11px] text-fg-subtle leading-relaxed">
-                  Note: A 3-day grace window applies after each installment due date before live class
-                  access is paused. Content library access remains active.
+                  {isBn
+                    ? 'দ্রষ্টব্য: প্রতিটি কিস্তির নির্ধারিত তারিখের পর ৩ দিনের গ্রেস পিরিয়ড প্রযোজ্য থাকে। এই সময়ে কনটেন্ট লাইব্রেরি অ্যাক্সেস সচল থাকবে।'
+                    : 'Note: A 3-day grace window applies after each installment due date before live class access is paused. Content library access remains active.'}
                 </div>
 
                 <div className="flex justify-end gap-3 pt-2">
@@ -908,10 +1220,12 @@ export default function PricingPage() {
                     size="sm"
                     onClick={() => setInstallmentModalTier(null)}
                   >
-                    Close
+                    {isBn ? 'বন্ধ করুন' : 'Close'}
                   </Button>
-                  <Link href={`/checkout?plan=${activeInstallmentSchedule.threePart?.productSlug || 'live'}`}>
-                    <Button size="sm">Proceed with bKash</Button>
+                  <Link
+                    href={`/checkout?plan=${activeInstallmentSchedule.threePart?.productSlug || 'live'}`}
+                  >
+                    <Button size="sm">{isBn ? 'বিকাশে এগিয়ে যান' : 'Proceed with bKash'}</Button>
                   </Link>
                 </div>
               </div>
