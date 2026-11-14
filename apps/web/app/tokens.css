@@ -1,9 +1,10 @@
 /** @purpose Institutional UI design tokens and typography classes for Lumen Academy */
 :root {
   color-scheme: light;
-  --bg: #FFFFFF;
-  --bg-warm: #FFF5F2;
-  --bg-tint: #FEF0EB;
+  --bg: #FAF8F5;
+  --surface-paper: #FDFCFA;
+  --bg-warm: #F3EFE6;
+  --bg-tint: #F5ECEA;
   --surface-translucent: rgba(255, 243, 238, 0.86);
   --brand: #C8102E;
   --brand-deep: #231116;
@@ -15,8 +16,13 @@
   --terracotta: #E04F26;
   --soft-btn: #FFE2D6;
   --focus: #D90429;
-  --hairline: #F2D6CE;
+  --hairline: #E6DFD5;
   --shadow-hard: 6px 6px 0px #231116;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .lumen-h1 {

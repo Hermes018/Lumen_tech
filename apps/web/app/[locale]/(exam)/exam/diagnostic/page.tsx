@@ -584,7 +584,7 @@ export default function DiagnosticExamPage() {
 
           {/* Estimated Scores Grid */}
           <div className="grid gap-6 sm:grid-cols-3 border-b border-[var(--hairline)] pb-8">
-            <div className="border border-[var(--hairline)] bg-white p-5">
+            <div className="border border-[var(--hairline)] bg-[var(--surface-paper)] p-5">
               <div className="text-xs font-bold text-[var(--text)]">
                 {isBnLocale ? 'আনুমানিক কোয়ান্ট (Quant)' : 'Estimated Quant'}
               </div>
@@ -598,7 +598,7 @@ export default function DiagnosticExamPage() {
               </div>
             </div>
 
-            <div className="border border-[var(--hairline)] bg-white p-5">
+            <div className="border border-[var(--hairline)] bg-[var(--surface-paper)] p-5">
               <div className="text-xs font-bold text-[var(--text)]">
                 {isBnLocale ? 'আনুমানিক ভার্বাল (Verbal)' : 'Estimated Verbal'}
               </div>
@@ -626,7 +626,7 @@ export default function DiagnosticExamPage() {
           </div>
 
           {/* Top Trap Archetype Callout */}
-          <div className="border-l-4 border-[var(--accent)] bg-white border border-[var(--hairline)] p-5 space-y-2">
+          <div className="border-l-4 border-[var(--accent)] bg-[var(--surface-paper)] border border-[var(--hairline)] p-5 space-y-2">
             <div className="flex items-center gap-2 text-[var(--brand-ink)] font-bold text-sm">
               <ShieldAlert className="h-5 w-5 text-[var(--accent)]" />
               <span>
@@ -641,7 +641,7 @@ export default function DiagnosticExamPage() {
           </div>
 
           {/* Recommended Track */}
-          <div className="border border-[var(--hairline)] bg-white p-5 space-y-2">
+          <div className="border border-[var(--hairline)] bg-[var(--surface-paper)] p-5 space-y-2">
             <div className="text-xs font-bold text-[var(--brand)]">
               {isBnLocale ? 'সুপারিশকৃত প্রস্তুতি ট্র্যাক' : 'Recommended Track'}
             </div>
@@ -657,7 +657,7 @@ export default function DiagnosticExamPage() {
           <div className="space-y-6 relative">
             {gated ? (
               /* GATE OVERLAY */
-              <div className="border border-[var(--hairline)] bg-white p-8 text-center space-y-6">
+              <div className="border border-[var(--hairline)] bg-[var(--surface-paper)] p-8 text-center space-y-6">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[4px] bg-[var(--bg-tint)] text-[var(--brand)] border border-[var(--hairline)]">
                   <Lock className="h-6 w-6" />
                 </div>
@@ -715,7 +715,7 @@ export default function DiagnosticExamPage() {
 
                 {/* Study Plan Preview */}
                 {personalizedStudyPlan && (
-                  <Card className="rounded-none border-[var(--hairline)] bg-white">
+                  <Card className="rounded-none border-[var(--hairline)] bg-[var(--surface-paper)]">
                     <CardHeader>
                       <CardTitle className="text-base font-bold text-[var(--brand-ink)]">
                         {isBnLocale
@@ -749,7 +749,7 @@ export default function DiagnosticExamPage() {
                       ? 'প্রশ্নভিত্তিক পর্যালোচনা ও সমাধান'
                       : 'Item-by-Item Review & Solutions'}
                   </h3>
-                  <div className="divide-y divide-[var(--hairline)] border border-[var(--hairline)] bg-white">
+                  <div className="divide-y divide-[var(--hairline)] border border-[var(--hairline)] bg-[var(--surface-paper)]">
                     {itemByItemBreakdown?.map((item, idx) => {
                       const bnItem = DIAGNOSTIC_BILINGUAL_MAP[item.questionId];
                       const trapLabel =
@@ -943,7 +943,7 @@ export default function DiagnosticExamPage() {
 
       {/* On-Screen Calculator Floating Modal */}
       {isCalculatorOpen && (
-        <div className="fixed top-20 right-6 z-50 border border-[var(--hairline)] bg-white">
+        <div className="fixed top-20 right-6 z-50 border border-[var(--hairline)] bg-[var(--surface-paper)]">
           <GreCalculator
             isOpen={isCalculatorOpen}
             onTransferDisplay={() => {
@@ -958,7 +958,7 @@ export default function DiagnosticExamPage() {
       <main className="w-full flex-1 bg-[var(--bg-warm)] min-h-[calc(100dvh-4rem)] py-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left 8 Columns: Sharp Exam Sheet, Zero Drop Shadow, Zero Bubble Corners */}
-          <div className="lg:col-span-8 bg-white border border-[var(--hairline)] rounded-none">
+          <div className="lg:col-span-8 bg-[var(--surface-paper)] border border-[var(--hairline)] rounded-none">
             {/* Top Sheet Strip */}
             <div className="border-b border-[var(--hairline)] bg-[var(--bg-tint)] px-6 py-3 flex flex-wrap items-center justify-between gap-3">
               <span className="text-xs font-bold text-[var(--brand)]">
@@ -970,7 +970,7 @@ export default function DiagnosticExamPage() {
                   <button
                     type="button"
                     onClick={() => setShowOriginalEnglish((prev) => !prev)}
-                    className="inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-white px-2.5 py-1 text-xs font-semibold text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]"
+                    className="inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]"
                   >
                     <Languages className="h-3.5 w-3.5 text-[var(--brand)]" />
                     <span>
@@ -986,7 +986,7 @@ export default function DiagnosticExamPage() {
                   className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1 text-xs font-semibold transition-colors ${
                     isCurrentFlagged
                       ? 'border-[var(--accent)] bg-[var(--bg-warm)] text-[var(--brand)]'
-                      : 'border-[var(--hairline)] bg-white text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+                      : 'border-[var(--hairline)] bg-[var(--surface-paper)] text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
                   }`}
                 >
                   <Flag className="h-3.5 w-3.5" />
@@ -1017,7 +1017,7 @@ export default function DiagnosticExamPage() {
 
               {/* Quantitative Comparison Table */}
               {currentQuestion.type === 'qc' && currentQuestion.quantityA && (
-                <div className="grid grid-cols-2 divide-x divide-[var(--hairline)] border border-[var(--hairline)] my-6 bg-white">
+                <div className="grid grid-cols-2 divide-x divide-[var(--hairline)] border border-[var(--hairline)] my-6 bg-[var(--surface-paper)]">
                   <div className="flex flex-col">
                     <div className="bg-[var(--bg-warm)] border-b border-[var(--hairline)] py-2.5 text-center text-xs font-bold text-[var(--brand-ink)]">
                       {displayBn ? 'রাশি A (Quantity A)' : 'Quantity A'}
@@ -1064,7 +1064,7 @@ export default function DiagnosticExamPage() {
                       className={`flex w-full items-center justify-between p-4 border rounded-[4px] text-left text-base transition-colors ${
                         isSelected
                           ? 'border-[var(--brand)] bg-[var(--bg-warm)] font-semibold text-[var(--brand-ink)]'
-                          : 'border-[var(--hairline)] bg-white hover:bg-[var(--bg-warm)] text-[var(--brand-ink)]'
+                          : 'border-[var(--hairline)] bg-[var(--surface-paper)] hover:bg-[var(--bg-warm)] text-[var(--brand-ink)]'
                       }`}
                     >
                       <div className="flex items-center gap-3.5">
@@ -1104,7 +1104,7 @@ export default function DiagnosticExamPage() {
             </div>
 
             {/* Bottom Sheet Action Bar */}
-            <div className="border-t border-[var(--hairline)] px-6 py-4 flex items-center justify-between bg-white">
+            <div className="border-t border-[var(--hairline)] px-6 py-4 flex items-center justify-between bg-[var(--surface-paper)]">
               <button
                 type="button"
                 onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
@@ -1145,7 +1145,7 @@ export default function DiagnosticExamPage() {
           </div>
 
           {/* Right 4 Columns: Unified Companion Panel */}
-          <aside className="lg:col-span-4 bg-white border border-[var(--hairline)] rounded-none">
+          <aside className="lg:col-span-4 bg-[var(--surface-paper)] border border-[var(--hairline)] rounded-none">
             {/* Top Question Palette */}
             <div className="p-5 border-b border-[var(--hairline)] space-y-3">
               <div className="flex items-center justify-between gap-2">
@@ -1189,7 +1189,7 @@ export default function DiagnosticExamPage() {
                           ? 'bg-[var(--brand)] text-white border border-[var(--brand)]'
                           : answered
                             ? 'bg-[var(--bg-tint)] text-[var(--brand-ink)] border border-[var(--brand)]'
-                            : 'bg-white text-[var(--text)] border border-[var(--hairline)] hover:bg-[var(--bg-warm)]'
+                            : 'bg-[var(--surface-paper)] text-[var(--text)] border border-[var(--hairline)] hover:bg-[var(--bg-warm)]'
                       }`}
                     >
                       <span>{idx + 1}</span>
@@ -1340,7 +1340,7 @@ export default function DiagnosticExamPage() {
                         ? 'এখানে আপনার বীজগণিতের রাফ হিসাব বা ভার্বাল পূর্বাভাস লিখুন...'
                         : 'Work out algebra steps, test cases (x = +4, -4), or type verbal blank predictions here...'
                     }
-                    className="w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] p-3 font-mono text-xs text-[var(--brand-ink)] focus:border-[var(--brand)] focus:bg-white focus:outline-none"
+                    className="w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] p-3 font-mono text-xs text-[var(--brand-ink)] focus:border-[var(--brand)] focus:bg-[var(--surface-paper)] focus:outline-none"
                   />
                   <div className="flex justify-between items-center text-[11px] text-[var(--text)]">
                     <span>

@@ -825,7 +825,7 @@ export interface CtaBandProps {
 export function CtaBand({ title, body, ctaLabel, ctaHref, locale }: CtaBandProps) {
   return (
     <section className="bg-[var(--brand)] py-16 px-4 sm:px-6 lg:px-8">
-      <div className="bg-[var(--bg)] p-8 md:p-12 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+      <div className="bg-[var(--surface-paper)] p-8 md:p-12 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         <div className="md:col-span-8 space-y-3">
           <Heading level={2} showMotif={false}>
             {title}

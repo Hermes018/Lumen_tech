@@ -111,7 +111,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
       </div>
 
       {/* Tier 2: UtilityBar (Desktop) */}
-      <div className="hidden lg:block bg-[var(--bg)] border-b border-[var(--hairline)]">
+      <div className="hidden lg:block bg-[var(--surface-paper)] border-b border-[var(--hairline)]">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-11 flex items-center justify-between gap-4">
           <div className="flex items-center">
             <LocaleSwitcher />
@@ -239,7 +239,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
         {activeMenu !== null ? (
           <div
             onMouseEnter={clearHoverTimer}
-            className="hidden lg:block absolute left-0 right-0 top-full bg-[var(--bg)] text-[var(--brand-ink)] border-t border-[var(--hairline)] shadow-[var(--shadow-hard)]"
+            className="hidden lg:block absolute left-0 right-0 top-full bg-[var(--surface-paper)] text-[var(--brand-ink)] border-t border-[var(--hairline)] shadow-[var(--shadow-hard)]"
           >
             {activeMenu === 'exams' && selectedGreCategory ? (
               <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -331,7 +331,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
                   </div>
 
                   {/* Col 2: Underlined Links with Chevrons */}
-                  <div className="col-span-4 bg-[var(--bg)] p-8">
+                  <div className="col-span-4 bg-[var(--surface-paper)] p-8">
                     <h3 className="text-sm font-extrabold text-[var(--brand-ink)] underline underline-offset-4 decoration-2 mb-4">
                       {data.megaCourses.col2Heading}
                     </h3>
@@ -353,7 +353,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
                   </div>
 
                   {/* Col 3: PlaceholderImage */}
-                  <div className="col-span-4 bg-[var(--bg)] p-8 flex items-center">
+                  <div className="col-span-4 bg-[var(--surface-paper)] p-8 flex items-center">
                     <div className="w-full">
                       <PlaceholderImage slot="mega-courses" aspect="4:3" locale={locale} />
                     </div>
@@ -422,7 +422,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
 
       {/* Mobile Accordion Drawer (< 1024px, Zero Photos) */}
       {mobileOpen ? (
-        <div className="lg:hidden bg-[var(--bg)] text-[var(--brand-ink)] border-b border-[var(--hairline)] shadow-[var(--shadow-hard)]">
+        <div className="lg:hidden bg-[var(--surface-paper)] text-[var(--brand-ink)] border-b border-[var(--hairline)] shadow-[var(--shadow-hard)]">
           <div className="px-4 py-4 space-y-4">
             {/* LocaleSwitcher at top */}
             <div className="flex items-center justify-between pb-3 border-b border-[var(--hairline)]">
