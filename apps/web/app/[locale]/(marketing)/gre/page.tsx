@@ -1,5 +1,5 @@
-/** @purpose Flagship GRE marketing page with official-format exam guide, bilingual (P2.6.2, P2.6.3) */
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
+/** @purpose Flagship GRE marketing page with ETS Prussian Navy & Cyan/Teal editorial design, asymmetric 12-column split hero, student poster, and section-adaptive routing diagram card (M2.7-B) */
+import { Button, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
   Brain,
   ShieldAlert,
@@ -11,12 +11,13 @@ import {
   BarChart3,
   BookOpen,
   Compass,
+  GitBranch,
 } from 'lucide-react';
 import { brand } from '@lumen/config';
 import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { LiveGreWidget } from './live-gre-widget';
-
 import { GreExamGuide } from '../_components/GreExamGuide';
+
 export const metadata = {
   title: `GRE Prep Re-Engineered | জিআরই প্রস্তুতি | ${brand.name}`,
   description:
@@ -33,93 +34,170 @@ export default async function GreMarketingPage({
   const brandDisplayName = isBn ? 'লুমেন একাডেমি' : brand.name;
 
   return (
-    <div className="flex flex-col items-center" data-locale={locale}>
-      {/* Royal Indigo Hero Section (BUG-12) */}
-      <section className="relative w-full overflow-hidden border-b border-indigo-900 bg-[#003057] px-4 py-16 text-white sm:py-24">
-
-        <div className="relative mx-auto max-w-5xl text-center space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-900/70 px-3.5 py-1 text-xs font-semibold text-indigo-200">
-            <span>
+    <div className="flex flex-col items-center bg-[#F7F5F0]" data-locale={locale}>
+      {/* ETS Prussian Navy (#003057) Asymmetric 12-Column Split Hero */}
+      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-[#003057] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
+          {/* Left 7 Columns: Left-Aligned ETS Hero + Quick-Jump Anchor Links */}
+          <div className="lg:col-span-7 space-y-6 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-cyan-200">
               {isBn
-                ? 'অফিশিয়াল কম্পিউটার-ডেলিভার্ড ফরম্যাট'
-                : 'Official Computer-Delivered Format'}
-            </span>
-          </div>
+                ? 'অফিশিয়াল কম্পিউটার-ডেলিভার্ড ফরম্যাট • ETS মানদণ্ড'
+                : 'Official Computer-Delivered Format • ETS Standards'}
+            </div>
 
-          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight text-white sm:text-6xl leading-tight">
-            {isBn ? (
-              <>
-                <span className="text-blue-400">৩৩০+ লক্ষ্য</span> অর্জনের জন্য নির্মিত বিশেষায়িত
-                জিআরই প্ল্যাটফর্ম
-              </>
-            ) : (
-              <>
-                The GRE Prep Platform Built for{' '}
-                <span className="text-blue-400">330+ Ambitions</span>
-              </>
-            )}
-          </h1>
+            <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              {isBn ? (
+                <>
+                  <span className="text-cyan-300">৩৩০+ লক্ষ্য</span> অর্জনের জন্য নির্মিত বিশেষায়িত
+                  জিআরই প্ল্যাটফর্ম
+                </>
+              ) : (
+                <>
+                  The GRE® Prep Platform Built for{' '}
+                  <span className="text-cyan-300">330+ Ambitions</span>
+                </>
+              )}
+            </h1>
 
-          <p className="mx-auto max-w-2xl text-lg text-indigo-100/90 sm:text-xl leading-relaxed">
-            {isBn
-              ? 'শুধু ভিডিও লেকচার দেখা বন্ধ করুন। প্রামাণিক সেকশন-অ্যাডাপটিভ মক টেস্ট, আপনার শেখার দক্ষতা অক্ষুণ্ণ রাখা প্রগ্রেসিভ হিন্ট ল্যাডার, ডিস্ট্রাক্টর ট্র্যাপ বিশ্লেষণ এবং প্রেডিক্ট-ফার্স্ট ভার্বাল পদ্ধতির অভিজ্ঞতা নিন।'
-              : 'Stop passively watching video lectures. Experience real section-adaptive mock tests, progressive hint ladders that preserve your learning, distractor trap forensics, and predict-first verbal mastery.'}
-          </p>
+            <p className="max-w-2xl text-base text-slate-200 sm:text-lg leading-relaxed">
+              {isBn
+                ? 'শুধু ভিডিও লেকচার দেখা বন্ধ করুন। প্রামাণিক সেকশন-অ্যাডাপটিভ মক টেস্ট, আপনার শেখার দক্ষতা অক্ষুণ্ণ রাখা প্রগ্রেসিভ হিন্ট ল্যাডার, ডিস্ট্রাক্টর ট্র্যাপ বিশ্লেষণ এবং প্রেডিক্ট-ফার্স্ট ভার্বাল পদ্ধতির অভিজ্ঞতা নিন।'
+                : 'Stop passively watching video lectures. Experience real section-adaptive mock tests, progressive hint ladders that preserve your learning, distractor trap forensics, and predict-first verbal mastery.'}
+            </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-            <Link href="/exam/diagnostic">
-              <Button size="lg" className="gap-2 bg-blue-600 text-white hover:bg-blue-500 shadow-lg">
-                {isBn
-                  ? 'ফ্রি ১৫-মিনিট এক্সপ্রেস ডায়াগনস্টিক দিন'
-                  : 'Take Free 15-Min Express Diagnostic'}{' '}
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-indigo-700 bg-indigo-900/60 text-white hover:bg-indigo-800"
+            {/* Quick-Jump Anchor Links */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <a
+                href="#how-gre-works"
+                className="rounded-md border border-cyan-400/40 bg-[#007791]/40 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition-colors hover:bg-[#007791]"
               >
-                {isBn ? 'জিআরই প্ল্যান ও পাস দেখুন' : 'View GRE Plans & Passes'}
-              </Button>
-            </Link>
+                {isBn ? 'কীভাবে GRE কাজ করে ↓' : '#how-gre-works ↓'}
+              </a>
+              <a
+                href="#live-practice"
+                className="rounded-md border border-cyan-400/40 bg-[#007791]/40 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition-colors hover:bg-[#007791]"
+              >
+                {isBn ? 'লাইভ কোয়ান্ট অনুশীলন ↓' : '#live-practice ↓'}
+              </a>
+              <a
+                href="#study-plan"
+                className="rounded-md border border-cyan-400/40 bg-[#007791]/40 px-3 py-1.5 text-xs font-semibold text-cyan-100 transition-colors hover:bg-[#007791]"
+              >
+                {isBn ? 'পাঠ্যক্রম ও স্টাডি প্ল্যান ↓' : '#study-plan ↓'}
+              </a>
+            </div>
+
+            {/* Primary CTAs */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
+              <Link href="/exam/diagnostic">
+                <Button
+                  size="lg"
+                  className="gap-2 bg-[#007791] text-white hover:bg-[#006075] font-bold shadow-lg px-6 h-12 text-base"
+                >
+                  {isBn
+                    ? 'ফ্রি ১৫-মিনিট এক্সপ্রেস ডায়াগনস্টিক দিন'
+                    : 'Take Free 15-Min Express Diagnostic'}{' '}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/pricing">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-slate-500 bg-white/10 text-white hover:bg-white/20 font-semibold px-6 h-12 text-base"
+                >
+                  {isBn ? 'জিআরই প্ল্যান ও পাস দেখুন' : 'View GRE Plans & Passes'}
+                </Button>
+              </Link>
+            </div>
+
+            <div className="pt-4 border-t border-slate-700/80 flex flex-wrap items-center gap-6 text-xs text-slate-200">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <CheckCircle className="h-4 w-4 text-cyan-300" />{' '}
+                {isBn ? '১০০% প্রামাণিক সিবিটি এক্সাম শেল' : '100% Authentic CBT Exam Shell'}
+              </span>
+              <span className="flex items-center gap-1.5 font-semibold">
+                <CheckCircle className="h-4 w-4 text-cyan-300" />{' '}
+                {isBn
+                  ? '১,৫০০+ উচ্চ-গুরুত্বপূর্ণ শব্দ (FSRS)'
+                  : '1,500+ High-Frequency Words (FSRS)'}
+              </span>
+              <span className="flex items-center gap-1.5 font-semibold">
+                <CheckCircle className="h-4 w-4 text-cyan-300" />{' '}
+                {isBn
+                  ? 'সেকশন-অ্যাডাপটিভ প্র্যাকটিস টেস্ট'
+                  : 'Section-Adaptive Practice Tests'}
+              </span>
+            </div>
           </div>
 
-          <div className="pt-6 flex flex-wrap justify-center items-center gap-6 text-xs text-indigo-200">
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle className="h-4 w-4 text-blue-400" />{' '}
-              {isBn ? '১০০% প্রামাণিক সিবিটি এক্সাম শেল' : '100% Authentic CBT Exam Shell'}
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle className="h-4 w-4 text-blue-400" />{' '}
-              {isBn
-                ? '১,৫০০+ উচ্চ-গুরুত্বপূর্ণ শব্দ (FSRS)'
-                : '1,500+ High-Frequency Words (FSRS)'}
-            </span>
-            <span className="flex items-center gap-1.5 font-medium">
-              <CheckCircle className="h-4 w-4 text-blue-400" />{' '}
-              {isBn
-                ? 'সেকশন-অ্যাডাপটিভ প্র্যাকটিস টেস্ট'
-                : 'Section-Adaptive Practice Tests'}
-            </span>
+          {/* Right 5 Columns: Student Studying Quantitative Reasoning Poster + Floating Section-Adaptive Routing Diagram Card */}
+          <div className="lg:col-span-5 relative">
+            <div
+              className="absolute -top-3 -right-3 h-full w-full rounded-2xl bg-[#007791] opacity-90"
+              aria-hidden="true"
+            />
+            <div
+              className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl bg-[#E4002B] opacity-80"
+              aria-hidden="true"
+            />
+
+            <div className="relative overflow-hidden rounded-2xl border-2 border-white/20 bg-slate-900 shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1000&q=85"
+                alt={
+                  isBn
+                    ? 'জিআরই কোয়ান্টিটেটিভ রিজনিং অনুশীলনরত শিক্ষার্থী'
+                    : 'Student studying GRE quantitative reasoning'
+                }
+                className="h-[380px] sm:h-[420px] w-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#003057]/95 via-[#003057]/30 to-transparent" />
+
+              {/* Floating Section-Adaptive Routing Diagram Card */}
+              <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-slate-200 bg-white/95 p-4 text-slate-900 shadow-xl backdrop-blur-xs space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#003057]">
+                    <GitBranch className="h-3.5 w-3.5 text-[#007791]" />
+                    {isBn
+                      ? 'সেকশন-অ্যাডাপটিভ রাউটিং ডায়াগ্রাম'
+                      : 'Section-Adaptive Routing Diagram'}
+                  </span>
+                  <span className="rounded bg-[#003057] px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+                    130–170 Scale
+                  </span>
+                </div>
+                <div className="rounded-lg bg-[#F7F5F0] border border-slate-200 px-3 py-2 font-mono text-xs font-extrabold text-[#003057]">
+                  Section 1 [12Q] -&gt; Harder Section 2 [15Q] -&gt; 170 Ceiling
+                </div>
+                <p className="text-[11px] text-slate-600">
+                  {isBn
+                    ? 'সেকশন ১-এর উচ্চ নির্ভুলতা আপনাকে কঠিনতর সেকশন ২-এ উন্নীত করে যা ১৬৫–১৭০ স্কোরের দরজা খুলে দেয়।'
+                    : 'High accuracy in Section 1 routes you into the Harder Section 2 panel required for 165–170 scores.'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
       <GreExamGuide isBn={isBn} />
 
-      {/* Interactive Live Demo Section with Well-Spaced 2-Column Header */}
+      {/* Interactive Live Demo Section */}
       <section
-        id="pedagogy"
-        className="w-full max-w-5xl px-4 py-16 sm:py-20 flex flex-col items-center"
+        id="live-practice"
+        className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 flex flex-col items-center scroll-mt-16"
       >
-        <div className="mb-10 grid w-full max-w-3xl gap-6 rounded-2xl border border-slate-200/80 bg-slate-50 p-6 sm:grid-cols-12 sm:items-center">
-          <div className="space-y-2 sm:col-span-8">
-            <div className="inline-flex items-center gap-1.5 rounded-md bg-indigo-950 px-2.5 py-1 text-xs font-semibold text-indigo-200">
-              <Compass className="h-3.5 w-3.5 text-blue-400" />
-              {isBn ? 'ইন্টারেক্টিভ জিআরই পেডাগজি স্যাম্পলার' : 'Interactive GRE Pedagogy Sampler'}
+        <div id="pedagogy" className="mb-10 grid w-full max-w-5xl gap-6 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 sm:grid-cols-12 sm:items-center shadow-xs">
+          <div className="space-y-3 sm:col-span-8 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#003057] flex items-center gap-1.5">
+              <Compass className="h-3.5 w-3.5 text-[#007791]" />
+              <span>
+                {isBn ? 'ইন্টারেক্টিভ জিআরই পেডাগজি স্যাম্পলার' : 'Interactive GRE Pedagogy Sampler'}
+              </span>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+            <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-950">
               {isBn
                 ? '১০ সেকেন্ডে আমাদের ইন্টারেক্টিভ শিক্ষণপদ্ধতি যাচাই করুন'
                 : 'Test Our Interactive Pedagogy in 10 Seconds'}
@@ -130,22 +208,22 @@ export default async function GreMarketingPage({
                 : 'Try this Quantitative Comparison item below. Deliberately pick an incorrect option to see our Distractor Trap Diagnostic, or open the Hint Ladder if you need a conceptual spark.'}
             </p>
           </div>
-          <div className="flex flex-col gap-2 rounded-xl border border-indigo-200 bg-white p-4 text-xs sm:col-span-4">
-            <div className="font-bold text-indigo-950">
+          <div className="flex flex-col gap-2.5 rounded-xl border border-slate-200 bg-[#F7F5F0] p-4 text-xs sm:col-span-4">
+            <div className="font-bold text-[#003057]">
               {isBn ? 'আপনি যা যাচাই করছেন:' : 'What You Are Testing:'}
             </div>
             <div className="flex items-center gap-1.5 text-slate-700">
-              <CheckCircle className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              <CheckCircle className="h-3.5 w-3.5 text-[#007791] shrink-0" />
               <span>{isBn ? 'KaTeX বীজগাণিতিক টাইপোগ্রাফি' : 'KaTeX Algebraic Typography'}</span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-700">
-              <CheckCircle className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              <CheckCircle className="h-3.5 w-3.5 text-[#007791] shrink-0" />
               <span>
                 {isBn ? '৩-ধাপের প্রগ্রেসিভ হিন্ট ল্যাডার' : '3-Tier Progressive Hint Ladder'}
               </span>
             </div>
             <div className="flex items-center gap-1.5 text-slate-700">
-              <CheckCircle className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              <CheckCircle className="h-3.5 w-3.5 text-[#007791] shrink-0" />
               <span>{isBn ? 'ডিস্ট্রাক্টর ট্র্যাপ বিশ্লেষণ' : 'Distractor Trap Forensics'}</span>
             </div>
           </div>
@@ -154,16 +232,22 @@ export default async function GreMarketingPage({
         <LiveGreWidget locale={isBn ? 'bn' : 'en'} />
       </section>
 
-      {/* Parity Suite Pillar Matrix */}
-      <section className="w-full border-t border-slate-200 bg-slate-50/70 px-4 py-16 sm:py-24">
+      {/* Study Plan & 6-Pillar Architecture Matrix */}
+      <section
+        id="study-plan"
+        className="w-full border-t border-slate-200 bg-[#F7F5F0] px-4 py-16 sm:py-24 scroll-mt-16"
+      >
         <div className="mx-auto max-w-7xl">
-          <div className="text-center space-y-3 mb-12">
-            <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+          <div className="space-y-3 mb-12 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#003057]">
+              {isBn ? 'সম্পূর্ণ প্রস্তুতির কাঠামো' : 'Complete GRE Architecture & Study Plan'}
+            </div>
+            <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-950">
               {isBn
                 ? `কেন শীর্ষ স্কোরাররা ${brandDisplayName} বেছে নেন`
                 : `Why Top Scorers Switch to ${brand.name}`}
             </h2>
-            <p className="text-slate-600 text-base max-w-2xl mx-auto">
+            <p className="text-slate-600 text-base max-w-2xl">
               {isBn
                 ? 'আমরা প্রামাণিক ফরম্যাট, বিশ্লেষণাত্মক ব্যাখ্যা, কৌশলগত শর্টকাট এবং গাইডেড সমস্যা সমাধান একটি নির্বিঘ্ন প্ল্যাটফর্মে একত্র করেছি।'
                 : 'We combined the official exam format, analytical explanations, tactical shortcuts, and guided problem solving into one seamless platform.'}
@@ -172,9 +256,9 @@ export default async function GreMarketingPage({
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Pillar 1 */}
-            <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-indigo-300">
+            <Card className="border-t-4 border-t-[#003057] border-slate-200/80 bg-white shadow-md transition-all">
               <CardHeader>
-                <div className="bg-indigo-950 text-indigo-200 mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="bg-[#003057] text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <Layers className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg text-slate-950">
@@ -196,9 +280,9 @@ export default async function GreMarketingPage({
             </Card>
 
             {/* Pillar 2 */}
-            <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-indigo-300">
+            <Card className="border-t-4 border-t-[#007791] border-slate-200/80 bg-white shadow-md transition-all">
               <CardHeader>
-                <div className="bg-blue-600 text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="bg-[#007791] text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <HelpCircle className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg text-slate-950">
@@ -220,9 +304,9 @@ export default async function GreMarketingPage({
             </Card>
 
             {/* Pillar 3 */}
-            <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-indigo-300">
+            <Card className="border-t-4 border-t-[#E4002B] border-slate-200/80 bg-white shadow-md transition-all">
               <CardHeader>
-                <div className="bg-indigo-950 text-amber-300 mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="bg-[#E4002B] text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <ShieldAlert className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg text-slate-950">
@@ -244,9 +328,9 @@ export default async function GreMarketingPage({
             </Card>
 
             {/* Pillar 4 */}
-            <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-indigo-300">
+            <Card className="border-t-4 border-t-[#003057] border-slate-200/80 bg-white shadow-md transition-all">
               <CardHeader>
-                <div className="bg-blue-600 text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="bg-[#003057] text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <Brain className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg text-slate-950">
@@ -268,9 +352,9 @@ export default async function GreMarketingPage({
             </Card>
 
             {/* Pillar 5 */}
-            <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-indigo-300">
+            <Card className="border-t-4 border-t-[#007791] border-slate-200/80 bg-white shadow-md transition-all">
               <CardHeader>
-                <div className="bg-indigo-950 text-indigo-200 mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="bg-[#007791] text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg text-slate-950">
@@ -296,10 +380,10 @@ export default async function GreMarketingPage({
             {/* Pillar 6 */}
             <Card
               id="vocab"
-              className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-indigo-300 scroll-mt-20"
+              className="border-t-4 border-t-[#E4002B] border-slate-200/80 bg-white shadow-md transition-all scroll-mt-20"
             >
               <CardHeader>
-                <div className="bg-blue-600 text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
+                <div className="bg-[#003057] text-white mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <Clock className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg text-slate-950">
@@ -323,34 +407,36 @@ export default async function GreMarketingPage({
         </div>
       </section>
 
-      {/* Free Tools Callout */}
+      {/* Score Conversion Tools Section with Editorial Kicker */}
       <section className="w-full border-t border-slate-200 bg-white px-4 py-16 sm:py-20">
-        <div className="mx-auto max-w-4xl text-center space-y-4">
-          <Badge variant="outline" className="border-indigo-300 text-indigo-900 text-xs">
-            {isBn ? 'ফ্রি স্কোর ইউটিলিটি' : 'Free SEO Utilities'}
-          </Badge>
-          <h3 className="text-2xl font-bold text-slate-950 sm:text-3xl">
-            {isBn
-              ? 'ফ্রি ইন্টারেক্টিভ স্কোর কনভার্সন টুলস'
-              : 'Free Interactive Score Conversion Tools'}
-          </h3>
-          <p className="text-slate-600 text-sm max-w-xl mx-auto">
-            {isBn
-              ? 'জানতে চান কত র-স্কোরে ১৬৫ কোয়ান্ট হয় অথবা আইইএলটিএস ব্যান্ড ৭.৫ পেতে কী প্রয়োজন? আমাদের ফ্রি ইন্টারেক্টিভ ক্যালকুলেটরগুলো ব্যবহার করুন:'
-              : 'Curious what raw score maps to a 165 Quant or what IELTS Band 7.5 requires? Use our free interactive calculators:'}
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 pt-2">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-7 space-y-3 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#003057]">
+              {isBn ? 'স্কোর রূপান্তর রেফারেন্স' : 'Official Scale Reference Utilities'}
+            </div>
+            <h3 className="text-3xl lg:text-5xl font-extrabold text-slate-950">
+              {isBn
+                ? 'ফ্রি ইন্টারেক্টিভ স্কোর কনভার্সন টুলস'
+                : 'Free Interactive Score Conversion Tools'}
+            </h3>
+            <p className="text-slate-600 text-sm max-w-xl">
+              {isBn
+                ? 'জানতে চান কত র-স্কোরে ১৬৫ কোয়ান্ট হয় অথবা আইইএলটিএস ব্যান্ড ৭.৫ পেতে কী প্রয়োজন? আমাদের ফ্রি ইন্টারেক্টিভ ক্যালকুলেটরগুলো ব্যবহার করুন:'
+                : 'Curious what raw score maps to a 165 Quant or what IELTS Band 7.5 requires? Use our free interactive calculators:'}
+            </p>
+          </div>
+          <div className="lg:col-span-5 flex flex-wrap lg:justify-end gap-4">
             <Link href="/tools/gre-score-calculator">
-              <Button variant="outline" className="gap-2">
-                <BarChart3 className="h-4 w-4" />{' '}
+              <Button variant="outline" className="gap-2 border-slate-300 font-semibold">
+                <BarChart3 className="h-4 w-4 text-[#003057]" />{' '}
                 {isBn
                   ? 'জিআরই স্কোর ও পার্সেন্টাইল ক্যালকুলেটর'
                   : 'GRE Score & Percentile Calculator'}
               </Button>
             </Link>
             <Link href="/tools/ielts-band-calculator">
-              <Button variant="outline" className="gap-2">
-                <BarChart3 className="h-4 w-4" />{' '}
+              <Button variant="outline" className="gap-2 border-slate-300 font-semibold">
+                <BarChart3 className="h-4 w-4 text-[#007791]" />{' '}
                 {isBn ? 'আইইএলটিএস ৪-স্কিল ব্যান্ড ক্যালকুলেটর' : 'IELTS 4-Skill Band Calculator'}
               </Button>
             </Link>
@@ -359,19 +445,27 @@ export default async function GreMarketingPage({
       </section>
 
       {/* CTA Footer Banner */}
-      <section className="w-full border-t border-[#003057] bg-[#003057] px-4 py-16 text-center text-white">
-        <div className="mx-auto max-w-3xl space-y-6">
-          <h2 className="text-3xl font-extrabold text-white">
-            {isBn ? 'পার্থক্যটি নিজে অনুভব করতে প্রস্তুত?' : 'Ready to Experience the Difference?'}
-          </h2>
-          <p className="text-indigo-200 text-base max-w-xl mx-auto">
-            {isBn
-              ? 'সম্পূর্ণ বিনামূল্যে আমাদের ১৫-মিনিটের ডায়াগনস্টিক টেস্ট দিন। কোনো ক্রেডিট কার্ডের প্রয়োজন নেই। তাৎক্ষণিক আনুমানিক স্কেলড স্কোর রেঞ্জ এবং ব্যক্তিগত স্টাডি সুপারিশ পান।'
-              : 'Take our 15-minute diagnostic test for free. No credit card required. Receive an estimated scaled score range and a personalized study recommendation.'}
-          </p>
-          <div className="pt-2">
+      <section className="w-full border-t border-[#003057] bg-[#003057] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-8 space-y-4 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-cyan-200">
+              {isBn ? '১৫-মিনিট জিআরই মূল্যায়ন' : '15-Minute GRE Baseline Diagnostic'}
+            </div>
+            <h2 className="text-3xl lg:text-5xl font-extrabold text-white">
+              {isBn ? 'পার্থক্যটি নিজে অনুভব করতে প্রস্তুত?' : 'Ready to Experience the Difference?'}
+            </h2>
+            <p className="text-slate-200 text-base max-w-2xl">
+              {isBn
+                ? 'সম্পূর্ণ বিনামূল্যে আমাদের ১৫-মিনিটের ডায়াগনস্টিক টেস্ট দিন। কোনো ক্রেডিট কার্ডের প্রয়োজন নেই। তাৎক্ষণিক আনুমানিক স্কেলড স্কোর রেঞ্জ এবং ব্যক্তিগত স্টাডি সুপারিশ পান।'
+                : 'Take our 15-minute diagnostic test for free. No credit card required. Receive an estimated scaled score range and a personalized study recommendation.'}
+            </p>
+          </div>
+          <div className="lg:col-span-4 flex lg:justify-end">
             <Link href="/exam/diagnostic">
-              <Button size="lg" className="gap-2 bg-blue-600 text-white hover:bg-blue-500">
+              <Button
+                size="lg"
+                className="gap-2 bg-[#007791] text-white hover:bg-[#006075] font-bold px-8 h-12 text-base shadow-lg"
+              >
                 {isBn ? 'এখনই ফ্রি জিআরই ডায়াগনস্টিক শুরু করুন' : 'Start Free GRE Diagnostic Now'}{' '}
                 <ArrowRight className="h-4 w-4" />
               </Button>

@@ -10,7 +10,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''} https://challenges.cloudflare.com https://cdn.paddle.com;
   style-src 'self' 'unsafe-inline';
-  img-src 'self' blob: data: https:;
+  img-src 'self' blob: data: https://images.unsplash.com https:;
   font-src 'self' data:;
   frame-src 'self' https://iframe.mediadelivery.net https://challenges.cloudflare.com;
   frame-ancestors 'none';
@@ -60,6 +60,14 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     cpus: 2,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
   async headers() {
     return [
