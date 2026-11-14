@@ -126,3 +126,36 @@ describe('Auth jargon sweep (M2.7-A)', () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe('AI prompt-leak pill badge sweep (M2.7-B)', () => {
+  it('contains zero occurrences of "British Emerald & Teal", "Free Band Utility", or "No Account Needed To Start" in apps/web UI and message files', () => {
+    const repoRoot = path.resolve(__dirname, '../../../..');
+    const webDir = path.join(repoRoot, 'apps', 'web');
+    const files = [
+      ...walkSourceFiles(path.join(webDir, 'app'), ['.ts', '.tsx']),
+      ...walkSourceFiles(path.join(webDir, 'src'), ['.ts', '.tsx']),
+      ...walkSourceFiles(path.join(webDir, 'components'), ['.ts', '.tsx']),
+      path.join(webDir, 'messages', 'en.json'),
+      path.join(webDir, 'messages', 'bn.json'),
+    ];
+    const forbidden = [
+      /British Emerald\s*&\s*Teal/i,
+      /Free Band Utility/i,
+      /No Account Needed To Start/i,
+    ];
+    const hits: string[] = [];
+    for (const file of files) {
+      if (!fs.existsSync(file)) continue;
+      const rel = path.relative(repoRoot, file).replace(/\\/g, '/');
+      if (rel.includes('__tests__') || /\.test\.tsx?$/.test(rel)) continue;
+      fs.readFileSync(file, 'utf8')
+        .split(/\r?\n/)
+        .forEach((line, idx) => {
+          if (forbidden.some((re) => re.test(line))) {
+            hits.push(`${rel}:${idx + 1}: ${line.trim()}`);
+          }
+        });
+    }
+    expect(hits).toEqual([]);
+  });
+});

@@ -162,50 +162,91 @@ export default function SupportHelpCenterPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/70 pb-20" data-locale={locale}>
-      {/* High-Contrast Oxford Navy Hero Search Section (BUG-12) */}
-      <section className="relative overflow-hidden border-b border-slate-800 bg-[#001E42] py-14 text-white shadow-xs sm:py-16">
-        <div className="relative mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1 text-xs font-semibold text-blue-200">
-            <HelpCircle className="h-3.5 w-3.5 text-blue-400" />
-            <span>
+      {/* Asymmetric 12-Column Split Hero Search Section */}
+      <section className="relative overflow-hidden border-b border-slate-800 bg-[#001E42] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
+          {/* Left 7 Columns: Editorial Kicker, Bold Left-Aligned Heading, Search Bar */}
+          <div className="lg:col-span-7 space-y-5 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-slate-200">
               {isBn
                 ? `${brandDisplayName} ট্রাস্ট ও সাপোর্ট সেন্টার`
                 : `${brand.name} Trust & Support Center`}
-            </span>
-          </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            {isBn
-              ? 'আমাদের স্টুডেন্ট সাপোর্ট টিম আপনাকে কীভাবে সাহায্য করতে পারে?'
-              : 'How can our student team assist you?'}
-          </h1>
-          <p className="mt-3 max-w-2xl text-base text-slate-300">
-            {isBn
-              ? 'মক টেস্ট ডায়াগনস্টিক, মূসক ৬.৩ ভ্যাট চালান, এআই স্কোরিং নীতিমালা অথবা স্বচ্ছ রিফান্ড প্রক্রিয়ার তাৎক্ষণিক উত্তরের জন্য আমাদের নলেজ বেস অনুসন্ধান করুন।'
-              : 'Search our knowledge base for instant answers on test mock diagnostics, Mushak 6.3 VAT billing, AI scoring disclaimers, or transparent refunds.'}
-          </p>
+            </div>
+            <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              {isBn
+                ? 'আমাদের স্টুডেন্ট সাপোর্ট টিম আপনাকে কীভাবে সাহায্য করতে পারে?'
+                : 'How can our student team assist you?'}
+            </h1>
+            <p className="max-w-2xl text-base text-slate-300 leading-relaxed">
+              {isBn
+                ? 'মক টেস্ট ডায়াগনস্টিক, মূসক ৬.৩ ভ্যাট চালান, এআই স্কোরিং নীতিমালা অথবা স্বচ্ছ রিফান্ড প্রক্রিয়ার তাৎক্ষণিক উত্তরের জন্য আমাদের নলেজ বেস অনুসন্ধান করুন।'
+                : 'Search our knowledge base for instant answers on test mock diagnostics, Mushak 6.3 VAT billing, AI scoring disclaimers, or transparent refunds.'}
+            </p>
 
-          <div className="relative mt-8 max-w-2xl">
-            <Search className="pointer-events-none absolute left-3.5 top-3.5 h-5 w-5 text-slate-400" />
-            <Input
-              type="text"
-              placeholder={
-                isBn
-                  ? "কীওয়ার্ড দিয়ে খুঁজুন: 'Mushak 6.3', 'ভ্যাট', 'এআই স্কোর', 'রিফান্ড'..."
-                  : "Search by keywords: 'Mushak 6.3', 'AI essay score', 'disconnection', 'refund'..."
-              }
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-12 w-full rounded-xl border-slate-700 bg-white pl-11 pr-4 text-base text-slate-900 shadow-md focus:border-blue-600 focus:ring-blue-600"
+            <div className="relative pt-2 max-w-2xl">
+              <Search className="pointer-events-none absolute left-3.5 top-5.5 h-5 w-5 text-slate-400" />
+              <Input
+                type="text"
+                placeholder={
+                  isBn
+                    ? "কীওয়ার্ড দিয়ে খুঁজুন: 'Mushak 6.3', 'ভ্যাট', 'এআই স্কোর', 'রিফান্ড'..."
+                    : "Search by keywords: 'Mushak 6.3', 'AI essay score', 'disconnection', 'refund'..."
+                }
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-12 w-full rounded-xl border-slate-700 bg-white pl-11 pr-4 text-base text-slate-900 shadow-md focus:border-blue-600 focus:ring-blue-600"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-5.5 text-xs font-medium text-slate-500 hover:text-slate-800"
+                >
+                  {isBn ? 'মুছুন' : 'Clear'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Right 5 Columns: Student Support Poster Collage & Guaranteed SLA Card */}
+          <div className="lg:col-span-5 relative">
+            <div
+              className="absolute -top-3 -right-3 h-full w-full rounded-2xl bg-[#E4002B] opacity-85"
+              aria-hidden="true"
             />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3.5 top-3.5 text-xs font-medium text-slate-500 hover:text-slate-800"
-              >
-                {isBn ? 'মুছুন' : 'Clear'}
-              </button>
-            )}
+            <div
+              className="absolute -bottom-3 -left-3 h-full w-full rounded-2xl bg-[#00A896] opacity-80"
+              aria-hidden="true"
+            />
+            <div className="relative overflow-hidden rounded-2xl border-2 border-white/20 bg-slate-900 shadow-2xl">
+              <img
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1000&q=85"
+                alt={
+                  isBn
+                    ? 'শিক্ষার্থী সহায়তা ও একাডেমিক পরামর্শ দল'
+                    : 'Student support and academic mentoring desk'
+                }
+                className="h-[320px] w-full object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#001E42]/95 via-[#001E42]/35 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 rounded-xl border border-slate-200 bg-white/95 p-4 text-slate-900 shadow-xl backdrop-blur-xs space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold text-[#001E42]">
+                  <span>
+                    {isBn
+                      ? 'ঢাকা স্টুডেন্ট সাপোর্ট ডেস্ক (৯টা – ১০টা BST)'
+                      : 'Dhaka Student Desk (9am – 10pm BST)'}
+                  </span>
+                  <span className="rounded bg-[#00A896]/15 px-2 py-0.5 text-[10px] font-extrabold text-[#006677]">
+                    Mushak 6.3 Verified
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-600">
+                  {isBn
+                    ? '৭-দিনের ১-ক্লিক স্বচ্ছ রিফান্ড এবং লাইভ ক্লাস চলাকালীন ১৫-মিনিট জয়েন ডেস্ক সহায়তা।'
+                    : '7-day 1-click self-serve refund eligibility and 15-minute live batch join desk.'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

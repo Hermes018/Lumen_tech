@@ -736,86 +736,91 @@ export default function PricingPage() {
 
   return (
     <div className="flex flex-col items-center pb-20" data-locale={locale}>
-      {/* High-Contrast Oxford Navy Hero Banner (BUG-12) */}
-      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-[#001E42] px-4 py-14 text-white sm:py-20">
-        <div className="relative mx-auto max-w-6xl space-y-6 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1 text-xs font-semibold text-blue-200">
-            <Sparkles className="h-3.5 w-3.5 text-blue-400" />
-            <span>{tPricing('badge')}</span>
+      {/* High-Contrast Institutional Navy Hero Banner with Left-Aligned Editorial Kicker */}
+      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-[#001E42] text-white">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 lg:py-20 grid lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7 space-y-5 text-left">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-slate-200">
+              {tPricing('badge')}
+            </div>
+
+            <h1 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+              {tPricing('title')}
+            </h1>
+
+            <p className="max-w-2xl text-base text-slate-300 sm:text-lg leading-relaxed">
+              {tPricing('subtitle')}
+            </p>
+
+            {/* Exam Selector Tabs */}
+            <div className="pt-2 flex flex-wrap gap-2.5">
+              {[
+                { id: 'gre', label: tPricing('grePrep') },
+                { id: 'ielts_academic', label: tPricing('ieltsAcademic') },
+                { id: 'ielts_gt', label: tPricing('ieltsGt') },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setExam(tab.id as ExamType)}
+                  className={`rounded-lg px-5 py-2.5 text-sm font-bold transition-all ${
+                    exam === tab.id
+                      ? 'bg-[#E4002B] text-white shadow-md'
+                      : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <h1 className="mx-auto max-w-3xl text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            {tPricing('title')}
-          </h1>
-
-          <p className="mx-auto max-w-2xl text-base text-slate-300 sm:text-lg leading-relaxed">
-            {tPricing('subtitle')}
-          </p>
-
-          {/* Region Switcher */}
-          <div className="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="text-slate-300 font-medium">{tPricing('currencyRegion')}</span>
-            {[
-              {
-                id: 'BD',
-                label: isBn
-                  ? 'বাংলাদেশ (৳ BDT - ১৫% ভ্যাটসহ)'
-                  : 'BD (৳ BDT - 15% VAT incl.)',
-              },
-              {
-                id: 'A',
-                label: isBn
-                  ? 'অঞ্চল A ($ USD - উচ্চ আয়)'
-                  : 'Region A ($ USD - High Income)',
-              },
-              {
-                id: 'B',
-                label: isBn
-                  ? 'অঞ্চল B ($ USD - উচ্চ-মধ্যম)'
-                  : 'Region B ($ USD - Upper-Middle)',
-              },
-              {
-                id: 'C',
-                label: isBn
-                  ? 'অঞ্চল C ($ USD - দক্ষিণ এশিয়া)'
-                  : 'Region C ($ USD - South Asia / Emerging)',
-              },
-            ].map((reg) => (
-              <button
-                key={reg.id}
-                type="button"
-                onClick={() => setRegion(reg.id as Region)}
-                className={`rounded-lg px-3 py-1.5 font-semibold transition-all ${
-                  region === reg.id
-                    ? 'bg-blue-600 text-white shadow-sm ring-1 ring-blue-400'
-                    : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                {reg.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Exam Selector Tabs */}
-          <div className="pt-3 flex flex-wrap justify-center gap-2.5">
-            {[
-              { id: 'gre', label: tPricing('grePrep') },
-              { id: 'ielts_academic', label: tPricing('ieltsAcademic') },
-              { id: 'ielts_gt', label: tPricing('ieltsGt') },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setExam(tab.id as ExamType)}
-                className={`rounded-full px-5 py-2 text-sm font-bold transition-all ${
-                  exam === tab.id
-                    ? 'bg-white text-slate-950 shadow-md'
-                    : 'bg-slate-900 text-slate-300 border border-slate-700 hover:text-white hover:bg-slate-800'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          {/* Right 5 Columns: Region & Currency Selector Card */}
+          <div className="lg:col-span-5 rounded-2xl border border-white/15 bg-slate-900/90 p-6 space-y-4 shadow-xl">
+            <div className="border-l-4 border-[#00A896] pl-3 text-xs font-bold uppercase tracking-widest text-slate-200">
+              {tPricing('currencyRegion')}
+            </div>
+            <div className="grid grid-cols-1 gap-2 text-xs">
+              {[
+                {
+                  id: 'BD',
+                  label: isBn
+                    ? 'বাংলাদেশ (৳ BDT - ১৫% ভ্যাটসহ)'
+                    : 'BD (৳ BDT - 15% VAT incl.)',
+                },
+                {
+                  id: 'A',
+                  label: isBn
+                    ? 'অঞ্চল A ($ USD - উচ্চ আয়)'
+                    : 'Region A ($ USD - High Income)',
+                },
+                {
+                  id: 'B',
+                  label: isBn
+                    ? 'অঞ্চল B ($ USD - উচ্চ-মধ্যম)'
+                    : 'Region B ($ USD - Upper-Middle)',
+                },
+                {
+                  id: 'C',
+                  label: isBn
+                    ? 'অঞ্চল C ($ USD - দক্ষিণ এশিয়া)'
+                    : 'Region C ($ USD - South Asia / Emerging)',
+                },
+              ].map((reg) => (
+                <button
+                  key={reg.id}
+                  type="button"
+                  onClick={() => setRegion(reg.id as Region)}
+                  className={`rounded-lg px-3.5 py-2.5 text-left font-semibold transition-all ${
+                    region === reg.id
+                      ? 'bg-[#00A896] text-white shadow-sm'
+                      : 'bg-slate-950/70 text-slate-300 border border-slate-800 hover:text-white hover:bg-slate-800'
+                  }`}
+                >
+                  {reg.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -952,11 +957,11 @@ export default function PricingPage() {
 
         {/* All-Access Passes Section */}
         <div className="border-t border-border pt-16 space-y-8">
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <Badge variant="outline" className="border-accent text-accent text-xs">
-              {isBn ? 'বিস্তৃত অনুশীলনের সুযোগ' : 'Breadth Option'}
-            </Badge>
-            <h2 className="text-3xl font-extrabold text-fg">
+          <div className="text-left space-y-3 max-w-2xl">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#001E42]">
+              {isBn ? 'বিস্তৃত অনুশীলনের সুযোগ' : 'Multi-Exam Access Options'}
+            </div>
+            <h2 className="text-3xl lg:text-5xl font-extrabold text-fg">
               {isBn ? 'অল-অ্যাক্সেস পাসসমূহ' : 'All-Access Passes'}
             </h2>
             <p className="text-fg-muted text-sm leading-relaxed">
@@ -1012,11 +1017,11 @@ export default function PricingPage() {
 
         {/* Add-ons Section */}
         <div className="border-t border-border pt-16 space-y-8">
-          <div className="text-center space-y-2 max-w-2xl mx-auto">
-            <Badge variant="outline" className="text-xs">
-              {isBn ? 'ক্রেডিট রিফিল' : 'Credit Refills'}
-            </Badge>
-            <h3 className="text-2xl font-bold text-fg">
+          <div className="text-left space-y-3 max-w-2xl">
+            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#001E42]">
+              {isBn ? 'ক্রেডিট রিফিল' : 'On-Demand Credit Refills'}
+            </div>
+            <h3 className="text-3xl lg:text-5xl font-bold text-fg">
               {isBn ? 'অ্যাড-অন প্যাকসমূহ' : 'Add-on Packs'}
             </h3>
             <p className="text-fg-muted text-sm">
