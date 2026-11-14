@@ -1,5 +1,6 @@
 /** @purpose Marketing landing page showcasing GRE & IELTS test engines and lead-magnet tools */
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/src/i18n/routing';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
   Sparkles,
@@ -10,7 +11,9 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 
-export default function MarketingPage() {
+export default async function MarketingPage() {
+  const tHero = await getTranslations('hero');
+
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section */}
@@ -18,30 +21,28 @@ export default function MarketingPage() {
         <div className="mx-auto max-w-4xl space-y-6">
           <Badge variant="default" className="gap-1.5 px-3 py-1">
             <Sparkles className="h-3.5 w-3.5" />
-            Next-Gen GRE & IELTS Computer-Based Testing
+            {tHero('badge')}
           </Badge>
           <h1 className="text-fg text-4xl font-extrabold tracking-tight sm:text-6xl">
-            Target 330+ GRE & Band 8.0+ IELTS with High Precision
+            {tHero('title')}
           </h1>
           <p className="text-fg-muted mx-auto max-w-2xl text-lg sm:text-xl leading-relaxed">
-            The first Bangladesh-tailored ed-tech platform featuring authentic ETS exam interfaces,
-            section-adaptive difficulty algorithms, active-recall FSRS flashcards, and instant
-            Socratic walkthroughs.
+            {tHero('subtitle')}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <Link href="/diagnostic">
               <Button size="lg" className="gap-2">
-                Launch Free Express Diagnostic <ArrowRight className="h-4 w-4" />
+                {tHero('launchDiagnostic')} <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
             <Link href="/gre">
               <Button variant="outline" size="lg">
-                Explore GRE Platform
+                {tHero('exploreGre')}
               </Button>
             </Link>
             <Link href="/pricing">
               <Button variant="ghost" size="lg">
-                View Pricing & Passes
+                {tHero('viewPricing')}
               </Button>
             </Link>
           </div>

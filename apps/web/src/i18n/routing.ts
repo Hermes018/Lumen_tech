@@ -1,5 +1,6 @@
-/** @purpose next-intl routing configuration for en and bn locales */
+/** @purpose next-intl routing configuration and navigation helpers for en and bn locales */
 import { defineRouting } from 'next-intl/routing';
+import { createNavigation } from 'next-intl/navigation';
 
 export const routing = defineRouting({
   locales: ['en', 'bn'],
@@ -8,3 +9,6 @@ export const routing = defineRouting({
 });
 
 export type Locale = (typeof routing.locales)[number];
+
+export const { Link, redirect, usePathname, useRouter, getPathname } =
+  createNavigation(routing);

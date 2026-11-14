@@ -1,4 +1,4 @@
-/** @purpose Admin platform overview, user role management with super_admin guard (D4), and audit logging */
+/** @purpose Admin platform overview, user role management with super_admin guard, and audit logging */
 
 import React from 'react';
 import { requireServerActor, assertCan } from '@lumen/core';

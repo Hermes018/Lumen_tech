@@ -45,7 +45,7 @@ export default async function CourseLessonPage({
     notFound();
   }
 
-  // Generate signed Bunny Stream playback descriptor and anti-piracy watermark payload (docs/00 D3)
+  // Generate signed Bunny Stream playback descriptor and anti-piracy watermark payload
   const videoId = found.lesson.videoId ?? `bny_vid_${course}_${lesson}`;
   const signedEmbed = createSignedVideoEmbed(
     actor.id,

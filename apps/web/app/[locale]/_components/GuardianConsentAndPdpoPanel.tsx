@@ -1,4 +1,4 @@
-/** @purpose Client component for Bangladesh PDPO 2025 Under-18 Guardian Consent and Data Portability / Erasure controls (docs/00 D7, docs/02 §463) */
+/** @purpose Client component for Bangladesh PDPO 2025 Under-18 Guardian Consent and Data Portability / Erasure controls (PDPO compliance, docs/02 §463) */
 'use client';
 
 import React, { useState, useTransition, useEffect } from 'react';

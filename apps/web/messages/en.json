@@ -39,8 +39,44 @@
     "autosave": "Autosave: Active (every 10s to Cloud Neon DB)"
   },
   "footer": {
+    "curriculum": "Curriculum",
+    "platform": "Platform",
+    "legal": "Legal",
+    "connect": "Connect",
+    "greCbt": "GRE Prep (Adaptive CBT)",
+    "ieltsAg": "IELTS Academic & General",
+    "fsrsVocab": "FSRS Vocab Engine",
+    "freeDiag": "Free Diagnostic Test",
+    "pricingPlans": "Pricing & Plans",
+    "pedagogy": "Interactive Pedagogy",
+    "forInstitutions": "For Universities & Schools",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "refundPolicy": "Refund Policy",
+    "grievance": "Grievance Officer",
+    "dhaka": "Dhaka, Bangladesh",
+    "paymentMethods": "bKash, Nagad, Cards & Global Checkout",
     "trademarkDisclaimer": "GRE® is a registered trademark of ETS. IELTS® is a registered trademark of Cambridge Assessment English, British Council, and IDP Education. Lumen Academy is an independent preparation service not endorsed by or affiliated with ETS, Cambridge, British Council, or IDP.",
-    "copyright": "© 2026 Lumen Academy. Built for high-ambition Bangladeshi & international scholars."
+    "disclaimerP1": "GRE® is a registered trademark of Educational Testing Service (ETS). IELTS® is a registered trademark of Cambridge Assessment English, the British Council, and IDP Education.",
+    "disclaimerP2": "{appName} is an independent preparation service and is not affiliated with, approved, or endorsed by ETS, Cambridge Assessment English, the British Council, or IDP Education. All score benchmarks and percentiles are estimated diagnostic indicators.",
+    "copyright": "© 2026 {appName}. Built for high-ambition Bangladeshi & international scholars."
+  },
+  "hero": {
+    "badge": "Next-Gen GRE & IELTS Computer-Based Testing",
+    "title": "Target 330+ GRE & Band 8.0+ IELTS with High Precision",
+    "subtitle": "The first Bangladesh-tailored ed-tech platform featuring authentic ETS exam interfaces, section-adaptive difficulty algorithms, active-recall FSRS flashcards, and instant Socratic walkthroughs.",
+    "launchDiagnostic": "Launch Free Express Diagnostic",
+    "exploreGre": "Explore GRE Platform",
+    "viewPricing": "View Pricing & Passes"
+  },
+  "pricingPage": {
+    "badge": "Verified Historical Pricing",
+    "title": "Transparent Pricing. No Fake Discounts.",
+    "subtitle": "Every taka and dollar carries real value: zero resetting countdown timers, no artificial strikethroughs, and 15% VAT included in Bangladesh with bKash 2/3-part installments.",
+    "currencyRegion": "Currency / Region:",
+    "grePrep": "GRE® Prep",
+    "ieltsAcademic": "IELTS® Academic",
+    "ieltsGt": "IELTS® General Training"
   },
   "auth": {
     "signInTitle": "Sign in",

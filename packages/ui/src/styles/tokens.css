@@ -16,8 +16,9 @@
   --breakpoint-2xl: 90rem;
 
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-               var(--font-inter), Inter, var(--font-bn), "Noto Sans Bengali", "Hind Siliguri",
+               var(--font-inter), Inter, var(--font-bengali), var(--font-bn), "Noto Sans Bengali", "Hind Siliguri",
                system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-bengali: var(--font-bengali), "Hind Siliguri", "Noto Sans Bengali", sans-serif;
   --font-mono: ui-monospace, "SF Mono", var(--font-mono-next), "JetBrains Mono", Menlo, Consolas, monospace;
 
   --radius-xs: 4px;

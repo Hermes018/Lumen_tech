@@ -1,0 +1,109 @@
+'use client';
+
+/** @purpose Interactive EN / বাংলা language switcher with NEXT_LOCALE cookie persistence (BUG-05) */
+import React, { Suspense, useTransition } from 'react';
+import { useLocale } from 'next-intl';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Globe } from 'lucide-react';
+
+function LocaleSwitcherInner({ className = '' }: { className?: string }) {
+  const locale = useLocale();
+  const pathname = usePathname() || '/';
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const switchLocale = (targetLocale: 'en' | 'bn') => {
+    if (targetLocale === locale) return;
+
+    // 1. Calculate target pathname preserving sub-routes
+    let targetPath = pathname;
+    if (targetLocale === 'bn') {
+      if (pathname === '/') {
+        targetPath = '/bn';
+      } else if (!pathname.startsWith('/bn/') && pathname !== '/bn') {
+        targetPath = `/bn${pathname}`;
+      }
+    } else {
+      // Switching to 'en' (default locale with 'as-needed' prefix)
+      if (pathname === '/bn') {
+        targetPath = '/';
+      } else if (pathname.startsWith('/bn/')) {
+        targetPath = pathname.slice(3) || '/';
+      }
+    }
+
+    // Preserve query parameters (e.g. ?plan=gre-core)
+    const queryString = searchParams?.toString();
+    const finalUrl = queryString ? `${targetPath}?${queryString}` : targetPath;
+
+    // 2. Persist NEXT_LOCALE cookie for next-intl routing
+    document.cookie = `NEXT_LOCALE=${targetLocale};path=/;max-age=${60 * 60 * 24 * 365};SameSite=Lax`;
+
+    // 3. Smooth transition to target route
+    startTransition(() => {
+      router.push(finalUrl);
+      router.refresh();
+    });
+  };
+
+  return (
+    <div
+      className={`border-border bg-surface-2/60 text-fg-muted flex items-center gap-1 rounded-lg border p-1 text-xs font-medium backdrop-blur-xs transition-colors ${className}`}
+      role="region"
+      aria-label="Language selector"
+    >
+      <Globe className="text-fg-muted ml-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <button
+        type="button"
+        onClick={() => switchLocale('en')}
+        disabled={isPending}
+        className={`cursor-pointer rounded-md px-2 py-0.5 text-xs transition-all ${
+          locale === 'en'
+            ? 'bg-surface text-fg font-bold shadow-xs ring-1 ring-border/50'
+            : 'text-fg-muted hover:text-fg hover:bg-surface/50'
+        }`}
+        aria-current={locale === 'en' ? 'true' : undefined}
+        aria-label="Switch to English"
+      >
+        EN
+      </button>
+      <span className="text-border text-[10px] select-none" aria-hidden="true">
+        /
+      </span>
+      <button
+        type="button"
+        onClick={() => switchLocale('bn')}
+        disabled={isPending}
+        className={`cursor-pointer rounded-md px-2 py-0.5 text-xs font-bengali transition-all ${
+          locale === 'bn'
+            ? 'bg-surface text-fg font-bold shadow-xs ring-1 ring-border/50'
+            : 'text-fg-muted hover:text-fg hover:bg-surface/50'
+        }`}
+        aria-current={locale === 'bn' ? 'true' : undefined}
+        aria-label="বাংলা ভাষায় পরিবর্তন করুন"
+      >
+        বাংলা
+      </button>
+    </div>
+  );
+}
+
+function LocaleSwitcherSkeleton({ className = '' }: { className?: string }) {
+  return (
+    <div
+      className={`border-border bg-surface-2/40 text-fg-muted flex h-7 items-center gap-1 rounded-lg border px-2 py-1 text-xs ${className}`}
+    >
+      <Globe className="h-3.5 w-3.5 opacity-40" />
+      <span className="px-1 text-[11px] opacity-40">EN / বাংলা</span>
+    </div>
+  );
+}
+
+export function LocaleSwitcher({ className = '' }: { className?: string }) {
+  return (
+    <Suspense fallback={<LocaleSwitcherSkeleton className={className} />}>
+      <LocaleSwitcherInner className={className} />
+    </Suspense>
+  );
+}

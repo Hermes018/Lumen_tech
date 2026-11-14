@@ -1,11 +1,16 @@
-/** @purpose Marketing shell layout with frosted navbar and trademark disclaimer */
+/** @purpose Marketing shell layout with frosted navbar, LocaleSwitcher, and translated chrome */
 import type { ReactNode } from 'react';
-import Link from 'next/link';
 import { brand } from '@lumen/config';
 import { Button } from '@lumen/ui';
-import { Globe, GraduationCap } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { Link } from '@/src/i18n/routing';
+import { LocaleSwitcher } from '../_components/LocaleSwitcher';
 
-export default function MarketingLayout({ children }: { children: ReactNode }) {
+export default async function MarketingLayout({ children }: { children: ReactNode }) {
+  const tCommon = await getTranslations('common');
+  const tFooter = await getTranslations('footer');
+
   return (
     <div className="marketing-shell bg-canvas text-fg flex min-h-screen flex-col">
       {/* Skip to main content link for accessibility */}
@@ -28,45 +33,36 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
             </Link>
             <nav className="text-fg-muted hidden items-center gap-6 text-sm font-medium md:flex">
               <Link href="/courses" className="hover:text-fg transition-colors">
-                Courses
+                {tCommon('courses')}
               </Link>
               <Link href="/gre" className="hover:text-fg transition-colors">
-                GRE Prep
+                {tCommon('grePrep')}
               </Link>
               <Link href="/ielts" className="hover:text-fg transition-colors">
-                IELTS Prep
+                {tCommon('ieltsPrep')}
               </Link>
               <Link href="/pricing" className="hover:text-fg transition-colors">
-                Pricing
+                {tCommon('pricing')}
               </Link>
               <Link href="/exam/diagnostic" className="hover:text-fg transition-colors">
-                Free Diagnostic
+                {tCommon('diagnostic')}
               </Link>
             </nav>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Locale Switcher Stub */}
-            <div className="border-control text-fg-muted hidden items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium sm:flex">
-              <Globe className="h-3.5 w-3.5" />
-              <button type="button" className="text-fg font-semibold hover:underline">
-                EN
-              </button>
-              <span>/</span>
-              <button type="button" className="hover:text-fg hover:underline">
-                বাংলা
-              </button>
-            </div>
+            {/* Interactive EN / বাংলা Language Switcher */}
+            <LocaleSwitcher />
 
             {/* Auth Actions */}
             <Link href="/sign-in">
               <Button variant="ghost" size="sm">
-                Sign In
+                {tCommon('signIn')}
               </Button>
             </Link>
             <Link href="/sign-in">
               <Button variant="primary" size="sm">
-                Get Started
+                {tCommon('getStarted')}
               </Button>
             </Link>
           </div>
@@ -83,80 +79,88 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div>
-              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">Curriculum</h3>
+              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">
+                {tFooter('curriculum')}
+              </h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
                   <Link href="/gre" className="hover:text-fg transition-colors">
-                    GRE Prep (Adaptive CBT)
+                    {tFooter('greCbt')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/ielts" className="hover:text-fg transition-colors">
-                    IELTS Academic & General
+                    {tFooter('ieltsAg')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/gre#vocab" className="hover:text-fg transition-colors">
-                    FSRS Vocab Engine
+                    {tFooter('fsrsVocab')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/exam/diagnostic" className="hover:text-fg transition-colors">
-                    Free Diagnostic Test
+                    {tFooter('freeDiag')}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">Platform</h3>
+              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">
+                {tFooter('platform')}
+              </h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
                   <Link href="/pricing" className="hover:text-fg transition-colors">
-                    Pricing & Plans
+                    {tFooter('pricingPlans')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/gre#pedagogy" className="hover:text-fg transition-colors">
-                    Interactive Pedagogy
+                    {tFooter('pedagogy')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/for-institutions" className="hover:text-fg transition-colors">
-                    For Universities & Schools
+                    {tFooter('forInstitutions')}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">Legal</h3>
+              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">
+                {tFooter('legal')}
+              </h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
                   <Link href="/legal/terms" className="hover:text-fg transition-colors">
-                    Terms of Service
+                    {tFooter('terms')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/legal/privacy" className="hover:text-fg transition-colors">
-                    Privacy Policy
+                    {tFooter('privacy')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/legal/refund-policy" className="hover:text-fg transition-colors">
-                    Refund Policy
+                    {tFooter('refundPolicy')}
                   </Link>
                 </li>
                 <li>
                   <Link href="/legal/grievance" className="hover:text-fg transition-colors">
-                    Grievance Officer
+                    {tFooter('grievance')}
                   </Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">Connect</h3>
+              <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">
+                {tFooter('connect')}
+              </h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
-                  <span className="block">Dhaka, Bangladesh</span>
+                  <span className="block">{tFooter('dhaka')}</span>
                 </li>
                 <li>
                   <a
@@ -168,7 +172,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 </li>
                 <li>
                   <span className="text-fg-subtle text-xs">
-                    bKash, Nagad, Cards & Global Checkout
+                    {tFooter('paymentMethods')}
                   </span>
                 </li>
               </ul>
@@ -178,18 +182,13 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
           {/* Trademark Disclaimer & Legal Mandatory Notice */}
           <div className="border-border text-fg-subtle mt-8 border-t pt-8 text-xs leading-relaxed">
             <p className="mb-2">
-              GRE® is a registered trademark of Educational Testing Service (ETS). IELTS® is a
-              registered trademark of Cambridge Assessment English, the British Council, and IDP
-              Education.
+              {tFooter('disclaimerP1')}
             </p>
             <p className="mb-4">
-              {brand.name} is an independent preparation service and is not affiliated with,
-              approved, or endorsed by ETS, Cambridge Assessment English, the British Council, or
-              IDP Education. All score benchmarks and percentiles are estimated diagnostic
-              indicators.
+              {tFooter('disclaimerP2', { appName: brand.name })}
             </p>
             <p>
-              © 2026 {brand.name}. Built for high-ambition Bangladeshi & international scholars.
+              {tFooter('copyright', { appName: brand.name })}
             </p>
           </div>
         </div>

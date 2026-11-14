@@ -1,6 +1,6 @@
 'use client';
 
-/** @purpose Interactive Distraction-Calm Course Player with dynamic moving anti-piracy watermark, collapsible syllabus sidebar, and notes/drill/Q&A tabs (docs/00 D3, docs/10 §8) */
+/** @purpose Interactive Distraction-Calm Course Player with dynamic moving anti-piracy watermark, collapsible syllabus sidebar, and notes/drill/Q&A tabs (anti-piracy watermark, docs/10 §8) */
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -242,7 +242,7 @@ export function CoursePlayerClient({
             className="group relative aspect-video w-full overflow-hidden rounded-xl border border-gray-800 bg-black shadow-2xl"
             id="video-player-container"
           >
-            {/* The Moving Visible Anti-Piracy Watermark Overlay (docs/00 D3, docs/10 §8.7) */}
+            {/* The Moving Visible Anti-Piracy Watermark Overlay (anti-piracy, docs/10 §8.7) */}
             <div
               className="pointer-events-none absolute z-50 select-none transition-all duration-1000 ease-out"
               style={{

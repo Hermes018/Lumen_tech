@@ -1,27 +1,72 @@
-/** @purpose Checkout payment page with VAT breakdown and SSLCommerz gateway integration */
+/** @purpose Checkout payment page with plan preselection, 15% BD VAT breakdown, and SSLCommerz gateway integration */
 
 import React from 'react';
-import { CANONICAL_PRODUCTS } from '@lumen/core';
+import { CANONICAL_PRODUCTS, type ProductDefinition } from '@lumen/core';
 import { CheckoutClient } from './CheckoutClient';
 
-export default function CheckoutPage() {
-  const initialProduct = CANONICAL_PRODUCTS[0]!;
+function resolveProduct(planParam?: string): ProductDefinition {
+  if (!planParam) return CANONICAL_PRODUCTS[0]!;
+  const cleaned = planParam.trim().toLowerCase();
+  const direct = CANONICAL_PRODUCTS.find((p) => p.slug.toLowerCase() === cleaned);
+  if (direct) return direct;
+
+  // Semantic mappings and aliases
+  if (cleaned.includes('gre') && cleaned.includes('plus')) {
+    return CANONICAL_PRODUCTS.find((p) => p.slug === 'gre-plus') || CANONICAL_PRODUCTS[0]!;
+  }
+  if (cleaned.includes('gre')) {
+    return (
+      CANONICAL_PRODUCTS.find((p) => p.slug === 'gre-core' || p.slug === 'gre-complete-core') ||
+      CANONICAL_PRODUCTS[0]!
+    );
+  }
+  if (cleaned.includes('ielts') && cleaned.includes('plus')) {
+    return (
+      CANONICAL_PRODUCTS.find((p) => p.slug === 'ielts-academic-plus') || CANONICAL_PRODUCTS[0]!
+    );
+  }
+  if (cleaned.includes('ielts')) {
+    return (
+      CANONICAL_PRODUCTS.find((p) => p.slug === 'ielts-academic-core') || CANONICAL_PRODUCTS[0]!
+    );
+  }
+  if (cleaned.includes('mock')) {
+    return (
+      CANONICAL_PRODUCTS.find((p) => p.slug === 'mock-pack-4' || p.slug === 'gre-mock-pack-5') ||
+      CANONICAL_PRODUCTS[0]!
+    );
+  }
+  if (cleaned.includes('credit') || cleaned.includes('ai')) {
+    return CANONICAL_PRODUCTS.find((p) => p.slug === 'ai-credits-10') || CANONICAL_PRODUCTS[0]!;
+  }
+  if (cleaned.includes('review') || cleaned.includes('human')) {
+    return (
+      CANONICAL_PRODUCTS.find((p) => p.slug === 'human-review-pack') || CANONICAL_PRODUCTS[0]!
+    );
+  }
+  if (cleaned.includes('pass')) {
+    return CANONICAL_PRODUCTS.find((p) => p.slug === 'lumen-annual-pass') || CANONICAL_PRODUCTS[0]!;
+  }
+
+  return CANONICAL_PRODUCTS[0]!;
+}
+
+export default async function CheckoutPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plan?: string; product?: string }>;
+}) {
+  const params = await searchParams;
+  const initialProduct = resolveProduct(params.plan || params.product);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-[#111]">
-          Complete Your Enrollment
-        </h1>
-        <p className="mt-1 text-xs text-[#666]">
-          Secure online payment processed in Bangladeshi Taka (BDT) via SSLCommerz.
-        </p>
-      </div>
-
+    <div className="w-full">
       <React.Suspense
         fallback={
-          <div className="flex h-64 items-center justify-center rounded border border-[#ddd] bg-white">
-            <span className="font-mono text-sm text-[#777]">Loading checkout session...</span>
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
+            <div className="flex h-64 items-center justify-center rounded-xl border border-border bg-surface">
+              <span className="font-mono text-sm text-fg-muted">Loading checkout session...</span>
+            </div>
           </div>
         }
       >

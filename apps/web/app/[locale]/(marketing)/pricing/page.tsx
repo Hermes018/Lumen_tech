@@ -2,7 +2,8 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/src/i18n/routing';
 import {
   type Region,
   getInstallmentSchedule,
@@ -456,6 +457,7 @@ const ADD_ON_PACKS = [
 ];
 
 export default function PricingPage() {
+  const tPricing = useTranslations('pricingPage');
   const [exam, setExam] = React.useState<ExamType>('gre');
   const [region, setRegion] = React.useState<Region>('BD');
   const [installmentModalTier, setInstallmentModalTier] = React.useState<string | null>(null);
@@ -503,19 +505,18 @@ export default function PricingPage() {
         {/* Header & Philosophy */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <Badge variant="outline" className="border-accent text-accent text-xs">
-            Honest Pricing Policy (D12 C14)
+            {tPricing('badge')}
           </Badge>
           <h1 className="text-4xl font-extrabold tracking-tight text-fg sm:text-5xl">
-            Transparent Pricing. No Fake Discounts.
+            {tPricing('title')}
           </h1>
           <p className="text-fg-muted text-base sm:text-lg leading-relaxed">
-            Every taka and dollar carries real value: zero resetting countdown timers, no artificial
-            strikethroughs, and 15% VAT included in Bangladesh with bKash 2/3-part installments.
+            {tPricing('subtitle')}
           </p>
 
           {/* Region Switcher */}
           <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="text-fg-muted font-medium">Currency / Region:</span>
+            <span className="text-fg-muted font-medium">{tPricing('currencyRegion')}</span>
             {[
               { id: 'BD', label: 'BD (৳ BDT - 15% VAT incl.)' },
               { id: 'A', label: 'Region A ($ USD - High Income)' },
@@ -540,9 +541,9 @@ export default function PricingPage() {
           {/* Exam Selector Tabs */}
           <div className="pt-4 flex justify-center gap-2">
             {[
-              { id: 'gre', label: 'GRE® Prep' },
-              { id: 'ielts_academic', label: 'IELTS® Academic' },
-              { id: 'ielts_gt', label: 'IELTS® General Training' },
+              { id: 'gre', label: tPricing('grePrep') },
+              { id: 'ielts_academic', label: tPricing('ieltsAcademic') },
+              { id: 'ielts_gt', label: tPricing('ieltsGt') },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -615,7 +616,7 @@ export default function PricingPage() {
                         </Button>
                       </Link>
                     ) : (
-                      <Link href={`/checkout?product=${tier.slug}`} className="w-full">
+                      <Link href={`/checkout?plan=${tier.slug}`} className="w-full">
                         <Button
                           variant={tier.popular ? 'primary' : 'outline'}
                           className="w-full gap-2 font-semibold"
@@ -680,7 +681,7 @@ export default function PricingPage() {
                     ))}
                   </ul>
                   <div className="pt-2">
-                    <Link href={`/checkout?product=${pass.slug}`}>
+                    <Link href={`/checkout?plan=${pass.slug}`}>
                       <Button variant="outline" size="sm" className="w-full">
                         Get Pass
                       </Button>
@@ -715,7 +716,7 @@ export default function PricingPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-xs text-fg-muted leading-relaxed">{pack.description}</p>
-                  <Link href={`/checkout?product=${pack.slug}`}>
+                  <Link href={`/checkout?plan=${pack.slug}`}>
                     <Button variant="outline" size="sm" className="w-full">
                       Add to Account
                     </Button>
@@ -764,8 +765,7 @@ export default function PricingPage() {
                 <Sparkles className="h-4 w-4 text-accent" /> Banned Fake Strikethroughs
               </div>
               <p className="text-fg-muted leading-relaxed">
-                Per D12 C14, compare_at prices are shown only if that exact price was actively
-                charged for &ge; 28 consecutive days in the last 90 days.
+                Discount strikethroughs are displayed only when the prior price was active for at least 28 consecutive days in the past 90 days.
               </p>
             </div>
           </div>
@@ -841,7 +841,7 @@ export default function PricingPage() {
                   >
                     Close
                   </Button>
-                  <Link href={`/checkout?product=${activeInstallmentSchedule.threePart?.productSlug || 'live'}`}>
+                  <Link href={`/checkout?plan=${activeInstallmentSchedule.threePart?.productSlug || 'live'}`}>
                     <Button size="sm">Proceed with bKash</Button>
                   </Link>
                 </div>

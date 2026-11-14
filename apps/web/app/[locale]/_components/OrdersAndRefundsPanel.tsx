@@ -133,7 +133,7 @@ export function OrdersAndRefundsPanel({ showAccountSecurity = false }: { showAcc
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
                 <ShieldCheck className="text-accent h-5 w-5" />
-                Account &amp; Security (D4)
+                Account &amp; Security
               </CardTitle>
               <Badge variant={data.twoFactorVerified ? 'default' : 'outline'}>
                 {data.twoFactorVerified ? '2FA Verified' : 'Standard Session'}

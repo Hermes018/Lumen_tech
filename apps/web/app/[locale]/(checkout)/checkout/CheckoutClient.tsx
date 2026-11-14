@@ -18,6 +18,10 @@ interface CheckoutClientProps {
 
 export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
   const [selectedProduct, setSelectedProduct] = useState<ProductDefinition>(initialProduct);
+
+  React.useEffect(() => {
+    setSelectedProduct(initialProduct);
+  }, [initialProduct]);
   const [name, setName] = useState('Ayman Rahman');
   const [email, setEmail] = useState('aymanrahman30@gmail.com');
   const [phone, setPhone] = useState('01712345678');
@@ -95,11 +99,11 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
     });
   };
 
-  const basePriceMinor = Math.round(selectedProduct.prices.BD / 1.05);
+  const basePriceMinor = Math.round(selectedProduct.prices.BD / 1.15);
   const vatMinor = selectedProduct.prices.BD - basePriceMinor;
 
   return (
-    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
       {/* Left Column: Billing Details & Payment Gateway */}
       <div className="space-y-6 lg:col-span-7">
         <div className="rounded-lg border border-[#e0e0e0] bg-white p-6 shadow-xs sm:p-8">
@@ -343,18 +347,18 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
 
       {/* Right Column: Order Summary & VAT Breakdown */}
       <div className="space-y-6 lg:col-span-5">
-        <div className="rounded-lg border border-[#e0e0e0] bg-[#fafafa] p-6 shadow-xs">
-          <h3 className="border-b border-[#eee] pb-3 text-sm font-bold tracking-tight text-[#222]">
+        <div className="sticky top-24 rounded-xl border border-border bg-surface p-6 shadow-xs">
+          <h3 className="border-b border-border pb-3 text-sm font-bold tracking-tight text-fg">
             Order Summary
           </h3>
 
           {/* Product Picker */}
           <div className="mt-4">
-            <label className="block text-xs font-semibold text-[#666]">Select Plan / Package:</label>
+            <label className="block text-xs font-semibold text-fg-muted">Select Plan / Package:</label>
             <select
               value={selectedProduct.slug}
               onChange={(e) => handleProductChange(e.target.value)}
-              className="mt-1 w-full rounded border border-[#ccc] bg-white p-2 text-xs font-medium text-[#222]"
+              className="mt-1 w-full rounded border border-border bg-canvas p-2 text-xs font-medium text-fg focus:border-accent focus:outline-none"
             >
               {CANONICAL_PRODUCTS.map((prod) => (
                 <option key={prod.slug} value={prod.slug}>
@@ -365,7 +369,7 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
           </div>
 
           {/* Included Features */}
-          <div className="mt-6 space-y-2 border-b border-[#eee] pb-6 text-xs text-[#555]">
+          <div className="mt-6 space-y-2 border-b border-border pb-6 text-xs text-fg-muted">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
               <span>Full Computer-Based Mock Test Engine</span>
@@ -388,25 +392,25 @@ export function CheckoutClient({ initialProduct }: CheckoutClientProps) {
 
           {/* Price Breakdown */}
           <div className="mt-6 space-y-2 text-xs">
-            <div className="flex justify-between text-[#666]">
+            <div className="flex justify-between text-fg-muted">
               <span>Base Subtotal:</span>
               <span>BDT {(basePriceMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div className="flex justify-between text-[#666]">
-              <span>5% Educational VAT (Included):</span>
+            <div className="flex justify-between text-fg-muted">
+              <span>15% BD VAT (Mushak 6.3 Included):</span>
               <span>BDT {(vatMinor / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div className="flex justify-between border-t border-[#ddd] pt-3 text-base font-extrabold text-[#111]">
+            <div className="flex justify-between border-t border-border pt-3 text-base font-extrabold text-fg">
               <span>Grand Total:</span>
-              <span className="text-[#1a56db]">
+              <span className="text-accent">
                 BDT {(selectedProduct.prices.BD / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-2 rounded border border-emerald-200 bg-emerald-50 p-3 text-[11px] text-emerald-900">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-700" />
-            <span>7-Day Money-Back Guarantee if &lt;20% course consumed (docs/00 §D5).</span>
+          <div className="mt-6 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-800 dark:text-emerald-300">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <span>100% refund within 7 days if less than 20% of course content is consumed.</span>
           </div>
         </div>
       </div>
