@@ -16,6 +16,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { confirmReturnCallbackAction } from '@/app/actions/checkout';
+import { brand } from '@lumen/config';
 import type { OrderRecord, EntitlementRecord } from '@lumen/core';
 
 export function CheckoutReturnClient() {
@@ -151,7 +152,7 @@ export function CheckoutReturnClient() {
                 Try Payment Again
               </Link>
               <a
-                href="mailto:support@lumenacademy.com"
+                href={`mailto:${brand.supportEmail}`}
                 className="inline-flex items-center gap-2 rounded-md border border-[#d1d5db] bg-white px-4 py-2 text-sm font-medium text-[#374151] hover:bg-[#f9fafb]"
               >
                 <HelpCircle className="h-4 w-4" />

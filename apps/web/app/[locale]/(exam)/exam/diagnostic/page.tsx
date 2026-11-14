@@ -10,7 +10,7 @@ import {
   type DiagnosticAttemptRecord,
   type GuestDiagnosticSession,
 } from '@lumen/core';
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
+import { Button, Badge, Card, CardHeader, CardTitle, CardContent, MathText } from '@lumen/ui';
 import { GreCalculator } from '@lumen/ui';
 import {
   Calculator as CalcIcon,
@@ -283,7 +283,7 @@ export default function DiagnosticExamPage() {
                       </div>
                       {item.trapTriggered && (
                         <div className="rounded bg-warning/15 p-2 text-warning font-medium">
-                          Cognitive Trap: {item.trapTriggered.label} — {item.trapTriggered.description}
+                          Cognitive Trap: {item.trapTriggered.label} — <MathText content={item.trapTriggered.description} />
                         </div>
                       )}
                     </div>
@@ -368,7 +368,7 @@ export default function DiagnosticExamPage() {
         {/* Question Card */}
         <div className="rounded-xl border border-[#ccc] bg-white p-6 shadow-xs space-y-6">
           <div className="text-sm font-medium leading-relaxed text-[#111]">
-            {currentQuestion.prompt}
+            <MathText content={currentQuestion.prompt} />
           </div>
 
           {/* QC Column Layout if type is QC */}
@@ -376,11 +376,15 @@ export default function DiagnosticExamPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 rounded-lg border border-[#eee] bg-[#fafafa] p-4 text-center">
               <div className="border-r border-[#eee] pr-4">
                 <div className="text-xs uppercase font-semibold text-[#777]">Quantity A</div>
-                <div className="text-base font-bold text-[#111] mt-1">{currentQuestion.quantityA}</div>
+                <div className="text-base font-bold text-[#111] mt-1">
+                  <MathText content={currentQuestion.quantityA} />
+                </div>
               </div>
               <div>
                 <div className="text-xs uppercase font-semibold text-[#777]">Quantity B</div>
-                <div className="text-base font-bold text-[#111] mt-1">{currentQuestion.quantityB}</div>
+                <div className="text-base font-bold text-[#111] mt-1">
+                  <MathText content={currentQuestion.quantityB} />
+                </div>
               </div>
             </div>
           )}
@@ -408,7 +412,9 @@ export default function DiagnosticExamPage() {
                     <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[#bbb] font-mono text-xs font-semibold">
                       {opt.id}
                     </span>
-                    <span>{opt.text}</span>
+                    <span>
+                      <MathText content={opt.text} />
+                    </span>
                   </div>
                   {isSelected && <CheckCircle2 className="h-4 w-4 text-accent" />}
                 </button>

@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/card';
 import { Input } from '../components/input';
 import { ProgressBar } from '../components/progress-bar';
 import { Callout } from '../components/callout';
+import { MathText, parseMathSegments } from '../components/math-text';
 
 describe('UI Primitives Smoke Suite', () => {
   it('renders Button with primary academic blue variant', () => {
@@ -66,5 +67,54 @@ describe('UI Primitives Smoke Suite', () => {
     expect(screen.getByText('75%')).toBeDefined();
     const bar = container.querySelector('[role="progressbar"] > div') as HTMLElement;
     expect(bar.style.width).toBe('75%');
+  });
+
+  describe('MathText and KaTeX mathematical rendering', () => {
+    it('parses inline and block math segments correctly', () => {
+      const text = 'Let $x$ be an integer such that $x^2 = 16$. $$y = \\sqrt{z}$$';
+      const segments = parseMathSegments(text);
+      expect(segments).toHaveLength(6);
+      expect(segments[0]).toEqual({ type: 'text', value: 'Let ', displayMode: false });
+      expect(segments[1]).toEqual({ type: 'math', value: 'x', displayMode: false });
+      expect(segments[2]).toEqual({ type: 'text', value: ' be an integer such that ', displayMode: false });
+      expect(segments[3]).toEqual({ type: 'math', value: 'x^2 = 16', displayMode: false });
+      expect(segments[4]).toEqual({ type: 'text', value: '. ', displayMode: false });
+      expect(segments[5]).toEqual({ type: 'math', value: 'y = \\sqrt{z}', displayMode: true });
+    });
+
+    it('renders math expressions cleanly with KaTeX MathML/HTML and zero raw $ signs', () => {
+      const raw = 'Let $x$ be an integer such that $x^2 = 16$. Quantity A is $x$, Quantity B is $0$ ($x = \\pm 4$).';
+      const { container } = render(<MathText content={raw} />);
+      
+      // Zero raw $ characters in the rendered text
+      expect(container.textContent).not.toContain('$');
+      // KaTeX rendered spans should be present
+      const katexElements = container.querySelectorAll('.katex');
+      expect(katexElements.length).toBe(5);
+    });
+
+    it('handles fractions, square roots, inequalities, subscripts and superscripts', () => {
+      const raw = 'Evaluate $\\frac{a}{b}$, $\\sqrt{x}$, $x \\leq 4$, $y \\geq 2$, and $x_1 \\neq x_2$.';
+      const { container } = render(<MathText content={raw} />);
+      expect(container.textContent).not.toContain('$');
+      const katexElements = container.querySelectorAll('.katex');
+      expect(katexElements.length).toBe(5);
+    });
+
+    it('renders block math equations ($$...$$) with block display styling', () => {
+      const raw = '$$\\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$';
+      const { container } = render(<MathText content={raw} />);
+      expect(container.textContent).not.toContain('$');
+      const blockSpan = container.querySelector('.katex-block');
+      expect(blockSpan).toBeDefined();
+      expect(blockSpan?.className).toContain('block');
+    });
+
+    it('handles empty or null content gracefully without throwing', () => {
+      const { container: c1 } = render(<MathText content="" />);
+      expect(c1.innerHTML).toBe('');
+      const { container: c2 } = render(<MathText content={null} />);
+      expect(c2.innerHTML).toBe('');
+    });
   });
 });

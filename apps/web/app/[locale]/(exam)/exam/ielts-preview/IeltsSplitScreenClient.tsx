@@ -29,6 +29,7 @@ type ActiveTab = 'reading' | 'writing';
 export function IeltsSplitScreenClient() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('reading');
   const [textSize, setTextSize] = useState<TextSize>('standard');
+  const [mobileSegment, setMobileSegment] = useState<'passage' | 'questions' | 'notepad'>('passage');
   const [isTimerVisible, setIsTimerVisible] = useState(true);
   const [isNotepadOpen, setIsNotepadOpen] = useState(false);
   const [notesContent, setNotesContent] = useState('');
@@ -105,7 +106,7 @@ export function IeltsSplitScreenClient() {
   };
 
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden bg-[#eef0f3] text-[#222] font-sans select-none">
+    <div className="flex h-screen w-full max-w-none m-0 flex-col overflow-x-hidden bg-[#eef0f3] text-[#222] font-sans select-none">
       {/* Official IDP CBT Header */}
       <header className="flex h-14 items-center justify-between border-b border-[#c8ccd0] bg-[#1e293b] px-4 text-white shadow-sm">
         <div className="flex items-center gap-4">
@@ -225,12 +226,51 @@ export function IeltsSplitScreenClient() {
         </div>
       </header>
 
+      {/* Mobile Segment Bar (< 1024px) */}
+      <div className="flex lg:hidden items-center justify-around border-b border-gray-300 bg-gray-100 p-1 text-xs font-semibold text-gray-700">
+        <button
+          type="button"
+          onClick={() => setMobileSegment('passage')}
+          className={`flex-1 py-1.5 text-center rounded transition-colors ${
+            mobileSegment === 'passage'
+              ? 'bg-white text-blue-700 shadow-xs font-bold'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Passage
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileSegment('questions')}
+          className={`flex-1 py-1.5 text-center rounded transition-colors ${
+            mobileSegment === 'questions'
+              ? 'bg-white text-blue-700 shadow-xs font-bold'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Questions
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileSegment('notepad')}
+          className={`flex-1 py-1.5 text-center rounded transition-colors ${
+            mobileSegment === 'notepad'
+              ? 'bg-white text-blue-700 shadow-xs font-bold'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Notepad
+        </button>
+      </div>
+
       {/* Main Split Screen Body */}
-      <main className="relative flex flex-1 overflow-hidden select-text">
+      <main className="relative flex flex-1 overflow-hidden select-text w-full max-w-none m-0">
         {/* Left Resizable Pane */}
         <div
-          className="h-full overflow-y-auto border-r border-[#c8ccd0] bg-white p-6 shadow-inner"
-          style={{ width: `${leftWidthPercent}%` }}
+          className={`h-full min-w-0 overflow-y-auto border-r border-[#c8ccd0] bg-white p-4 sm:p-6 shadow-inner ${
+            mobileSegment === 'passage' ? 'w-full block' : 'hidden lg:block'
+          } lg:w-[var(--pane-width)]`}
+          style={{ '--pane-width': `${leftWidthPercent}%` } as React.CSSProperties}
         >
           {activeTab === 'reading' ? (
             <div className={getTextSizeClass()}>
@@ -296,7 +336,7 @@ export function IeltsSplitScreenClient() {
         {/* Resizer Handle */}
         <div
           onMouseDown={handleMouseDown}
-          className="group relative flex h-full w-2.5 cursor-col-resize items-center justify-center bg-[#dde1e6] hover:bg-amber-400 active:bg-amber-500 transition-colors"
+          className="group relative hidden lg:flex h-full w-2.5 cursor-col-resize items-center justify-center bg-[#dde1e6] hover:bg-amber-400 active:bg-amber-500 transition-colors shrink-0"
           title="Drag to resize split panes"
         >
           <GripVertical className="h-4 w-4 text-gray-500 group-hover:text-black" />
@@ -304,8 +344,10 @@ export function IeltsSplitScreenClient() {
 
         {/* Right Resizable Pane */}
         <div
-          className="h-full overflow-y-auto bg-[#f8f9fa] p-6"
-          style={{ width: `${100 - leftWidthPercent}%` }}
+          className={`h-full min-w-0 flex-1 overflow-y-auto bg-[#f8f9fa] p-4 sm:p-6 ${
+            mobileSegment === 'questions' ? 'w-full block' : 'hidden lg:block'
+          } lg:w-[var(--right-pane-width)]`}
+          style={{ '--right-pane-width': `${100 - leftWidthPercent}%` } as React.CSSProperties}
         >
           {activeTab === 'reading' ? (
             <div className={getTextSizeClass()}>
@@ -333,7 +375,7 @@ export function IeltsSplitScreenClient() {
                     text: 'The illicium of anglerfishes relies on internally synthesized enzymes rather than bacteria.',
                   },
                 ].map((q) => (
-                  <div key={q.num} className="rounded-lg border border-gray-200 bg-white p-4 shadow-2xs">
+                  <div key={q.num} className="rounded-lg border border-gray-200 bg-white p-4 shadow-2xs min-w-0 break-words">
                     <div className="flex items-start justify-between">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-700">
                         {q.num}
@@ -353,7 +395,7 @@ export function IeltsSplitScreenClient() {
                       </button>
                     </div>
 
-                    <p className="mt-2 font-medium text-gray-900">{q.text}</p>
+                    <p className="mt-2 font-medium text-gray-900 break-words">{q.text}</p>
 
                     <div className="mt-3 flex gap-3">
                       {['TRUE', 'FALSE', 'NOT GIVEN'].map((opt) => (
@@ -451,15 +493,18 @@ export function IeltsSplitScreenClient() {
         </div>
 
         {/* Sticky Notepad Drawer */}
-        {isNotepadOpen && (
-          <div className="absolute right-0 top-0 bottom-0 z-40 w-80 border-l border-gray-300 bg-amber-50 p-4 shadow-xl flex flex-col">
+        {(isNotepadOpen || mobileSegment === 'notepad') && (
+          <div className="absolute right-0 top-0 bottom-0 z-40 w-full sm:w-80 border-l border-gray-300 bg-amber-50 p-4 shadow-xl flex flex-col">
             <div className="flex items-center justify-between border-b border-amber-200 pb-2">
               <div className="flex items-center gap-2">
                 <Edit3 className="h-4 w-4 text-amber-700" />
                 <h3 className="text-sm font-bold text-amber-900">Scratch Notepad</h3>
               </div>
               <button
-                onClick={() => setIsNotepadOpen(false)}
+                onClick={() => {
+                  setIsNotepadOpen(false);
+                  if (mobileSegment === 'notepad') setMobileSegment('passage');
+                }}
                 className="text-gray-500 hover:text-gray-800"
               >
                 <X className="h-4 w-4" />

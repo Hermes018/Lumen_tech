@@ -39,6 +39,7 @@ export function IeltsMockRunnerClient({ initialData }: IeltsMockRunnerClientProp
 
   // Section 2: Reading State
   const [readingAnswers, setReadingAnswers] = useState<Record<string, string>>({});
+  const [mobileReadingTab, setMobileReadingTab] = useState<'passage' | 'questions'>('passage');
 
   // Section 3: Writing State
   const [activeWritingTask, setActiveWritingTask] = useState<'task1' | 'task2'>('task1');
@@ -317,7 +318,7 @@ export function IeltsMockRunnerClient({ initialData }: IeltsMockRunnerClientProp
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-background">
+    <div className="flex min-h-[100dvh] w-full max-w-none m-0 flex-col bg-background overflow-x-hidden">
       {/* Top IELTS CBT Header */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/95 px-6 py-3 backdrop-blur-xs">
         <div className="flex items-center gap-4">
@@ -463,50 +464,86 @@ export function IeltsMockRunnerClient({ initialData }: IeltsMockRunnerClientProp
 
         {/* Section 2: Reading (Split-Screen) */}
         {currentSection === 'reading' && (
-          <div className="grid h-[calc(100vh-10rem)] grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Left Pane: Reading Passage */}
-            <div className="overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-xs">
-              <h2 className="text-lg font-bold text-foreground">
-                {initialData.sections.reading.passageTitle}
-              </h2>
-              <div className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/90">
-                {initialData.sections.reading.passageText}
-              </div>
+          <div className="space-y-3">
+            {/* Mobile Segment Bar (< 1024px) */}
+            <div className="flex lg:hidden items-center justify-around rounded-lg border border-border bg-muted/40 p-1 text-xs font-semibold text-foreground">
+              <button
+                type="button"
+                onClick={() => setMobileReadingTab('passage')}
+                className={`flex-1 py-1.5 text-center rounded transition-colors ${
+                  mobileReadingTab === 'passage'
+                    ? 'bg-background text-primary shadow-xs font-bold'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Passage
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileReadingTab('questions')}
+                className={`flex-1 py-1.5 text-center rounded transition-colors ${
+                  mobileReadingTab === 'questions'
+                    ? 'bg-background text-primary shadow-xs font-bold'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Questions
+              </button>
             </div>
 
-            {/* Right Pane: Reading Questions */}
-            <div className="overflow-y-auto rounded-lg border border-border bg-card p-6 shadow-xs space-y-4">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                Questions 1–4
-              </h3>
-              {initialData.sections.reading.questions.map((q) => (
-                <div key={q.id} className="rounded-lg border border-border/80 bg-background p-4">
-                  <p className="text-sm font-medium text-foreground">
-                    <span className="mr-2 font-bold text-primary">{q.num}.</span>
-                    {q.prompt}
-                  </p>
-                  <div className="mt-3 space-y-2">
-                    {q.options?.map((opt) => (
-                      <label
-                        key={opt}
-                        className="flex cursor-pointer items-center gap-2.5 rounded border border-border/70 p-2 text-xs hover:bg-muted/40"
-                      >
-                        <input
-                          type="radio"
-                          name={`r_${q.id}`}
-                          value={opt}
-                          checked={readingAnswers[q.id] === opt}
-                          onChange={(e) =>
-                            setReadingAnswers({ ...readingAnswers, [q.id]: e.target.value })
-                          }
-                          className="text-primary"
-                        />
-                        <span>{opt}</span>
-                      </label>
-                    ))}
-                  </div>
+            <div className="grid h-[calc(100vh-10rem)] grid-cols-1 gap-6 lg:grid-cols-2">
+              {/* Left Pane: Reading Passage */}
+              <div
+                className={`overflow-y-auto rounded-lg border border-border bg-card p-4 sm:p-6 shadow-xs min-w-0 ${
+                  mobileReadingTab === 'passage' ? 'block' : 'hidden lg:block'
+                }`}
+              >
+                <h2 className="text-lg font-bold text-foreground">
+                  {initialData.sections.reading.passageTitle}
+                </h2>
+                <div className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/90">
+                  {initialData.sections.reading.passageText}
                 </div>
-              ))}
+              </div>
+
+              {/* Right Pane: Reading Questions */}
+              <div
+                className={`min-w-0 flex-1 overflow-y-auto rounded-lg border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 ${
+                  mobileReadingTab === 'questions' ? 'block' : 'hidden lg:block'
+                }`}
+              >
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Questions 1–4
+                </h3>
+                {initialData.sections.reading.questions.map((q) => (
+                  <div key={q.id} className="rounded-lg border border-border/80 bg-background p-4 min-w-0 break-words">
+                    <p className="text-sm font-medium text-foreground break-words">
+                      <span className="mr-2 font-bold text-primary">{q.num}.</span>
+                      {q.prompt}
+                    </p>
+                    <div className="mt-3 space-y-2">
+                      {q.options?.map((opt) => (
+                        <label
+                          key={opt}
+                          className="flex cursor-pointer items-center gap-2.5 rounded border border-border/70 p-2 text-xs hover:bg-muted/40"
+                        >
+                          <input
+                            type="radio"
+                            name={`r_${q.id}`}
+                            value={opt}
+                            checked={readingAnswers[q.id] === opt}
+                            onChange={(e) =>
+                              setReadingAnswers({ ...readingAnswers, [q.id]: e.target.value })
+                            }
+                            className="text-primary"
+                          />
+                          <span>{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}

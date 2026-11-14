@@ -4,6 +4,7 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 import { ShieldAlert, AlertTriangle } from 'lucide-react';
+import { MathText } from '../math-text';
 
 export interface TrapDiagnosticProps {
   choiceId: string;
@@ -49,13 +50,15 @@ export function TrapDiagnostic({
           </div>
 
           {choiceText && (
-            <div className="rounded bg-surface/60 px-2.5 py-1 text-xs text-fg-muted font-mono italic border border-control/30">
-              Selected Choice [{choiceId}]: &ldquo;{choiceText}&rdquo;
+            <div className="rounded bg-surface/60 px-2.5 py-1 text-xs text-fg-muted font-mono italic border border-control/30 flex items-center gap-1 flex-wrap">
+              <span>Selected Choice [{choiceId}]: &ldquo;</span>
+              <MathText content={choiceText} />
+              <span>&rdquo;</span>
             </div>
           )}
 
           <div className="text-xs leading-relaxed text-fg opacity-95 whitespace-pre-wrap pt-0.5">
-            {explanationMd}
+            <MathText content={explanationMd} />
           </div>
         </div>
       </div>
