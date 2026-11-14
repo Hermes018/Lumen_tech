@@ -606,7 +606,7 @@ export function InstitutionalFooter({ locale }: InstitutionalFooterProps) {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         {/* Single Payment & Trust Bar */}
         <div className="mb-10">
-          <BangladeshPaymentTrustBar variant="dark" locale={locale} />
+          <BangladeshPaymentTrustBar variant="footer" locale={locale} />
         </div>
 
         {/* Mobile Collapsible Columns (< 768px) */}
