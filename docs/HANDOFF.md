@@ -5,22 +5,23 @@
 
 ## Baton
 
-- From: gemini   To: founder review   Date/time (UTC): 2026-11-14 18:46:00
-- Reason: Batch P5 (Automated Visual & DOM Border-Count Audit) complete & committed to `main`.
+- From: gemini   To: founder review   Date/time (UTC): 2026-11-14 20:05:00
+- Reason: UI/UX Overhaul Batch P9 (final batch) complete & committed to `main`.
 - Branch: main
 - Session log / sign-off path: docs/logs/reviews/m2-9-institutional-ui-signoff.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict rule)
 - Working tree clean? yes
-- Task: UI/UX Overhaul Batch P5 (`pnpm design:shots` + final sign-off) - status: complete
+- Task: UI/UX Overhaul Batch P9 (`/exam/diagnostic` overhaul + global audit lock) - status: complete
 - Tests passing: `brand-sweep.test.ts` (5/5), `i18n-pages-coverage.test.ts` (14/14), `ui-primitives-caps.test.ts` (9/9) — 28/28 passing
 - TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental`)
-- Needs two-key review: None (marketing UI & audit tooling only; zero security-critical paths touched).
+- Needs two-key review: None (UI/UX & audit tooling only; zero security-critical paths touched).
 
-## Done (Batches P0 -> P5)
+## Done (Batches P0 -> P9)
 
-1. `tooling/design-shots.mjs` + `"design:shots"` script in `package.json` verifying all 6 marketing routes + `/dev/ui` (`className=0`, `<table>=0`, boxed primitives `<= 3/6`) and optional live Playwright responsive/overflow audit.
-2. `docs/logs/reviews/m2-9-institutional-ui-signoff.md` signed off with `pnpm design:lint`, `pnpm design:shots`, `vitest`, and `tsc` receipts.
-3. Committed `docs/LUMEN-DESIGN-STRATEGY.md`, `docs/LUMEN-FAILURE-MODES-AND-VERIFICATION.md`, and `docs/lumen_ui_overhaul_master_runbook.md`.
+1. `P6`: Warm crimson/orange/translucent rose-peach palette (`tokens.css`), `.lumen-hero-inverse` contrast fix, Unsplash photography + JSX SVG fallback (`media.ts`, `primitives.tsx`, `next.config.ts`).
+2. `P7`: Flat hairline institutional `BangladeshPaymentTrustBar.tsx` without dark bubble or rainbow pills.
+3. `P8`: Overhauled `/sign-in` & `/sign-up` (`AuthForm.tsx` + pages) removing fake stats, fake testimonial, and rounded bubbles.
+4. `P9`: Overhauled `/exam/diagnostic` into warm institutional design language, locked Trust Bar / Auth / Diagnostic rules in `tooling/design-lint.mjs` & `tooling/design-shots.mjs`, and logged P6–P9 defects in `docs/MISTAKE-LEDGER.md`.
 
 ## Remaining steps
 

@@ -116,6 +116,44 @@ for (const file of pageFiles) {
   }
 }
 
+// 4. Institutional Surface Geometry & Truthfulness Guard (Trust Bar, Auth, Diagnostic)
+const SURFACE_GEOMETRY_FILES = [
+  'apps/web/app/[locale]/(marketing)/_components/BangladeshPaymentTrustBar.tsx',
+  'apps/web/app/[locale]/(auth)/_components/AuthForm.tsx',
+  'apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx',
+];
+const FORBIDDEN_ROUNDED_PATTERNS = [
+  { name: 'rounded-full', regex: /\brounded-full\b/ },
+  { name: 'rounded-2xl', regex: /\brounded-2xl\b/ },
+  { name: 'rounded-3xl', regex: /\brounded-3xl\b/ },
+];
+
+for (const rel of SURFACE_GEOMETRY_FILES) {
+  const full = path.join(ROOT, rel);
+  if (!fs.existsSync(full)) {
+    errors.push(`[surface-guard] Missing target file: ${rel}`);
+    continue;
+  }
+  const content = fs.readFileSync(full, 'utf8');
+  for (const pat of FORBIDDEN_ROUNDED_PATTERNS) {
+    if (pat.regex.test(content)) {
+      errors.push(`[surface-guard] Forbidden "${pat.name}" in ${rel}`);
+    }
+  }
+}
+
+const authFormRel = 'apps/web/app/[locale]/(auth)/_components/AuthForm.tsx';
+const authFormPath = path.join(ROOT, authFormRel);
+if (fs.existsSync(authFormPath)) {
+  const authContent = fs.readFileSync(authFormPath, 'utf8');
+  const FORBIDDEN_AUTH_STRINGS = ['Farhan T.', '+11.4'];
+  for (const needle of FORBIDDEN_AUTH_STRINGS) {
+    if (authContent.includes(needle)) {
+      errors.push(`[truth-guard] Forbidden unverified string "${needle}" in ${authFormRel}`);
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error(`design:lint FAILED (${errors.length} error(s)):`);
   for (const e of errors) {
@@ -125,5 +163,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''})`,
+  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean)`,
 );

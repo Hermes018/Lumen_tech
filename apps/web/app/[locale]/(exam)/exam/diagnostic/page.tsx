@@ -14,6 +14,7 @@ import {
   type GuestDiagnosticSession,
 } from '@lumen/core';
 import { brand } from '@lumen/config';
+import { LumenSparkMotif } from '@/src/components/ui/primitives';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent, MathText } from '@lumen/ui';
 import { GreCalculator, type HintItem } from '@lumen/ui';
 import {
@@ -466,7 +467,7 @@ export default function DiagnosticExamPage() {
 
   if (!session) {
     return (
-      <div className="p-8 text-center text-sm text-slate-600">
+      <div className="min-h-screen bg-[var(--bg-warm)] p-8 text-center text-sm text-[var(--text)]">
         {isBnLocale
           ? 'জিআরই এক্সপ্রেস ডায়াগনস্টিক লোড হচ্ছে...'
           : 'Loading GRE Express Diagnostic...'}
@@ -477,7 +478,7 @@ export default function DiagnosticExamPage() {
   const currentQuestion = session.questions[currentIndex];
   if (!currentQuestion && !submittedResult) {
     return (
-      <div className="p-8 text-center text-sm text-slate-600">
+      <div className="min-h-screen bg-[var(--bg-warm)] p-8 text-center text-sm text-[var(--text)]">
         {isBnLocale ? 'প্রশ্নটি পাওয়া যায়নি।' : 'Question not found.'}
       </div>
     );
@@ -562,272 +563,266 @@ export default function DiagnosticExamPage() {
 
     return (
       <div
-        className="mx-auto max-w-4xl p-6 space-y-8 bg-[#fdfdfd] min-h-screen"
+        className="min-h-screen bg-[var(--bg-warm)] text-[var(--brand-ink)]"
         data-locale={locale}
       >
-        {/* Results Header */}
-        <div className="text-center space-y-3 border-b border-slate-200 pb-6">
-          <Badge variant="outline" className="rounded-md border-[#001E42] text-[#001E42] text-xs">
-            {isBnLocale
-              ? 'জিআরই ডায়াগনস্টিক মূল্যায়ন রিপোর্ট'
-              : 'GRE Diagnostic Assessment Report'}
-          </Badge>
-          <h1 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">
-            {isBnLocale
-              ? 'আপনার ডায়াগনস্টিক দক্ষতা প্রোফাইল'
-              : 'Your Diagnostic Ability Profile'}
-          </h1>
-          <p className="text-sm text-slate-600 max-w-xl mx-auto">
-            {isBnLocale
-              ? 'ETS সেকশন-অ্যাডাপটিভ মানদণ্ড অনুযায়ী Rasch 1PL Expected A Posteriori (EAP) অ্যালগরিদমে প্রাক্কলিত।'
-              : 'Calculated via Rasch 1PL Expected A Posteriori (EAP) ability estimation matching ETS section-adaptive norms.'}
-          </p>
-        </div>
-
-        {/* Estimated Scores Grid */}
-        <div className="grid gap-6 sm:grid-cols-3">
-          <div className="rounded-md border border-slate-300 bg-white p-5 text-center shadow-xs">
-            <div className="text-xs uppercase font-bold text-slate-600">
-              {isBnLocale ? 'আনুমানিক কোয়ান্ট (Quant)' : 'Estimated Quant'}
-            </div>
-            <div className="text-3xl font-black text-[#001E42] mt-1 font-mono">
-              {scoreSummary.quantScaledRange[0]} - {scoreSummary.quantScaledRange[1]}
-            </div>
-            <div className="text-xs text-slate-500 mt-1">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 py-10 space-y-8">
+          {/* Results Header */}
+          <div className="space-y-3 border-b border-[var(--hairline)] pb-6">
+            <LumenSparkMotif />
+            <h1 className="lumen-h2 text-[var(--brand-ink)]">
               {isBnLocale
-                ? `সঠিক উত্তর: ${scoreSummary.quantRaw} / ৪`
-                : `Raw: ${scoreSummary.quantRaw} / 4 Correct`}
-            </div>
-          </div>
-
-          <div className="rounded-md border border-slate-300 bg-white p-5 text-center shadow-xs">
-            <div className="text-xs uppercase font-bold text-slate-600">
-              {isBnLocale ? 'আনুমানিক ভার্বাল (Verbal)' : 'Estimated Verbal'}
-            </div>
-            <div className="text-3xl font-black text-[#001E42] mt-1 font-mono">
-              {scoreSummary.verbalScaledRange[0]} - {scoreSummary.verbalScaledRange[1]}
-            </div>
-            <div className="text-xs text-slate-500 mt-1">
+                ? 'আপনার ডায়াগনস্টিক দক্ষতা প্রোফাইল'
+                : 'Your Diagnostic Ability Profile'}
+            </h1>
+            <p className="text-sm text-[var(--text)] max-w-xl leading-relaxed">
               {isBnLocale
-                ? `সঠিক উত্তর: ${scoreSummary.verbalRaw} / ৪`
-                : `Raw: ${scoreSummary.verbalRaw} / 4 Correct`}
-            </div>
+                ? 'ETS সেকশন-অ্যাডাপটিভ মানদণ্ড অনুযায়ী Rasch 1PL Expected A Posteriori (EAP) অ্যালগরিদমে প্রাক্কলিত।'
+                : 'Calculated via Rasch 1PL Expected A Posteriori (EAP) ability estimation matching ETS section-adaptive norms.'}
+            </p>
           </div>
 
-          <div className="rounded-md border border-[#001E42] bg-[#001E42]/5 p-5 text-center shadow-xs">
-            <div className="text-xs uppercase font-bold text-[#001E42]">
-              {isBnLocale ? 'মোট আনুমানিক জিআরই স্কোর' : 'Total Estimated GRE'}
-            </div>
-            <div className="text-3xl font-black text-slate-950 mt-1 font-mono">
-              {scoreSummary.overallEstimatedRange[0]} - {scoreSummary.overallEstimatedRange[1]}
-            </div>
-            <div className="text-xs text-[#001E42] mt-1 font-medium">
-              {isBnLocale ? '৩৪০ স্কেলের মধ্যে' : 'Out of 340 Scale'}
-            </div>
-          </div>
-        </div>
-
-        {/* Top Trap Archetype Callout */}
-        <div className="rounded-md border border-amber-300 bg-amber-50/70 p-5 space-y-2">
-          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
-            <ShieldAlert className="h-5 w-5 text-amber-700" />
-            <span>
-              {isBnLocale
-                ? `শনাক্তকৃত প্রধান ডিস্ট্রাক্টর ফাঁদ: ${scoreSummary.topTrapArchetype.label}`
-                : `Primary Cognitive Trap Identified: ${scoreSummary.topTrapArchetype.label}`}
-            </span>
-          </div>
-          <p className="text-xs text-slate-700 leading-relaxed">
-            <MathText content={scoreSummary.topTrapArchetype.description} />
-          </p>
-        </div>
-
-        {/* Recommended Track */}
-        <div className="rounded-md border border-slate-300 bg-white p-5 space-y-2">
-          <div className="text-xs uppercase font-bold text-slate-500">
-            {isBnLocale ? 'সুপারিশকৃত প্রস্তুতি ট্র্যাক' : 'Recommended Track'}
-          </div>
-          <div className="text-base font-bold text-slate-900">{scoreSummary.recommendedTrack}</div>
-          <p className="text-xs text-slate-600">
-            {isBnLocale
-              ? 'এই ডায়াগনস্টিক সেটে আপনার গতি, নির্ভুলতা এবং ডিস্ট্রাক্টর ফাঁদের প্রবণতার ওপর ভিত্তি করে নির্ধারিত।'
-              : 'Based on your speed, accuracy, and vulnerability to distractor patterns in this diagnostic set.'}
-          </p>
-        </div>
-
-        {/* GATED SECTION: Study Plan & Item Breakdown */}
-        <div className="space-y-6 relative">
-          {gated ? (
-            /* GATE OVERLAY */
-            <div className="rounded-md border-2 border-dashed border-slate-300 bg-white p-8 text-center space-y-6 shadow-xs">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-md bg-[#001E42]/10 text-[#001E42]">
-                <Lock className="h-6 w-6" />
+          {/* Estimated Scores Grid */}
+          <div className="grid gap-6 sm:grid-cols-3 border-b border-[var(--hairline)] pb-8">
+            <div className="border border-[var(--hairline)] bg-white p-5">
+              <div className="text-xs font-bold text-[var(--text)]">
+                {isBnLocale ? 'আনুমানিক কোয়ান্ট (Quant)' : 'Estimated Quant'}
               </div>
-              <div className="space-y-2 max-w-md mx-auto">
-                <h3 className="text-xl font-bold text-slate-900">
-                  {isBnLocale
-                    ? 'বিস্তারিত সমাধান ও স্টাডি প্ল্যান আনলক করুন'
-                    : 'Full Item Breakdown & Study Plan Gated'}
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {isBnLocale
-                    ? 'গেস্ট ইউজার হিসেবে উপরে আপনার প্রাথমিক স্কোর দেখানো হয়েছে। প্রতিটি প্রশ্নের ব্যাখ্যাসহ সমাধান, ট্র্যাপ বিশ্লেষণ এবং ৮-সপ্তাহের ব্যক্তিগত স্টাডি প্ল্যান আনলক করতে এখনই ফ্রি অ্যাকাউন্ট খুলুন।'
-                    : 'As an unauthenticated guest, your high-level ability score is shown above. To unlock item-by-item solutions, trap forensics, and your personalized 8-week Study Plan, create your free account now.'}
-                </p>
+              <div className="text-3xl font-black text-[var(--brand-ink)] mt-1 font-mono">
+                {scoreSummary.quantScaledRange[0]} - {scoreSummary.quantScaledRange[1]}
               </div>
-
-              <div className="flex flex-wrap justify-center gap-4">
-                <Link href={`/sign-up?diagnosticToken=${encodeURIComponent(session.guestToken)}`}>
-                  <Button size="lg" className="gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900 font-semibold">
-                    {isBnLocale
-                      ? 'ফলাফল সংরক্ষণ করতে ফ্রি সাইন-আপ করুন'
-                      : 'Sign Up Free to Claim Results'}{' '}
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={handleClaim}
-                  className="gap-2 rounded-md border-slate-300 text-slate-800 hover:bg-slate-50"
-                >
-                  <Unlock className="h-4 w-4" />{' '}
-                  {isBnLocale
-                    ? 'এখনই ফলাফল আনলক করুন (ডেমো সাইন-ইন)'
-                    : 'Claim Results Now (Simulate Sign-In)'}
-                </Button>
+              <div className="text-xs text-[var(--text)] mt-1">
+                {isBnLocale
+                  ? `সঠিক উত্তর: ${scoreSummary.quantRaw} / ৪`
+                  : `Raw: ${scoreSummary.quantRaw} / 4 Correct`}
               </div>
             </div>
-          ) : (
-            /* UNLOCKED SECTION */
-            <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="rounded-md border border-emerald-300 bg-emerald-50 p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-emerald-900 font-semibold text-sm">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-700" />
-                  <span>
-                    {isBnLocale
-                      ? 'ফলাফল সংরক্ষিত হয়েছে! বিস্তারিত সমাধান ও স্টাডি প্ল্যান আনলক করা হয়েছে।'
-                      : 'Attempt Claimed! Full Breakdown & Study Plan Unlocked.'}
-                  </span>
+
+            <div className="border border-[var(--hairline)] bg-white p-5">
+              <div className="text-xs font-bold text-[var(--text)]">
+                {isBnLocale ? 'আনুমানিক ভার্বাল (Verbal)' : 'Estimated Verbal'}
+              </div>
+              <div className="text-3xl font-black text-[var(--brand-ink)] mt-1 font-mono">
+                {scoreSummary.verbalScaledRange[0]} - {scoreSummary.verbalScaledRange[1]}
+              </div>
+              <div className="text-xs text-[var(--text)] mt-1">
+                {isBnLocale
+                  ? `সঠিক উত্তর: ${scoreSummary.verbalRaw} / ৪`
+                  : `Raw: ${scoreSummary.verbalRaw} / 4 Correct`}
+              </div>
+            </div>
+
+            <div className="border border-[var(--brand)] bg-[var(--bg-tint)] p-5">
+              <div className="text-xs font-bold text-[var(--brand)]">
+                {isBnLocale ? 'মোট আনুমানিক জিআরই স্কোর' : 'Total Estimated GRE'}
+              </div>
+              <div className="text-3xl font-black text-[var(--brand-ink)] mt-1 font-mono">
+                {scoreSummary.overallEstimatedRange[0]} - {scoreSummary.overallEstimatedRange[1]}
+              </div>
+              <div className="text-xs text-[var(--brand)] mt-1 font-medium">
+                {isBnLocale ? '৩৪০ স্কেলের মধ্যে' : 'Out of 340 Scale'}
+              </div>
+            </div>
+          </div>
+
+          {/* Top Trap Archetype Callout */}
+          <div className="border-l-4 border-[var(--accent)] bg-white border border-[var(--hairline)] p-5 space-y-2">
+            <div className="flex items-center gap-2 text-[var(--brand-ink)] font-bold text-sm">
+              <ShieldAlert className="h-5 w-5 text-[var(--accent)]" />
+              <span>
+                {isBnLocale
+                  ? `শনাক্তকৃত প্রধান ডিস্ট্রাক্টর ফাঁদ: ${scoreSummary.topTrapArchetype.label}`
+                  : `Primary Cognitive Trap Identified: ${scoreSummary.topTrapArchetype.label}`}
+              </span>
+            </div>
+            <p className="text-xs text-[var(--text)] leading-relaxed">
+              <MathText content={scoreSummary.topTrapArchetype.description} />
+            </p>
+          </div>
+
+          {/* Recommended Track */}
+          <div className="border border-[var(--hairline)] bg-white p-5 space-y-2">
+            <div className="text-xs font-bold text-[var(--brand)]">
+              {isBnLocale ? 'সুপারিশকৃত প্রস্তুতি ট্র্যাক' : 'Recommended Track'}
+            </div>
+            <div className="text-base font-bold text-[var(--brand-ink)]">{scoreSummary.recommendedTrack}</div>
+            <p className="text-xs text-[var(--text)]">
+              {isBnLocale
+                ? 'এই ডায়াগনস্টিক সেটে আপনার গতি, নির্ভুলতা এবং ডিস্ট্রাক্টর ফাঁদের প্রবণতার ওপর ভিত্তি করে নির্ধারিত।'
+                : 'Based on your speed, accuracy, and vulnerability to distractor patterns in this diagnostic set.'}
+            </p>
+          </div>
+
+          {/* GATED SECTION: Study Plan & Item Breakdown */}
+          <div className="space-y-6 relative">
+            {gated ? (
+              /* GATE OVERLAY */
+              <div className="border border-[var(--hairline)] bg-white p-8 text-center space-y-6">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[4px] bg-[var(--bg-tint)] text-[var(--brand)] border border-[var(--hairline)]">
+                  <Lock className="h-6 w-6" />
                 </div>
-                <Badge variant="outline" className="rounded-md border-emerald-600 text-emerald-800 text-xs">
-                  {isBnLocale ? 'অ্যাকাউন্ট সংযুক্ত' : 'Account Linked'}
-                </Badge>
-              </div>
+                <div className="space-y-2 max-w-md mx-auto">
+                  <h3 className="text-xl font-bold text-[var(--brand-ink)]">
+                    {isBnLocale
+                      ? 'বিস্তারিত সমাধান ও স্টাডি প্ল্যান আনলক করুন'
+                      : 'Full Item Breakdown & Study Plan Gated'}
+                  </h3>
+                  <p className="text-xs text-[var(--text)] leading-relaxed">
+                    {isBnLocale
+                      ? 'গেস্ট ইউজার হিসেবে উপরে আপনার প্রাথমিক স্কোর দেখানো হয়েছে। প্রতিটি প্রশ্নের ব্যাখ্যাসহ সমাধান, ট্র্যাপ বিশ্লেষণ এবং ৮-সপ্তাহের ব্যক্তিগত স্টাডি প্ল্যান আনলক করতে এখনই ফ্রি অ্যাকাউন্ট খুলুন।'
+                      : 'As an unauthenticated guest, your high-level ability score is shown above. To unlock item-by-item solutions, trap forensics, and your personalized 8-week Study Plan, create your free account now.'}
+                  </p>
+                </div>
 
-              {/* Study Plan Preview */}
-              {personalizedStudyPlan && (
-                <Card className="rounded-md border-slate-300 bg-white">
-                  <CardHeader>
-                    <CardTitle className="text-base font-bold text-slate-900">
+                <div className="flex flex-wrap justify-center gap-4">
+                  <Link href={`/sign-up?diagnosticToken=${encodeURIComponent(session.guestToken)}`}>
+                    <Button size="lg" className="gap-2 rounded-[4px] bg-[var(--brand)] text-white hover:bg-[var(--crimson)] font-semibold">
                       {isBnLocale
-                        ? `আপনার ব্যক্তিগত ${personalizedStudyPlan.recommendedWeeks}-সপ্তাহের স্টাডি প্ল্যান`
-                        : `Your Personalized ${personalizedStudyPlan.recommendedWeeks}-Week Study Plan`}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-xs text-slate-700">
-                    <div>
-                      {isBnLocale ? 'লক্ষ্য স্কেলড স্কোর:' : 'Target Scaled Score:'}{' '}
-                      <span className="font-bold">{personalizedStudyPlan.targetScore}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="font-semibold text-slate-600">
-                        {isBnLocale ? 'অগ্রাধিকার ক্ষেত্রসমূহ:' : 'Focus Priority Areas:'}
-                      </div>
-                      <ul className="list-disc list-inside space-y-0.5 text-slate-700">
-                        {personalizedStudyPlan.focusAreas.map((area, i) => (
-                          <li key={i}>{area}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Detailed Item Solutions */}
-              <div className="space-y-4">
-                <h3 className="text-base font-bold text-slate-900">
-                  {isBnLocale
-                    ? 'প্রশ্নভিত্তিক পর্যালোচনা ও সমাধান'
-                    : 'Item-by-Item Review & Solutions'}
-                </h3>
-                <div className="space-y-3">
-                  {itemByItemBreakdown?.map((item, idx) => {
-                    const bnItem = DIAGNOSTIC_BILINGUAL_MAP[item.questionId];
-                    const trapLabel =
-                      isBnLocale && bnItem
-                        ? bnItem.trapLabelBn
-                        : item.trapTriggered?.label;
-                    const trapDesc =
-                      isBnLocale && bnItem
-                        ? bnItem.trapDescriptionBn
-                        : item.trapTriggered?.description;
-
-                    return (
-                      <div
-                        key={item.questionId}
-                        className={`rounded-md border p-4 text-xs space-y-2 ${
-                          item.isCorrect
-                            ? 'border-emerald-300 bg-emerald-50/50'
-                            : 'border-red-300 bg-red-50/50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between font-semibold">
-                          <span>
-                            {isBnLocale ? `প্রশ্ন ${idx + 1}` : `Question ${idx + 1}`} (
-                            {item.measure.toUpperCase()})
-                          </span>
-                          <span className={item.isCorrect ? 'text-emerald-700' : 'text-red-700'}>
-                            {item.isCorrect
-                              ? isBnLocale
-                                ? 'সঠিক'
-                                : 'Correct'
-                              : isBnLocale
-                                ? 'ভুল'
-                                : 'Incorrect'}
-                          </span>
-                        </div>
-                        <div className="text-slate-600">
-                          {isBnLocale ? 'আপনার উত্তর:' : 'Your Answer:'}{' '}
-                          <span className="font-mono">
-                            {Array.isArray(item.userAnswer)
-                              ? item.userAnswer.join(', ')
-                              : item.userAnswer || (isBnLocale ? '(উত্তর দেওয়া হয়নি)' : '(unanswered)')}
-                          </span>{' '}
-                          | {isBnLocale ? 'সঠিক উত্তর:' : 'Correct Answer:'}{' '}
-                          <span className="font-mono font-bold">
-                            {Array.isArray(item.correctAnswer)
-                              ? item.correctAnswer.join(', ')
-                              : item.correctAnswer}
-                          </span>
-                        </div>
-                        {item.trapTriggered && trapLabel && trapDesc && (
-                          <div className="rounded-md bg-amber-100/80 p-2 text-amber-900 font-medium">
-                            {isBnLocale ? 'ডিস্ট্রাক্টর ফাঁদ:' : 'Cognitive Trap:'} {trapLabel} —{' '}
-                            <MathText content={trapDesc} />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                        ? 'ফলাফল সংরক্ষণ করতে ফ্রি সাইন-আপ করুন'
+                        : 'Sign Up Free to Claim Results'}{' '}
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={handleClaim}
+                    className="gap-2 rounded-[4px] border-[var(--hairline)] text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]"
+                  >
+                    <Unlock className="h-4 w-4" />{' '}
+                    {isBnLocale
+                      ? 'এখনই ফলাফল আনলক করুন (ডেমো সাইন-ইন)'
+                      : 'Claim Results Now (Simulate Sign-In)'}
+                  </Button>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            ) : (
+              /* UNLOCKED SECTION */
+              <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="rounded-[4px] border border-emerald-300 bg-emerald-50 p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-emerald-900 font-semibold text-sm">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-700" />
+                    <span>
+                      {isBnLocale
+                        ? 'ফলাফল সংরক্ষিত হয়েছে! বিস্তারিত সমাধান ও স্টাডি প্ল্যান আনলক করা হয়েছে।'
+                        : 'Attempt Claimed! Full Breakdown & Study Plan Unlocked.'}
+                    </span>
+                  </div>
+                  <Badge variant="outline" className="rounded-[4px] border-emerald-600 text-emerald-800 text-xs">
+                    {isBnLocale ? 'অ্যাকাউন্ট সংযুক্ত' : 'Account Linked'}
+                  </Badge>
+                </div>
 
-        {/* Footer Actions */}
-        <div className="flex justify-between items-center border-t border-slate-200 pt-4 text-xs">
-          <Button variant="outline" size="sm" onClick={handleRestart} className="gap-2 rounded-md">
-            <RotateCcw className="h-4 w-4" />{' '}
-            {isBnLocale ? 'ডায়াগনস্টিক পুনরায় দিন' : 'Retake Diagnostic'}
-          </Button>
-          <Link href="/pricing">
-            <Button size="sm" className="gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900">
-              {isBnLocale ? 'সুপারিশকৃত প্ল্যানগুলো দেখুন' : 'View Recommended Plans'}{' '}
-              <ArrowRight className="h-4 w-4" />
+                {/* Study Plan Preview */}
+                {personalizedStudyPlan && (
+                  <Card className="rounded-none border-[var(--hairline)] bg-white">
+                    <CardHeader>
+                      <CardTitle className="text-base font-bold text-[var(--brand-ink)]">
+                        {isBnLocale
+                          ? `আপনার ব্যক্তিগত ${personalizedStudyPlan.recommendedWeeks}-সপ্তাহের স্টাডি প্ল্যান`
+                          : `Your Personalized ${personalizedStudyPlan.recommendedWeeks}-Week Study Plan`}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-xs text-[var(--text)]">
+                      <div>
+                        {isBnLocale ? 'লক্ষ্য স্কেলড স্কোর:' : 'Target Scaled Score:'}{' '}
+                        <span className="font-bold text-[var(--brand-ink)]">{personalizedStudyPlan.targetScore}</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="font-semibold text-[var(--brand-ink)]">
+                          {isBnLocale ? 'অগ্রাধিকার ক্ষেত্রসমূহ:' : 'Focus Priority Areas:'}
+                        </div>
+                        <ul className="list-disc list-inside space-y-0.5 text-[var(--text)]">
+                          {personalizedStudyPlan.focusAreas.map((area, i) => (
+                            <li key={i}>{area}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Detailed Item Solutions */}
+                <div className="space-y-4">
+                  <h3 className="text-base font-bold text-[var(--brand-ink)]">
+                    {isBnLocale
+                      ? 'প্রশ্নভিত্তিক পর্যালোচনা ও সমাধান'
+                      : 'Item-by-Item Review & Solutions'}
+                  </h3>
+                  <div className="divide-y divide-[var(--hairline)] border border-[var(--hairline)] bg-white">
+                    {itemByItemBreakdown?.map((item, idx) => {
+                      const bnItem = DIAGNOSTIC_BILINGUAL_MAP[item.questionId];
+                      const trapLabel =
+                        isBnLocale && bnItem
+                          ? bnItem.trapLabelBn
+                          : item.trapTriggered?.label;
+                      const trapDesc =
+                        isBnLocale && bnItem
+                          ? bnItem.trapDescriptionBn
+                          : item.trapTriggered?.description;
+
+                      return (
+                        <div
+                          key={item.questionId}
+                          className="p-4 text-xs space-y-2"
+                        >
+                          <div className="flex items-center justify-between font-semibold text-[var(--brand-ink)]">
+                            <span>
+                              {isBnLocale ? `প্রশ্ন ${idx + 1}` : `Question ${idx + 1}`} (
+                              {item.measure.toUpperCase()})
+                            </span>
+                            <span className={item.isCorrect ? 'text-emerald-700' : 'text-[var(--brand)]'}>
+                              {item.isCorrect
+                                ? isBnLocale
+                                  ? 'সঠিক'
+                                  : 'Correct'
+                                : isBnLocale
+                                  ? 'ভুল'
+                                  : 'Incorrect'}
+                            </span>
+                          </div>
+                          <div className="text-[var(--text)]">
+                            {isBnLocale ? 'আপনার উত্তর:' : 'Your Answer:'}{' '}
+                            <span className="font-mono text-[var(--brand-ink)]">
+                              {Array.isArray(item.userAnswer)
+                                ? item.userAnswer.join(', ')
+                                : item.userAnswer || (isBnLocale ? '(উত্তর দেওয়া হয়নি)' : '(unanswered)')}
+                            </span>{' '}
+                            | {isBnLocale ? 'সঠিক উত্তর:' : 'Correct Answer:'}{' '}
+                            <span className="font-mono font-bold text-[var(--brand-ink)]">
+                              {Array.isArray(item.correctAnswer)
+                                ? item.correctAnswer.join(', ')
+                                : item.correctAnswer}
+                            </span>
+                          </div>
+                          {item.trapTriggered && trapLabel && trapDesc && (
+                            <div className="border-l-2 border-[var(--accent)] bg-[var(--bg-warm)] p-2.5 text-[var(--brand-ink)] font-medium">
+                              {isBnLocale ? 'ডিস্ট্রাক্টর ফাঁদ:' : 'Cognitive Trap:'} {trapLabel} —{' '}
+                              <MathText content={trapDesc} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer Actions */}
+          <div className="flex justify-between items-center border-t border-[var(--hairline)] pt-5 text-xs">
+            <Button variant="outline" size="sm" onClick={handleRestart} className="gap-2 rounded-[4px] border-[var(--hairline)] text-[var(--brand-ink)]">
+              <RotateCcw className="h-4 w-4" />{' '}
+              {isBnLocale ? 'ডায়াগনস্টিক পুনরায় দিন' : 'Retake Diagnostic'}
             </Button>
-          </Link>
+            <Link href="/pricing">
+              <Button size="sm" className="gap-2 rounded-[4px] bg-[var(--brand)] text-white hover:bg-[var(--crimson)]">
+                {isBnLocale ? 'সুপারিশকৃত প্ল্যানগুলো দেখুন' : 'View Recommended Plans'}{' '}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -835,7 +830,11 @@ export default function DiagnosticExamPage() {
 
   // RENDER CBT RUNNER INTERFACE
   if (!currentQuestion) {
-    return <div className="p-8 text-center text-sm text-slate-600">Question not found.</div>;
+    return (
+      <div className="min-h-screen bg-[var(--bg-warm)] p-8 text-center text-sm text-[var(--text)]">
+        Question not found.
+      </div>
+    );
   }
 
   const selectedAnswer = userAnswers[currentQuestion.id];
@@ -847,6 +846,28 @@ export default function DiagnosticExamPage() {
   const progressPercent = Math.round(((currentIndex + 1) / session.questions.length) * 100);
   const brandDisplayName = isBnLocale ? 'লুমেন একাডেমি' : brand.name;
 
+  const measureLabel =
+    currentQuestion.measure === 'quant'
+      ? displayBn
+        ? 'কোয়ান্টিটেটিভ রিজনিং (Quant)'
+        : 'Quantitative Reasoning'
+      : displayBn
+        ? 'ভার্বাল রিজনিং (Verbal)'
+        : 'Verbal Reasoning';
+
+  const typeLabel =
+    currentQuestion.type === 'qc'
+      ? displayBn
+        ? 'কোয়ান্টিটেটিভ কম্প্যারিজন'
+        : 'Quantitative Comparison'
+      : currentQuestion.type === 'se'
+        ? displayBn
+          ? 'সেন্টেন্স ইকুইভ্যালেন্স (২টি বেছে নিন)'
+          : 'Sentence Equivalence (Select 2)'
+        : displayBn
+          ? 'মাল্টিপল চয়েস'
+          : 'Multiple Choice';
+
   const toggleFlagCurrent = () => {
     setFlaggedQuestions((prev) => ({
       ...prev,
@@ -855,54 +876,56 @@ export default function DiagnosticExamPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F3F5F8] text-slate-900" data-locale={locale}>
-      {/* Top ETS PowerPrep Institutional Header Bar — Single Unified Language Switcher */}
-      <header className="bg-[#001E42] text-white h-14 px-4 sm:px-6 sticky top-0 z-30 border-b border-slate-800 flex items-center justify-between gap-4">
+    <div className="flex flex-col min-h-screen bg-[var(--bg-warm)] text-[var(--brand-ink)]" data-locale={locale}>
+      {/* Top Institutional Assessment Bar — Zero pill badges */}
+      <header className="bg-[var(--brand-deep)] text-white h-16 px-4 sm:px-8 border-b-4 border-[var(--brand)] sticky top-0 z-30 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <Link
             href="/"
-            className="hidden sm:inline-flex items-center rounded-md bg-white/10 border border-white/15 px-2.5 py-1 text-xs font-extrabold tracking-tight text-white hover:bg-white/20 shrink-0"
+            className="hidden sm:inline-flex items-center gap-2.5 text-sm font-extrabold tracking-tight text-white hover:text-[#FFB499] shrink-0"
           >
-            {brandDisplayName}
-          </Link>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="font-bold text-sm sm:text-base text-white truncate">
-              {displayBn ? 'GRE® এক্সপ্রেস ডায়াগনস্টিক' : 'GRE® Express Diagnostic'}
+            <span className="pt-2" aria-hidden="true">
+              <LumenSparkMotif inverse />
             </span>
-            <span className="rounded-md bg-[#007791] px-2.5 py-0.5 font-mono text-xs font-bold text-white shrink-0">
+            <span>{brandDisplayName}</span>
+          </Link>
+          <span className="hidden sm:block h-5 w-px bg-white/20 shrink-0" aria-hidden="true" />
+          <span className="font-bold text-sm sm:text-base text-white truncate">
+            {displayBn ? 'GRE® এক্সপ্রেস ডায়াগনস্টিক' : 'GRE® Express Diagnostic'}
+          </span>
+
+          {/* Rectangular Progress Indicator */}
+          <div
+            className="hidden md:flex items-center gap-3 w-48 lg:w-56 shrink-0"
+            aria-label="Diagnostic progress"
+          >
+            <span className="font-mono text-xs font-semibold text-white/85 whitespace-nowrap">
               {displayBn
                 ? `প্রশ্ন ${currentIndex + 1} / ${session.questions.length}`
                 : `Question ${currentIndex + 1} of ${session.questions.length}`}
             </span>
-          </div>
-          {/* Visual Progress Bar */}
-          <div
-            className="hidden md:flex items-center gap-2 w-28 lg:w-40"
-            aria-label="Diagnostic progress"
-          >
-            <div className="h-1.5 w-full overflow-hidden rounded-xs bg-slate-800">
+            <div className="h-1 w-full bg-white/20">
               <div
-                className="h-full bg-[#00A896] transition-all duration-300"
+                className="h-full bg-[var(--accent)] transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
-            <span className="font-mono text-[11px] text-slate-300">{progressPercent}%</span>
           </div>
         </div>
 
-        {/* Right: Single Unified LocaleSwitcher + Calculator Toggle + Countdown Timer */}
+        {/* Right: Single Unified LocaleSwitcher + Rectangular Calculator Button + Monospace Timer */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="rounded-md bg-white/95 text-slate-900 px-1 py-0.5">
+          <div className="rounded-[4px] bg-white/95 text-[var(--brand-ink)] px-1 py-0.5">
             <LocaleSwitcher />
           </div>
 
           <button
             type="button"
             onClick={() => setIsCalculatorOpen(!isCalculatorOpen)}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
               isCalculatorOpen
-                ? 'border-[#00A896] bg-[#00A896] text-white'
-                : 'border-white/20 bg-white/10 text-white hover:bg-white/20'
+                ? 'border-[var(--accent)] bg-[var(--accent)] text-white'
+                : 'border-white/25 bg-white/10 text-white hover:bg-white/20'
             }`}
           >
             <CalcIcon className="h-3.5 w-3.5" />
@@ -911,8 +934,8 @@ export default function DiagnosticExamPage() {
             </span>
           </button>
 
-          <div className="inline-flex items-center gap-1.5 rounded-md border border-amber-400/40 bg-slate-950 px-3 py-1.5 font-mono text-sm font-extrabold text-amber-300">
-            <Clock className="h-4 w-4 text-amber-400" />
+          <div className="inline-flex items-center gap-1.5 bg-[#14090C] border border-white/20 px-3.5 py-1.5 rounded-[4px] font-mono text-sm text-[#FFB499]">
+            <Clock className="h-4 w-4 text-[var(--accent)]" />
             <span>{formatTimer(timeRemaining)}</span>
           </div>
         </div>
@@ -920,7 +943,7 @@ export default function DiagnosticExamPage() {
 
       {/* On-Screen Calculator Floating Modal */}
       {isCalculatorOpen && (
-        <div className="fixed top-16 right-6 z-50 shadow-2xl">
+        <div className="fixed top-20 right-6 z-50 border border-[var(--hairline)] bg-white">
           <GreCalculator
             isOpen={isCalculatorOpen}
             onTransferDisplay={() => {
@@ -931,465 +954,434 @@ export default function DiagnosticExamPage() {
         </div>
       )}
 
-      {/* Main ETS PowerPrep Workbench Stage */}
-      <main className="w-full flex-1 bg-[#F3F5F8] min-h-[calc(100dvh-3.5rem)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left 8 Columns: Crisp ETS Question Sheet */}
-          <div className="lg:col-span-8">
-            <div className="rounded-md border border-slate-300 bg-white shadow-xs overflow-hidden">
-              {/* Top Structural Status Bar */}
-              <div className="border-b border-slate-200 px-6 py-3.5 bg-slate-50 flex flex-wrap justify-between items-center gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="rounded-md bg-[#001E42] px-2.5 py-1 text-white text-xs font-bold uppercase tracking-wider">
-                    {currentQuestion.measure === 'quant'
-                      ? displayBn
-                        ? 'কোয়ান্টিটেটিভ রিজনিং (Quant)'
-                        : 'Quantitative Reasoning'
-                      : displayBn
-                        ? 'ভার্বাল রিজনিং (Verbal)'
-                        : 'Verbal Reasoning'}
-                  </span>
-                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    {currentQuestion.type === 'qc'
-                      ? displayBn
-                        ? 'কোয়ান্টিটেটিভ কম্প্যারিজন'
-                        : 'Quantitative Comparison'
-                      : currentQuestion.type === 'se'
-                        ? displayBn
-                          ? 'সেন্টেন্স ইকুইভ্যালেন্স (২টি অপশন বেছে নিন)'
-                          : 'Sentence Equivalence (Select 2)'
-                        : displayBn
-                          ? 'মাল্টিপল চয়েস'
-                          : 'Multiple Choice'}
-                  </span>
-                </div>
+      {/* Main Assessment Stage */}
+      <main className="w-full flex-1 bg-[var(--bg-warm)] min-h-[calc(100dvh-4rem)] py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left 8 Columns: Sharp Exam Sheet, Zero Drop Shadow, Zero Bubble Corners */}
+          <div className="lg:col-span-8 bg-white border border-[var(--hairline)] rounded-none">
+            {/* Top Sheet Strip */}
+            <div className="border-b border-[var(--hairline)] bg-[var(--bg-tint)] px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+              <span className="text-xs font-bold text-[var(--brand)]">
+                {measureLabel} · {typeLabel}
+              </span>
 
-                <div className="flex items-center gap-2">
-                  {isBnLocale && (
-                    <button
-                      type="button"
-                      onClick={() => setShowOriginalEnglish((prev) => !prev)}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                    >
-                      <Languages className="h-3.5 w-3.5 text-[#007791]" />
-                      <span>
-                        {showOriginalEnglish
-                          ? 'বাংলা অনুবাদ দেখুন / Show Bengali'
-                          : 'ইংরেজি মূল প্রশ্ন দেখুন / Show Original English'}
-                      </span>
-                    </button>
-                  )}
+              <div className="flex items-center gap-2">
+                {isBnLocale && (
                   <button
                     type="button"
-                    onClick={toggleFlagCurrent}
-                    className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-xs font-semibold transition-colors ${
-                      isCurrentFlagged
-                        ? 'border-amber-500 bg-amber-50 text-amber-900'
-                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
-                    }`}
+                    onClick={() => setShowOriginalEnglish((prev) => !prev)}
+                    className="inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-white px-2.5 py-1 text-xs font-semibold text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]"
                   >
-                    <Flag className="h-3.5 w-3.5" />
+                    <Languages className="h-3.5 w-3.5 text-[var(--brand)]" />
                     <span>
-                      {isCurrentFlagged
-                        ? displayBn
-                          ? 'রিভিউয়ের জন্য চিহ্নিত'
-                          : 'Flagged for Review'
-                        : displayBn
-                          ? 'রিভিউ ফ্ল্যাগ'
-                          : 'Flag for Review'}
+                      {showOriginalEnglish
+                        ? 'বাংলা অনুবাদ দেখুন / Show Bengali'
+                        : 'ইংরেজি মূল প্রশ্ন দেখুন / Show Original English'}
                     </span>
                   </button>
-                </div>
+                )}
+                <button
+                  type="button"
+                  onClick={toggleFlagCurrent}
+                  className={`inline-flex items-center gap-1.5 rounded-[4px] border px-3 py-1 text-xs font-semibold transition-colors ${
+                    isCurrentFlagged
+                      ? 'border-[var(--accent)] bg-[var(--bg-warm)] text-[var(--brand)]'
+                      : 'border-[var(--hairline)] bg-white text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+                  }`}
+                >
+                  <Flag className="h-3.5 w-3.5" />
+                  <span>
+                    {isCurrentFlagged
+                      ? displayBn
+                        ? 'রিভিউয়ের জন্য চিহ্নিত'
+                        : 'Flagged for Review'
+                      : displayBn
+                        ? 'রিভিউ ফ্ল্যাগ'
+                        : 'Flag for Review'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Question Body */}
+            <div className="p-6 sm:p-10 space-y-6">
+              {/* Question Stem */}
+              <div className="text-xl sm:text-2xl font-medium text-[var(--brand-ink)] leading-relaxed">
+                <TranslatedText
+                  text={currentQuestion.prompt}
+                  locale={displayBn ? 'bn' : 'en'}
+                  fallbackBn={bnContent?.promptBn}
+                  math
+                />
               </div>
 
-              {/* Question Body */}
-              <div className="p-6 sm:p-8 space-y-6">
-                {/* Question Stem */}
-                <div className="text-lg sm:text-xl font-medium text-slate-900 leading-relaxed">
-                  <TranslatedText
-                    text={currentQuestion.prompt}
-                    locale={displayBn ? 'bn' : 'en'}
-                    fallbackBn={bnContent?.promptBn}
-                    math
-                  />
-                </div>
-
-                {/* Classic ETS 2-Column Quantitative Comparison Table */}
-                {currentQuestion.type === 'qc' && currentQuestion.quantityA && (
-                  <div className="grid grid-cols-2 divide-x divide-slate-300 border border-slate-300 rounded-md bg-white my-6 overflow-hidden">
-                    <div className="flex flex-col">
-                      <div className="bg-slate-100 border-b border-slate-300 py-2 text-center text-xs font-bold uppercase tracking-wider text-slate-800">
-                        {displayBn ? 'রাশি A (Quantity A)' : 'Quantity A'}
-                      </div>
-                      <div className="py-8 px-4 text-center text-2xl font-semibold text-slate-950">
-                        <TranslatedText
-                          text={currentQuestion.quantityA}
-                          locale={displayBn ? 'bn' : 'en'}
-                          fallbackBn={bnContent?.quantityABn}
-                          math
-                        />
-                      </div>
+              {/* Quantitative Comparison Table */}
+              {currentQuestion.type === 'qc' && currentQuestion.quantityA && (
+                <div className="grid grid-cols-2 divide-x divide-[var(--hairline)] border border-[var(--hairline)] my-6 bg-white">
+                  <div className="flex flex-col">
+                    <div className="bg-[var(--bg-warm)] border-b border-[var(--hairline)] py-2.5 text-center text-xs font-bold text-[var(--brand-ink)]">
+                      {displayBn ? 'রাশি A (Quantity A)' : 'Quantity A'}
                     </div>
-
-                    <div className="flex flex-col">
-                      <div className="bg-slate-100 border-b border-slate-300 py-2 text-center text-xs font-bold uppercase tracking-wider text-slate-800">
-                        {displayBn ? 'রাশি B (Quantity B)' : 'Quantity B'}
-                      </div>
-                      <div className="py-8 px-4 text-center text-2xl font-semibold text-slate-950">
-                        <TranslatedText
-                          text={currentQuestion.quantityB ?? ''}
-                          locale={displayBn ? 'bn' : 'en'}
-                          fallbackBn={bnContent?.quantityBBn}
-                          math
-                        />
-                      </div>
+                    <div className="py-8 px-4 text-center text-2xl font-semibold text-[var(--brand-ink)]">
+                      <TranslatedText
+                        text={currentQuestion.quantityA}
+                        locale={displayBn ? 'bn' : 'en'}
+                        fallbackBn={bnContent?.quantityABn}
+                        math
+                      />
                     </div>
                   </div>
-                )}
 
-                {/* Answer Choices A-D with rounded-md and square [A]-[D] keycaps */}
-                <div className="space-y-2.5">
-                  {currentQuestion.options.map((opt) => {
-                    const isSelected =
-                      currentQuestion.type === 'se'
-                        ? Array.isArray(selectedAnswer) && selectedAnswer.includes(opt.id)
-                        : selectedAnswer === opt.id;
-
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => handleSelectOption(opt.id)}
-                        className={`flex w-full items-center justify-between rounded-md border p-3.5 sm:p-4 text-left text-base transition-colors ${
-                          isSelected
-                            ? 'border-[#001E42] bg-[#001E42]/5 font-semibold text-slate-950 ring-1 ring-[#001E42]'
-                            : 'border-slate-300 bg-white hover:border-slate-400 hover:bg-slate-50 text-slate-800'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3.5">
-                          <span
-                            className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded border font-mono text-xs font-bold transition-colors ${
-                              isSelected
-                                ? 'border-[#001E42] bg-[#001E42] text-white'
-                                : 'border-slate-300 bg-slate-100 text-slate-700'
-                            }`}
-                          >
-                            [{opt.id}]
-                          </span>
-                          <span className="leading-snug">
-                            <TranslatedText
-                              text={opt.text}
-                              locale={displayBn ? 'bn' : 'en'}
-                              fallbackBn={bnContent?.optionsBn[opt.id]}
-                              math
-                            />
-                          </span>
-                        </div>
-                        {isSelected && (
-                          <CheckCircle2 className="h-5 w-5 text-[#001E42] shrink-0 ml-3" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {currentQuestion.type === 'se' && (
-                  <p className="text-xs font-medium text-slate-500">
-                    {displayBn
-                      ? 'সমার্থক অর্থ প্রকাশ করে এমন ঠিক দুটি (TWO) উত্তর নির্বাচন করুন।'
-                      : 'Select exactly TWO answer choices that complete the sentence with equivalent meaning.'}
-                  </p>
-                )}
-
-                {/* Bottom Question Sheet Navigation Bar */}
-                <div className="flex items-center justify-between border-t border-slate-200 pt-5">
-                  <Button
-                    variant="outline"
-                    onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                    disabled={currentIndex === 0}
-                    className="gap-2 rounded-md border-slate-300 font-semibold"
-                  >
-                    <ArrowLeft className="h-4 w-4" /> {displayBn ? 'পূর্ববর্তী প্রশ্ন' : 'Previous'}
-                  </Button>
-
-                  <div className="text-xs font-semibold text-slate-500 font-mono">
-                    {Object.keys(userAnswers).length} / {session.questions.length}{' '}
-                    {displayBn ? 'উত্তরকৃত' : 'Answered'}
+                  <div className="flex flex-col">
+                    <div className="bg-[var(--bg-warm)] border-b border-[var(--hairline)] py-2.5 text-center text-xs font-bold text-[var(--brand-ink)]">
+                      {displayBn ? 'রাশি B (Quantity B)' : 'Quantity B'}
+                    </div>
+                    <div className="py-8 px-4 text-center text-2xl font-semibold text-[var(--brand-ink)]">
+                      <TranslatedText
+                        text={currentQuestion.quantityB ?? ''}
+                        locale={displayBn ? 'bn' : 'en'}
+                        fallbackBn={bnContent?.quantityBBn}
+                        math
+                      />
+                    </div>
                   </div>
-
-                  {currentIndex < session.questions.length - 1 ? (
-                    <Button
-                      onClick={() =>
-                        setCurrentIndex((prev) => Math.min(session.questions.length - 1, prev + 1))
-                      }
-                      className="gap-2 rounded-md bg-[#001E42] text-white hover:bg-slate-900 font-bold"
-                    >
-                      {displayBn ? 'পরবর্তী প্রশ্ন' : 'Next Question'}{' '}
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleSubmit}
-                      className="gap-2 rounded-md bg-[#E4002B] text-white hover:bg-[#c80025] font-bold"
-                    >
-                      {displayBn ? 'ডায়াগনস্টিক টেস্ট সাবমিট করুন' : 'Submit Diagnostic Test'}{' '}
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  )}
                 </div>
+              )}
+
+              {/* Answer Choices A-D */}
+              <div className="space-y-3">
+                {currentQuestion.options.map((opt) => {
+                  const isSelected =
+                    currentQuestion.type === 'se'
+                      ? Array.isArray(selectedAnswer) && selectedAnswer.includes(opt.id)
+                      : selectedAnswer === opt.id;
+
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleSelectOption(opt.id)}
+                      className={`flex w-full items-center justify-between p-4 border rounded-[4px] text-left text-base transition-colors ${
+                        isSelected
+                          ? 'border-[var(--brand)] bg-[var(--bg-warm)] font-semibold text-[var(--brand-ink)]'
+                          : 'border-[var(--hairline)] bg-white hover:bg-[var(--bg-warm)] text-[var(--brand-ink)]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <span
+                          className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border font-mono text-xs font-bold transition-colors ${
+                            isSelected
+                              ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
+                              : 'border-[var(--hairline)] bg-[var(--bg-tint)] text-[var(--brand-ink)]'
+                          }`}
+                        >
+                          [{opt.id}]
+                        </span>
+                        <span className="leading-snug">
+                          <TranslatedText
+                            text={opt.text}
+                            locale={displayBn ? 'bn' : 'en'}
+                            fallbackBn={bnContent?.optionsBn[opt.id]}
+                            math
+                          />
+                        </span>
+                      </div>
+                      {isSelected && (
+                        <CheckCircle2 className="h-5 w-5 text-[var(--brand)] shrink-0 ml-3" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
+
+              {currentQuestion.type === 'se' && (
+                <p className="text-xs font-medium text-[var(--text)]">
+                  {displayBn
+                    ? 'সমার্থক অর্থ প্রকাশ করে এমন ঠিক দুটি (TWO) উত্তর নির্বাচন করুন।'
+                    : 'Select exactly TWO answer choices that complete the sentence with equivalent meaning.'}
+                </p>
+              )}
+            </div>
+
+            {/* Bottom Sheet Action Bar */}
+            <div className="border-t border-[var(--hairline)] px-6 py-4 flex items-center justify-between bg-white">
+              <button
+                type="button"
+                onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+                disabled={currentIndex === 0}
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--link)] underline underline-offset-4 disabled:opacity-40 disabled:no-underline cursor-pointer disabled:cursor-not-allowed"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>{displayBn ? 'পূর্ববর্তী প্রশ্ন' : 'Previous'}</span>
+              </button>
+
+              <div className="text-xs font-semibold text-[var(--text)] font-mono">
+                {Object.keys(userAnswers).length} / {session.questions.length}{' '}
+                {displayBn ? 'উত্তরকৃত' : 'Answered'}
+              </div>
+
+              {currentIndex < session.questions.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentIndex((prev) => Math.min(session.questions.length - 1, prev + 1))
+                  }
+                  className="inline-flex items-center gap-2 bg-[var(--brand)] text-white px-6 py-2.5 rounded-[4px] text-sm font-semibold hover:bg-[var(--crimson)] transition-colors cursor-pointer"
+                >
+                  <span>{displayBn ? 'পরবর্তী প্রশ্ন' : 'Next Question'}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="inline-flex items-center gap-2 bg-[var(--brand)] text-white px-6 py-2.5 rounded-[4px] text-sm font-semibold hover:bg-[var(--crimson)] transition-colors cursor-pointer"
+                >
+                  <span>{displayBn ? 'ডায়াগনস্টিক টেস্ট সাবমিট করুন' : 'Submit Diagnostic Test'}</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
 
-          {/* Right 4 Columns: ONE Consolidated Architectural Panel */}
-          <aside className="lg:col-span-4">
-            <div className="rounded-md border border-slate-300 bg-white shadow-xs overflow-hidden">
-              {/* Top Section: Question Navigator 1–8 */}
-              <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                    {displayBn ? 'প্রশ্ন নেভিগেটর (১–৮)' : 'Question Navigator (1–8)'}
-                  </h2>
-                  <div className="flex items-center gap-2.5 text-[11px] text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-xs bg-[#001E42]" />
-                      {displayBn ? 'বর্তমান' : 'Current'}
+          {/* Right 4 Columns: Unified Companion Panel */}
+          <aside className="lg:col-span-4 bg-white border border-[var(--hairline)] rounded-none">
+            {/* Top Question Palette */}
+            <div className="p-5 border-b border-[var(--hairline)] space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-xs font-bold text-[var(--brand-ink)]">
+                  {displayBn ? 'প্রশ্ন নেভিগেটর (১–৮)' : 'Question Navigator (1–8)'}
+                </h2>
+                <div className="flex items-center gap-2.5 text-[11px] text-[var(--text)]">
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-[2px] bg-[var(--brand)]" />
+                    {displayBn ? 'বর্তমান' : 'Current'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-[2px] bg-[var(--bg-tint)] border border-[var(--brand)]" />
+                    {displayBn ? 'উত্তরকৃত' : 'Done'}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="h-2 w-2 rounded-[2px] bg-[var(--accent)]" />
+                    {displayBn ? 'ফ্ল্যাগ' : 'Flag'}
+                  </span>
+                </div>
+              </div>
+
+              {/* 8 Crisp Square Buttons */}
+              <div className="grid grid-cols-8 gap-1.5">
+                {session.questions.map((q, idx) => {
+                  const answered =
+                    q.type === 'se'
+                      ? Array.isArray(userAnswers[q.id]) &&
+                        (userAnswers[q.id] as string[]).length === 2
+                      : !!userAnswers[q.id];
+                  const isCurrent = idx === currentIndex;
+                  const isFlagged = !!flaggedQuestions[q.id];
+
+                  return (
+                    <button
+                      key={q.id}
+                      type="button"
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`relative flex h-9 w-9 items-center justify-center rounded-[4px] font-mono text-sm font-bold transition-colors ${
+                        isCurrent
+                          ? 'bg-[var(--brand)] text-white border border-[var(--brand)]'
+                          : answered
+                            ? 'bg-[var(--bg-tint)] text-[var(--brand-ink)] border border-[var(--brand)]'
+                            : 'bg-white text-[var(--text)] border border-[var(--hairline)] hover:bg-[var(--bg-warm)]'
+                      }`}
+                    >
+                      <span>{idx + 1}</span>
+                      {isFlagged && (
+                        <span
+                          className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-[2px] bg-[var(--accent)] ring-2 ring-white"
+                          title="Flagged for Review"
+                        />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Flat Underline Tab Bar */}
+            <div
+              className="border-b border-[var(--hairline)] grid grid-cols-3 text-xs"
+              role="tablist"
+            >
+              <button
+                type="button"
+                role="tab"
+                aria-selected={companionTab === 'hints'}
+                onClick={() => setCompanionTab('hints')}
+                className={`flex items-center justify-center gap-1.5 py-3 border-b-2 transition-colors ${
+                  companionTab === 'hints'
+                    ? 'border-[var(--brand)] text-[var(--brand)] font-bold'
+                    : 'border-transparent text-[var(--text)] font-semibold hover:text-[var(--brand-ink)]'
+                }`}
+              >
+                <Lightbulb className="h-3.5 w-3.5" />
+                <span>{displayBn ? `হিন্টস (${hintBudget})` : `Hints (${hintBudget})`}</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={companionTab === 'scratchpad'}
+                onClick={() => setCompanionTab('scratchpad')}
+                className={`flex items-center justify-center gap-1.5 py-3 border-b-2 transition-colors ${
+                  companionTab === 'scratchpad'
+                    ? 'border-[var(--brand)] text-[var(--brand)] font-bold'
+                    : 'border-transparent text-[var(--text)] font-semibold hover:text-[var(--brand-ink)]'
+                }`}
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>{displayBn ? 'স্ক্র্যাচপ্যাড' : 'Scratchpad'}</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={companionTab === 'formulas'}
+                onClick={() => setCompanionTab('formulas')}
+                className={`flex items-center justify-center gap-1.5 py-3 border-b-2 transition-colors ${
+                  companionTab === 'formulas'
+                    ? 'border-[var(--brand)] text-[var(--brand)] font-bold'
+                    : 'border-transparent text-[var(--text)] font-semibold hover:text-[var(--brand-ink)]'
+                }`}
+              >
+                <BookOpen className="h-3.5 w-3.5" />
+                <span>{displayBn ? 'সূত্রাবলি' : 'Formulas'}</span>
+              </button>
+            </div>
+
+            <div className="p-5">
+              {/* Tab 1: De-Nested Hints List */}
+              {companionTab === 'hints' && (
+                <div className="space-y-4" role="tabpanel">
+                  <div className="flex items-center justify-between text-xs text-[var(--text)]">
+                    <span>
+                      {displayBn
+                        ? 'ধাপে ধাপে ধারণা, সমীকরণ ও সমাধান আনলক করুন'
+                        : 'Progressive 3-tier hints (Concept → Setup → Bridge)'}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-xs bg-emerald-600" />
-                      {displayBn ? 'উত্তরকৃত' : 'Done'}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-2 w-2 rounded-full bg-amber-500" />
-                      {displayBn ? 'ফ্ল্যাগ' : 'Flag'}
+                    <span className="font-mono font-bold text-[var(--brand-ink)]">
+                      {currentRevealedTiers.length}/3
                     </span>
                   </div>
-                </div>
 
-                {/* 8-Column Row of Crisp Square Buttons (h-9 w-9 rounded font-mono text-sm font-semibold) */}
-                <div className="grid grid-cols-8 gap-1.5">
-                  {session.questions.map((q, idx) => {
-                    const answered =
-                      q.type === 'se'
-                        ? Array.isArray(userAnswers[q.id]) &&
-                          (userAnswers[q.id] as string[]).length === 2
-                        : !!userAnswers[q.id];
-                    const isCurrent = idx === currentIndex;
-                    const isFlagged = !!flaggedQuestions[q.id];
-
-                    return (
-                      <button
-                        key={q.id}
-                        type="button"
-                        onClick={() => setCurrentIndex(idx)}
-                        className={`relative flex h-9 w-9 items-center justify-center rounded font-mono text-sm font-semibold transition-colors ${
-                          isCurrent
-                            ? 'bg-[#001E42] text-white border border-[#001E42]'
-                            : answered
-                              ? 'bg-emerald-50 text-emerald-900 border border-emerald-500'
-                              : 'bg-slate-50 text-slate-700 border border-slate-300 hover:bg-slate-100'
-                        }`}
-                      >
-                        <span>{idx + 1}</span>
-                        {isFlagged && (
-                          <span
-                            className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-white"
-                            title="Flagged for Review"
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Bottom Section: Unified 3-Tab Companion Workbench */}
-              <div className="border-t border-slate-200">
-                <div
-                  className="grid grid-cols-3 border-b border-slate-200 bg-slate-50 text-xs font-bold"
-                  role="tablist"
-                >
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={companionTab === 'hints'}
-                    onClick={() => setCompanionTab('hints')}
-                    className={`flex items-center justify-center gap-1.5 py-2.5 border-b-2 transition-colors ${
-                      companionTab === 'hints'
-                        ? 'border-[#001E42] bg-white text-[#001E42]'
-                        : 'border-transparent text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <Lightbulb className="h-3.5 w-3.5" />
-                    <span>{displayBn ? `হিন্টস (${hintBudget})` : `Hints (${hintBudget})`}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={companionTab === 'scratchpad'}
-                    onClick={() => setCompanionTab('scratchpad')}
-                    className={`flex items-center justify-center gap-1.5 py-2.5 border-b-2 transition-colors ${
-                      companionTab === 'scratchpad'
-                        ? 'border-[#001E42] bg-white text-[#001E42]'
-                        : 'border-transparent text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <FileText className="h-3.5 w-3.5" />
-                    <span>{displayBn ? 'স্ক্র্যাচপ্যাড' : 'Scratchpad'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={companionTab === 'formulas'}
-                    onClick={() => setCompanionTab('formulas')}
-                    className={`flex items-center justify-center gap-1.5 py-2.5 border-b-2 transition-colors ${
-                      companionTab === 'formulas'
-                        ? 'border-[#001E42] bg-white text-[#001E42]'
-                        : 'border-transparent text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span>{displayBn ? 'সূত্রাবলি' : 'Formulas'}</span>
-                  </button>
-                </div>
-
-                <div className="p-4">
-                  {/* Tab 1: Direct 3-Tier Progressive Hints (Zero Nested Card-Inside-Card) */}
-                  {companionTab === 'hints' && (
-                    <div className="space-y-3" role="tabpanel">
-                      <div className="flex items-center justify-between text-xs text-slate-600">
-                        <span>
-                          {displayBn
-                            ? 'ধাপে ধাপে ধারণা, সমীকরণ ও সমাধান আনলক করুন'
-                            : 'Progressive 3-tier hints (Concept → Setup → Bridge)'}
-                        </span>
-                        <span className="font-mono font-bold text-slate-800">
-                          {currentRevealedTiers.length}/3
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {activeHints.map((hint) => {
-                          const isRevealed = currentRevealedTiers.includes(hint.tier);
-                          return (
-                            <div
-                              key={hint.tier}
-                              className={`rounded-md border p-3 text-xs ${
-                                isRevealed
-                                  ? 'border-slate-300 bg-slate-50 text-slate-800'
-                                  : 'border-dashed border-slate-200 bg-slate-50/50 text-slate-400'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between font-bold text-slate-900">
-                                <span>
-                                  {displayBn ? `ধাপ ${hint.tier}: ` : `Tier ${hint.tier}: `}
-                                  {hint.label}
-                                </span>
-                                {!isRevealed && <Lock className="h-3.5 w-3.5 text-slate-400" />}
-                              </div>
-                              {isRevealed ? (
-                                <div className="mt-1.5 text-slate-700 leading-relaxed">
-                                  <MathText content={hint.content_md} />
-                                </div>
-                              ) : (
-                                <div className="mt-1 text-[11px] text-slate-500">
-                                  {displayBn
-                                    ? 'এই ধাপের হিন্ট এখনো আনলক করা হয়নি।'
-                                    : 'Locked — unlock below to view this step.'}
-                                </div>
-                              )}
+                  <div className="divide-y divide-[var(--hairline)]">
+                    {activeHints.map((hint) => {
+                      const isRevealed = currentRevealedTiers.includes(hint.tier);
+                      return (
+                        <div key={hint.tier} className="py-3.5 text-xs">
+                          <div className="flex items-center justify-between font-bold text-[var(--brand-ink)]">
+                            <span>
+                              {displayBn ? `ধাপ ${hint.tier}: ` : `Tier ${hint.tier}: `}
+                              {hint.label}
+                            </span>
+                            {!isRevealed && <Lock className="h-3.5 w-3.5 text-[var(--text)]" />}
+                          </div>
+                          {isRevealed ? (
+                            <div className="mt-1.5 text-[var(--text)] leading-relaxed">
+                              <MathText content={hint.content_md} />
                             </div>
-                          );
-                        })}
-                      </div>
-
-                      {nextTierToReveal ? (
-                        <button
-                          type="button"
-                          onClick={handleRevealHintForCurrent}
-                          disabled={hintBudget <= 0}
-                          className={`w-full rounded-md border px-3 py-2 text-xs font-bold transition-colors ${
-                            hintBudget <= 0
-                              ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
-                              : 'border-[#001E42] bg-[#001E42] text-white hover:bg-slate-900'
-                          }`}
-                        >
-                          {hintBudget <= 0
-                            ? displayBn
-                              ? 'হিন্ট বাজেট শেষ (0/6)'
-                              : 'Hint Budget Exhausted (0/6)'
-                            : displayBn
-                              ? `ধাপ ${nextTierToReveal} আনলক করুন (-১ হিন্ট)`
-                              : `Unlock Tier ${nextTierToReveal} Hint (-1 Budget)`}
-                        </button>
-                      ) : (
-                        <p className="text-center text-xs font-medium text-emerald-700">
-                          {displayBn
-                            ? 'এই প্রশ্নের সবকটি হিন্ট আনলক করা হয়েছে।'
-                            : 'All 3 hint tiers unlocked for this question.'}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Tab 2: Scratchpad */}
-                  {companionTab === 'scratchpad' && (
-                    <div className="space-y-2.5" role="tabpanel">
-                      <textarea
-                        rows={7}
-                        value={scratchpadNotes}
-                        onChange={(e) => setScratchpadNotes(e.target.value)}
-                        placeholder={
-                          displayBn
-                            ? 'এখানে আপনার বীজগণিতের রাফ হিসাব বা ভার্বাল পূর্বাভাস লিখুন...'
-                            : 'Work out algebra steps, test cases (x = +4, -4), or type verbal blank predictions here...'
-                        }
-                        className="w-full rounded-md border border-slate-300 bg-slate-50 p-3 font-mono text-xs text-slate-800 focus:border-[#001E42] focus:bg-white focus:outline-none"
-                      />
-                      <div className="flex justify-between items-center text-[11px] text-slate-500">
-                        <span>
-                          {displayBn ? 'সকল প্রশ্নে সংরক্ষিত থাকে' : 'Persists across all 8 questions'}
-                        </span>
-                        {scratchpadNotes && (
-                          <button
-                            type="button"
-                            onClick={() => setScratchpadNotes('')}
-                            className="font-semibold text-[#E4002B] hover:underline"
-                          >
-                            {displayBn ? 'মুছুন' : 'Clear'}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Tab 3: Formulas */}
-                  {companionTab === 'formulas' && (
-                    <div className="space-y-2.5 text-xs text-slate-700" role="tabpanel">
-                      <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
-                        <div className="font-bold text-[#001E42]">Quadratic &amp; Square Roots</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-600">
-                          <MathText content="If $x^2 = k$ ($k > 0$), then $x = +\sqrt{k}$ or $x = -\sqrt{k}$. Notice $\sqrt{x^2} = |x|$." />
+                          ) : (
+                            <div className="mt-1 text-[11px] text-[var(--text)]">
+                              {displayBn
+                                ? 'এই ধাপের হিন্ট এখনো আনলক করা হয়নি।'
+                                : 'Locked — unlock below to view this step.'}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
-                        <div className="font-bold text-[#001E42]">Exponents &amp; Coordinate Distance</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-600">
-                          <MathText content="$a^m \cdot a^n = a^{m+n}$ • Distance $d = \sqrt{(\Delta x)^2 + (\Delta y)^2}$" />
-                        </div>
-                      </div>
-                      <div className="rounded-md border border-slate-200 bg-slate-50 p-2.5">
-                        <div className="font-bold text-[#001E42]">Geometry &amp; Combined Work</div>
-                        <div className="mt-1 font-mono text-[11px] text-slate-600">
-                          <MathText content="Right triangles: $3:4:5$, $5:12:13$ • Combined rate: $R = \frac{1}{T_A} + \frac{1}{T_B}$" />
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })}
+                  </div>
+
+                  {nextTierToReveal ? (
+                    <button
+                      type="button"
+                      onClick={handleRevealHintForCurrent}
+                      disabled={hintBudget <= 0}
+                      className={`w-full py-2.5 rounded-[4px] text-sm font-semibold transition-colors ${
+                        hintBudget <= 0
+                          ? 'bg-[var(--bg-tint)] text-[var(--text)] cursor-not-allowed'
+                          : 'bg-[var(--brand-deep)] text-white hover:bg-[var(--brand)] cursor-pointer'
+                      }`}
+                    >
+                      {hintBudget <= 0
+                        ? displayBn
+                          ? 'হিন্ট বাজেট শেষ (0/6)'
+                          : 'Hint Budget Exhausted (0/6)'
+                        : displayBn
+                          ? `ধাপ ${nextTierToReveal} আনলক করুন (-১ হিন্ট)`
+                          : `Unlock Tier ${nextTierToReveal} Hint (-1 Budget)`}
+                    </button>
+                  ) : (
+                    <p className="text-center text-xs font-medium text-emerald-700">
+                      {displayBn
+                        ? 'এই প্রশ্নের সবকটি হিন্ট আনলক করা হয়েছে।'
+                        : 'All 3 hint tiers unlocked for this question.'}
+                    </p>
                   )}
                 </div>
-              </div>
+              )}
+
+              {/* Tab 2: Scratchpad */}
+              {companionTab === 'scratchpad' && (
+                <div className="space-y-2.5" role="tabpanel">
+                  <textarea
+                    rows={7}
+                    value={scratchpadNotes}
+                    onChange={(e) => setScratchpadNotes(e.target.value)}
+                    placeholder={
+                      displayBn
+                        ? 'এখানে আপনার বীজগণিতের রাফ হিসাব বা ভার্বাল পূর্বাভাস লিখুন...'
+                        : 'Work out algebra steps, test cases (x = +4, -4), or type verbal blank predictions here...'
+                    }
+                    className="w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] p-3 font-mono text-xs text-[var(--brand-ink)] focus:border-[var(--brand)] focus:bg-white focus:outline-none"
+                  />
+                  <div className="flex justify-between items-center text-[11px] text-[var(--text)]">
+                    <span>
+                      {displayBn ? 'সকল প্রশ্নে সংরক্ষিত থাকে' : 'Persists across all 8 questions'}
+                    </span>
+                    {scratchpadNotes && (
+                      <button
+                        type="button"
+                        onClick={() => setScratchpadNotes('')}
+                        className="font-semibold text-[var(--link)] hover:underline"
+                      >
+                        {displayBn ? 'মুছুন' : 'Clear'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: Formulas */}
+              {companionTab === 'formulas' && (
+                <div className="divide-y divide-[var(--hairline)] text-xs text-[var(--text)]" role="tabpanel">
+                  <div className="py-3">
+                    <div className="font-bold text-[var(--brand-ink)]">Quadratic &amp; Square Roots</div>
+                    <div className="mt-1 font-mono text-[11px] text-[var(--text)]">
+                      <MathText content="If $x^2 = k$ ($k > 0$), then $x = +\sqrt{k}$ or $x = -\sqrt{k}$. Notice $\sqrt{x^2} = |x|$." />
+                    </div>
+                  </div>
+                  <div className="py-3">
+                    <div className="font-bold text-[var(--brand-ink)]">Exponents &amp; Coordinate Distance</div>
+                    <div className="mt-1 font-mono text-[11px] text-[var(--text)]">
+                      <MathText content="$a^m \cdot a^n = a^{m+n}$ • Distance $d = \sqrt{(\Delta x)^2 + (\Delta y)^2}$" />
+                    </div>
+                  </div>
+                  <div className="py-3">
+                    <div className="font-bold text-[var(--brand-ink)]">Geometry &amp; Combined Work</div>
+                    <div className="mt-1 font-mono text-[11px] text-[var(--text)]">
+                      <MathText content="Right triangles: $3:4:5$, $5:12:13$ • Combined rate: $R = \frac{1}{T_A} + \frac{1}{T_B}$" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </aside>
         </div>
