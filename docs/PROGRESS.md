@@ -10,11 +10,11 @@
 - Date updated: 2026-11-14
 - Active tool: Gemini / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Phase M2.7-B & M2.7-C Complete (ETS / British Council / IDP Editorial Design, Student Posters, Full-Screen Diagnostic Workbench & 50/50 Split Auth)
-- Last session log: docs/ui_ux_runtime_conversion_remediation_master_plan.md
+- Current milestone: Phase M2.7-D Complete (Two-Key Sign-Off of M2.7-A, M2.7-B & M2.7-C)
+- Last session log: docs/logs/reviews/m2-7-redesign-signoff.md
 - Active branch: main
-- Last green `pnpm verify`: M2.7-B & M2.7-C (`brand-sweep.test.ts` 5/5 green, `i18n-pages-coverage.test.ts` 14/14 green, `@lumen/web` typecheck 0 errors)
-- Phase in progress: Phase M2.7-B & M2.7-C Complete
+- Last green `pnpm verify`: M2.7-D (`brand-sweep.test.ts` 5/5 green, `i18n-pages-coverage.test.ts` 14/14 green, `@lumen/web` typecheck 0 errors)
+- Phase in progress: Phase M2.7-D Complete
 
 ## Current task
 

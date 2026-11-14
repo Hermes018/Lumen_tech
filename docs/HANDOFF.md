@@ -5,17 +5,17 @@
 
 ## Baton
 
-- From: gemini (Gemini 4 Argon Medium)   To: next agent / founder review   Date/time (UTC): 2026-11-14 10:11:00
-- Reason: Phase M2.7-B & M2.7-C complete & merged to `main` (ETS / British Council / IDP editorial design, asymmetric 12-column split heroes with student photography posters, full-viewport 12-column `/exam/diagnostic` workbench, and full-bleed 50/50 `/sign-in` & `/sign-up` screens).
-- Branch: main                      Last commit SHA: (merged `task/M2-7-B-institutional-posters-diagnostic-and-auth`)
-- Device (hostname) / session log path: docs/ui_ux_runtime_conversion_remediation_master_plan.md
+- From: gemini (Gemini 4 Argon Low)   To: next agent / founder review   Date/time (UTC): 2026-11-14 10:19:00
+- Reason: Phase M2.7-D two-key audit complete & committed to `main` (`docs/logs/reviews/m2-7-redesign-signoff.md`).
+- Branch: main                      Last commit SHA: (see `git log -1` after M2.7-D commit)
+- Device (hostname) / session log path: docs/logs/reviews/m2-7-redesign-signoff.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict rule)
 - Working tree clean? yes
-- Task: Phase M2.7-B & M2.7-C (True ETS / British Council / IDP Editorial Design, Student Posters, Full-Screen Diagnostic Workbench & 50/50 Split Auth) - status: complete
+- Task: Phase M2.7-D (Fast Two-Key Audit of M2.7-A, M2.7-B & M2.7-C) - status: complete
 - Milestone gate in progress: Milestone M2.7 / M3 Preflight Remediation
 - Tests passing: `brand-sweep.test.ts` 5/5 green, `i18n-pages-coverage.test.ts` 14/14 green (19/19 tests passing)
 - TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental`)
-- Needs two-key review: `apps/web/next.config.ts` (added `images.remotePatterns` and CSP `img-src` allowlist for `https://images.unsplash.com`).
+- Needs two-key review: None (`apps/web/next.config.ts` and M2.7-A/B/C changes signed off in `docs/logs/reviews/m2-7-redesign-signoff.md`).
 
 ## Done so far (Phase M2.7-B & M2.7-C)
 
