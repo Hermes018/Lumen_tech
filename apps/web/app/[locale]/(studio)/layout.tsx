@@ -36,7 +36,7 @@ export default function StudioLayout({ children }: { children: ReactNode }) {
 
         <div className="flex items-center gap-3">
           <Badge variant="outline" className="gap-1 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
-            <ShieldCheck className="h-3.5 w-3.5" /> 2FA Verified (D4)
+            <ShieldCheck className="h-3.5 w-3.5" /> 2FA Verified
           </Badge>
           <Link
             href="/studio/questions/new"

@@ -29,7 +29,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      <div data-locale={locale} className="min-h-screen">
+      <div data-locale={locale} className={`min-h-screen ${locale === 'bn' ? 'font-bengali' : ''}`}>
         {children}
       </div>
     </NextIntlClientProvider>

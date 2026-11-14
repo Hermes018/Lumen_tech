@@ -46,3 +46,36 @@ describe('Brand sweep guard (D0 / brand.ts)', () => {
     expect(hits).toEqual([]);
   });
 });
+
+describe('Internal spec-code leak sweep (BUG-09)', () => {
+  it('contains zero occurrences of "D12 C14", "docs/00", "compare_at", or "(D4)" in apps/web/app UI files', () => {
+    const repoRoot = path.resolve(__dirname, '../../../..');
+    const appDir = path.join(repoRoot, 'apps', 'web', 'app');
+    const files = walkSourceFiles(appDir, ['.ts', '.tsx']);
+
+    const forbiddenPatterns = [
+      { pattern: /D12\s*C14/i, name: 'D12 C14' },
+      { pattern: /docs\/00/i, name: 'docs/00' },
+      { pattern: /compare_at/i, name: 'compare_at' },
+      { pattern: /\(D4\)/i, name: '(D4)' },
+    ];
+
+    const violations: string[] = [];
+    for (const file of files) {
+      const rel = path.relative(repoRoot, file).replace(/\\/g, '/');
+      if (rel.includes('__tests__') || rel.endsWith('.test.ts') || rel.endsWith('.test.tsx')) {
+        continue;
+      }
+      const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/);
+      lines.forEach((line, idx) => {
+        for (const { pattern, name } of forbiddenPatterns) {
+          if (pattern.test(line)) {
+            violations.push(`${rel}:${idx + 1} leaked [${name}]: ${line.trim()}`);
+          }
+        }
+      });
+    }
+
+    expect(violations).toEqual([]);
+  });
+});

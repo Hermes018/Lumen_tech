@@ -1,4 +1,4 @@
-/** @purpose Standard robots.txt configuration with sitemap pointer and private route guards (docs/00 D2, docs/08) */
+/** @purpose Standard robots.txt configuration with sitemap pointer and private route guards (SEO policy, docs/08) */
 
 import type { MetadataRoute } from 'next';
 

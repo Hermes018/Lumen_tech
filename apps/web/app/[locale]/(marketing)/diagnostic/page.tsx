@@ -23,7 +23,7 @@ export default function DiagnosticLandingPage() {
         {/* Header */}
         <div className="space-y-4">
           <Badge variant="outline" className="border-accent text-accent text-xs">
-            Unauthenticated Guest Access (D4)
+            Free Guest Diagnostic Access
           </Badge>
           <h1 className="text-4xl font-extrabold tracking-tight text-fg sm:text-5xl">
             Free 15-Minute GRE Express Diagnostic

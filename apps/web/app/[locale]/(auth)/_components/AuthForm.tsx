@@ -348,7 +348,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1.5 font-medium">
               <ShieldCheck className="text-accent h-4 w-4" />
-              Staff / Instructor / Org Admin (D4)
+              Staff / Instructor / Org Admin
             </span>
             <button
               type="button"
@@ -360,7 +360,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           </div>
           {staff2faMode && (
             <p className="text-fg-muted mt-2 leading-relaxed">
-              Per security policy D4, grader, instructor, finance, support, and org-admin accounts
+              Grader, instructor, finance, support, and org-admin accounts
               must verify a Passkey or TOTP 2FA factor before accessing privileged routes. You will
               be prompted to enroll or verify 2FA immediately after sign-in.
             </p>

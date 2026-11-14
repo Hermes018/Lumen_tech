@@ -17,6 +17,7 @@ import {
   User,
   Menu,
 } from 'lucide-react';
+import { LocaleSwitcher } from '../_components/LocaleSwitcher';
 
 export default function LearnerLayout({ children }: { children: ReactNode }) {
   return (
@@ -121,6 +122,9 @@ export default function LearnerLayout({ children }: { children: ReactNode }) {
 
           {/* User Status Pills & Profile */}
           <div className="flex items-center gap-3">
+            {/* Interactive Language Switcher */}
+            <LocaleSwitcher />
+
             {/* Study Streak Pill */}
             <div className="bg-warning-soft text-warning-fg border-warning/20 flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold">
               <Flame className="fill-warning text-warning h-4 w-4" />

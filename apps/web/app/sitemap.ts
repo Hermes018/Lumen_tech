@@ -1,4 +1,4 @@
-/** @purpose Localized (en/bn) sitemap generator for all public marketing, course, landing, and legal routes (docs/00 D2, docs/08) */
+/** @purpose Localized (en/bn) sitemap generator for all public marketing, course, landing, and legal routes (SEO policy, docs/08) */
 
 import type { MetadataRoute } from 'next';
 

@@ -1,6 +1,6 @@
 'use client';
 
-/** @purpose Admin Console UI: Platform health KPIs, User & Role Inspector with super_admin guard (D4), and Append-only Audit Log Viewer (docs/06 §1, docs/09 §4) */
+/** @purpose Admin Console UI: Platform health KPIs, User & Role Inspector with super_admin guard, and Append-only Audit Log Viewer (docs/06 §1, docs/09 §4) */
 
 import React, { useState } from 'react';
 import {
@@ -197,7 +197,7 @@ export function AdminConsoleClient({ currentActor }: AdminConsoleProps) {
             </Badge>
           </div>
           <p className="mt-1 text-sm text-gray-500">
-            Platform health monitoring, RBAC security inspector (D4), and append-only audit log viewer.
+            Platform health monitoring, RBAC security inspector, and append-only audit log viewer.
           </p>
         </div>
 

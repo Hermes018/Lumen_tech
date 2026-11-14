@@ -101,7 +101,7 @@ export function OnboardingClient() {
           </Callout>
 
           {result.requires2faSetup && (
-            <Callout type="trap" title="Staff / Instructor 2FA Required (D4)">
+            <Callout type="trap" title="Staff / Instructor 2FA Required">
               Your account holds a privileged role. Enroll a Passkey or TOTP authenticator in
               Settings before accessing Grader, Studio, Finance, or Admin tools.
             </Callout>
