@@ -19,9 +19,43 @@ const WORKBENCH_SURFACES = [
   { label: "AuthForm", file: "apps/web/app/[locale]/(auth)/_components/AuthForm.tsx" },
   { label: "/exam/diagnostic", file: "apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx" },
   { label: "/exam/ielts-preview", file: "apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx" },
+  { label: "live-gre-widget", file: "apps/web/app/[locale]/(marketing)/gre/live-gre-widget.tsx" },
+  { label: "/checkout", file: "apps/web/app/[locale]/(checkout)/checkout/page.tsx" },
+  { label: "CheckoutClient", file: "apps/web/app/[locale]/(checkout)/checkout/CheckoutClient.tsx" },
+  { label: "/for-institutions", file: "apps/web/app/[locale]/(marketing)/for-institutions/page.tsx" },
+  { label: "/tools/gre-score-calculator", file: "apps/web/app/[locale]/(marketing)/tools/gre-score-calculator/page.tsx" },
+  { label: "/tools/ielts-band-calculator", file: "apps/web/app/[locale]/(marketing)/tools/ielts-band-calculator/page.tsx" },
+  { label: "(learner)/layout", file: "apps/web/app/[locale]/(learner)/layout.tsx" },
+  { label: "/app", file: "apps/web/app/[locale]/(learner)/app/page.tsx" },
+  { label: "/app/vocab", file: "apps/web/app/[locale]/(learner)/app/vocab/page.tsx" },
+  { label: "/app/vocab/play", file: "apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx" },
+  { label: "/app/flashcards", file: "apps/web/app/[locale]/(learner)/app/flashcards/page.tsx" },
+  { label: "/app/practice", file: "apps/web/app/[locale]/(learner)/app/practice/page.tsx" },
+  { label: "/app/mistakes", file: "apps/web/app/[locale]/(learner)/app/mistakes/page.tsx" },
+  { label: "/app/progress", file: "apps/web/app/[locale]/(learner)/app/progress/page.tsx" },
+  { label: "/app/plan", file: "apps/web/app/[locale]/(learner)/app/plan/page.tsx" },
+  { label: "/app/settings", file: "apps/web/app/[locale]/(learner)/app/settings/page.tsx" },
 ];
 
-const LIVE_EXTRA_ROUTES = ["/sign-in", "/sign-up", "/exam/diagnostic", "/exam/ielts-preview"];
+const LIVE_EXTRA_ROUTES = [
+  "/sign-in",
+  "/sign-up",
+  "/exam/diagnostic",
+  "/exam/ielts-preview",
+  "/checkout",
+  "/for-institutions",
+  "/tools/gre-score-calculator",
+  "/tools/ielts-band-calculator",
+  "/app",
+  "/app/vocab",
+  "/app/vocab/play",
+  "/app/flashcards",
+  "/app/practice",
+  "/app/mistakes",
+  "/app/progress",
+  "/app/plan",
+  "/app/settings",
+];
 
 const BOXED_PRIMITIVES = ["CalloutNotice", "CtaBand", "Button"];
 const MAX_BOXED_INVOCATIONS = 6;

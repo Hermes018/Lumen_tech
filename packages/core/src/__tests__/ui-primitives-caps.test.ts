@@ -1,6 +1,9 @@
 /** @purpose Word-cap validation helper and unit tests enforcing the 12 Lumen UI Laws copy limits */
+import fs from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { MARKETING_CONTENT, type MarketingLocaleData } from '../../../../apps/web/src/content/marketing';
+import { NAV_DATA } from '../../../../apps/web/src/content/nav';
 
 export const WORD_CAPS = {
   title: 10,
@@ -213,5 +216,43 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
       expect(price).toMatch(/^৳ [০-৯,]+$/);
       expect(price).not.toMatch(/[0-9]/);
     }
+  });
+
+  it('verifies all internal hrefs in MARKETING_CONTENT and NAV_DATA resolve to real Next.js routes', () => {
+    const localeAppDir = path.resolve(__dirname, '../../../../apps/web/app/[locale]');
+    const validRoutes = new Set<string>();
+
+    function collectRoutes(dir: string) {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          collectRoutes(full);
+        } else if (entry.name === 'page.tsx') {
+          const relDir = path.relative(localeAppDir, path.dirname(full)).replace(/\\/g, '/');
+          const segments = relDir
+            .split('/')
+            .filter((seg) => seg && seg !== '.' && !/^\(.*\)$/.test(seg));
+          validRoutes.add(segments.length === 0 ? '/' : `/${segments.join('/')}`);
+        }
+      }
+    }
+
+    collectRoutes(localeAppDir);
+
+    const allStrings = [
+      ...collectStrings(MARKETING_CONTENT, 'MARKETING_CONTENT'),
+      ...collectStrings(NAV_DATA, 'NAV_DATA'),
+    ];
+    const broken: string[] = [];
+
+    for (const { path: fieldPath, value } of allStrings) {
+      if (!/href$/i.test(fieldPath) || !value.startsWith('/')) continue;
+      const normalized = value.split('#')[0]?.split('?')[0]?.replace(/\/+$/, '') || '/';
+      if (!validRoutes.has(normalized)) {
+        broken.push(`${fieldPath}: "${value}" -> "${normalized}"`);
+      }
+    }
+
+    expect(broken).toEqual([]);
   });
 });

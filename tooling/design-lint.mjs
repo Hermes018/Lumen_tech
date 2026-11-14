@@ -116,12 +116,28 @@ for (const file of pageFiles) {
   }
 }
 
-// 4. Institutional Surface Geometry & Truthfulness Guard (Trust Bar, Auth, Diagnostic)
+// 4. Institutional Surface Geometry & Truthfulness Guard (Trust Bar, Auth, Diagnostic, Simulator, Checkout, Tools, Learner)
 const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(marketing)/_components/BangladeshPaymentTrustBar.tsx',
   'apps/web/app/[locale]/(auth)/_components/AuthForm.tsx',
   'apps/web/app/[locale]/(exam)/exam/diagnostic/page.tsx',
   'apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx',
+  'apps/web/app/[locale]/(marketing)/gre/live-gre-widget.tsx',
+  'apps/web/app/[locale]/(checkout)/checkout/page.tsx',
+  'apps/web/app/[locale]/(checkout)/checkout/CheckoutClient.tsx',
+  'apps/web/app/[locale]/(marketing)/for-institutions/page.tsx',
+  'apps/web/app/[locale]/(marketing)/tools/gre-score-calculator/page.tsx',
+  'apps/web/app/[locale]/(marketing)/tools/ielts-band-calculator/page.tsx',
+  'apps/web/app/[locale]/(learner)/layout.tsx',
+  'apps/web/app/[locale]/(learner)/app/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/vocab/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/flashcards/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/practice/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/mistakes/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/progress/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/plan/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
 ];
 const FORBIDDEN_ROUNDED_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },
@@ -155,6 +171,70 @@ if (fs.existsSync(authFormPath)) {
   }
 }
 
+// 5. Internal Route & Link Integrity Guard ([link-guard])
+const localeAppDir = path.join(ROOT, 'apps/web/app/[locale]');
+const routePageFiles = walkFiles(localeAppDir, ['page.tsx']);
+const validStaticRoutes = new Set();
+const validDynamicMatchers = [];
+
+for (const pageFile of routePageFiles) {
+  const relDir = path.relative(localeAppDir, path.dirname(pageFile)).replace(/\\/g, '/');
+  const segments = relDir
+    .split('/')
+    .filter((seg) => seg && seg !== '.' && !/^\(.*\)$/.test(seg));
+  const routePattern = '/' + segments.join('/');
+  if (segments.some((seg) => /^\[.*\]$/.test(seg))) {
+    const regexStr =
+      '^/' +
+      segments
+        .map((seg) => {
+          if (/^\[\.\.\..*\]$/.test(seg)) return '.+';
+          if (/^\[.*\]$/.test(seg)) return '[^/]+';
+          return seg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        })
+        .join('/') +
+      '$';
+    validDynamicMatchers.push(new RegExp(regexStr));
+  } else {
+    validStaticRoutes.add(routePattern === '/' ? '/' : routePattern.replace(/\/+$/, ''));
+  }
+}
+
+function routeExists(candidate) {
+  if (validStaticRoutes.has(candidate)) return true;
+  return validDynamicMatchers.some((re) => re.test(candidate));
+}
+
+const LINK_GUARD_FILES = [
+  'apps/web/src/content/nav.ts',
+  'apps/web/src/content/marketing.ts',
+  'apps/web/src/components/ui/HeaderFooter.tsx',
+  'apps/web/src/components/ui/primitives.tsx',
+];
+const HREF_LITERAL_REGEX = /(?:\b(?:href|ctaHref|linkHref|secondaryLinkHref)\s*[:=]\s*)(['"])(\/[^'"]*)\1/g;
+const verifiedRoutes = new Set();
+let checkedHrefOccurrences = 0;
+
+for (const rel of LINK_GUARD_FILES) {
+  const full = path.join(ROOT, rel);
+  if (!fs.existsSync(full)) {
+    errors.push(`[link-guard] Missing target file: ${rel}`);
+    continue;
+  }
+  const content = fs.readFileSync(full, 'utf8');
+  for (const match of content.matchAll(HREF_LITERAL_REGEX)) {
+    const rawHref = match[2];
+    if (!rawHref) continue;
+    checkedHrefOccurrences += 1;
+    const stripped = rawHref.split('#')[0].split('?')[0].replace(/\/+$/, '') || '/';
+    if (!routeExists(stripped)) {
+      errors.push(`[link-guard] Broken internal href "${rawHref}" (resolved route "${stripped}") in ${rel}`);
+    } else {
+      verifiedRoutes.add(stripped);
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error(`design:lint FAILED (${errors.length} error(s)):`);
   for (const e of errors) {
@@ -164,5 +244,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean)`,
+  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified)`,
 );
