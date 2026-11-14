@@ -5,6 +5,7 @@ import {
   session,
   account,
   verification,
+  twoFactor,
   roleAssignment,
   organization,
   auditLog,
@@ -40,9 +41,25 @@ describe('Drizzle Schema & D13 Pedagogy Definition', () => {
     expect(session).toBeDefined();
     expect(account).toBeDefined();
     expect(verification).toBeDefined();
+    expect(twoFactor).toBeDefined();
     expect(roleAssignment).toBeDefined();
     expect(organization).toBeDefined();
     expect(auditLog).toBeDefined();
+  });
+
+  it('exports twoFactor table and Better Auth plugin fields on user', () => {
+    expect(twoFactor).toBeDefined();
+    expect(twoFactor.id).toBeDefined();
+    expect(twoFactor.secret).toBeDefined();
+    expect(twoFactor.backupCodes).toBeDefined();
+    expect(twoFactor.userId).toBeDefined();
+    expect(twoFactor.verified).toBeDefined();
+    expect(twoFactor.failedVerificationCount).toBeDefined();
+    expect(twoFactor.lockedUntil).toBeDefined();
+
+    expect(user.twoFactorEnabled).toBeDefined();
+    expect(user.phoneNumber).toBeDefined();
+    expect(user.phoneNumberVerified).toBeDefined();
   });
 
   it('exports all catalog, pricing, and entitlement tables', () => {

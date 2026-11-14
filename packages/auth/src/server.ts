@@ -1,9 +1,9 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { twoFactor } from 'better-auth/plugins/two-factor';
+import { twoFactor as twoFactorPlugin } from 'better-auth/plugins/two-factor';
 import { phoneNumber } from 'better-auth/plugins/phone-number';
 import { emailOTP } from 'better-auth/plugins/email-otp';
-import { db, user, session, account, verification } from '@lumen/db';
+import { db, user, session, account, verification, twoFactor } from '@lumen/db';
 import { brand } from '@lumen/config';
 import { requiresTwoFactor, type Role } from './permissions';
 import type * as _zodCore from 'zod/v4/core';
@@ -35,6 +35,7 @@ export function createAuth(options: CreateAuthOptions = {}) {
         session,
         account,
         verification,
+        twoFactor,
       },
     }),
     session: {
@@ -50,7 +51,7 @@ export function createAuth(options: CreateAuthOptions = {}) {
       requireEmailVerification: true,
     },
     plugins: [
-      twoFactor({
+      twoFactorPlugin({
         issuer: brand.name,
       }),
       emailOTP({

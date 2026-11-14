@@ -10,11 +10,11 @@
 - Date updated: 2026-11-14
 - Active tool: Gemini / Antigravity
 - Active device: Laptop (Intel Core i5-1135G7, 8GB DDR4, NVIDIA MX330, Dual-Boot Win11 / Fedora 44)
-- Current milestone: Stage 11 Complete (All residual Stage-10 audit gaps closed: P0-9, P1-E, P1-F, P1-G, dot-path hardening; unconditional sign-off pass; 30/30 turbo tasks green)
-- Last session log: docs/logs/reviews/sonnet-full-preflight-audit.md
+- Current milestone: Phase P2.1 Complete (Better Auth Drizzle sync, KaTeX MathText, exam geometry & footer routes)
+- Last session log: docs/ui_ux_runtime_conversion_remediation_master_plan.md
 - Active branch: main
-- Last green `pnpm verify`: Stage 11 (`pnpm verify:fast` 30/30 turbo tasks green, 287 `@lumen/core` tests passing across 27 files)
-- Phase in progress: P1 Core (Stage 11 Residual Audit Gaps Remediated & Merged to main)
+- Last green `pnpm verify`: P2.1 (All @lumen/db, @lumen/ui, and @lumen/auth tests passing, @lumen/web typecheck green)
+- Phase in progress: Phase P2.1 Runtime Stability, KaTeX Math & Exam Viewport Geometry
 
 ## Current task
 

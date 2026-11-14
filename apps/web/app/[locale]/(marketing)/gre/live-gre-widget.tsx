@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Card, CardHeader, CardTitle, CardContent, Badge } from '@lumen/ui';
+import { Button, Card, CardHeader, CardTitle, CardContent, Badge, MathText } from '@lumen/ui';
 import { HintLadder, type HintItem } from '@lumen/ui';
 import { TrapDiagnostic } from '@lumen/ui';
 import { CheckCircle2, XCircle, RotateCcw, ArrowRight } from 'lucide-react';
@@ -110,23 +110,26 @@ export function LiveGreWidget() {
       <CardContent className="space-y-6 pt-6">
         {/* Question Prompt */}
         <div className="rounded-lg border border-border/70 bg-canvas p-4 text-sm leading-relaxed text-fg">
-          <p className="font-medium text-fg">
-            Let <span className="font-mono font-semibold">$x$</span> be an integer such that{' '}
-            <span className="font-mono font-semibold">$x^2 = 16$</span>.
-          </p>
+          <div className="font-medium text-fg">
+            <MathText content="Let $x$ be an integer such that $x^2 = 16$." />
+          </div>
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-md border border-border bg-surface p-3 text-center">
               <div className="text-xs font-semibold uppercase tracking-wider text-fg-muted">
                 Quantity A
               </div>
-              <div className="mt-1 font-mono text-lg font-bold text-fg">$x$</div>
+              <div className="mt-1 font-mono text-lg font-bold text-fg">
+                <MathText content="$x$" />
+              </div>
             </div>
             <div className="rounded-md border border-border bg-surface p-3 text-center">
               <div className="text-xs font-semibold uppercase tracking-wider text-fg-muted">
                 Quantity B
               </div>
-              <div className="mt-1 font-mono text-lg font-bold text-fg">$0$</div>
+              <div className="mt-1 font-mono text-lg font-bold text-fg">
+                <MathText content="$0$" />
+              </div>
             </div>
           </div>
         </div>
@@ -167,7 +170,9 @@ export function LiveGreWidget() {
                   <span className="flex h-6 w-6 items-center justify-center rounded-full border border-border font-mono text-xs font-semibold text-fg">
                     {option.id}
                   </span>
-                  <span>{option.text}</span>
+                  <span>
+                    <MathText content={option.text} />
+                  </span>
                 </div>
                 {isSubmitted && isOptionCorrect && (
                   <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
@@ -196,7 +201,7 @@ export function LiveGreWidget() {
               <Button onClick={handleReset} variant="outline" size="sm" className="gap-2">
                 <RotateCcw className="h-4 w-4" /> Try Again
               </Button>
-              <Link href="/diagnostic">
+              <Link href="/exam/diagnostic">
                 <Button size="sm" className="gap-2">
                   Take Full 15-Min Diagnostic <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -228,10 +233,9 @@ export function LiveGreWidget() {
               <CheckCircle2 className="h-5 w-5" />
               <span>Spot On! You bypassed the classic Positive Root Trap.</span>
             </div>
-            <p className="mt-2 text-fg-muted text-xs leading-relaxed">
-              Because $x^2 = 16$ yields both $+4$ and $-4$, Quantity A can be strictly greater or
-              strictly less than Quantity B. Therefore, the relationship cannot be determined.
-            </p>
+            <div className="mt-2 text-fg-muted text-xs leading-relaxed">
+              <MathText content="Because $x^2 = 16$ yields both $+4$ and $-4$, Quantity A can be strictly greater or strictly less than Quantity B. Therefore, the relationship cannot be determined." />
+            </div>
           </div>
         )}
 

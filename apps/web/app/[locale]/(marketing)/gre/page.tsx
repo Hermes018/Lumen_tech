@@ -71,13 +71,13 @@ export default function GreMarketingPage() {
       </section>
 
       {/* Interactive Live Demo Section */}
-      <section className="w-full max-w-5xl px-4 py-16 sm:py-20 flex flex-col items-center">
+      <section id="pedagogy" className="w-full max-w-5xl px-4 py-16 sm:py-20 flex flex-col items-center">
         <div className="text-center space-y-2 mb-8">
           <Badge variant="default" className="text-xs">
             Interactive Experience
           </Badge>
           <h2 className="text-2xl font-bold tracking-tight text-fg sm:text-3xl">
-            Test Our D13 Interactive Pedagogy in 10 Seconds
+            Test Our Interactive Pedagogy in 10 Seconds
           </h2>
           <p className="text-fg-muted text-sm max-w-xl mx-auto">
             Try this Quantitative Comparison item below. Deliberately pick an incorrect option to
@@ -204,7 +204,7 @@ export default function GreMarketingPage() {
             </Card>
 
             {/* Pillar 6 */}
-            <Card className="border-border bg-surface transition-all hover:shadow-md">
+            <Card id="vocab" className="border-border bg-surface transition-all hover:shadow-md scroll-mt-20">
               <CardHeader>
                 <div className="bg-accent/10 text-accent mb-3 flex h-10 w-10 items-center justify-center rounded-lg">
                   <Clock className="h-5 w-5" />

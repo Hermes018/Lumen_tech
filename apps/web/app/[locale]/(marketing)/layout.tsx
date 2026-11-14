@@ -39,7 +39,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               <Link href="/pricing" className="hover:text-fg transition-colors">
                 Pricing
               </Link>
-              <Link href="/diagnostic" className="hover:text-fg transition-colors">
+              <Link href="/exam/diagnostic" className="hover:text-fg transition-colors">
                 Free Diagnostic
               </Link>
             </nav>
@@ -96,12 +96,12 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/flashcards" className="hover:text-fg transition-colors">
+                  <Link href="/gre#vocab" className="hover:text-fg transition-colors">
                     FSRS Vocab Engine
                   </Link>
                 </li>
                 <li>
-                  <Link href="/diagnostic" className="hover:text-fg transition-colors">
+                  <Link href="/exam/diagnostic" className="hover:text-fg transition-colors">
                     Free Diagnostic Test
                   </Link>
                 </li>
@@ -116,12 +116,12 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/pedagogy" className="hover:text-fg transition-colors">
+                  <Link href="/gre#pedagogy" className="hover:text-fg transition-colors">
                     Interactive Pedagogy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/institutions" className="hover:text-fg transition-colors">
+                  <Link href="/for-institutions" className="hover:text-fg transition-colors">
                     For Universities & Schools
                   </Link>
                 </li>
@@ -131,22 +131,22 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
               <h3 className="text-fg text-xs font-semibold tracking-wider uppercase">Legal</h3>
               <ul className="mt-4 space-y-2 text-sm">
                 <li>
-                  <Link href="/terms" className="hover:text-fg transition-colors">
+                  <Link href="/legal/terms" className="hover:text-fg transition-colors">
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-fg transition-colors">
+                  <Link href="/legal/privacy" className="hover:text-fg transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/refunds" className="hover:text-fg transition-colors">
+                  <Link href="/legal/refund-policy" className="hover:text-fg transition-colors">
                     Refund Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/grievance" className="hover:text-fg transition-colors">
+                  <Link href="/legal/grievance" className="hover:text-fg transition-colors">
                     Grievance Officer
                   </Link>
                 </li>
@@ -160,10 +160,10 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
                 </li>
                 <li>
                   <a
-                    href="mailto:support@lumenacademy.com"
+                    href={`mailto:${brand.supportEmail}`}
                     className="hover:text-fg transition-colors"
                   >
-                    support@lumenacademy.com
+                    {brand.supportEmail}
                   </a>
                 </li>
                 <li>

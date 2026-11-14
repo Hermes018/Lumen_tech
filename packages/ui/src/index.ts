@@ -17,6 +17,7 @@ export * from './components/callout';
 export * from './components/streak-pill';
 export * from './components/level-progress-bar';
 export * from './components/score-predictor-chart';
+export * from './components/math-text';
 export * from './components/gre/index';
 
 export const UI_VERSION = '0.1.0';

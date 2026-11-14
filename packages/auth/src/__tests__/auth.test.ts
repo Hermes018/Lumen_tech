@@ -8,6 +8,8 @@ import {
   ROLE_PERMISSIONS,
   auth,
   authClient,
+  createAuth,
+  getAuth,
   requireServerActor,
   getServerActor,
   __setTestServerActor,
@@ -68,6 +70,9 @@ describe('@lumen/auth exports and permissions', () => {
   it('exports auth and authClient without throwing on initialization', () => {
     expect(auth).toBeDefined();
     expect(authClient).toBeDefined();
+    const instance = getAuth();
+    expect(instance).toBeDefined();
+    expect(instance.api).toBeDefined();
   });
 
   describe('requireServerActor (P1-32)', () => {

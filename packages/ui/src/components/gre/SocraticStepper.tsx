@@ -4,6 +4,7 @@
 import * as React from 'react';
 import { cn } from '../../lib/utils';
 import { CheckCircle2, Sparkles } from 'lucide-react';
+import { MathText } from '../math-text';
 
 export interface SocraticStepItem {
   step_index: number;
@@ -128,7 +129,7 @@ export function SocraticStepper({
                     isLocked ? 'text-fg-muted/60' : 'text-fg'
                   )}
                 >
-                  {step.prompt_md}
+                  <MathText content={step.prompt_md} />
                 </div>
 
                 {/* Interactive options for active step */}
@@ -154,7 +155,9 @@ export function SocraticStepper({
                           <span className="font-semibold text-fg-muted shrink-0">
                             {String.fromCharCode(65 + optIdx)}.
                           </span>
-                          <span className="flex-1 leading-normal">{optText}</span>
+                          <span className="flex-1 leading-normal">
+                            <MathText content={optText} />
+                          </span>
                           {isWrong && (
                             <span className="text-[10px] text-danger font-medium shrink-0">
                               Try again
@@ -173,7 +176,9 @@ export function SocraticStepper({
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Key Conceptual Takeaway
                     </div>
-                    <div className="opacity-90 leading-relaxed">{step.takeaway_md}</div>
+                    <div className="opacity-90 leading-relaxed">
+                      <MathText content={step.takeaway_md} />
+                    </div>
                   </div>
                 )}
               </div>

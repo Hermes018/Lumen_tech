@@ -5,6 +5,7 @@ import * as React from 'react';
 import { cn } from '../../lib/utils';
 import { Lightbulb, Sparkles, HelpCircle, ChevronDown, ChevronUp, Lock, AlertTriangle } from 'lucide-react';
 import { Callout } from '../callout';
+import { MathText } from '../math-text';
 
 export interface HintItem {
   tier: 1 | 2 | 3;
@@ -122,7 +123,9 @@ export function HintLadder({
                 title={`Hint Tier ${hint.tier}: ${hint.label}`}
                 className="my-1.5"
               >
-                <div className="whitespace-pre-wrap">{hint.content_md}</div>
+                <div className="whitespace-pre-wrap">
+                  <MathText content={hint.content_md} />
+                </div>
               </Callout>
             );
           })}

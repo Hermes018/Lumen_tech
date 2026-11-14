@@ -5,7 +5,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { brand } from '@lumen/config';
-import { ShieldCheck, FileText, RefreshCw, Lock } from 'lucide-react';
+import { ShieldCheck, FileText, RefreshCw, Lock, Scale } from 'lucide-react';
 
 export default async function LegalLayout({
   children,
@@ -21,6 +21,7 @@ export default async function LegalLayout({
     { href: `${prefix}/legal/terms`, label: 'Terms of Service', icon: FileText },
     { href: `${prefix}/legal/privacy`, label: 'Privacy Policy (PDPO 2025)', icon: Lock },
     { href: `${prefix}/legal/refund-policy`, label: 'Refund & Cancellation', icon: RefreshCw },
+    { href: `${prefix}/legal/grievance`, label: 'Grievance Officer', icon: Scale },
   ];
 
   return (
