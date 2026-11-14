@@ -1,4 +1,4 @@
-/** @purpose GRE Practice Bank and Magoosh-style custom quiz builder (/app/practice) */
+/** @purpose GRE Practice Bank and custom quiz builder (/app/practice) */
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardContent, Button, Badge } from '@lumen/ui';
 import { Target, Sparkles, Clock, Filter, ArrowRight, Lightbulb, ShieldAlert } from 'lucide-react';
@@ -133,7 +133,7 @@ export default async function PracticeDashboardPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-fg-muted" />
-            <h2 className="text-base font-semibold text-fg">Curated GRE Magoosh-Parity Seed Items</h2>
+            <h2 className="text-base font-semibold text-fg">Curated GRE Practice Items</h2>
           </div>
           <span className="text-xs text-fg-muted">{seedQuestions.length} Items Available</span>
         </div>

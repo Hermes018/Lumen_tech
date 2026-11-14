@@ -25,12 +25,8 @@ import {
   ShieldCheck,
   CreditCard,
   Clock,
-  CheckCircle2,
-  Award,
-  Receipt,
   Smartphone,
 } from 'lucide-react';
-import { BangladeshPaymentTrustBar } from '../_components/BangladeshPaymentTrustBar';
 
 type ExamType = 'gre' | 'ielts_academic' | 'ielts_gt';
 
@@ -741,11 +737,7 @@ export default function PricingPage() {
   return (
     <div className="flex flex-col items-center pb-20" data-locale={locale}>
       {/* High-Contrast Oxford Navy Hero Banner (BUG-12) */}
-      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-slate-950 px-4 py-14 text-white sm:py-20">
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-35"
-          aria-hidden="true"
-        />
+      <section className="relative w-full overflow-hidden border-b border-slate-800 bg-[#001E42] px-4 py-14 text-white sm:py-20">
         <div className="relative mx-auto max-w-6xl space-y-6 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-950/80 px-3.5 py-1 text-xs font-semibold text-blue-200">
             <Sparkles className="h-3.5 w-3.5 text-blue-400" />
@@ -759,22 +751,6 @@ export default function PricingPage() {
           <p className="mx-auto max-w-2xl text-base text-slate-300 sm:text-lg leading-relaxed">
             {tPricing('subtitle')}
           </p>
-
-          {/* Crisp Metric Badges */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-400/30 bg-indigo-950/90 px-3 py-1 text-xs font-semibold text-indigo-200">
-              <CheckCircle2 className="h-3.5 w-3.5 text-indigo-400" />
-              {isBn ? '১৩০–১৭০ Rasch IRT অ্যাডাপটিভ' : '130–170 Rasch IRT Adaptive'}
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-950/90 px-3 py-1 text-xs font-semibold text-emerald-200">
-              <Award className="h-3.5 w-3.5 text-emerald-400" />
-              {isBn ? 'ব্যান্ড ০–৯ অফিসিয়াল রুব্রিক এআই' : 'Band 0–9 Official Rubric AI'}
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-200">
-              <Receipt className="h-3.5 w-3.5 text-blue-400" />
-              {isBn ? 'মূসক ৬.৩ ভ্যাট অন্তর্ভুক্ত' : 'Mushak 6.3 VAT Included'}
-            </span>
-          </div>
 
           {/* Region Switcher */}
           <div className="pt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
@@ -840,11 +816,6 @@ export default function PricingPage() {
                 {tab.label}
               </button>
             ))}
-          </div>
-
-          {/* Prominent Bangladeshi Payment & Trust Bar */}
-          <div className="pt-4">
-            <BangladeshPaymentTrustBar variant="dark" locale={isBn ? 'bn' : 'en'} />
           </div>
         </div>
       </section>

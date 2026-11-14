@@ -2,7 +2,6 @@
 import { brand } from '@lumen/config';
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
-  Sparkles,
   Headphones,
   BookOpen,
   PenTool,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link } from '@/src/i18n/routing';
 
+import { IeltsExamGuide } from '../_components/IeltsExamGuide';
 export const metadata = {
   title: `IELTS Academic & General Prep | আইইএলটিএস প্রস্তুতি | ${brand.name}`,
   description:
@@ -32,15 +32,10 @@ export default async function IeltsMarketingPage({
   return (
     <div className="flex flex-col items-center" data-locale={locale}>
       {/* British Emerald & Teal Hero Section (BUG-12) */}
-      <section className="relative w-full overflow-hidden border-b border-emerald-900 bg-emerald-950 px-4 py-16 text-white sm:py-24">
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#064e3b_1px,transparent_1px),linear-gradient(to_bottom,#064e3b_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-35"
-          aria-hidden="true"
-        />
+      <section className="relative w-full overflow-hidden border-b border-[#005A70] bg-[#005A70] px-4 py-16 text-white sm:py-24">
 
         <div className="relative mx-auto max-w-5xl text-center space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-teal-400/30 bg-emerald-900/70 px-3.5 py-1 text-xs font-semibold text-emerald-100">
-            <Sparkles className="h-3.5 w-3.5 text-teal-400" />
             <span>
               {isBn
                 ? 'কম্পিউটার-ডেলিভার্ড আইইএলটিএস প্যারিটি'
@@ -106,11 +101,12 @@ export default async function IeltsMarketingPage({
           </div>
         </div>
       </section>
+      <IeltsExamGuide isBn={isBn} />
 
       {/* Direct "Launch Split-Screen CBT Simulator" Preview Card */}
       <section className="w-full max-w-6xl px-4 pt-14 sm:px-6">
         <div className="overflow-hidden rounded-3xl border border-emerald-200 bg-white shadow-xl">
-          <div className="bg-emerald-950 px-6 py-3 text-white flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="bg-[#005A70] px-6 py-3 text-white flex flex-wrap items-center justify-between gap-2 text-xs">
             <div className="flex items-center gap-2">
               <Columns2 className="h-4 w-4 text-teal-400" />
               <span className="font-bold uppercase tracking-wider text-emerald-100">
@@ -166,7 +162,7 @@ export default async function IeltsMarketingPage({
 
             <div className="flex flex-col justify-between gap-4 rounded-2xl border border-emerald-200/80 bg-emerald-50/50 p-6 lg:col-span-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-950 text-teal-300">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#005A70] text-teal-300">
                   <MonitorCheck className="h-6 w-6" />
                 </div>
                 <div>
@@ -221,7 +217,7 @@ export default async function IeltsMarketingPage({
           {/* Listening */}
           <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-teal-400">
             <CardHeader>
-              <div className="bg-emerald-950 text-teal-300 mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
+              <div className="bg-[#005A70] text-teal-300 mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
                 <Headphones className="h-5 w-5" />
               </div>
               <CardTitle className="text-lg text-slate-950">
@@ -269,7 +265,7 @@ export default async function IeltsMarketingPage({
           {/* Writing */}
           <Card className="border-slate-200/80 bg-white shadow-lg transition-all hover:border-teal-400">
             <CardHeader>
-              <div className="bg-emerald-950 text-teal-300 mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
+              <div className="bg-[#005A70] text-teal-300 mb-2 flex h-10 w-10 items-center justify-center rounded-lg">
                 <PenTool className="h-5 w-5" />
               </div>
               <CardTitle className="text-lg text-slate-950">
@@ -317,7 +313,7 @@ export default async function IeltsMarketingPage({
       </section>
 
       {/* Tools Banner */}
-      <section className="w-full border-t border-emerald-900 bg-emerald-950 px-4 py-16 text-center text-white">
+      <section className="w-full border-t border-[#005A70] bg-[#005A70] px-4 py-16 text-center text-white">
         <div className="mx-auto max-w-3xl space-y-4">
           <span className="inline-block rounded-full border border-teal-400/30 bg-emerald-900 px-3 py-1 text-xs font-semibold text-teal-300">
             {isBn ? 'ফ্রি ব্যান্ড ইউটিলিটি' : 'Free Band Utility'}

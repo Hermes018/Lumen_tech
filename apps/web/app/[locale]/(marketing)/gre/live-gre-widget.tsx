@@ -160,7 +160,7 @@ export function LiveGreWidget({ locale: propLocale }: LiveGreWidgetProps) {
           <span className="text-indigo-200">
             {displayBn
               ? 'লাইভ ডেমো • লগইন প্রয়োজন নেই'
-              : 'Seeded Live Demo • No sign-in required'}
+              : 'Live Sample • No sign-in required'}
           </span>
         </div>
         <div className="flex items-center gap-2">

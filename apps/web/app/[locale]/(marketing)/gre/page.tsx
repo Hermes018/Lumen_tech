@@ -1,7 +1,6 @@
-/** @purpose Flagship GRE Marketing showcase highlighting Magoosh + GregMat + Brilliant Parity Suite with Royal Indigo identity (BUG-12, P2.6.1 Bilingual) */
+/** @purpose Flagship GRE marketing page with official-format exam guide, bilingual (P2.6.2, P2.6.3) */
 import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
 import {
-  Sparkles,
   Brain,
   ShieldAlert,
   HelpCircle,
@@ -17,6 +16,7 @@ import { brand } from '@lumen/config';
 import { Link } from '@/src/i18n/routing';
 import { LiveGreWidget } from './live-gre-widget';
 
+import { GreExamGuide } from '../_components/GreExamGuide';
 export const metadata = {
   title: `GRE Prep Re-Engineered | জিআরই প্রস্তুতি | ${brand.name}`,
   description:
@@ -35,19 +35,14 @@ export default async function GreMarketingPage({
   return (
     <div className="flex flex-col items-center" data-locale={locale}>
       {/* Royal Indigo Hero Section (BUG-12) */}
-      <section className="relative w-full overflow-hidden border-b border-indigo-900 bg-indigo-950 px-4 py-16 text-white sm:py-24">
-        <div
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#312e81_1px,transparent_1px),linear-gradient(to_bottom,#312e81_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] opacity-30"
-          aria-hidden="true"
-        />
+      <section className="relative w-full overflow-hidden border-b border-indigo-900 bg-[#003057] px-4 py-16 text-white sm:py-24">
 
         <div className="relative mx-auto max-w-5xl text-center space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-indigo-400/30 bg-indigo-900/70 px-3.5 py-1 text-xs font-semibold text-indigo-200">
-            <Sparkles className="h-3.5 w-3.5 text-blue-400" />
             <span>
               {isBn
-                ? 'Magoosh + GregMat + Brilliant মানের সমন্বিত পাঠ্যক্রম'
-                : 'Magoosh + GregMat + Brilliant Parity Suite'}
+                ? 'অফিশিয়াল কম্পিউটার-ডেলিভার্ড ফরম্যাট'
+                : 'Official Computer-Delivered Format'}
             </span>
           </div>
 
@@ -105,12 +100,13 @@ export default async function GreMarketingPage({
             <span className="flex items-center gap-1.5 font-medium">
               <CheckCircle className="h-4 w-4 text-blue-400" />{' '}
               {isBn
-                ? '১৩০–১৭০ Rasch 1PL অ্যাবিলিটি স্কোরিং'
-                : '130–170 Rasch 1PL Ability Scoring'}
+                ? 'সেকশন-অ্যাডাপটিভ প্র্যাকটিস টেস্ট'
+                : 'Section-Adaptive Practice Tests'}
             </span>
           </div>
         </div>
       </section>
+      <GreExamGuide isBn={isBn} />
 
       {/* Interactive Live Demo Section with Well-Spaced 2-Column Header */}
       <section
@@ -169,8 +165,8 @@ export default async function GreMarketingPage({
             </h2>
             <p className="text-slate-600 text-base max-w-2xl mx-auto">
               {isBn
-                ? 'আমরা Magoosh-এর বিশ্লেষণাত্মক গভীরতা, GregMat-এর কৌশলগত শর্টকাট দক্ষতা এবং Brilliant-এর গাইডেড ইন্টারেক্টিভ সমস্যা সমাধানকে একীভূত করেছি বাংলাদেশের প্রথম সমন্বিত প্ল্যাটফর্মে।'
-                : 'We combined the proven analytical depth of Magoosh, the tactical shortcut efficiency of GregMat, and the guided interactive problem solving of Brilliant into one seamless Bangladesh-first platform.'}
+                ? 'আমরা প্রামাণিক ফরম্যাট, বিশ্লেষণাত্মক ব্যাখ্যা, কৌশলগত শর্টকাট এবং গাইডেড সমস্যা সমাধান একটি নির্বিঘ্ন প্ল্যাটফর্মে একত্র করেছি।'
+                : 'We combined the official exam format, analytical explanations, tactical shortcuts, and guided problem solving into one seamless platform.'}
             </p>
           </div>
 
@@ -314,7 +310,7 @@ export default async function GreMarketingPage({
                 <p>
                   {isBn
                     ? 'Free Spaced Repetition Scheduler (FSRS-4.5)-এর ওপর নির্মিত — যা গাণিতিকভাবে পুরাতন SM-2 পদ্ধতির চেয়ে ৩০% কম রিভিউতে সমান স্মৃতি স্থায়িত্ব নিশ্চিত করে।'
-                    : 'Built on Free Spaced Repetition Scheduler (FSRS-4.5) — mathematically proven to beat legacy SM-2 with 30% fewer reviews for the same retention.'}
+                    : 'Built on a spaced-repetition schedule so you retain vocabulary with fewer reviews.'}
                 </p>
                 <p className="text-slate-500 text-xs">
                   {isBn
@@ -363,7 +359,7 @@ export default async function GreMarketingPage({
       </section>
 
       {/* CTA Footer Banner */}
-      <section className="w-full border-t border-indigo-900 bg-indigo-950 px-4 py-16 text-center text-white">
+      <section className="w-full border-t border-[#003057] bg-[#003057] px-4 py-16 text-center text-white">
         <div className="mx-auto max-w-3xl space-y-6">
           <h2 className="text-3xl font-extrabold text-white">
             {isBn ? 'পার্থক্যটি নিজে অনুভব করতে প্রস্তুত?' : 'Ready to Experience the Difference?'}
