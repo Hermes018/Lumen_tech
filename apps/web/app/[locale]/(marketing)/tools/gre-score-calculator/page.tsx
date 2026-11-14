@@ -1,279 +1,287 @@
-/** @purpose Interactive GRE Raw-to-Scaled & Percentile Calculator lead magnet (wired to @lumen/core scoring) */
+/** @purpose Interactive GRE Raw-to-Scaled Score & Adaptive Routing Calculator in Pearl/Crimson institutional design */
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
+import { useLocale } from 'next-intl';
 import { rawToGreScaled, grePercentile } from '@lumen/core';
-import { Button, Badge, Card, CardHeader, CardTitle, CardContent } from '@lumen/ui';
-import {
-  BarChart3,
-  ArrowRight,
-  Info,
-  Award,
-} from 'lucide-react';
+import { LocaleLink } from '../../../_components/LocaleLink';
+import { ArrowRight, BarChart3, Info } from 'lucide-react';
+
+function getAdaptivePanel(sec1Score: number, isBn: boolean) {
+  if (sec1Score >= 9) {
+    return {
+      tier: isBn ? 'হার্ড প্যানেল (Hard)' : 'Hard Panel',
+      tone: 'border-emerald-700 bg-emerald-50/70 text-emerald-900',
+    };
+  }
+  if (sec1Score >= 5) {
+    return {
+      tier: isBn ? 'মিডিয়াম প্যানেল (Medium)' : 'Medium Panel',
+      tone: 'border-[var(--hairline)] bg-[var(--bg-warm)] text-[var(--brand-ink)]',
+    };
+  }
+  return {
+    tier: isBn ? 'ইজি প্যানেল (Easy)' : 'Easy Panel',
+    tone: 'border-[var(--brand)] bg-[var(--bg-tint)] text-[var(--brand)]',
+  };
+}
 
 export default function GreScoreCalculatorPage() {
-  const [quantRaw, setQuantRaw] = React.useState<number>(20);
-  const [verbalRaw, setVerbalRaw] = React.useState<number>(18);
+  const hookLocale = useLocale();
+  const isBn = hookLocale === 'bn';
+
+  const [verbalSec1, setVerbalSec1] = React.useState<number>(8);
+  const [verbalSec2, setVerbalSec2] = React.useState<number>(10);
+  const [quantSec1, setQuantSec1] = React.useState<number>(9);
+  const [quantSec2, setQuantSec2] = React.useState<number>(11);
   const [awaScore, setAwaScore] = React.useState<number>(4.5);
 
-  // Compute using @lumen/core Rasch scoring engine
-  const quantResult = React.useMemo(() => rawToGreScaled(quantRaw, 27, 'quant'), [quantRaw]);
+  const verbalRaw = verbalSec1 + verbalSec2;
+  const quantRaw = quantSec1 + quantSec2;
+
   const verbalResult = React.useMemo(() => rawToGreScaled(verbalRaw, 27, 'verbal'), [verbalRaw]);
+  const quantResult = React.useMemo(() => rawToGreScaled(quantRaw, 27, 'quant'), [quantRaw]);
   const awaPercentile = React.useMemo(() => grePercentile(awaScore, 'awa'), [awaScore]);
 
-  const totalScore = quantResult.scaled + verbalResult.scaled;
+  const verbalPanel = getAdaptivePanel(verbalSec1, isBn);
+  const quantPanel = getAdaptivePanel(quantSec1, isBn);
+  const totalScore = verbalResult.scaled + quantResult.scaled;
 
-  let competitivenessBadge = 'Competitive (Top 25%)';
-  let competitivenessColor = 'border-accent text-accent';
+  let competitivenessLabel = isBn
+    ? 'প্রতিযোগিতামূলক (শীর্ষ ২৫%)'
+    : 'Competitive (Top 25%)';
   if (totalScore >= 330) {
-    competitivenessBadge = 'Elite Tier (Top 2% - Harvard/MIT/Stanford Calibre)';
-    competitivenessColor = 'border-success text-success';
+    competitivenessLabel = isBn
+      ? 'এলিট স্তর (শীর্ষ ২% — MIT/Stanford মান)'
+      : 'Elite Tier (Top 2% — Harvard/MIT/Stanford Calibre)';
   } else if (totalScore >= 320) {
-    competitivenessBadge = 'Very High (Top 10% - Top 30 US Grad Programmes)';
-    competitivenessColor = 'border-accent text-accent';
+    competitivenessLabel = isBn
+      ? 'উচ্চতর স্তর (শীর্ষ ১০% — শীর্ষ ৩০ ইউএস প্রোগ্রাম)'
+      : 'Very High (Top 10% — Top 30 US Grad Programmes)';
   } else if (totalScore < 305) {
-    competitivenessBadge = 'Foundation Building Needed (< 50th Percentile)';
-    competitivenessColor = 'border-warning text-warning';
+    competitivenessLabel = isBn
+      ? 'ভিত্তি মজবুত করা প্রয়োজন (< ৫০তম পার্সেন্টাইল)'
+      : 'Foundation Building Needed (< 50th Percentile)';
   }
 
   return (
-    <div className="flex flex-col items-center px-4 py-12 sm:py-16">
-      <div className="mx-auto max-w-4xl w-full space-y-8">
+    <main className="min-h-screen w-full bg-[var(--bg)] text-[var(--text)] py-12 lg:py-16">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <Badge variant="outline" className="border-accent text-accent gap-1.5 px-3 py-1 text-xs">
+        <header className="border-b border-[var(--hairline)] pb-6 space-y-3">
+          <div className="inline-flex items-center gap-2 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] px-3 py-1 font-mono text-xs font-bold text-[var(--brand)]">
             <BarChart3 className="h-3.5 w-3.5" />
-            Interactive SEO Tool
-          </Badge>
-          <h1 className="text-3xl font-extrabold tracking-tight text-fg sm:text-5xl">
-            GRE® Raw-to-Scaled & Percentile Calculator
+            <span>{isBn ? 'সংক্ষিপ্ত জিআরই ক্যালকুলেটর (২৭ + ২৭)' : 'SHORTER GRE CALCULATOR (27 + 27)'}</span>
+          </div>
+          <h1 className="lumen-h1">
+            {isBn
+              ? 'GRE® র-টু-স্কেলড স্কোর ও পার্সেন্টাইল ক্যালকুলেটর'
+              : 'GRE® Raw-to-Scaled Score & Adaptive Calculator'}
           </h1>
-          <p className="text-fg-muted text-base max-w-2xl mx-auto">
-            Calculate your estimated 130–170 scaled section scores and global ETS percentiles from
-            raw correct counts (Shorter GRE format: 27 Quant / 27 Verbal questions).
+          <p className="lumen-body">
+            {isBn
+              ? 'সেকশন ১ (১২টি প্রশ্ন) এবং সেকশন ২ (১৫টি প্রশ্ন)-এর সঠিক উত্তর থেকে রিয়েল-টাইম অ্যাডাপটিভ প্যানেল, ২৬০–৩৪০ স্কেলড স্কোর এবং পার্সেন্টাইল র‍্যাঙ্ক হিসাব করুন।'
+              : 'Estimate your 260–340 scaled score, adaptive Section 2 routing panel (Easy / Medium / Hard), and ETS percentile rank from Section 1 (0–12) and Section 2 (0–15) raw scores.'}
           </p>
-        </div>
+        </header>
 
-        {/* Calculator Main Grid */}
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Input Controls */}
-          <Card className="border-border bg-surface shadow-sm">
-            <CardHeader className="border-b border-border/60 pb-4">
-              <CardTitle className="text-lg font-bold text-fg">Enter Your Raw Scores</CardTitle>
-              <p className="text-xs text-fg-subtle">
-                Shorter GRE consists of 2 Quant sections (12 + 15 = 27 items) and 2 Verbal sections
-                (12 + 15 = 27 items).
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              {/* Quant Slider */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm font-semibold">
-                  <span className="text-fg">Quantitative Reasoning Correct:</span>
-                  <span className="rounded bg-accent/15 px-2.5 py-0.5 font-mono text-accent">
-                    {quantRaw} / 27
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="27"
-                  value={quantRaw}
-                  onChange={(e) => setQuantRaw(Number(e.target.value))}
-                  className="w-full accent-accent cursor-pointer"
-                />
-                <div className="flex justify-between text-[11px] text-fg-subtle">
-                  <span>0 (Min)</span>
-                  <span>14 (Avg)</span>
-                  <span>27 (Max)</span>
-                </div>
-              </div>
+        {/* 12-Col Calculator Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left 7 Columns: Section 1 & 2 Sliders */}
+          <section className="lg:col-span-7 bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8 space-y-8">
+            <div className="border-b border-[var(--hairline)] pb-4">
+              <h2 className="lumen-h3">
+                {isBn ? 'সেকশন অনুযায়ী সঠিক উত্তর দিন' : 'Enter Section-by-Section Raw Scores'}
+              </h2>
+            </div>
 
-              {/* Verbal Slider */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm font-semibold">
-                  <span className="text-fg">Verbal Reasoning Correct:</span>
-                  <span className="rounded bg-accent/15 px-2.5 py-0.5 font-mono text-accent">
-                    {verbalRaw} / 27
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="27"
-                  value={verbalRaw}
-                  onChange={(e) => setVerbalRaw(Number(e.target.value))}
-                  className="w-full accent-accent cursor-pointer"
-                />
-                <div className="flex justify-between text-[11px] text-fg-subtle">
-                  <span>0 (Min)</span>
-                  <span>14 (Avg)</span>
-                  <span>27 (Max)</span>
-                </div>
-              </div>
-
-              {/* AWA Selector */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-sm font-semibold">
-                  <span className="text-fg">Analytical Writing (AWA):</span>
-                  <span className="rounded bg-accent/15 px-2.5 py-0.5 font-mono text-accent">
-                    {awaScore.toFixed(1)} / 6.0
-                  </span>
-                </div>
-                <select
-                  value={awaScore}
-                  onChange={(e) => setAwaScore(Number(e.target.value))}
-                  className="w-full rounded-md border border-border bg-canvas px-3 py-2 text-sm text-fg"
-                >
-                  {[6.0, 5.5, 5.0, 4.5, 4.0, 3.5, 3.0, 2.5, 2.0, 1.5, 1.0, 0.0].map((val) => (
-                    <option key={val} value={val}>
-                      {val.toFixed(1)} (Score) — {grePercentile(val, 'awa')}th Percentile
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="rounded-lg border border-border/70 bg-canvas p-3 text-xs text-fg-muted flex items-start gap-2">
-                <Info className="h-4 w-4 text-accent shrink-0 mt-0.5" />
-                <span>
-                  Calibrated via Rasch 1PL Expected A Posteriori (EAP) ability estimation matching
-                  official ETS Section-Adaptive curve norms.
+            {/* Verbal Reasoning */}
+            <div className="space-y-5 border-b border-[var(--hairline)] pb-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-bold text-[var(--brand-ink)]">
+                  {isBn ? 'ভার্বাল রিজনিং (Verbal)' : 'Verbal Reasoning'}
+                </span>
+                <span className={`rounded-[4px] border px-2.5 py-0.5 font-mono text-xs font-bold ${verbalPanel.tone}`}>
+                  {verbalPanel.tier}
                 </span>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Scaled Output Card */}
-          <Card className="border-border bg-surface shadow-sm flex flex-col justify-between">
-            <CardHeader className="border-b border-border/60 pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-bold text-fg">Estimated Score Report</CardTitle>
-                <Badge variant="outline" className={`text-xs ${competitivenessColor}`}>
-                  {competitivenessBadge}
-                </Badge>
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-6 pt-6">
-              {/* Total Banner */}
-              <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 text-center">
-                <div className="text-xs uppercase font-semibold tracking-wider text-fg-muted">
-                  Total Projected GRE Score
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span>{isBn ? 'ভার্বাল সেকশন ১ (রাউটিং):' : 'Verbal Section 1 (Routing):'}</span>
+                  <span className="font-mono font-bold text-[var(--brand)]">{verbalSec1} / 12</span>
                 </div>
-                <div className="text-5xl font-black tracking-tight text-accent mt-1">
-                  {totalScore}
-                  <span className="text-lg font-normal text-fg-muted"> / 340</span>
-                </div>
-                <div className="mt-2 text-xs text-fg-subtle">
-                  Quant: {quantResult.scaled} + Verbal: {verbalResult.scaled}
-                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={12}
+                  value={verbalSec1}
+                  onChange={(e) => setVerbalSec1(Number(e.target.value))}
+                  aria-label="Verbal Section 1 Score"
+                  className="w-full accent-[var(--brand)] cursor-pointer"
+                />
               </div>
 
-              {/* Sub-breakdown */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-lg border border-border bg-canvas p-3">
-                  <div className="text-xs text-fg-muted font-medium">Quantitative Scaled</div>
-                  <div className="text-2xl font-bold text-fg mt-0.5">
-                    {quantResult.scaled}
-                    <span className="text-xs font-normal text-fg-subtle"> (130-170)</span>
-                  </div>
-                  <div className="text-xs font-semibold text-accent mt-1">
-                    {quantResult.percentile}th Percentile
-                  </div>
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span>{isBn ? 'ভার্বাল সেকশন ২ (অ্যাডাপটিভ):' : 'Verbal Section 2 (Adaptive):'}</span>
+                  <span className="font-mono font-bold text-[var(--brand)]">{verbalSec2} / 15</span>
                 </div>
-
-                <div className="rounded-lg border border-border bg-canvas p-3">
-                  <div className="text-xs text-fg-muted font-medium">Verbal Scaled</div>
-                  <div className="text-2xl font-bold text-fg mt-0.5">
-                    {verbalResult.scaled}
-                    <span className="text-xs font-normal text-fg-subtle"> (130-170)</span>
-                  </div>
-                  <div className="text-xs font-semibold text-accent mt-1">
-                    {verbalResult.percentile}th Percentile
-                  </div>
-                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={15}
+                  value={verbalSec2}
+                  onChange={(e) => setVerbalSec2(Number(e.target.value))}
+                  aria-label="Verbal Section 2 Score"
+                  className="w-full accent-[var(--brand)] cursor-pointer"
+                />
               </div>
-
-              {/* AWA Box */}
-              <div className="rounded-lg border border-border bg-canvas p-3 flex justify-between items-center">
-                <div>
-                  <div className="text-xs text-fg-muted font-medium">Analytical Writing Measure</div>
-                  <div className="text-sm font-semibold text-fg">Score: {awaScore.toFixed(1)} / 6.0</div>
-                </div>
-                <Badge variant="outline" className="border-border text-fg font-mono text-xs">
-                  {awaPercentile}th Percentile
-                </Badge>
-              </div>
-
-              {/* CTA into Diagnostic */}
-              <div className="pt-2">
-                <Link href="/diagnostic" className="w-full">
-                  <Button size="lg" className="w-full gap-2 font-semibold">
-                    Confirm With Real 15-Min Diagnostic <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <p className="text-center text-[11px] text-fg-subtle mt-2">
-                  100% Free • Pinpoints your specific trap tendencies & weak question types
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Explanatory Concordance Table */}
-        <Card className="border-border bg-surface">
-          <CardHeader>
-            <CardTitle className="text-base font-bold text-fg flex items-center gap-2">
-              <Award className="h-4 w-4 text-accent" /> Official GRE Percentile Benchmarks
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="border-b border-border bg-canvas text-fg-muted font-semibold">
-                    <th className="p-2">Scaled Score</th>
-                    <th className="p-2">Quant Percentile</th>
-                    <th className="p-2">Verbal Percentile</th>
-                    <th className="p-2">Typical Target Programmes</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60 text-fg">
-                  <tr>
-                    <td className="p-2 font-mono font-bold">168 - 170</td>
-                    <td className="p-2">91% - 96%</td>
-                    <td className="p-2">98% - 99%</td>
-                    <td className="p-2 text-fg-muted">Top 10 CS/AI, Finance, Stanford, MIT, CMU</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2 font-mono font-bold">163 - 167</td>
-                    <td className="p-2">76% - 88%</td>
-                    <td className="p-2">92% - 98%</td>
-                    <td className="p-2 text-fg-muted">Top 30 Engineering, Ivy League Humanities</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2 font-mono font-bold">158 - 162</td>
-                    <td className="p-2">60% - 73%</td>
-                    <td className="p-2">79% - 90%</td>
-                    <td className="p-2 text-fg-muted">Competitive US State Universities & Europe MS</td>
-                  </tr>
-                  <tr>
-                    <td className="p-2 font-mono font-bold">150 - 157</td>
-                    <td className="p-2">34% - 57%</td>
-                    <td className="p-2">44% - 75%</td>
-                    <td className="p-2 text-fg-muted">Broad Master’s programmes, initial baseline</td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
-            <p className="text-[11px] text-fg-subtle mt-4">
-              Disclaimer: Percentiles based on ETS published performance data. Performance in
-              computer-based tests depends on multi-stage section adaptation.
-            </p>
-          </CardContent>
-        </Card>
+
+            {/* Quantitative Reasoning */}
+            <div className="space-y-5 border-b border-[var(--hairline)] pb-6">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-sm font-bold text-[var(--brand-ink)]">
+                  {isBn ? 'কোয়ান্টিটেটিভ রিজনিং (Quant)' : 'Quantitative Reasoning'}
+                </span>
+                <span className={`rounded-[4px] border px-2.5 py-0.5 font-mono text-xs font-bold ${quantPanel.tone}`}>
+                  {quantPanel.tier}
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span>{isBn ? 'কোয়ান্ট সেকশন ১ (রাউটিং):' : 'Quant Section 1 (Routing):'}</span>
+                  <span className="font-mono font-bold text-[var(--brand)]">{quantSec1} / 12</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={12}
+                  value={quantSec1}
+                  onChange={(e) => setQuantSec1(Number(e.target.value))}
+                  aria-label="Quant Section 1 Score"
+                  className="w-full accent-[var(--brand)] cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span>{isBn ? 'কোয়ান্ট সেকশন ২ (অ্যাডাপটিভ):' : 'Quant Section 2 (Adaptive):'}</span>
+                  <span className="font-mono font-bold text-[var(--brand)]">{quantSec2} / 15</span>
+                </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={15}
+                  value={quantSec2}
+                  onChange={(e) => setQuantSec2(Number(e.target.value))}
+                  aria-label="Quant Section 2 Score"
+                  className="w-full accent-[var(--brand)] cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* AWA Selector */}
+            <div className="space-y-3">
+              <div className="flex justify-between text-xs font-semibold">
+                <span className="text-[var(--brand-ink)]">
+                  {isBn ? 'অ্যানালিটিক্যাল রাইটিং (AWA):' : 'Analytical Writing (AWA):'}
+                </span>
+                <span className="font-mono font-bold text-[var(--brand)]">{awaScore.toFixed(1)} / 6.0</span>
+              </div>
+              <div className="grid grid-cols-7 gap-1.5">
+                {[3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0].map((val) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setAwaScore(val)}
+                    className={`rounded-[4px] border py-2 font-mono text-xs font-bold transition-colors cursor-pointer ${
+                      awaScore === val
+                        ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
+                        : 'border-[var(--hairline)] bg-[var(--bg)] text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+                    }`}
+                  >
+                    {val.toFixed(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Right 5 Columns: Scaled Score Ledger */}
+          <aside className="lg:col-span-5 bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8 space-y-6">
+            <div className="border-b border-[var(--hairline)] pb-4">
+              <h2 className="lumen-h3">
+                {isBn ? 'অনুমিত স্কেলড স্কোর' : 'Estimated Scaled Score'}
+              </h2>
+            </div>
+
+            {/* Total Score */}
+            <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] p-6 text-center space-y-2">
+              <div className="font-mono text-xs font-bold text-[var(--text)]">
+                {isBn ? 'মোট জিআরই স্কোর (২৬০–৩৪০)' : 'COMBINED GRE SCORE (260–340)'}
+              </div>
+              <div className="font-mono text-5xl font-black text-[var(--brand)]">{totalScore}</div>
+              <div className="text-xs font-bold text-[var(--brand-ink)] pt-1">{competitivenessLabel}</div>
+            </div>
+
+            {/* Section Breakdown */}
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-3">
+                <div className="text-[11px] font-bold text-[var(--text)]">Quant</div>
+                <div className="font-mono text-2xl font-extrabold text-[var(--brand-ink)] mt-1">
+                  {quantResult.scaled}
+                </div>
+                <div className="font-mono text-[11px] text-[var(--brand)]">
+                  {quantResult.percentile}th %ile
+                </div>
+              </div>
+              <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-3">
+                <div className="text-[11px] font-bold text-[var(--text)]">Verbal</div>
+                <div className="font-mono text-2xl font-extrabold text-[var(--brand-ink)] mt-1">
+                  {verbalResult.scaled}
+                </div>
+                <div className="font-mono text-[11px] text-[var(--brand)]">
+                  {verbalResult.percentile}th %ile
+                </div>
+              </div>
+              <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-3">
+                <div className="text-[11px] font-bold text-[var(--text)]">AWA</div>
+                <div className="font-mono text-2xl font-extrabold text-[var(--brand-ink)] mt-1">
+                  {awaScore.toFixed(1)}
+                </div>
+                <div className="font-mono text-[11px] text-[var(--brand)]">
+                  {awaPercentile}th %ile
+                </div>
+              </div>
+            </div>
+
+            {/* CTA to Diagnostic */}
+            <div className="space-y-3 pt-2">
+              <LocaleLink
+                href="/exam/diagnostic"
+                className="flex w-full items-center justify-center gap-2 rounded-[4px] bg-[var(--brand)] py-3.5 px-4 text-sm font-bold text-white hover:bg-[var(--link)] transition-colors"
+              >
+                <span>
+                  {isBn ? 'ফ্রি ১৫-মিনিটের অ্যাডাপটিভ ডায়াগনস্টিক দিন' : 'Take Free 15-Min Adaptive Diagnostic'}
+                </span>
+                <ArrowRight className="h-4 w-4" />
+              </LocaleLink>
+
+              <div className="flex items-start gap-2 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-3 text-[11px] text-[var(--text)]">
+                <Info className="h-4 w-4 text-[var(--accent)] shrink-0 mt-0.5" />
+                <span>
+                  {isBn
+                    ? 'স্কোরগুলো সংক্ষিপ্ত জিআরই রাশ/আইআরটি মডেল অনুযায়ী অনুমিত। এটি কোনো অফিসিয়াল ইটিএস স্কোর নয়।'
+                    : 'Estimated using shorter-GRE Rasch/IRT scaling. Official ETS scores may vary slightly.'}
+                </span>
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

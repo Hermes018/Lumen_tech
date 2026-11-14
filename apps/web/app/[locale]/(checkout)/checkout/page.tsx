@@ -1,4 +1,4 @@
-/** @purpose Checkout payment page with plan preselection, 15% BD VAT breakdown, and SSLCommerz gateway integration (P2.6.1 Bilingual) */
+/** @purpose Checkout payment page with plan preselection, 15% BD VAT breakdown, and SSLCommerz gateway integration */
 
 import React from 'react';
 import { CANONICAL_PRODUCTS, type ProductDefinition } from '@lumen/core';
@@ -10,8 +10,10 @@ function resolveProduct(planParam?: string): ProductDefinition {
   const direct = CANONICAL_PRODUCTS.find((p) => p.slug.toLowerCase() === cleaned);
   if (direct) return direct;
 
-  // Semantic mappings and aliases
-  if (cleaned.includes('gre') && cleaned.includes('plus')) {
+  if (cleaned.includes('all-access') || cleaned.includes('pass')) {
+    return CANONICAL_PRODUCTS.find((p) => p.slug === 'lumen-annual-pass') || CANONICAL_PRODUCTS[0]!;
+  }
+  if (cleaned.includes('gre') && (cleaned.includes('plus') || cleaned.includes('live'))) {
     return CANONICAL_PRODUCTS.find((p) => p.slug === 'gre-plus') || CANONICAL_PRODUCTS[0]!;
   }
   if (cleaned.includes('gre')) {
@@ -20,7 +22,7 @@ function resolveProduct(planParam?: string): ProductDefinition {
       CANONICAL_PRODUCTS[0]!
     );
   }
-  if (cleaned.includes('ielts') && cleaned.includes('plus')) {
+  if (cleaned.includes('ielts') && (cleaned.includes('plus') || cleaned.includes('complete'))) {
     return (
       CANONICAL_PRODUCTS.find((p) => p.slug === 'ielts-academic-plus') || CANONICAL_PRODUCTS[0]!
     );
@@ -44,9 +46,6 @@ function resolveProduct(planParam?: string): ProductDefinition {
       CANONICAL_PRODUCTS.find((p) => p.slug === 'human-review-pack') || CANONICAL_PRODUCTS[0]!
     );
   }
-  if (cleaned.includes('pass')) {
-    return CANONICAL_PRODUCTS.find((p) => p.slug === 'lumen-annual-pass') || CANONICAL_PRODUCTS[0]!;
-  }
 
   return CANONICAL_PRODUCTS[0]!;
 }
@@ -64,12 +63,12 @@ export default async function CheckoutPage({
   const initialProduct = resolveProduct(resolvedSearchParams.plan || resolvedSearchParams.product);
 
   return (
-    <div className="w-full" data-locale={locale}>
+    <main className="min-h-screen w-full bg-[var(--bg)] text-[var(--text)]" data-locale={locale}>
       <React.Suspense
         fallback={
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-            <div className="flex h-64 items-center justify-center rounded-xl border border-border bg-surface">
-              <span className="font-mono text-sm text-fg-muted">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-12">
+            <div className="flex h-64 items-center justify-center rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)]">
+              <span className="font-mono text-sm text-[var(--text)]">
                 {isBn ? 'চেকআউট সেশন লোড হচ্ছে...' : 'Loading checkout session...'}
               </span>
             </div>
@@ -78,6 +77,6 @@ export default async function CheckoutPage({
       >
         <CheckoutClient initialProduct={initialProduct} locale={isBn ? 'bn' : 'en'} />
       </React.Suspense>
-    </div>
+    </main>
   );
 }
