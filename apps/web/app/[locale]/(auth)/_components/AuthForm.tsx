@@ -1,33 +1,16 @@
-/** @purpose Full-bleed 50/50 edge-to-edge split-screen client auth experience with institutional rounded-md geometry, outcome cards, scholar testimonial, Google OAuth, Email/Phone (+880) OTP, and collapsible Staff Passkey/2FA drawer (M2.7-B, M2.8-A) */
+/** @purpose Institutional 50/50 split-screen client auth experience with warm crimson/orange design language, Google OAuth, Email/Phone (+880) OTP, and native Staff Passkey/2FA disclosure (M2.7-B, M2.8-A, P8) */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { authClient } from '@lumen/auth';
 import { brand } from '@lumen/config';
-import {
-  Button,
-  Input,
-  Badge,
-  Callout,
-} from '@lumen/ui';
-import {
-  Mail,
-  Phone,
-  ShieldCheck,
-  KeyRound,
-  Sparkles,
-  Loader2,
-  GraduationCap,
-  TrendingUp,
-  CheckCircle2,
-  Fingerprint,
-  Quote,
-} from 'lucide-react';
-import { sendPhoneOtpStubAction, verifyPhoneOtpStubAction } from '../../../actions/auth';
+import { Fingerprint, KeyRound, Loader2, ShieldCheck } from 'lucide-react';
+import { LumenSparkMotif, PlaceholderImage } from '@/src/components/ui/primitives';
+import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { LocaleSwitcher } from '../../_components/LocaleSwitcher';
+import { sendPhoneOtpStubAction, verifyPhoneOtpStubAction } from '../../../actions/auth';
 
 export interface AuthFormProps {
   mode: 'sign-in' | 'sign-up';
@@ -51,7 +34,6 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
   const [phoneOtpSent, setPhoneOtpSent] = useState(false);
   const [phoneHint, setPhoneHint] = useState<string | null>(null);
 
-  const [staff2faMode, setStaff2faMode] = useState(false);
   const [totpCode, setTotpCode] = useState('');
   const [totpVerifiedMsg, setTotpVerifiedMsg] = useState<string | null>(null);
 
@@ -116,7 +98,10 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
       const res = await fetch('/api/auth/email-otp/send-verification-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, type: mode === 'sign-in' ? 'sign-in' : 'email-verification' }),
+        body: JSON.stringify({
+          email,
+          type: mode === 'sign-in' ? 'sign-in' : 'email-verification',
+        }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { message?: string };
@@ -245,428 +230,386 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
   const brandDisplayName = isBn ? 'লুমেন একাডেমি' : brand.name;
 
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-white">
-      {/* Left 6 Columns: Institutional Poster + Crisp Architectural Outcome Cards */}
-      <div className="lg:col-span-6 relative hidden lg:flex flex-col justify-between p-12 xl:p-16 bg-[#001E42] text-white overflow-hidden border-r border-slate-800">
-        {/* Full-bleed background student photograph */}
-        <img
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=85"
-          alt={
-            isBn
-              ? 'বিশ্ববিদ্যালয়ের শিক্ষার্থীরা একসাথে পরীক্ষার প্রস্তুতি নিচ্ছেন'
-              : 'University scholars preparing together'
-          }
-          className="absolute inset-0 h-full w-full object-cover object-center opacity-20"
-        />
-
-        {/* Top: Brand logo + ETS / IELTS official format badge */}
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#E4002B] text-white">
-              <GraduationCap className="h-5 w-5" />
-            </span>
-            <span className="text-xl font-extrabold tracking-tight text-white">
-              {brandDisplayName}
-            </span>
-          </Link>
-          <span className="rounded-md border border-white/20 bg-slate-900/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-slate-100">
-            {isBn
-              ? 'অফিশিয়াল ETS / IELTS ফরম্যাট'
-              : 'ETS / IELTS Official Format'}
+    <div className="min-h-screen w-full bg-[var(--bg)]">
+      {/* Top Institutional Bar */}
+      <header className="bg-[var(--brand-deep)] text-white h-16 px-6 border-b-4 border-[var(--brand)] flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 text-white hover:text-white/90">
+          <span className="translate-y-1.5">
+            <LumenSparkMotif inverse />
           </span>
-        </div>
+          <span className="text-lg font-bold tracking-tight">{brandDisplayName}</span>
+        </Link>
 
-        {/* Center: Large Editorial Headline + 2 Crisp Architectural Outcome Cards */}
-        <div className="relative z-10 space-y-8 my-auto py-8">
-          <div className="space-y-4">
-            <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-cyan-200">
+        <div className="flex items-center gap-5">
+          <LocaleSwitcher />
+          <Link
+            href="/help"
+            className="text-sm font-medium text-white underline underline-offset-4 hover:text-white/85"
+          >
+            {isBn ? 'সহায়তা কেন্দ্র' : 'Help Center'}
+          </Link>
+        </div>
+      </header>
+
+      {/* Main Split Stage */}
+      <main className="min-h-[calc(100dvh-4rem)] grid grid-cols-1 lg:grid-cols-12 bg-[var(--bg)]">
+        {/* Left 6 Columns: Editorial Warm Backdrop + Framed Photography + Verified Facts */}
+        <section className="lg:col-span-6 bg-[var(--bg-warm)] px-8 py-12 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[var(--hairline)]">
+          <div>
+            <LumenSparkMotif />
+            <h1 className="lumen-h1">
               {isBn
-                ? '৩৩০+ জিআরই এবং ব্যান্ড ৮.০+ আইইএলটিএসের জন্য ক্যালিব্রেটেড'
-                : 'Calibrated for 330+ GRE® & Band 8.0+ IELTS™'}
-            </div>
-            <h2 className="text-4xl xl:text-5xl font-bold leading-tight text-white">
+                ? 'জিআরই এবং আইইএলটিএস প্রস্তুতির জন্য একটি অ্যাকাউন্ট'
+                : 'One Account for GRE® and IELTS™ Preparation'}
+            </h1>
+            <p className="lumen-body mt-4 max-w-xl">
               {isBn
-                ? 'বাংলাদেশি স্কলারদের জন্য নির্মিত নিখুঁত ডায়াগনস্টিক ও সিবিটি ইঞ্জিন।'
-                : 'Precision Diagnostics & CBT Simulators Built for Bangladesh Scholars.'}
-            </h2>
-            <p className="text-sm xl:text-base leading-relaxed text-slate-200 max-w-xl">
-              {isBn
-                ? 'সেকশন-অ্যাডাপটিভ প্র্যাকটিস টেস্ট আপনার দক্ষতার সাথে খাপ খাইয়ে নেয় এবং দীর্ঘস্থায়ী মনে রাখার জন্য ভোকাবুলারি রিভিউ নির্ধারণ করে।'
-                : 'Section-adaptive practice tests match difficulty to your performance, and vocabulary reviews are scheduled for lasting recall.'}
+                ? 'একই অ্যাকাউন্ট থেকে সেকশন-অ্যাডাপটিভ মক পরীক্ষা, এআই রাইটিং ও স্পিকিং ফিডব্যাক এবং সুশৃঙ্খল স্টাডি শিডিউল ব্যবহার করুন।'
+                : 'Access section-adaptive mock exams, calibrated AI writing and speaking feedback, and structured study schedules from one unified workspace.'}
             </p>
           </div>
 
-          {/* 2 Crisp Architectural Outcome Cards (rounded-md) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-md border border-white/20 bg-slate-900/80 p-5">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-cyan-300">
-                <TrendingUp className="h-4 w-4" />
-                <span>{isBn ? 'জিআরই ফলাফল' : 'GRE® Outcome'}</span>
+          <div className="relative my-8 px-3.5 pb-3.5">
+            <div className="relative z-10">
+              <PlaceholderImage slot="hero-home" aspect="16:10" locale={locale} />
+            </div>
+            <div aria-hidden="true" className="pointer-events-none">
+              <span className="absolute bottom-0 left-0 z-20 h-3.5 w-16 bg-[var(--brand)]" />
+              <span className="absolute bottom-0 left-0 z-20 h-16 w-3.5 bg-[var(--brand)]" />
+              <span className="absolute bottom-0 right-0 z-20 h-3.5 w-16 bg-[var(--accent)]" />
+              <span className="absolute bottom-0 right-0 z-20 h-16 w-3.5 bg-[var(--accent)]" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 divide-x divide-[var(--hairline)] pt-6 border-t border-[var(--hairline)]">
+            <div className="pr-4">
+              <div className="font-mono text-lg sm:text-xl font-bold text-[var(--brand-ink)]">
+                {isBn ? '১ ঘণ্টা ৫৮ মি.' : '1h 58m'}
               </div>
-              <div className="mt-2 text-2xl xl:text-3xl font-black text-white font-mono">
-                {isBn ? 'GRE® +১১.৪ পয়েন্ট' : 'GRE® +11.4 Pts Median Gain'}
-              </div>
-              <div className="mt-1 text-xs text-slate-300">
-                {isBn ? '৮ সপ্তাহের ব্যাচে গড় স্কোর উন্নতি' : 'Verified 8-week cohort median gain'}
+              <div className="mt-1 text-xs text-[var(--text)]">
+                {isBn ? 'অ্যাডাপটিভ জিআরই ফরম্যাট' : 'Adaptive GRE Format'}
               </div>
             </div>
-
-            <div className="rounded-md border border-white/20 bg-slate-900/80 p-5">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#00A896]">
-                <CheckCircle2 className="h-4 w-4" />
-                <span>{isBn ? 'আইইএলটিএস ফলাফল' : 'IELTS™ Outcome'}</span>
+            <div className="px-4">
+              <div className="font-mono text-lg sm:text-xl font-bold text-[var(--brand-ink)]">
+                {isBn ? '৪টি দক্ষতা' : '4 Skills'}
               </div>
-              <div className="mt-2 text-2xl xl:text-3xl font-black text-white font-mono">
+              <div className="mt-1 text-xs text-[var(--text)]">
+                {isBn ? 'কম্পিউটার-ভিত্তিক আইইএলটিএস' : 'Computer-Delivered IELTS'}
+              </div>
+            </div>
+            <div className="pl-4">
+              <div className="font-mono text-lg sm:text-xl font-bold text-[var(--brand-ink)]">
+                {isBn ? '১৫% ভ্যাট' : '15% VAT'}
+              </div>
+              <div className="mt-1 text-xs text-[var(--text)]">
+                {isBn ? 'অফিশিয়াল মূসক ৬.৩ চালান' : 'Official Mushak 6.3 Invoice'}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Right 6 Columns: Borderless Centered Form Container */}
+        <section className="lg:col-span-6 bg-[var(--bg)] px-6 py-12 sm:px-12 lg:p-16 flex flex-col justify-center">
+          <div className="w-full max-w-[420px] mx-auto space-y-6">
+            <div>
+              <LumenSparkMotif />
+              <h2 className="lumen-h2">
+                {mode === 'sign-in'
+                  ? isBn
+                    ? 'চালিয়ে যেতে লগইন করুন'
+                    : 'Sign in to continue'
+                  : isBn
+                    ? 'আপনার অ্যাকাউন্ট তৈরি করুন'
+                    : 'Create your account'}
+              </h2>
+              <p className="mt-2 text-sm text-[var(--text)] leading-relaxed">
+                {mode === 'sign-in'
+                  ? isBn
+                    ? 'আপনার কোর্স, মক পরীক্ষা এবং স্টাডি অ্যানালিটিক্স অ্যাক্সেস করুন।'
+                    : 'Access your courses, mock exams, and study analytics.'
+                  : isBn
+                    ? 'ফ্রি ডায়াগনস্টিক টেস্ট ও ২টি এআই ইভ্যালুয়েশন ক্রেডিট দিয়ে শুরু করুন।'
+                    : 'Start with a free diagnostic and 2 AI evaluation credits.'}
+              </p>
+            </div>
+
+            {diagnosticToken && (
+              <p className="border-l-2 border-[var(--accent)] pl-3 text-sm font-medium text-[var(--brand-ink)]">
                 {isBn
-                  ? 'IELTS™ ব্যান্ড ৭.৫+ (৭৮%)'
-                  : 'IELTS™ Band 7.5+ Achieved by 78%'}
+                  ? 'আপনার ফ্রি ডায়াগনস্টিক ফলাফল অ্যাকাউন্টে যুক্ত হওয়ার জন্য প্রস্তুত।'
+                  : 'Diagnostic result ready to link to your account.'}
+              </p>
+            )}
+
+            {error && (
+              <div
+                role="alert"
+                className="border-l-4 border-[var(--crimson)] bg-[var(--bg-warm)] px-4 py-3 text-sm text-[var(--brand-ink)]"
+              >
+                <div className="font-bold">
+                  {isBn ? 'লগইন ত্রুটি' : 'Authentication Error'}
+                </div>
+                <div className="mt-1">{error}</div>
               </div>
-              <div className="mt-1 text-xs text-slate-300">
-                {isBn ? 'প্লাস ও লাইভ ব্যাচ শিক্ষার্থীদের ফলাফল' : 'Across Plus & Live cohort test takers'}
+            )}
+
+            {statusMessage && (
+              <div
+                role="status"
+                className="border-l-4 border-[var(--brand)] bg-[var(--bg-tint)] px-4 py-3 text-sm text-[var(--brand-ink)]"
+              >
+                <div className="font-bold">
+                  {isBn ? 'ভেরিফিকেশন কোড পাঠানো হয়েছে' : 'Verification Sent'}
+                </div>
+                <div className="mt-1">{statusMessage}</div>
               </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleGoogleAuth}
+              disabled={loading}
+              className="w-full h-12 rounded-[4px] border border-[var(--brand-ink)] bg-white text-[var(--brand-ink)] font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[var(--bg-warm)] transition-colors disabled:opacity-60"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              <span>{isBn ? 'Google দিয়ে চালিয়ে যান' : 'Continue with Google'}</span>
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1 border-t border-[var(--hairline)]" />
+              <span className="text-xs text-[var(--text)]">
+                {isBn ? 'অথবা ওয়ান-টাইম কোড দিয়ে চালিয়ে যান' : 'or continue with one-time code'}
+              </span>
+              <div className="flex-1 border-t border-[var(--hairline)]" />
             </div>
-          </div>
-        </div>
 
-        {/* Bottom: Crisp Institutional Scholar Testimonial Card (rounded-md) */}
-        <div className="relative z-10 rounded-md border border-white/20 bg-slate-900/80 p-6 space-y-3">
-          <div className="flex items-center justify-between text-xs">
-            <span className="inline-flex items-center gap-1.5 font-bold text-cyan-300">
-              <CheckCircle2 className="h-4 w-4" />
-              {isBn ? 'যাচাইকৃত বাংলাদেশি স্কলার' : 'Verified Bangladeshi Scholar'}
-            </span>
-            <span className="rounded-md bg-[#003057] border border-white/15 px-2.5 py-0.5 font-mono text-xs font-bold text-white">
-              GRE 332 (Q169 • V163)
-            </span>
-          </div>
-          <p className="text-sm italic leading-relaxed text-slate-100">
-            <Quote className="mr-1.5 inline h-4 w-4 text-cyan-300" />
-            {isBn
-              ? 'ডিস্ট্রাক্টর ট্র্যাপ ডায়াগনস্টিকস এবং ৩-ধাপের হিন্ট ল্যাডার কোয়ান্টিটেটিভ কম্প্যারিজনে আমার নেগেটিভ রুট সংক্রান্ত ভুলগুলো পুরোপুরি বন্ধ করেছে। মাত্র ৫ সপ্তাহে আমার কোয়ান্ট স্কোর ১৬১ থেকে ১৬৯ হয়েছে।'
-              : 'The Distractor Trap Diagnostics and 3-Tier Hint Ladder stopped my careless root-sign mistakes in Quantitative Comparison. I jumped from 161 to 169 Quant in 5 weeks.'}
-          </p>
-          <div className="text-xs font-bold text-white">
-            {isBn
-              ? 'ফারহান টি., বুয়েট গ্র্যাজুয়েট • ফল পিএইচডি কোহর্টে ভর্তিকৃত — GRE 332'
-              : 'Farhan T., BUET Graduate • Admitted to Fall PhD Cohort — GRE 332'}
-          </div>
-        </div>
-      </div>
-
-      {/* Right 6 Columns: Full-Height Form Column with Top Row + Center Form Container */}
-      <div className="lg:col-span-6 flex flex-col justify-between p-6 sm:p-12 xl:p-16 bg-white">
-        {/* Top Row: Single-Arrow Back link on left + LocaleSwitcher on right */}
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center text-xs sm:text-sm font-semibold text-slate-600 transition-colors hover:text-slate-950"
-          >
-            {isBn ? '← লুমেন একাডেমিতে ফিরে যান' : `← Back to ${brand.name}`}
-          </Link>
-          <LocaleSwitcher />
-        </div>
-
-        {/* Center Form Container (max-w-md w-full mx-auto my-auto) */}
-        <div className="max-w-md w-full mx-auto my-auto py-8 space-y-6">
-          <div className="space-y-2 text-left">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="border-l-4 border-[#E4002B] pl-3 text-xs font-bold uppercase tracking-widest text-[#001E42]">
-                {isBn ? `${brandDisplayName} অ্যাকাউন্ট পোর্টাল` : `${brand.name} Account Portal`}
+            <div className="space-y-5">
+              <div
+                className="grid grid-cols-2 border-b border-[var(--hairline)]"
+                role="tablist"
+                aria-label={isBn ? 'ওটিপি পদ্ধতি' : 'OTP Method'}
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === 'email'}
+                  onClick={() => {
+                    setTab('email');
+                    setError(null);
+                  }}
+                  className={`pb-3 text-sm transition-colors -mb-px ${
+                    tab === 'email'
+                      ? 'border-b-[3px] border-[var(--brand)] text-[var(--brand)] font-bold'
+                      : 'text-[var(--text)] hover:text-[var(--brand-ink)] font-medium'
+                  }`}
+                >
+                  {isBn ? 'ইমেইল ওটিপি' : 'Email code'}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === 'phone'}
+                  onClick={() => {
+                    setTab('phone');
+                    setError(null);
+                  }}
+                  className={`pb-3 text-sm transition-colors -mb-px ${
+                    tab === 'phone'
+                      ? 'border-b-[3px] border-[var(--brand)] text-[var(--brand)] font-bold'
+                      : 'text-[var(--text)] hover:text-[var(--brand-ink)] font-medium'
+                  }`}
+                >
+                  {isBn ? 'ফোন ওটিপি (+880)' : 'Bangladesh mobile (+880)'}
+                </button>
               </div>
-              {diagnosticToken && (
-                <Badge variant="default" className="rounded-md bg-[#007791] text-white gap-1 text-xs">
-                  <Sparkles className="h-3 w-3" />{' '}
-                  {isBn ? 'ডায়াগনস্টিক ফলাফল প্রস্তুত' : 'Diagnostic Ready to Claim'}
-                </Badge>
+
+              {tab === 'email' ? (
+                <div role="tabpanel">
+                  {!emailOtpSent ? (
+                    <form onSubmit={handleSendEmailOtp} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="auth-email"
+                          className="block text-sm font-semibold text-[var(--brand-ink)]"
+                        >
+                          {isBn ? 'ইমেইল ঠিকানা' : 'Email address'}
+                        </label>
+                        <input
+                          id="auth-email"
+                          type="email"
+                          required
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="w-full h-12 px-4 rounded-[4px] border border-[#B8A3A8] bg-white text-sm text-[var(--brand-ink)] focus:outline-none focus:border-[var(--brand)]"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-12 rounded-[4px] bg-[var(--brand)] hover:bg-[#A50B24] text-white font-semibold text-sm transition-colors disabled:opacity-60"
+                      >
+                        {loading
+                          ? isBn
+                            ? 'কোড পাঠানো হচ্ছে...'
+                            : 'Sending code...'
+                          : isBn
+                            ? '৬-ডিজিটের ইমেইল কোড পাঠান'
+                            : 'Send 6-digit email code'}
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleVerifyEmailOtp} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="auth-email-otp"
+                          className="block text-sm font-semibold text-[var(--brand-ink)]"
+                        >
+                          {isBn
+                            ? `${email}-এ পাঠানো ৬-ডিজিটের কোড`
+                            : `6-digit code sent to ${email}`}
+                        </label>
+                        <input
+                          id="auth-email-otp"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="\d{6}"
+                          maxLength={6}
+                          required
+                          placeholder="123456"
+                          value={emailOtp}
+                          onChange={(e) => setEmailOtp(e.target.value)}
+                          className="w-full h-12 px-4 rounded-[4px] border border-[#B8A3A8] bg-white text-sm font-mono text-[var(--brand-ink)] focus:outline-none focus:border-[var(--brand)]"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="flex-1 h-12 rounded-[4px] bg-[var(--brand)] hover:bg-[#A50B24] text-white font-semibold text-sm transition-colors disabled:opacity-60"
+                        >
+                          {loading
+                            ? isBn
+                              ? 'যাচাই করা হচ্ছে...'
+                              : 'Verifying...'
+                            : isBn
+                              ? 'যাচাই করে এগিয়ে যান'
+                              : 'Verify & Continue'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEmailOtpSent(false)}
+                          disabled={loading}
+                          className="h-12 px-4 text-sm font-medium text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand)]"
+                        >
+                          {isBn ? 'পরিবর্তন করুন' : 'Change'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              ) : (
+                <div role="tabpanel">
+                  {!phoneOtpSent ? (
+                    <form onSubmit={handleSendPhoneOtp} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="auth-phone"
+                          className="block text-sm font-semibold text-[var(--brand-ink)]"
+                        >
+                          {isBn
+                            ? 'বাংলাদেশ মোবাইল নম্বর (+880)'
+                            : 'Bangladesh Mobile Number (+880)'}
+                        </label>
+                        <input
+                          id="auth-phone"
+                          type="tel"
+                          required
+                          placeholder="+8801712345678"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          className="w-full h-12 px-4 rounded-[4px] border border-[#B8A3A8] bg-white text-sm text-[var(--brand-ink)] focus:outline-none focus:border-[var(--brand)]"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-12 rounded-[4px] bg-[var(--brand)] hover:bg-[#A50B24] text-white font-semibold text-sm transition-colors disabled:opacity-60"
+                      >
+                        {loading
+                          ? isBn
+                            ? 'এসএমএস পাঠানো হচ্ছে...'
+                            : 'Dispatching SMS...'
+                          : isBn
+                            ? 'ফোন কোড পাঠান (+880)'
+                            : 'Send SMS code (+880)'}
+                      </button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleVerifyPhoneOtp} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label
+                          htmlFor="auth-phone-otp"
+                          className="block text-sm font-semibold text-[var(--brand-ink)]"
+                        >
+                          {isBn
+                            ? `৬-ডিজিটের এসএমএস কোড ${phoneHint ? `(${phoneHint})` : ''}`
+                            : `6-digit SMS code ${phoneHint ? `(${phoneHint})` : ''}`}
+                        </label>
+                        <input
+                          id="auth-phone-otp"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="\d{6}"
+                          maxLength={6}
+                          required
+                          placeholder="123456"
+                          value={phoneOtp}
+                          onChange={(e) => setPhoneOtp(e.target.value)}
+                          className="w-full h-12 px-4 rounded-[4px] border border-[#B8A3A8] bg-white text-sm font-mono text-[var(--brand-ink)] focus:outline-none focus:border-[var(--brand)]"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="flex-1 h-12 rounded-[4px] bg-[var(--brand)] hover:bg-[#A50B24] text-white font-semibold text-sm transition-colors disabled:opacity-60"
+                        >
+                          {loading
+                            ? isBn
+                              ? 'যাচাই করা হচ্ছে...'
+                              : 'Verifying...'
+                            : isBn
+                              ? 'ফোন যাচাই করুন'
+                              : 'Verify Phone'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneOtpSent(false)}
+                          disabled={loading}
+                          className="h-12 px-4 text-sm font-medium text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand)]"
+                        >
+                          {isBn ? 'পরিবর্তন করুন' : 'Change'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
               )}
             </div>
 
-            <h1 className="text-3xl font-bold text-slate-900 pt-1">
-              {mode === 'sign-in'
-                ? isBn
-                  ? `${brandDisplayName}-এ লগইন করুন`
-                  : `Sign in to ${brand.name}`
-                : isBn
-                  ? `আপনার ${brandDisplayName} অ্যাকাউন্ট তৈরি করুন`
-                  : `Create your ${brand.name} account`}
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
-              {mode === 'sign-in'
-                ? isBn
-                  ? 'আপনার কোর্সসমূহ, সেকশন-অ্যাডাপটিভ মক টেস্ট এবং এআই স্কোর অ্যানালিটিক্স অ্যাক্সেস করুন।'
-                  : 'Access your courses, section-adaptive mock exams, and AI score analytics.'
-                : isBn
-                  ? 'ফ্রি ডায়াগনস্টিক টেস্ট, ২টি এআই ইভ্যালুয়েশন ক্রেডিট এবং কাস্টম স্টাডি প্ল্যান দিয়ে শুরু করুন।'
-                  : 'Start with a free diagnostic, 2 AI evaluation credits, and a tailored study plan.'}
-            </p>
-          </div>
-
-          {error && (
-            <Callout type="trap" title={isBn ? 'লগইন ত্রুটি' : 'Authentication Error'} className="rounded-md">
-              {error}
-            </Callout>
-          )}
-
-          {statusMessage && (
-            <Callout type="concept" title={isBn ? 'ভেরিফিকেশন কোড পাঠানো হয়েছে' : 'Verification Sent'} className="rounded-md">
-              {statusMessage}
-            </Callout>
-          )}
-
-          {/* Crisp h-11 rounded-md Google OAuth Button */}
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-11 rounded-md text-sm justify-center gap-2.5 border-slate-300 font-semibold text-slate-800 hover:bg-slate-50"
-            onClick={handleGoogleAuth}
-            disabled={loading}
-          >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            {isBn ? 'Google দিয়ে চালিয়ে যান' : 'Continue with Google'}
-          </Button>
-
-          <div className="relative flex items-center py-1">
-            <div className="flex-grow border-t border-slate-200" />
-            <span className="mx-3 shrink text-xs font-semibold uppercase tracking-wider text-slate-400">
-              {isBn ? 'অথবা পাসওয়ার্ডবিহীন ওটিপি' : 'or passwordless OTP'}
-            </span>
-            <div className="flex-grow border-t border-slate-200" />
-          </div>
-
-          {/* Crisp Email / +880 Phone Tabs (rounded-md) */}
-          <div className="space-y-4">
-            <div
-              className="grid w-full grid-cols-2 rounded-md border border-slate-300 bg-slate-100 p-1"
-              role="tablist"
-              aria-label={isBn ? 'ওটিপি পদ্ধতি' : 'OTP Method'}
-            >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={tab === 'email'}
-                onClick={() => {
-                  setTab('email');
-                  setError(null);
-                }}
-                className={`flex items-center justify-center gap-2 rounded-md py-2 text-xs font-bold transition-colors ${
-                  tab === 'email'
-                    ? 'bg-white text-slate-950 shadow-2xs border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Mail className="h-3.5 w-3.5 text-[#003057]" />
-                <span>{isBn ? 'ইমেইল ওটিপি' : 'Email OTP'}</span>
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={tab === 'phone'}
-                onClick={() => {
-                  setTab('phone');
-                  setError(null);
-                }}
-                className={`flex items-center justify-center gap-2 rounded-md py-2 text-xs font-bold transition-colors ${
-                  tab === 'phone'
-                    ? 'bg-white text-slate-950 shadow-2xs border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                <Phone className="h-3.5 w-3.5 text-[#006677]" />
-                <span>{isBn ? 'ফোন ওটিপি (+880)' : 'Phone OTP (+880)'}</span>
-              </button>
-            </div>
-
-            {tab === 'email' ? (
-              <div className="space-y-4" role="tabpanel">
-                {!emailOtpSent ? (
-                  <form onSubmit={handleSendEmailOtp} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label htmlFor="auth-email" className="text-sm font-semibold text-slate-800">
-                        {isBn ? 'ইমেইল ঠিকানা' : 'Email address'}
-                      </label>
-                      <Input
-                        id="auth-email"
-                        type="email"
-                        required
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="h-11 rounded-md border-slate-300 text-sm"
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full h-11 rounded-md text-sm bg-[#001E42] text-white hover:bg-slate-900 font-semibold"
-                      disabled={loading}
-                    >
-                      {loading
-                        ? isBn
-                          ? 'কোড পাঠানো হচ্ছে...'
-                          : 'Sending code...'
-                        : isBn
-                          ? '৬-ডিজিটের ইমেইল ওটিপি পাঠান'
-                          : 'Send 6-digit Email OTP'}
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyEmailOtp} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label htmlFor="auth-email-otp" className="text-sm font-semibold text-slate-800">
-                        {isBn
-                          ? `${email}-এ পাঠানো ৬-ডিজিটের কোড`
-                          : `6-digit code sent to ${email}`}
-                      </label>
-                      <Input
-                        id="auth-email-otp"
-                        type="text"
-                        inputMode="numeric"
-                        pattern="\d{6}"
-                        maxLength={6}
-                        required
-                        placeholder="123456"
-                        value={emailOtp}
-                        onChange={(e) => setEmailOtp(e.target.value)}
-                        className="h-11 rounded-md border-slate-300 text-sm font-mono"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        type="submit"
-                        className="flex-1 h-11 rounded-md text-sm bg-[#E4002B] text-white hover:bg-[#c80025] font-semibold"
-                        disabled={loading}
-                      >
-                        {loading
-                          ? isBn
-                            ? 'যাচাই করা হচ্ছে...'
-                            : 'Verifying...'
-                          : isBn
-                            ? 'যাচাই করে এগিয়ে যান'
-                            : 'Verify & Continue'}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-11 rounded-md"
-                        onClick={() => setEmailOtpSent(false)}
-                        disabled={loading}
-                      >
-                        {isBn ? 'পরিবর্তন করুন' : 'Change'}
-                      </Button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4" role="tabpanel">
-                {!phoneOtpSent ? (
-                  <form onSubmit={handleSendPhoneOtp} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label htmlFor="auth-phone" className="text-sm font-semibold text-slate-800">
-                        {isBn ? 'বাংলাদেশ মোবাইল নম্বর (+880)' : 'Bangladesh Mobile Number (+880)'}
-                      </label>
-                      <Input
-                        id="auth-phone"
-                        type="tel"
-                        required
-                        placeholder="+8801712345678"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="h-11 rounded-md border-slate-300 text-sm"
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full h-11 rounded-md text-sm bg-[#006677] text-white hover:bg-[#005563] font-semibold"
-                      disabled={loading}
-                    >
-                      {loading
-                        ? isBn
-                          ? 'এসএমএস পাঠানো হচ্ছে...'
-                          : 'Dispatching SMS...'
-                        : isBn
-                          ? 'ফোন ওটিপি পাঠান (+880)'
-                          : 'Send Phone OTP (+880)'}
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyPhoneOtp} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label htmlFor="auth-phone-otp" className="text-sm font-semibold text-slate-800">
-                        {isBn
-                          ? `৬-ডিজিটের এসএমএস কোড ${phoneHint ? `(${phoneHint})` : ''}`
-                          : `6-digit SMS code ${phoneHint ? `(${phoneHint})` : ''}`}
-                      </label>
-                      <Input
-                        id="auth-phone-otp"
-                        type="text"
-                        inputMode="numeric"
-                        pattern="\d{6}"
-                        maxLength={6}
-                        required
-                        placeholder="123456"
-                        value={phoneOtp}
-                        onChange={(e) => setPhoneOtp(e.target.value)}
-                        className="h-11 rounded-md border-slate-300 text-sm font-mono"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        type="submit"
-                        className="flex-1 h-11 rounded-md text-sm bg-[#006677] text-white hover:bg-[#005563] font-semibold"
-                        disabled={loading}
-                      >
-                        {loading
-                          ? isBn
-                            ? 'যাচাই করা হচ্ছে...'
-                            : 'Verifying...'
-                          : isBn
-                            ? 'ফোন যাচাই করুন'
-                            : 'Verify Phone'}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        className="h-11 rounded-md"
-                        onClick={() => setPhoneOtpSent(false)}
-                        disabled={loading}
-                      >
-                        {isBn ? 'পরিবর্তন করুন' : 'Change'}
-                      </Button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Collapsible Staff Passkey & 2FA Drawer (rounded-md) */}
-          <div className="rounded-md border border-slate-300 bg-slate-50 p-4 text-xs">
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1.5 font-semibold text-slate-800">
-                <ShieldCheck className="h-4 w-4 text-[#003057]" />
-                {isBn
-                  ? 'স্টাফ / ইন্সট্রাক্টর পাসকি ও ২এফএ (2FA)'
-                  : 'Staff / Instructor Passkey & 2FA'}
-              </span>
-              <button
-                type="button"
-                aria-expanded={staff2faMode}
-                className="font-semibold text-[#003057] underline hover:text-slate-950"
-                onClick={() => setStaff2faMode((v) => !v)}
-              >
-                {staff2faMode
-                  ? isBn
-                    ? '২এফএ ড্রয়ার লুকান'
-                    : 'Hide 2FA Drawer'
-                  : isBn
-                    ? 'পাসকি / ২এফএ ড্রয়ার খুলুন'
-                    : 'Open Passkey / 2FA Drawer'}
-              </button>
-            </div>
-
-            {staff2faMode && (
-              <div className="mt-3 space-y-3 border-t border-slate-200 pt-3">
-                <p className="leading-relaxed text-slate-600">
+            <details className="border-t border-[var(--hairline)] pt-4 text-sm">
+              <summary className="cursor-pointer font-semibold text-[var(--brand-ink)] flex items-center gap-2 select-none">
+                <ShieldCheck className="h-4 w-4 text-[var(--brand)] shrink-0" />
+                <span>
+                  {isBn
+                    ? 'স্টাফ ও ইন্সট্রাক্টর পাসকি / ২এফএ'
+                    : 'Staff & Instructor Passkey / 2FA'}
+                </span>
+              </summary>
+              <div className="mt-3 space-y-3 text-xs text-[var(--text)]">
+                <p className="leading-relaxed">
                   {isBn
                     ? 'গ্রেডার, ইন্সট্রাক্টর, ফিন্যান্স, সাপোর্ট এবং অর্গানাইজেশন অ্যাডমিন অ্যাকাউন্টের জন্য হার্ডওয়্যার পাসকি বা TOTP অথেনটিকেটর যাচাইকরণ বাধ্যতামূলক।'
                     : 'Grader, instructor, finance, support, and organization administrator accounts require a hardware Passkey or TOTP authenticator verification factor.'}
@@ -674,23 +617,24 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
 
                 <form onSubmit={handleStaffTotpPrecheck} className="space-y-2.5">
                   <div className="flex flex-col gap-2 sm:flex-row">
-                    <Input
+                    <input
                       type="text"
                       inputMode="numeric"
                       maxLength={6}
                       placeholder={isBn ? '৬-ডিজিটের TOTP কোড' : '6-digit TOTP code'}
                       value={totpCode}
                       onChange={(e) => setTotpCode(e.target.value)}
-                      className="rounded-md bg-white border-slate-300 text-xs"
                       aria-label={isBn ? '৬-ডিজিটের TOTP কোড' : '6-digit TOTP code'}
+                      className="flex-1 h-10 px-3 rounded-[4px] border border-[#B8A3A8] bg-white text-xs text-[var(--brand-ink)] focus:outline-none focus:border-[var(--brand)]"
                     />
-                    <Button type="submit" size="sm" variant="outline" className="shrink-0 rounded-md border-slate-300 font-semibold">
-                      {isBn ? 'TOTP যাচাই করুন' : 'Stage TOTP Factor'}
-                    </Button>
-                    <Button
+                    <button
+                      type="submit"
+                      className="h-10 px-3 rounded-[4px] border border-[var(--brand-ink)] bg-white text-xs font-semibold text-[var(--brand-ink)] hover:bg-[var(--bg-warm)] shrink-0"
+                    >
+                      {isBn ? 'TOTP যাচাই করুন' : 'Stage TOTP'}
+                    </button>
+                    <button
                       type="button"
-                      size="sm"
-                      variant="outline"
                       onClick={() =>
                         setTotpVerifiedMsg(
                           isBn
@@ -698,59 +642,58 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                             : 'Passkey challenge ready. Complete primary sign-in above or insert your WebAuthn security key.'
                         )
                       }
-                      className="shrink-0 gap-1 rounded-md border-slate-300 font-semibold"
+                      className="h-10 px-3 rounded-[4px] border border-[var(--brand-ink)] bg-white text-xs font-semibold text-[var(--brand-ink)] hover:bg-[var(--bg-warm)] inline-flex items-center justify-center gap-1 shrink-0"
                     >
-                      <Fingerprint className="h-3.5 w-3.5 text-[#003057]" />
-                      {isBn ? 'পাসকি' : 'Passkey'}
-                    </Button>
+                      <Fingerprint className="h-3.5 w-3.5 text-[var(--brand)]" />
+                      <span>{isBn ? 'পাসকি' : 'Passkey'}</span>
+                    </button>
                   </div>
                   {totpVerifiedMsg && (
-                    <p className="rounded-md bg-slate-100 border border-slate-200 px-3 py-2 text-[11px] font-medium text-slate-900">
+                    <p className="border-l-2 border-[var(--brand)] pl-3 py-1 text-xs font-medium text-[var(--brand-ink)]">
                       {totpVerifiedMsg}
                     </p>
                   )}
                 </form>
               </div>
+            </details>
+
+            {mode === 'sign-up' && (
+              <div className="flex items-center gap-2 text-xs text-[var(--text)]">
+                <KeyRound className="h-3.5 w-3.5 shrink-0 text-[var(--brand)]" />
+                <span>
+                  {isBn
+                    ? 'Cloudflare Turnstile বট-প্রতিরোধ এবং সার্ভার-সাইড ওটিপি রেট লিমিটিং দ্বারা সুরক্ষিত।'
+                    : 'Protected by Cloudflare Turnstile bot-prevention & server-side OTP throttling.'}
+                </span>
+              </div>
             )}
-          </div>
 
-          {mode === 'sign-up' && (
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <KeyRound className="h-3.5 w-3.5 shrink-0 text-slate-400" />
-              <span>
-                {isBn
-                  ? 'Cloudflare Turnstile বট-প্রতিরোধ এবং সার্ভার-সাইড ওটিপি রেট লিমিটিং দ্বারা সুরক্ষিত।'
-                  : 'Protected by Cloudflare Turnstile bot-prevention & server-side OTP throttling.'}
+            <div className="flex items-center justify-between border-t border-[var(--hairline)] pt-5 text-sm">
+              <span className="text-[var(--text)]">
+                {mode === 'sign-in'
+                  ? isBn
+                    ? 'প্ল্যাটফর্মে নতুন?'
+                    : 'New to the platform?'
+                  : isBn
+                    ? 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?'
+                    : 'Already have an account?'}
               </span>
+              <Link
+                href={mode === 'sign-in' ? '/sign-up' : '/sign-in'}
+                className="font-semibold text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand)]"
+              >
+                {mode === 'sign-in'
+                  ? isBn
+                    ? 'অ্যাকাউন্ট তৈরি করুন'
+                    : 'Create an account'
+                  : isBn
+                    ? 'লগইন করুন'
+                    : 'Sign in'}
+              </Link>
             </div>
-          )}
-        </div>
-
-        {/* Bottom Row: Account Mode Switcher */}
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4 text-xs sm:text-sm max-w-md w-full mx-auto">
-          <span className="text-slate-600">
-            {mode === 'sign-in'
-              ? isBn
-                ? 'প্ল্যাটফর্মে নতুন?'
-                : 'New to the platform?'
-              : isBn
-                ? 'ইতিমধ্যে একটি অ্যাকাউন্ট আছে?'
-                : 'Already have an account?'}
-          </span>
-          <Link
-            href={mode === 'sign-in' ? '/sign-up' : '/sign-in'}
-            className="font-bold text-[#E4002B] hover:underline"
-          >
-            {mode === 'sign-in'
-              ? isBn
-                ? 'অ্যাকাউন্ট তৈরি করুন →'
-                : 'Create an account →'
-              : isBn
-                ? 'লগইন করুন →'
-                : 'Sign in →'}
-          </Link>
-        </div>
-      </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
