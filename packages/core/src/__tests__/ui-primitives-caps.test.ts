@@ -1,5 +1,6 @@
 /** @purpose Word-cap validation helper and unit tests enforcing the 12 Lumen UI Laws copy limits */
 import { describe, expect, it } from 'vitest';
+import { MARKETING_CONTENT, type MarketingLocaleData } from '../../../../apps/web/src/content/marketing';
 
 export const WORD_CAPS = {
   title: 10,
@@ -66,5 +67,151 @@ describe('UI Primitives Word-Cap Rules (Law 6)', () => {
 
     expect(assertWordCap(validCol, 'columnBody')).toBe(true);
     expect(assertWordCap(invalidCol, 'columnBody')).toBe(false);
+  });
+});
+
+const BANNED_JARGON = [
+  'protocol',
+  'matrix',
+  'architecture',
+  'Rasch',
+  'SM-2',
+  'Magoosh',
+  'GregMat',
+  'Seeded Live Demo',
+] as const;
+
+function collectStrings(node: unknown, path = ''): Array<{ path: string; value: string }> {
+  if (typeof node === 'string') {
+    return [{ path, value: node }];
+  }
+  if (Array.isArray(node)) {
+    return node.flatMap((item, idx) => collectStrings(item, `${path}[${idx}]`));
+  }
+  if (node !== null && typeof node === 'object') {
+    return Object.entries(node).flatMap(([key, val]) =>
+      collectStrings(val, path ? `${path}.${key}` : key),
+    );
+  }
+  return [];
+}
+
+function collectShape(node: unknown, path = ''): string[] {
+  if (Array.isArray(node)) {
+    return [
+      `${path}:array(${node.length})`,
+      ...node.flatMap((item, idx) => collectShape(item, `${path}[${idx}]`)),
+    ];
+  }
+  if (node !== null && typeof node === 'object') {
+    const keys = Object.keys(node).sort();
+    return [
+      `${path}:keys(${keys.join(',')})`,
+      ...keys.flatMap((key) =>
+        collectShape((node as Record<string, unknown>)[key], path ? `${path}.${key}` : key),
+      ),
+    ];
+  }
+  return [`${path}:${typeof node}`];
+}
+
+function getAllPricingPlans(data: MarketingLocaleData) {
+  return [...data.pricing.tabs.fullCourses, ...data.pricing.tabs.passes];
+}
+
+describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
+  it('maintains full structural key parity between en and bn', () => {
+    expect(collectShape(MARKETING_CONTENT.en)).toEqual(collectShape(MARKETING_CONTENT.bn));
+  });
+
+  it('enforces strict word caps across all titles, hero bodies, intros, columns, and pricing bullets', () => {
+    for (const locale of ['en', 'bn'] as const) {
+      const data = MARKETING_CONTENT[locale];
+      const allStrings = collectStrings(data, locale);
+
+      for (const { path, value } of allStrings) {
+        if (path.endsWith('.title') || path.endsWith('.faqTitle') || path.endsWith('.catalogTitle')) {
+          expect(
+            countWords(value),
+            `${path} exceeded ${WORD_CAPS.title} words: "${value}"`,
+          ).toBeLessThanOrEqual(WORD_CAPS.title);
+        }
+
+        if (path.endsWith('.hero.body')) {
+          expect(
+            countWords(value),
+            `${path} exceeded ${WORD_CAPS.heroBody} words: "${value}"`,
+          ).toBeLessThanOrEqual(WORD_CAPS.heroBody);
+        }
+
+        if (path.endsWith('.intro') || path.endsWith('.catalogIntro')) {
+          expect(
+            countWords(value),
+            `${path} exceeded ${WORD_CAPS.sectionIntro} words: "${value}"`,
+          ).toBeLessThanOrEqual(WORD_CAPS.sectionIntro);
+        }
+
+        if (
+          (path.endsWith('.body') && !path.endsWith('.hero.body')) ||
+          path.endsWith('.forWhom') ||
+          path.endsWith('.answer')
+        ) {
+          expect(
+            countWords(value),
+            `${path} exceeded ${WORD_CAPS.columnBody} words: "${value}"`,
+          ).toBeLessThanOrEqual(WORD_CAPS.columnBody);
+        }
+      }
+
+      for (const plan of getAllPricingPlans(data)) {
+        expect(
+          plan.bullets.length,
+          `${locale} pricing plan "${plan.id}" has more than 4 bullets`,
+        ).toBeLessThanOrEqual(4);
+        for (const bullet of plan.bullets) {
+          expect(
+            countWords(bullet),
+            `${locale} pricing bullet "${bullet}" exceeded ${WORD_CAPS.pricingBullet} words`,
+          ).toBeLessThanOrEqual(WORD_CAPS.pricingBullet);
+        }
+      }
+    }
+  });
+
+  it('contains zero banned jargon words anywhere in MARKETING_CONTENT', () => {
+    const allStrings = collectStrings(MARKETING_CONTENT, 'MARKETING_CONTENT');
+    const violations: string[] = [];
+
+    for (const { path, value } of allStrings) {
+      for (const banned of BANNED_JARGON) {
+        const regex = new RegExp(`\\b${banned.replace('-', '\\-')}\\b`, 'i');
+        if (regex.test(value)) {
+          violations.push(`${path} contains banned term "${banned}": "${value}"`);
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses Latin digits for en prices and Bengali digits for bn prices', () => {
+    const enPrices = [
+      ...MARKETING_CONTENT.en.courses.items.map((c) => c.price),
+      ...getAllPricingPlans(MARKETING_CONTENT.en).map((p) => p.price),
+    ];
+    const bnPrices = [
+      ...MARKETING_CONTENT.bn.courses.items.map((c) => c.price),
+      ...getAllPricingPlans(MARKETING_CONTENT.bn).map((p) => p.price),
+    ];
+
+    for (const price of enPrices) {
+      expect(price).toMatch(/^৳ [0-9,]+$/);
+      expect(price).not.toMatch(/[০-৯]/);
+    }
+
+    for (const price of bnPrices) {
+      expect(price).toMatch(/^৳ [০-৯,]+$/);
+      expect(price).not.toMatch(/[0-9]/);
+    }
   });
 });
