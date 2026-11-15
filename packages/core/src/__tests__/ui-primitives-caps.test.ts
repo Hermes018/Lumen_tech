@@ -286,4 +286,23 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
     expect(robotsSrc).toContain("'/api/'");
     expect(robotsSrc).toContain("'/dev/'");
   });
+
+  it('verifies every MEDIA_SLOTS entry points to a local /images/<slot>.webp file on disk', () => {
+    const webRoot = path.resolve(__dirname, '../../../../apps/web');
+    const mediaPath = path.join(webRoot, 'src/content/media.ts');
+    const mediaSrc = fs.readFileSync(mediaPath, 'utf8');
+
+    expect(mediaSrc).not.toMatch(/https?:\/\//i);
+
+    const slotMatches = [...mediaSrc.matchAll(/'([a-z0-9-]+)':\s*\{[\s\S]*?src:\s*'([^']+)'/g)];
+    expect(slotMatches.length).toBeGreaterThanOrEqual(15);
+
+    for (const match of slotMatches) {
+      const slot = match[1];
+      const src = match[2];
+      expect(src).toBe(`/images/${slot}.webp`);
+      const diskPath = path.join(webRoot, 'public', src);
+      expect(fs.existsSync(diskPath)).toBe(true);
+    }
+  });
 });

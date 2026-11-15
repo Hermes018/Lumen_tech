@@ -5,18 +5,19 @@
 
 ## Baton
 
-- From: gemini   To: founder review   Date/time (UTC): 2026-11-14 20:50:30
-- Reason: UI/UX Overhaul Batch P14 (final batch, P10 -> P14 complete) committed to `main`.
+- From: gemini   To: founder review   Date/time (UTC): 2026-11-15 06:45:00
+- Reason: UI/UX Overhaul Batch P22 (final release gate, P15 -> P22 complete) committed to `main`.
 - Branch: main
 - Session log / sign-off path: docs/logs/reviews/m2-9-institutional-ui-signoff.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict rule)
 - Working tree clean? yes
-- Task: UI/UX Overhaul Batch P14 (Route, Link Integrity & Visual Sign-Off Audit) - status: complete
-- Design Lint: `design:lint PASSED` (i18n guard: 4 clean; suppression scan: 8 clean; primitive-only pages: 8 [strict-pages]; surface-guard: 20 clean; link-guard: 227 hrefs -> 15 routes verified)
-- Design Shots: `design:shots passed.` (7 marketing routes + 20 workbench/learner surfaces `rounded-full/2xl/3xl=0`; live Playwright pass skipped offline)
-- Tests passing: `brand-sweep.test.ts` (5/5), `i18n-pages-coverage.test.ts` (14/14), `ui-primitives-caps.test.ts` (10/10) — 29/29 passing
+- Task: UI/UX Overhaul Batch P22 (Local Self-Hosted WebP Photography, Clean Git Worktree & Production Build Sign-Off) - status: complete
+- Design Lint: `design:lint PASSED` (i18n guard: 4 clean; suppression scan: 12 clean; primitive-only pages: 8 [strict-pages]; surface-guard: 21 clean; link-guard: 231 hrefs -> 17 routes verified; asset-guard: 15 local WebP assets verified)
+- Design Shots: `design:shots passed.` (7 marketing routes + 21 workbench/learner surfaces `rounded-full/2xl/3xl=0`; live Playwright pass skipped offline)
+- Tests passing: `@lumen/core` Vitest `30 passed (30)`, `327 passed (327)` (including `ui-primitives-caps.test.ts` local WebP asset check)
 - TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental`)
-- Needs two-key review: None (UI/UX & audit tooling only; zero security-critical paths touched).
+- Production Build: `pnpm --filter @lumen/web build` passed (`93/93` static pages generated)
+- Needs two-key review: None (UI/UX, media assets, & audit tooling only).
 
 ## Done (Batches P10 -> P14)
 

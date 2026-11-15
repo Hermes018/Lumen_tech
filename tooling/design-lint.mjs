@@ -236,6 +236,26 @@ for (const rel of LINK_GUARD_FILES) {
   }
 }
 
+// 6. Local Self-Hosted Media Asset Guard
+const MEDIA_FILE = path.join(ROOT, 'apps/web/src/content/media.ts');
+const mediaContent = fs.readFileSync(MEDIA_FILE, 'utf8');
+let checkedAssets = 0;
+if (/https?:\/\//i.test(mediaContent)) {
+  errors.push('[asset-guard] External http(s) URL found in apps/web/src/content/media.ts; all media slots must be local /images/<slot>.webp');
+}
+for (const match of mediaContent.matchAll(/src:\s*'([^']+)'/g)) {
+  const srcPath = match[1];
+  checkedAssets += 1;
+  if (!/^\/images\/[a-z0-9-]+\.webp$/.test(srcPath)) {
+    errors.push(`[asset-guard] Invalid media src "${srcPath}" in apps/web/src/content/media.ts (expected /images/<slot>.webp)`);
+    continue;
+  }
+  const diskPath = path.join(ROOT, 'apps/web/public', srcPath);
+  if (!fs.existsSync(diskPath)) {
+    errors.push(`[asset-guard] Missing local WebP asset on disk: apps/web/public${srcPath}`);
+  }
+}
+
 if (errors.length > 0) {
   console.error(`design:lint FAILED (${errors.length} error(s)):`);
   for (const e of errors) {
@@ -245,5 +265,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified)`,
+  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified; asset-guard: ${checkedAssets} local WebP assets verified)`,
 );
