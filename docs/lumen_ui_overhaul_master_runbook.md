@@ -1,10 +1,10 @@
-# LUMEN ACADEMY: PHASE 5 MASTER RUNBOOK — ARCHITECTURAL DATA TABLES, 24 UNIQUE WEBP PHOTOGRAPHS, MONKEYTYPE CD-IELTS TYPING ENGINE & 5-ROLE RBAC WORKFORCE PORTALS (BATCHES P31 -> P34)
+# LUMEN ACADEMY: PHASE 6 MASTER RUNBOOK — CURRICULUM-ALIGNED IELTS TYPING MODES, 33-SLOT ZERO-REUSE PHOTOGRAPHY, CERTIFIED MULTI-ACCENT IELTS LISTENING AUDIO ENGINE, ENTERPRISE BANKING/TREASURY ACCOUNTING & UNIVERSAL PDF/XLSX/CSV REPORT GENERATOR (BATCHES P35 -> P38)
 
-## SECTION 0: MANDATORY OPERATING RULES, EXPLICIT REJECTIONS & SECURITY MITIGATIONS (READ FIRST)
+## SECTION 0: MANDATORY OPERATING RULES, EXPLICIT REJECTIONS & GUARDRAILS (READ FIRST)
 
 ### 0.1 Execution Discipline
-1. Execute ONLY the single batch requested by the user (`BATCH P31`, `BATCH P32`, `BATCH P33`, or `BATCH P34`).
-2. When the requested batch is implemented, verified, and committed, print the raw verification receipts and **STOP IMMEDIATELY**.
+1. Execute ONLY the batch or sequence of batches explicitly requested by the user (`BATCH P35`, `BATCH P36`, `BATCH P37`, or `BATCH P38`).
+2. Never erase or truncate `docs/lumen_ui_overhaul_master_runbook.md`.
 3. Touch ONLY the files listed under `Allowed Files` for the active batch.
 4. Always prefix Vitest and TypeScript commands with `NODE_OPTIONS="--max-old-space-size=2048"`. Commit as `Ayman Rahman <aymanrahman30@gmail.com>`. Do NOT run `git push`.
 
@@ -16,223 +16,150 @@
 - All strict marketing `page.tsx` files (`apps/web/app/[locale]/(marketing)/**/page.tsx`, excluding `/tools/*`) must remain at `className=0` and `<table>=0` outside `<Disclosure>`.
 
 ### 0.3 What You Must Explicitly REJECT (Enforced by `pnpm design:lint` & Vitest)
-1. **NO Borderless Ragged Text Lists Masquerading as Tables in Dashboards:** All multi-column tabular data in `/app/*`, `/evaluator`, `/instructor`, `/auditor`, and `/admin` MUST use `<WorkspaceDataTable>` from `WorkspacePrimitives.tsx` with a `1px solid var(--hairline)` outer frame, a tinted `<thead className="bg-[var(--bg-warm)] border-b border-[var(--hairline)]">` column header bar, semantic `<th scope="row">` row headers with a right hairline divider, vertical cell dividers (`divide-x divide-[var(--hairline)]`), and `tabular-nums` alignment.
-2. **NO Wrapped Stat Numerals or Stacked Duplicate Spark Motifs on `/`:** Stat values in `<StatRow>` must never wrap onto two lines (`whitespace-nowrap`, `<= 6 chars`). Never render two `<LumenSparkMotif />` icons immediately adjacent to each other.
-3. **NO Duplicate Photography Files or Reused Marketing Photo Slots:** Every `.webp` file in `MEDIA_MANIFEST` must have a 100% unique SHA-256 buffer on disk, and `/`, `/gre`, `/ielts`, `/courses`, `/pricing`, `/for-institutions`, and `/help` must use distinct `photoSlot` keys.
-4. **NO `<textarea>` Shortcut in the Typing Engine:** `<TypingPracticeEngine />` must implement Monkeytype's `#wordsWrapper` -> `.word` -> `<span data-letter>` + smooth gliding `#caret` architecture with `c/i/e/m` character states, previous-word error backspace recovery, `Tab + Enter` instant restart, focus-mode chrome dimming, and per-second SVG telemetry.
-5. **NO Off-Palette "SaaS Rainbow" Classes, Large Radii, Shadows, RPG Clutter, or Raw LaTeX:** `[workspace-guard]` enforces zero `rounded-md/lg/xl/2xl/3xl/full`, zero `shadow-*`, zero `bg-blue-*/green-*/emerald-*/yellow-*/slate-*/zinc-*`, zero `text-[9px]/text-[10px]/text-[11px] uppercase`, zero RPG XP strings, and zero unformatted `$x^2$` LaTeX across all 5 role portals (`/app`, `/evaluator`, `/instructor`, `/auditor`, `/admin`) and `/tools/ielts-typing-test`.
-6. **NO Unauthenticated or Cross-Role Privilege Escalation:** Enforce both route-level isolation (`resolveRoleRedirect` in `proxy.ts`) AND action-level API RBAC (`enforceRoleActionPermission` in `/api/admin/catalog`) across all 5 roles (`scholar`, `evaluator`, `instructor`, `auditor`, `admin`).
+1. **NO Naive Random Punctuation Glued onto Function Words in Typing Corpora:** Never generate nonsense punctuation like `from the: pharmacy` or `subterranean; reservoirs`. When `@ punctuation` or `# numbers` is enabled in `typing-corpora.ts`, inject grammatically authentic academic punctuation (clause-level commas, `; however,`, `; consequently,`, parenthetical data `(47.8% in 2025)`, hyphenated compounds `socio-economic`) that mirrors official IELTS Band 8.5 and GRE AWA prose.
+2. **NO Repeated or Visually Duplicate Marketing Images (`[slot-uniqueness-guard]`):** Every `photoSlot` in `marketing.ts` across `/`, `/gre`, `/ielts`, `/courses`, `/pricing`, `/for-institutions`, and `/help` must be 1-to-1 unique (used at most once across the entire site), and every `.webp` file in `MEDIA_MANIFEST` must have a unique SHA-256 hash and visually distinct editorial composition.
+3. **NO Silent/Text-Only IELTS Listening Mocks:** Every IELTS Listening practice drill and mock in `/exam/ielts-preview` and `/app/ielts` MUST include the interactive `<IeltsListeningAudioEngine />` with playable 44.1kHz PCM `.wav` audio, multi-accent speaker cues (`British RP en-GB`, `Australian en-AU`, `North American en-US`), strict Play-Once Exam Mode lock, and post-submission Interactive Synchronized Transcript with distractor trap highlights.
+4. **NO New External NPM Dependencies (Rule H1):** Implement the `.xlsx` (Excel SpreadsheetML / Office Open XML), `.csv`, and Printable A4/Letter PDF Report Engine in pure TypeScript (`apps/web/src/lib/export-reports.ts`) with zero external packages.
+5. **NO Off-Palette "SaaS Rainbow" Classes, Large Radii, or Shadows:** `[workspace-guard]` and `[surface-guard]` strictly forbid `rounded-md/lg/xl/2xl/3xl/full`, `shadow-*`, `bg-blue-*/green-*/emerald-*/yellow-*/slate-*/zinc-*`, and `text-[9px]/text-[10px]/text-[11px] uppercase` across all typing, audio, banking, and report components.
+6. **NO Borderless Ragged Lists for Financial Ledgers:** All banking accounts, monetary ledger rows, P&L statements, and tax registers MUST render inside `<WorkspaceDataTable>` from `WorkspacePrimitives.tsx` with tinted column headers, `<th scope="row">` row headers, vertical cell hairlines, and `tabular-nums` alignment.
 
 ---
 
-## BATCH P31: HOMEPAGE STATROW ALIGNMENT (`40+`), ARCHITECTURAL `<WORKSPACEDATATABLE>` UPGRADE ACROSS `/APP` & `/ADMIN`, AND 24 UNIQUE SHA-256 VERIFIED WEBP PHOTOGRAPHS (`[ASSET-GUARD]`)
+## BATCH P35: CURRICULUM-ALIGNED IELTS & GRE TYPING STUDIO UPGRADE — GRAMMAR-AWARE PUNCTUATION FIX (`IMAGE_889480` FIX), AUDIO SPELLING DICTATION MODE, BAND 8.5 LEXICAL UPGRADE DRILL & TASK 1/2 RUBRIC PACING
 
 ### Objective
-1. Fix the wrapped `"40+ Rubrics"` stat numeral and duplicate `<LumenSparkMotif />` on `/`.
-2. Build `<WorkspaceDataTable>` in `WorkspacePrimitives.tsx` (with tinted column headers, `<th scope="row">` row headers, vertical cell hairlines, and `tabular-nums` alignment) and upgrade all tabular views across `/admin` and `/app/*`.
-3. Expand `apps/web/src/content/media.ts` and `apps/web/public/images/*.webp` to **24 unique `.webp` photographs** (`<= 120KB` heroes/splits, `<= 60KB` columns) so every marketing page uses distinct imagery, verified by a SHA-256 file-uniqueness check in `tooling/design-lint.mjs` and `ui-primitives-caps.test.ts`.
+1. Fix `buildTypingWords()` in `apps/web/src/content/typing-corpora.ts` so `@ punctuation` and `# numbers` never attach random colons/semicolons onto prepositions or articles (fixing `from the: pharmacy` and `subterranean; reservoirs`), instead weaving authentic academic transitions (`; however,`, `; furthermore,`, `(47.8%)`, `state-of-the-art`).
+2. Upgrade `<TypingPracticeEngine />` (`apps/web/src/components/typing/TypingPracticeEngine.tsx`) with **4 IELTS & GRE Curriculum Practice Drills**:
+   - `Copy-Flow Benchmark` (Monkeytype classic gliding-caret speed & accuracy)
+   - `Audio Spelling & Number Dictation` (visually masks target words `••••••` or plays spoken British/Australian audio cues for high-risk Listening Part 1–4 spelling/postcode/currency traps)
+   - `Band 6.0 -> Band 8.5 Lexical Upgrade` (displays the Band 6.0 baseline prompt phrase above the word stream while the scholar types the Band 8.5 academic collocation upgrade)
+   - `Task 1 (20m / 150w) & Task 2 (40m / 250w) Pacing & Paragraph Coach` (tracks live paragraph split milestones: `Introduction`, `Body Paragraph 1`, `Body Paragraph 2`, `Conclusion & Proofread Buffer`)
 
 ### Allowed Files
-- `apps/web/app/tokens.css`
-- `apps/web/src/components/ui/primitives.tsx`
-- `apps/web/src/components/ui/WorkspacePrimitives.tsx`
-- `apps/web/src/content/marketing.ts`
+- `apps/web/src/content/typing-corpora.ts`
+- `apps/web/src/components/typing/TypingPracticeEngine.tsx`
+- `apps/web/app/[locale]/(learner)/app/typing/page.tsx`
+- `apps/web/app/[locale]/(marketing)/tools/ielts-typing-test/page.tsx`
+- `packages/core/src/__tests__/typing-engine.test.ts`
+
+---
+
+## BATCH P36: CERTIFIED BRITISH COUNCIL / IDP-FORMAT IELTS LISTENING AUDIO ENGINE (`<IELTSLISTENINGAUDIOENGINE />`) + 33-SLOT ZERO-REUSE & VISUALLY DISTINCT PHOTOGRAPHY OVERHAUL
+
+### Objective
+1. Eliminate all repeated or visually similar images across `/`, `/gre`, `/ielts`, `/courses`, `/pricing`, `/for-institutions`, and `/help` by expanding `MEDIA_MANIFEST` (`apps/web/src/content/media.ts`) to **33 unique, 1-to-1 context-specific `.webp` slots**, generating visually distinct, topic-relevant `.webp` images on disk, and enforcing a strict **Zero Slot Reuse Guard** (`every photoSlot in marketing.ts used at most once across all pages`) in `tooling/design-lint.mjs` and `ui-primitives-caps.test.ts`.
+2. Build the certified-format CD-IELTS Listening Audio & Transcript Engine (`<IeltsListeningAudioEngine />`) with playable 44.1kHz PCM `.wav` audio synthesis + Multi-Accent (`en-GB` British RP, `en-AU` Australian, `en-US` North American) neural speech synthesis, Play-Once Strict Exam Mode lock, headphone check, and post-submission Interactive Synchronized Transcript (with highlighted distractor traps)—wired into `/exam/ielts-preview` and `/app/ielts`.
+
+### Allowed Files
 - `apps/web/src/content/media.ts`
+- `apps/web/src/content/marketing.ts`
 - `apps/web/public/images/*.webp`
-- `apps/web/app/[locale]/(admin)/admin/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/gre/page.tsx`
+- `apps/web/src/content/ielts-listening-scripts.ts`
+- `apps/web/src/components/exam/IeltsListeningAudioEngine.tsx`
+- `apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx`
 - `apps/web/app/[locale]/(learner)/app/ielts/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/plan/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/mistakes/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/progress/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/billing/page.tsx`
-- `apps/web/app/[locale]/(learner)/app/vocab/page.tsx`
-- `tooling/design-lint.mjs`
-- `packages/core/src/__tests__/ui-primitives-caps.test.ts`
-
-### Step-by-Step Implementation
-1. **Fix Homepage `StatRow` Alignment & Duplicate Spark Motif (`tokens.css`, `primitives.tsx`, `marketing.ts`):**
-   - In `apps/web/src/content/marketing.ts`: Change the 4th homepage `StatRow` item from `value: '40+ Rubrics'` to `value: '40+'` (EN) and `value: '৪০+'` (BN), with `caption: 'Calibrated Writing & Speaking Rubrics'` (EN) / `'মানসম্মত রাইটিং ও স্পিকিং রুব্রিক'` (BN) (`<= 6 chars`, matching `1h 58m`, `4 Skills`, `1,500+`).
-   - In `apps/web/app/tokens.css` and `apps/web/src/components/ui/primitives.tsx`: Add `whitespace-nowrap` and `leading-none` to `.lumen-stat-value` inside `<StatRow>` and align all 4 stat columns so every stat numeral sits on the exact same horizontal baseline and never wraps onto 2 lines.
-   - In `apps/web/src/components/ui/primitives.tsx`: Remove the redundant `<LumenSparkMotif />` from `<StepRow>` (or suppress it when `<StatRow>` already renders the divider motif above it) so two spark motifs never stack vertically on `/`.
-
-2. **Build `<WorkspaceDataTable>` in `apps/web/src/components/ui/WorkspacePrimitives.tsx` & Upgrade All `/admin` and `/app/*` Tables:**
-   - Export `<WorkspaceDataTable>` (and `WorkspaceTableColumn`, `WorkspaceTableRow` types) from `WorkspacePrimitives.tsx`:
-     - Props: `{ columns: Array<{ key: string; header: string; align?: 'left' | 'right' | 'center'; widthClass?: string }>; rows: Array<{ id: string; rowHeader: React.ReactNode; rowSubheader?: string; cells: Record<string, React.ReactNode>; expandedContent?: React.ReactNode }>; emptyMessage?: string; caption?: string }`.
-     - Renders `div className="border border-[var(--hairline)] rounded-[4px] overflow-x-auto bg-[var(--surface-paper)] mb-8"`:
-       - `<table className="w-full border-collapse text-left">`:
-         - `<thead className="bg-[var(--bg-warm)] border-b border-[var(--hairline)]">` with `<tr className="divide-x divide-[var(--hairline)]">`, where each `<th scope="col">` has `px-4 py-3 text-xs font-semibold text-[var(--brand-deep)] tracking-normal`.
-         - `<tbody className="divide-y divide-[var(--hairline)]">`, where each `<tr>` has `divide-x divide-[var(--hairline)] even:bg-[var(--bg)]/45 hover:bg-[var(--bg-warm)]/65 transition-colors duration-150`:
-           - First cell (`columns[0]`) is a semantic Row Header `<th scope="row" className="px-4 py-3.5 font-semibold text-sm text-[var(--brand-deep)] bg-[var(--bg)]/35 align-middle">` (rendering `row.rowHeader` and optional `row.rowSubheader` in `block text-xs font-normal text-[var(--text-muted)] mt-0.5`).
-           - Remaining cells (`columns.slice(1)`) are `<td className="px-4 py-3.5 text-sm text-[var(--text-primary)] tabular-nums align-middle">` (respecting `align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left'`).
-         - When `row.expandedContent` is truthy, renders `<tr className="bg-[var(--bg-warm)]/40 border-t border-[var(--hairline)]"><td colSpan={columns.length} className="p-5">{row.expandedContent}</td></tr>`.
-   - Upgrade `/admin` (`apps/web/app/[locale]/(admin)/admin/page.tsx`) to use `<WorkspaceDataTable>` across all modules (`Catalog & Dual-Currency Price Matrix`, `Promos & Scholarships`, `Orders, Split-Pay & Mushak 6.3`, `Blind Content Moderation`, `Scholar Directory — PII Masked`, and `Security Audit Ledger`).
-   - Upgrade `/app` (Today's Study Checklist), `/app/gre` (Adaptive Drills table + CBT Mocks table), `/app/ielts` (CD-IELTS Mocks table + Passage Drills table), `/app/plan` (7-Day Weekly Milestone table), `/app/mistakes` (Mistake Remediation table), `/app/progress` (Quantitative, Verbal & IELTS Skill Mastery tables), `/app/billing` (Payment History & Invoices table + Split-Pay Schedule table), and `/app/vocab` (Curated Vocabulary Decks table) to use `<WorkspaceDataTable>`.
-
-3. **24 Unique Self-Hosted WebP Photographs & SHA-256 Uniqueness Guard (`media.ts`, `marketing.ts`, `public/images/*.webp`, `design-lint.mjs`, `ui-primitives-caps.test.ts`):**
-   - Expand `PhotoSlot` and `MEDIA_MANIFEST` in `apps/web/src/content/media.ts` to **24 distinct slots**:
-     - Existing 15 slots: `hero-home`, `hero-gre`, `hero-ielts`, `hero-courses`, `hero-pricing`, `hero-institutions`, `hero-help`, `split-diagnostic`, `col-gre-general`, `col-ielts-academic`, `col-ielts-gt`, `col-self-paced`, `col-live-cohort`, `col-mock-pass`, `nav-editorial`.
-     - New 9 slots: `split-gre-adaptive`, `split-gre-hints`, `split-ielts-cbt`, `split-ielts-rubric`, `col-gre-quant`, `col-gre-verbal`, `col-ielts-writing`, `col-ielts-speaking`, `col-inst-cohort`.
-   - Update `marketing.ts` (`en` and `bn`) so `/gre`, `/ielts`, and `/for-institutions` reference these dedicated slots instead of reusing `split-diagnostic`, `col-gre-general`, or `col-ielts-academic`.
-   - Ensure every one of the 24 `/images/<slot>.webp` files in `apps/web/public/images/` is a valid, distinct `.webp` image (`hero/split <= 120KB`, `col <= 60KB`) with a **unique SHA-256 digest** (if any existing `.webp` files on disk are byte-identical copies or if new slots are added, generate/encode distinct visual WebP variations using `sharp`, `cwebp`, `ffmpeg`, `python3` PIL, or distinct valid WebP image buffers so every file is visually and cryptographically unique).
-   - Update `[asset-guard]` in `tooling/design-lint.mjs` and `packages/core/src/__tests__/ui-primitives-caps.test.ts` to compute `crypto.createHash('sha256')` over all 24 `.webp` files in `MEDIA_MANIFEST` and fail if any two slots share the same SHA-256 hash!
-
-### Verification
-Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`. Commit `BATCH P31` to `main`, print receipts, and STOP.
-
----
-
-## BATCH P32: MONKEYTYPE-ARCHITECTURE CD-IELTS & GRE TYPING SPEED & ACCURACY STUDIO (`/APP/TYPING` & `/TOOLS/IELTS-TYPING-TEST`)
-
-### Objective
-Build the Monkeytype-architecture CD-IELTS & GRE Typing Speed & Accuracy Studio (`<TypingPracticeEngine />`) modeled on `monkeytypegame/monkeytype` (`#testConfig`, `#wordsWrapper`, `.word`, `<span data-letter>`, smooth `#caret`, `c/i/e/m` character states, previous-word error backspace recovery, `Tab + Enter` instant restart, per-second dual-axis SVG chart, and `Practice Missed Words Only`) in Lumen's editorial design language, and wire it into `/app/typing`, `/app/ielts`, `/tools/ielts-typing-test`, and the IELTS/Dual-Prep package catalog.
-
-### Allowed Files
-- `apps/web/src/content/typing-corpora.ts` (new curated CD-IELTS & GRE typing corpora + pure telemetry math)
-- `apps/web/src/components/typing/TypingPracticeEngine.tsx` (new Monkeytype-architecture interactive engine)
-- `apps/web/app/[locale]/(learner)/app/typing/page.tsx` (new Scholar Typing Studio page)
-- `apps/web/app/[locale]/(learner)/layout.tsx` (add `CD-IELTS Typing Studio` `/app/typing` under Exam Preparation Tracks)
-- `apps/web/app/[locale]/(learner)/app/ielts/page.tsx` (link/surface CD-IELTS Typing Studio)
-- `apps/web/app/[locale]/(marketing)/tools/ielts-typing-test/page.tsx` (new public interactive tool route)
-- `apps/web/src/content/nav.ts` (add IELTS Typing Speed Test to Practice Tests mega-menu & footer)
-- `apps/web/src/content/marketing.ts` (include CD-IELTS Typing Studio in IELTS & Dual-Prep course features)
-- `apps/web/src/lib/security/payment-guard.ts` (include CD-IELTS Typing Studio in IELTS plan feature bullets)
-- `apps/web/app/sitemap.ts` (register `/tools/ielts-typing-test`)
 - `tooling/design-lint.mjs`
 - `tooling/design-shots.mjs`
-- `packages/core/src/__tests__/typing-engine.test.ts` (new unit test suite)
+- `packages/core/src/__tests__/ui-primitives-caps.test.ts`
+- `packages/core/src/__tests__/workspace-design-guard.test.ts`
+- `packages/core/src/__tests__/ielts-scoring.test.ts`
 
-### Step-by-Step Implementation
-1. **Create Curated Exam Typing Corpora & Monkeytype Telemetry Math (`apps/web/src/content/typing-corpora.ts`):**
-   - Export `TYPING_CORPORA` with 4 exam-authentic categories (each containing multiple rich passages and high-yield academic vocabulary):
-     1. `ielts-task2-band8`: Band 8.5 Academic/GT Task 2 discursive essay paragraphs (cohesive devices, subordinate clauses, formal academic register).
-     2. `ielts-task1-data`: Academic Task 1 data-report prose with statistical comparisons (`47.8%`, `1995–2025`, `threefold`), fractions, and trend verbs (`outpaced`, `plateaued`, `conversely`).
-     3. `ielts-listening-spelling`: High-risk CD-IELTS Listening Part 1–4 spelling trap words (`accommodation`, `millennium`, `questionnaire`, `entrepreneur`, `mediterranean`, `colleague`, `curriculum`, `hierarchy`, `archaeology`, `meteorology`).
-     4. `gre-awa-issue`: GRE Analytical Writing Issue essay prose with dense counterarguments and qualifiers.
-   - Export pure Monkeytype telemetry functions:
-     - `calculateNetWpm(correctChars: number, elapsedSeconds: number): number` -> `Math.max(0, Math.round((correctChars / 5) / (elapsedSeconds / 60)))`
-     - `calculateRawWpm(allTypedChars: number, elapsedSeconds: number): number` -> `Math.max(0, Math.round((allTypedChars / 5) / (elapsedSeconds / 60)))`
-     - `calculateAccuracy(correctKeystrokes: number, totalKeystrokes: number): number` -> `totalKeystrokes > 0 ? Number(((correctKeystrokes / totalKeystrokes) * 100).toFixed(1)) : 100`
-     - `calculateConsistency(perSecondRawWpm: number[]): number` -> coefficient-of-variation consistency score mapped to `0–100%` (returns `100` for perfectly steady pacing).
-     - `evaluateIeltsTypingReadiness(netWpm: number, accuracy: number)`: calculates the exact minutes required to type 400 words (150w Task 1 + 250w Task 2) at `netWpm` and returns a structured Band readiness verdict.
-
-2. **Build `<TypingPracticeEngine />` (`apps/web/src/components/typing/TypingPracticeEngine.tsx`) Following `monkeytypegame/monkeytype`:**
-   - Strictly use Lumen tokens (`--bg`, `--bg-warm`, `--surface-paper`, `--brand-deep`, `--brand`, `--text-secondary`, `--text-muted`, `--hairline`) and `rounded-[4px]` geometry (zero `rounded-full/xl/2xl/3xl`, zero shadows, zero blue/green/yellow classes!).
-   - **Monkeytype `#testConfig` Bar (`bg-[var(--bg-warm)] border border-[var(--hairline)] rounded-[4px] px-4 py-2.5 mb-6 flex flex-wrap items-center justify-between gap-4`):**
-     - Group 1 (Modifiers): Toggle buttons for `punctuation`, `numbers`, `strict exam mode` (disables backspace into completed correct words), and `caret: line | block | underline`.
-     - Group 2 (Mode): `time` | `words` | `exam-corpus`.
-     - Group 3 (Sub-Options): `15s · 30s · 60s · 120s` (when `time`), `25 · 50 · 150 (Task 1) · 250 (Task 2)` (when `words`), or the 4 `TYPING_CORPORA` presets.
-   - **Monkeytype `#liveStatsMini` & Focus-Dimming:**
-     - Large tabular numerals (`text-2xl md:text-3xl font-extrabold text-[var(--brand-deep)] tabular-nums`) showing live countdown/word counter, live Net WPM, and live Accuracy %.
-     - While `isTyping` is active, `#testConfig` smoothly dims to `opacity-40 transition-opacity duration-200` (`focusMode`).
-   - **Monkeytype `#wordsWrapper`, `.word`, `<span data-letter>`, and Gliding `#caret`:**
-     - Hidden `<input id="wordsInput" type="text" autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck={false} />` focused automatically on click or keydown.
-     - If input loses focus for `> 1500ms` while a test is in progress, display a subtle centered overlay (`bg-[var(--surface-paper)]/90 border border-[var(--hairline)] px-4 py-2 text-sm font-semibold text-[var(--brand-deep)]`): `"Out of focus — Click or press any key to resume"`.
-     - Render each word as `<span data-word-index={wIdx} className="inline-block mr-3 mb-2">` and each character as `<span data-letter-index={cIdx}>`:
-       - **Character States (`c / i / e / m`):**
-         - Untyped: `text-[var(--text-muted)] opacity-50`
-         - Correct (`c`): `text-[var(--brand-deep)]`
-         - Incorrect (`i`): `text-[var(--brand)] underline decoration-[var(--brand)] decoration-2`
-         - Extra characters typed beyond word length (`e`): `<span data-extra="true" className="text-[var(--brand)] opacity-80 line-through">`
-         - Missed characters skipped by early spacebar (`m`): `text-[var(--text-muted)] underline decoration-dotted decoration-[var(--brand)]`
-       - **Smooth Gliding Caret (`#caret`):** Positioned dynamically at the active word/character coordinates (`transition: transform 85ms cubic-bezier(0.22, 1, 0.36, 1)`), supporting `line` (`w-[2.5px] bg-[var(--brand)]`), `block` (`bg-[var(--brand)]/25`), and `underline` (`h-[2.5px] bottom-0 bg-[var(--brand)]`).
-       - **Previous-Word Error Backspace Recovery:** Pressing `Backspace` at character index `0` of word `wIdx > 0` jumps back into word `wIdx - 1` if word `wIdx - 1` had any incorrect or missed characters!
-       - **Instant Restart Keybind:** Pressing `Tab` then `Enter` (or `Escape`) resets the timer, reshuffles/reseeds the corpus, and places the caret at word `0`, char `0` in `<16ms`.
-   - **Monkeytype `#result` Telemetry View (plus a `Preview Sample Telemetry` toggle so users/auditors can inspect the full chart immediately):**
-     - `<WorkspaceStatRow>` with 4 metrics: `Net WPM`, `Accuracy %`, `Characters (c/i/e/m)` + `Consistency %`, and `CD-IELTS 400-Word Time`.
-     - **Second-by-Second Dual-Axis SVG Graph:** Plots `Net WPM` (solid `--brand-deep` path), `Raw WPM` (dashed `--text-muted` path), and `Errors` (filled `--brand` crimson dots) across every second of the test.
-     - **Mistyped Words & History `<WorkspaceDataTable>`:** Lists every mistyped word (`Word (Row Header)` | `Your Input` | `Character Delta` | `Remediation Action`) + a **`Practice Missed Words Only →`** button that launches a custom drill with only the missed words!
-
-3. **Wire Routes, Sidebar, Public Tool & Unit Tests:**
-   - Create `apps/web/app/[locale]/(learner)/app/typing/page.tsx` and add `CD-IELTS Typing Studio` (`/app/typing`) to `(learner)/layout.tsx`.
-   - Surface a quick launch link to `/app/typing` inside `apps/web/app/[locale]/(learner)/app/ielts/page.tsx`.
-   - Create `apps/web/app/[locale]/(marketing)/tools/ielts-typing-test/page.tsx`, add `/tools/ielts-typing-test` to `nav.ts`, `sitemap.ts`, `tooling/design-lint.mjs`, and `tooling/design-shots.mjs`, and add CD-IELTS Typing Studio to IELTS package features in `marketing.ts` and `payment-guard.ts`.
-   - Create `packages/core/src/__tests__/typing-engine.test.ts` testing WPM, raw WPM, accuracy, `c/i/e/m` character math, consistency, and readiness verdicts.
-
-### Verification
-Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`. Commit `BATCH P32` to `main`, print receipts, and STOP.
+### Verification Criteria for BATCH P36
+1. Every `photoSlot` across `home`, `gre`, `ielts`, `courses`, `pricing`, `forInstitutions`, and `help` in `apps/web/src/content/marketing.ts` (`en` and `bn`) is 1-to-1 unique (zero repeated slots within `/gre`, within `/ielts`, within `/courses`, or across pages).
+2. All 33 `.webp` files in `apps/web/public/images/` exist, obey size caps (`<= 120KB` hero/split, `<= 60KB` col), and have 100% unique SHA-256 digests and distinct visual compositions.
+3. `apps/web/src/content/ielts-listening-scripts.ts` exports 4 authentic CD-IELTS Listening sections (`Part 1` `en-GB`, `Part 2` `en-AU`, `Part 3` `en-GB`/`en-US`, `Part 4` `en-GB`), distractor trap notes, and `buildDeterministicWavDataUri`.
+4. `apps/web/src/components/exam/IeltsListeningAudioEngine.tsx` renders the 4-part selector, Strict Exam Mode (Play-Once Lock + Headphone Check) vs. Guided Practice Mode (`0.85x–1.25x` speed + click-any-sentence-to-seek), dual PCM WAV + `speechSynthesis` playback, and synchronized distractor-trap transcript, and is wired into `/exam/ielts-preview` and `/app/ielts`.
 
 ---
 
-## BATCH P33: 5-ROLE ENTERPRISE RBAC ARCHITECTURE — BLIND EVALUATOR PORTAL (`/EVALUATOR`), FACULTY INSTRUCTOR STUDIO (`/INSTRUCTOR`) & PSYCHOMETRIC/COMPLIANCE AUDITOR CONSOLE (`/AUDITOR`)
+## BATCH P37: ENTERPRISE BANKING, DOUBLE-ENTRY FINANCIAL ACCOUNTING, EXPENSE/PAYOUT LEDGER & UNIVERSAL `.XLSX` / `PDF` / `.CSV` BUSINESS REPORT GENERATOR
 
 ### Objective
-Upgrade the role-security layer (`role-guard.ts`, `policy.ts`, `proxy.ts`, `/api/admin/catalog`, and `AuthForm.tsx`) to enforce **5 strictly isolated roles (`scholar`, `evaluator`, `instructor`, `auditor`, `admin`)** with endpoint-level RBAC permission checks (`ROLE_PERMISSION_MATRIX`), and build the dedicated Claude-styled portals for **Certified Human Evaluators (`/evaluator`)**, **Faculty Instructors (`/instructor`)**, and **Psychometric & Compliance Auditors (`/auditor`)** using `<WorkspaceDataTable>`.
+1. Create a zero-dependency **Universal Business Report & Workbook Engine (`apps/web/src/lib/export-reports.ts`)** that generates native **Multi-Worksheet Excel `.xlsx` / SpreadsheetML files**, **RFC-4180 `.csv` files**, and **Print-Perfect A4/Letter Institutional PDF Report Windows** (`@media print` with official letterhead, tabular accounting grids, signature blocks, and `HMAC-SHA256` verification hashes).
+2. Expand `payment-guard.ts` and `/api/admin/catalog` with a complete **Banking, Treasury, Double-Entry Accounting, Expense, Payout & Tax Ledger** (tracking Bank/bKash/Nagad/Stripe settlement accounts, Purchases, Split-Pay Receivables, 7-Day Refunds, Evaluator/Faculty Payouts, Operating Expenses, NBR Mushak 6.3 VAT Payable, and Net P&L in `BDT ৳` & `USD $`).
+3. Wire **1-Click `Export Excel (.xlsx)`**, **`Export CSV`**, and **`Print / Save Official PDF Report`** into `/admin`, `/app/billing`, `/app/progress`, `/evaluator`, `/instructor`, and `/auditor`.
 
 ### Allowed Files
-- `apps/web/src/lib/role-guard.ts`
-- `apps/web/src/lib/security/policy.ts`
+- `apps/web/src/lib/export-reports.ts` (new universal PDF / Excel SpreadsheetML `.xlsx` / `.csv` generator)
 - `apps/web/src/lib/security/payment-guard.ts`
 - `apps/web/app/api/admin/catalog/route.ts`
-- `apps/web/proxy.ts`
-- `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`
-- `apps/web/app/[locale]/(evaluator)/layout.tsx` (new)
-- `apps/web/app/[locale]/(evaluator)/evaluator/page.tsx` (new)
-- `apps/web/app/[locale]/(instructor)/layout.tsx` (new)
-- `apps/web/app/[locale]/(instructor)/instructor/page.tsx` (new)
-- `apps/web/app/[locale]/(auditor)/layout.tsx` (new)
-- `apps/web/app/[locale]/(auditor)/auditor/page.tsx` (new)
-- `tooling/design-lint.mjs`
-- `tooling/design-shots.mjs`
-- `packages/core/src/__tests__/workspace-design-guard.test.ts`
+- `apps/web/app/[locale]/(admin)/admin/page.tsx`
+- `apps/web/app/[locale]/(learner)/app/billing/page.tsx`
+- `apps/web/app/[locale]/(learner)/app/progress/page.tsx`
+- `apps/web/app/[locale]/(evaluator)/evaluator/page.tsx`
+- `apps/web/app/[locale]/(instructor)/instructor/page.tsx`
+- `apps/web/app/[locale]/(auditor)/auditor/page.tsx`
+- `packages/core/src/__tests__/security-payment-guard.test.ts`
 
 ### Step-by-Step Implementation
-1. **5-Role Isolation & Endpoint RBAC Matrix (`role-guard.ts`, `policy.ts`, `proxy.ts`, `/api/admin/catalog/route.ts`):**
-   - In `apps/web/src/lib/role-guard.ts`:
-     - Update `export type WorkspaceRole = 'scholar' | 'evaluator' | 'instructor' | 'auditor' | 'admin'`.
-     - Export `ROLE_HOME_PATHS: Record<WorkspaceRole, string> = { scholar: '/app', evaluator: '/evaluator', instructor: '/instructor', auditor: '/auditor', admin: '/admin' }`.
-     - Export `ROLE_PERMISSION_MATRIX: Record<WorkspaceRole, readonly string[]>` mapping each role to its permitted mutation actions:
-       - `scholar`: `['SCHOLAR_REQUEST_REFUND']`
-       - `evaluator`: `['EVALUATOR_SUBMIT_GRADE', 'CMS_UPDATE']`
-       - `instructor`: `['INSTRUCTOR_SUBMIT_ITEM', 'INSTRUCTOR_RESOLVE_DOUBT', 'INSTRUCTOR_UPDATE_COHORT']`
-       - `auditor`: `['AUDITOR_ADJUDICATE_IRR', 'AUDITOR_CERTIFY_ITEM', 'AUDITOR_VERIFY_CHAIN']`
-       - `admin`: `['UPDATE_PLAN', 'ADD_PLAN', 'UPDATE_FEES', 'UPSERT_PROMO', 'TOGGLE_PROMO', 'ORDER_ACTION', 'CMS_UPDATE', 'SCHOLAR_ACTION', 'TOGGLE_FLAG', 'PSYCHOMETRIC_UPDATE', 'PII_REVEAL', 'RESET_DEFAULTS', 'EVALUATOR_SUBMIT_GRADE', 'INSTRUCTOR_SUBMIT_ITEM', 'AUDITOR_ADJUDICATE_IRR', 'AUDITOR_CERTIFY_ITEM']`
-     - Export `canRolePerformAction(role: WorkspaceRole, action: string): boolean` and `resolveRoleRedirect(role: WorkspaceRole | null, pathname: string): string | null`:
-       - If `role` is set (`scholar`, `evaluator`, `instructor`, `auditor`, `admin`) and `pathname` enters any of the OTHER 4 role prefixes (`/app`, `/evaluator`, `/instructor`, `/auditor`, `/admin`), return `ROLE_HOME_PATHS[role]` (preserving `/bn` prefix when present).
-       - If `role` is `null` (stateless CI crawler), allow each route to render its native shell (except `/app/admin` -> `/admin`).
-   - Wire `resolveRoleRedirect` into `apps/web/proxy.ts`.
-   - In `apps/web/app/api/admin/catalog/route.ts`:
-     - Read caller role from `request.cookies.get('lumen_role')?.value` or optional `x-lumen-role` header (defaulting to `'admin'` when unset so existing unit/admin callers work, but strictly enforcing `canRolePerformAction(callerRole, body.action)` whenever a non-admin role is present, returning HTTP `403` with `{ error: 'RBAC_FORBIDDEN_ROLE_ACTION' }` if unauthorized!).
-     - Add support in `payment-guard.ts` and `/api/admin/catalog/route.ts` for `EVALUATOR_SUBMIT_GRADE`, `INSTRUCTOR_SUBMIT_ITEM`, `AUDITOR_ADJUDICATE_IRR`, and `AUDITOR_CERTIFY_ITEM`, logging every action to `auditLog`.
-   - In `apps/web/app/[locale]/(auth)/_components/AuthForm.tsx`:
-     - Render all 5 role sandbox entry buttons (`Scholar Workspace /app`, `Certified Evaluator Desk /evaluator`, `Faculty Instructor Studio /instructor`, `Psychometric & QA Auditor /auditor`, `Institutional Admin ERP /admin`), calling `setWorkspaceRoleCookie(role)` on click.
+1. **Create `apps/web/src/lib/export-reports.ts` (Zero-Dependency Excel `.xlsx` SpreadsheetML, `.csv`, and Printable Institutional PDF Generator):**
+   - Export types:
+     - `ReportColumn = { key: string; header: string; align?: 'left' | 'right' | 'center' }`
+     - `ReportSheet = { sheetName: string; title: string; subtitle?: string; summaryMetrics?: Array<{ label: string; value: string }>; columns: ReportColumn[]; rows: Array<Record<string, string | number>> }`
+     - `InstitutionalReportPayload = { reportId: string; documentTitle: string; subtitle: string; organizationName?: string; generatedByRole: string; generatedAtIso: string; currencyNote?: string; verificationHash: string; sheets: ReportSheet[]; footerLegalNote?: string }`
+   - Export pure functions (testable in Vitest without `window`):
+     - `buildCsvString(sheet: ReportSheet): string`: RFC-4180 compliant CSV with UTF-8 BOM (`\uFEFF`) so Excel opens `৳` (BDT) and Bengali (`বাংলা`) characters cleanly without mojibake.
+     - `buildExcelSpreadsheetXml(payload: InstitutionalReportPayload): string`: Generates a valid Microsoft Office Open XML SpreadsheetML (`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ...>`) containing every worksheet in `payload.sheets` with styled header rows (`#F6F1EA` background, bold `#2A080E` text), summary KPI blocks, and typed numeric/currency cells.
+     - `buildPrintableHtmlDocument(payload: InstitutionalReportPayload): string`: Generates a complete, self-contained HTML5 A4/Letter printable report document styled with Lumen Academy institutional typography, letterhead (`Lumen Academy · Institutional Financial & Academic Filing`), summary stat strip, bordered accounting tables, signature/stamp blocks (`Prepared By`, `Verified By Compliance Auditor`, `HMAC-SHA256 Verification Hash`), and `@media print` page-break rules.
+   - Export browser trigger helpers:
+     - `downloadCsvReport(payload: InstitutionalReportPayload, filenameBase: string)`
+     - `downloadExcelReport(payload: InstitutionalReportPayload, filenameBase: string)` (downloads `.xls` / `.xlsx` SpreadsheetML workbook)
+     - `openPrintablePdfReport(payload: InstitutionalReportPayload)`: Opens the printable report in a clean print window/iframe and triggers `window.print()` (with a fallback downloadable `.html` print sheet if popups are blocked).
 
-2. **Build Portal 2: Certified Human Evaluator & Checker Desk (`(evaluator)/layout.tsx` & `(evaluator)/evaluator/page.tsx`):**
-   - Warm Parchment Left Sidebar (`Lumen Academy · Certified Evaluator Desk`, Role: `Blind Rubric Evaluator · Zero-PII Mode`).
-   - Composed with `WorkspacePrimitives` and `<WorkspaceDataTable>` across 3 modules:
-     - **Tab 1 (`queue` — `Blind SLA Grading Queue`):** `<WorkspaceDataTable>` of anonymized submissions (`SUB-8492 · IELTS Academic Task 2`, `SUB-8501 · GRE Issue Essay`, `SUB-8514 · IELTS Speaking Part 2`, `SUB-8529 · IELTS GT Task 1`) with columns `Anonymous Hash (Row Header)` | `Exam & Task` | `Word Count & Typing WPM` | `AI Pre-Score` | `SLA Countdown` | `Action (Grade Blind →)`. Zero student names/emails/phones!
-     - **Tab 2 (`workbench` — `Split-Screen Blind Rubric Workbench`):**
-       - Left panel: Submission text/transcript (`SUB-8492`), word count (`278 words`), scholar CD-IELTS typing telemetry (`58 WPM · 96.8% accuracy`), and clickable inline rubric tags (`[Cohesion Gap]`, `[Lexical Upgrade]`, `[Task Achievement]`, `[Grammar Agreement]`).
-       - Right panel: 4-Criterion `4.0–9.0` (0.5 step) Band Sliders (`Task Response`, `Coherence & Cohesion`, `Lexical Resource`, `Grammatical Range & Accuracy`), live computed Overall Band, examiner written feedback box, and **`Submit Final Blind Evaluation`** button (calls `POST /api/admin/catalog` with `EVALUATOR_SUBMIT_GRADE`).
-     - **Tab 3 (`payouts` — `Evaluator SLA & Piece-Rate Payout Ledger`):** `<WorkspaceStatRow>` + `<WorkspaceDataTable>` of batch evaluations, SLA compliance %, inter-rater reliability %, and BDT/USD contractor payouts.
+2. **Expand `payment-guard.ts` & `/api/admin/catalog` with Complete Banking, Treasury, Expense & P&L Accounting:**
+   - In `apps/web/src/lib/security/payment-guard.ts`, add to the runtime catalog state:
+     - **`bankAccounts` (`Treasury & Gateway Settlement Accounts`):**
+       1. `BANK-BDT-BRAC`: `BRAC Bank PLC — Corporate Operating A/C (BDT)` · Account `#1501-204982-001` · Balance `৳6,42,500`
+       2. `WALLET-BDT-BKASH`: `bKash & Nagad Merchant Settlement Wallet (BDT)` · Merchant `#01711-889900` · Balance `৳1,84,220`
+       3. `GATEWAY-BDT-SSL`: `SSLCommerz / Nexus Split-Pay Clearing Escrow (BDT)` · Balance `৳92,450`
+       4. `BANK-USD-STRIPE`: `Stripe Global & Wise Institutional Treasury (USD)` · Account `acct_1LumenGlobal` · Balance `$4,860.00`
+     - **`ledgerEntries` (`Double-Entry Monetary & Expense Ledger`):**
+       - Categorized entries across `PURCHASE_FULL`, `PURCHASE_SPLIT_INSTALLMENT`, `RECEIVABLE_INSTALLMENT_DUE`, `REFUND_7DAY_POLICY`, `EXPENSE_EVALUATOR_PAYOUT`, `EXPENSE_FACULTY_PAYROLL`, `EXPENSE_CLOUD_AI_INFRA`, `EXPENSE_MARKETING`, `TAX_VAT_MUSHAK_63`:
+         - Include realistic seed entries for student purchases (`INV-2026-1041`, `INV-2026-0892`), pending split-pay installments, a 7-day refund return, Human Evaluator batch payout (`PAY-EVAL-2026-11`), Faculty Cohort stipend (`PAY-FAC-2026-11`), Cloud/AI inference servers, and NBR VAT accrual.
+     - **`computeFinancialSummary()`:** Pure helper computing live totals from `orders` + `ledgerEntries` + `bankAccounts`:
+       - `grossRevenueBdt`, `grossRevenueUsd`, `gatewayClearingFeesBdt`, `refundsAndReturnsBdt`, `netRevenueBdt`, `vatPayableMushakBdt` (15%), `totalExpensesBdt` (Evaluator Payouts + Faculty + Infra + Marketing), `netOperatingProfitBdt`, `accountsReceivableSplitBdt` (unpaid 2nd/3rd installments), and `totalTreasuryCashBdt`.
+     - Add `RECORD_LEDGER_ENTRY` (`type: 'EXPENSE' | 'PAYOUT' | 'REFUND' | 'BANK_TRANSFER' | 'PURCHASE'`, `category`, `description`, `amount`, `currency`, `accountId`, `referenceId`) to `payment-guard.ts` and `POST /api/admin/catalog`.
 
-3. **Build Portal 3: Faculty & Cohort Instructor Studio (`(instructor)/layout.tsx` & `(instructor)/instructor/page.tsx`):**
-   - Warm Parchment Left Sidebar (`Lumen Academy · Faculty Teaching Studio`, Role: `Lead Cohort Instructor`).
-   - Composed with `WorkspacePrimitives` and `<WorkspaceDataTable>` across 4 modules:
-     - **Tab 1 (`cohorts` — `Live Cohort Schedule & Attendance Table`):** `<WorkspaceDataTable>` of active cohorts (`GRE Quant Evening Batch 14`, `CD-IELTS Band 7.5+ Intensive`, `GRE Verbal & AWA Weekend Seminar`) with expandable syllabus/homework notes editor.
-     - **Tab 2 (`telemetry` — `Aggregate Cohort Diagnostic Weakness Table`):** `<WorkspaceDataTable>` of cohort-wide trap accuracy (`3-Blank Text Completion Contrast Traps · 54%`, `Quant Comparison Negative Exponents · 61%`, `IELTS Reading True/False/Not Given · 64%`) with 1-click `Assign Cohort Drill`.
-     - **Tab 3 (`authoring` — `Question Bank, 3-Tier Hints & Typing Corpus Authoring`):** Interactive authoring workbench with live `formatMathText()` preview (`$x^2 - y^2 = 24$` -> `x² - y² = 24`), 3-tier hint fields, and `<WorkspaceDataTable>` of authored items submitted to the Auditor QA Queue (`INSTRUCTOR_SUBMIT_ITEM`).
-     - **Tab 4 (`doubts` — `Scholar Academic Doubt Escalations`):** `<WorkspaceDataTable>` of anonymized item doubt threads (`Q-GRE-104`, `Q-IELTS-209`) with inline Socratic faculty response composer.
+3. **Upgrade `/admin` (`apps/web/app/[locale]/(admin)/admin/page.tsx`) with the `Banking, Treasury, P&L & Reports` Studio:**
+   - Add **`Banking, Treasury & P&L Reports`** (`tab=treasury`) to the Admin Console (`(admin)/admin/page.tsx`):
+     - **Top Financial `<WorkspaceStatRow>`:**
+       1. `Gross & Net Revenue` (`৳ / $`)
+       2. `Split-Pay Receivables & Gateway Fees` (`2.85% / 4.75%`)
+       3. `Operating Expenses, Payouts & Refunds` (`COGS + OPEX + Returns`)
+       4. `Net Operating Profit & NBR VAT (Mushak 6.3)`
+     - **Table 1: `Treasury & Gateway Settlement Accounts` (`<WorkspaceDataTable>`):** Shows BRAC Bank Corporate A/C, bKash/Nagad Merchant Wallet, SSLCommerz Split-Pay Escrow, and Stripe Global USD Treasury with live balances and reconciliation status.
+     - **Table 2: `General Monetary Ledger — Purchases, Expenses, Payouts, Refunds & Returns` (`<WorkspaceDataTable>`):** Filterable by `All | Purchases & Inflows | Split-Pay Receivables | Refunds & Returns | Evaluator & Faculty Payouts | Operating Expenses | NBR VAT` + an inline **`+ Record Expense / Payout / Bank Entry`** drawer (`RECORD_LEDGER_ENTRY`).
+     - **Universal Business Report Filing Bar (1-Click Export in `/admin`):**
+       - Buttons to generate and download/print:
+         1. **`Download Complete Financial Workbook (.xlsx — 6 Sheets)`** (`Summary P&L`, `Treasury Accounts`, `Purchases & Orders`, `Expenses & Payouts`, `Refunds & Returns`, `NBR Mushak 6.3 VAT Register`)
+         2. **`Download Accounting Ledger (.csv)`**
+         3. **`Print / Save Official P&L & Tax Report (PDF)`**
 
-4. **Build Portal 4: Psychometric, Rubric & Compliance Auditor Console (`(auditor)/layout.tsx` & `(auditor)/auditor/page.tsx`):**
-   - Warm Parchment Left Sidebar (`Lumen Academy · Psychometric & Compliance Audit`, Role: `Independent QA Auditor`).
-   - Composed with `WorkspacePrimitives` and `<WorkspaceDataTable>` across 3 modules:
-     - **Tab 1 (`irr` — `Inter-Rater Reliability (IRR) & Grading Drift Adjudication`):** `<WorkspaceDataTable>` comparing `AI Pre-Score` vs. `Human Evaluator Band` on `SUB-8492`, `SUB-8501`, `SUB-8514`, flagging any delta `>= 1.0 Band` (`Drift Flagged`) with an inline **Third-Marker Adjudication Drawer** (`AUDITOR_ADJUDICATE_IRR`).
-     - **Tab 2 (`item-qa` — `Curriculum & Item-Bank Psychometric QA Gate`):** `<WorkspaceDataTable>` of instructor-authored items showing `Item ID (Row Header)` | `Formatted Stem Preview` | `Difficulty (p-value)` | `Discrimination (r_pb)` | `QA Status` | `Action (Certify & Publish | Return for Revision)` (`AUDITOR_CERTIFY_ITEM`).
-     - **Tab 3 (`compliance` — `Immutable Security, PII Reveal & Refund Audit Table`):** Read-only `<WorkspaceDataTable>` of all platform security events (`ADMIN_PII_REVEAL`, price mutations, refunds, rubric calibrations) + 1-click `Verify Cryptographic Chain & Export Audit Report (JSON)`.
+4. **Wire Printable PDF & Excel (`.xlsx` / `.csv`) Report Exports Across the Remaining 4 Portals:**
+   - **Scholar (`/app/billing` & `/app/progress`):**
+     - In `/app/billing`: Add **`Download Payment & Installment Statement (.xlsx)`** and **`Print Official Tax / Mushak 6.3 Invoice (PDF)`** (using `openPrintablePdfReport`).
+     - In `/app/progress`: Add **`Print Official Score Readiness & Diagnostic Transcript (PDF)`** and **`Export Mastery Data (.csv)`**.
+   - **Evaluator (`/evaluator`):**
+     - In Tab 3 (`Payouts & SLA`): Add **`Print Monthly Evaluator Payout Remittance (PDF)`** and **`Export Graded Submissions & Earnings (.xlsx)`**.
+   - **Instructor (`/instructor`):**
+     - In Tab 1/2 (`Cohorts & Telemetry`): Add **`Print Cohort Diagnostic & Attendance Report (PDF)`** and **`Export Cohort Gradebook (.xlsx)`**.
+   - **Auditor (`/auditor`):**
+     - In Tab 3 (`Compliance & IRR`): Add **`Print Official Psychometric & Security Audit Filing (PDF)`** and **`Export Complete Audit & IRR Workbook (.xlsx)`**.
+   - Add unit tests in `packages/core/src/__tests__/security-payment-guard.test.ts` testing `buildCsvString`, `buildExcelSpreadsheetXml`, `buildPrintableHtmlDocument`, `computeFinancialSummary`, and `RECORD_LEDGER_ENTRY`.
 
 ### Verification
-Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`. Commit `BATCH P33` to `main`, print receipts, and STOP.
+Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`. Commit `BATCH P37` to `main`, print receipts, and STOP.
 
 ---
 
-## BATCH P34 (FINAL RELEASE GATE): FULL 5-ROLE, TYPING STUDIO, DATA TABLE & UNIQUE ASSET PRODUCTION BUILD SIGN-OFF
+## BATCH P38 (FINAL PRODUCTION RELEASE GATE): FULL END-TO-END VERIFICATION & PRODUCTION BUILD SIGN-OFF
 
 ### Objective
-Verify that all 5 role portals (`/app`, `/evaluator`, `/instructor`, `/auditor`, `/admin`), the Monkeytype CD-IELTS Typing Studio (`/app/typing` & `/tools/ielts-typing-test`), `<WorkspaceDataTable>`, the homepage `40+` `StatRow` alignment, and the 24 unique SHA-256 verified `.webp` photographs pass every static, unit, TypeScript, and full `next build` production gate with a 100% clean working tree.
+Verify that the upgraded IELTS/GRE Typing Studio (`BATCH P35`), the Certified Multi-Accent IELTS Listening Audio Engine & 33 Unique WebP Assets (`BATCH P36`), and the Enterprise Banking/Treasury & Universal PDF/XLSX Report Engine (`BATCH P37`) pass every static lint, design-shot, Vitest, TypeScript, and full `next build` gate with a 100% clean working tree.
 
 ### Allowed Files
+- `apps/web/app/[locale]/(admin)/layout.tsx`
+- `apps/web/src/lib/role-guard.ts`
 - `tooling/design-lint.mjs`
 - `tooling/design-shots.mjs`
 - `packages/core/src/__tests__/workspace-design-guard.test.ts`
@@ -241,13 +168,12 @@ Verify that all 5 role portals (`/app`, `/evaluator`, `/instructor`, `/auditor`,
 - `docs/lumen_ui_overhaul_master_runbook.md`
 
 ### Step-by-Step Implementation
-1. Ensure `/app/typing`, `/tools/ielts-typing-test`, `(evaluator)/layout.tsx`, `/evaluator`, `(instructor)/layout.tsx`, `/instructor`, `(auditor)/layout.tsx`, and `/auditor` are all registered and passing in `tooling/design-lint.mjs` (`[surface-guard]`, `[workspace-guard]`, `[link-guard]`, `[asset-guard]`) and `tooling/design-shots.mjs`.
-2. Expand `packages/core/src/__tests__/workspace-design-guard.test.ts` to assert:
-   - `ROLE_PERMISSION_MATRIX` and `canRolePerformAction` enforce strict RBAC across all 5 roles (`scholar`, `evaluator`, `instructor`, `auditor`, `admin`).
-   - `resolveRoleRedirect` isolates all 5 role portals cleanly.
-   - `<WorkspaceDataTable>` is used across `/admin`, `/evaluator`, `/instructor`, `/auditor`, and `/app/*`.
-   - `/evaluator` contains zero student PII.
-   - All 24 `.webp` files in `MEDIA_MANIFEST` have unique SHA-256 hashes.
-3. Revert any dirty `apps/web/next-env.d.ts` churn and update `docs/HANDOFF.md` and `docs/MISTAKE-LEDGER.md` with Phase 5 (`P31`–`P34`) verification receipts.
-4. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`, and `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
-5. Commit `BATCH P34` to `main`, verify `git status -sb` is clean, print the final verification receipts, and STOP.
+1. Add the `Banking, Treasury & P&L` link (`/admin?tab=treasury`) to `apps/web/app/[locale]/(admin)/layout.tsx` and ensure `RECORD_LEDGER_ENTRY` is included in `ROLE_PERMISSION_MATRIX.admin` in `apps/web/src/lib/role-guard.ts`.
+2. Ensure all new files (`export-reports.ts`, updated portals) are registered and passing in `tooling/design-lint.mjs` (`[surface-guard]`, `[workspace-guard]`, `[link-guard]`, `[asset-guard]`) and `tooling/design-shots.mjs`.
+3. Add Phase 6 release-gate assertions in `packages/core/src/__tests__/workspace-design-guard.test.ts` verifying:
+   - `IeltsListeningAudioEngine` is wired into `/exam/ielts-preview` and `/app/ielts` with zero forbidden classes.
+   - `export-reports.ts` generates valid multi-sheet SpreadsheetML `.xlsx`, UTF-8 BOM `.csv`, and printable HTML5 PDF documents.
+   - All 5 role portals (`/app`, `/evaluator`, `/instructor`, `/auditor`, `/admin`) include PDF/Excel report export capabilities.
+4. Revert any dirty `apps/web/next-env.d.ts` churn and update `docs/HANDOFF.md` and `docs/MISTAKE-LEDGER.md` with Phase 6 (`P35`–`P38`) receipts.
+5. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`, and `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
+6. Commit `BATCH P38` to `main`, verify `git status -sb` is clean, print the final verification receipts, and STOP.

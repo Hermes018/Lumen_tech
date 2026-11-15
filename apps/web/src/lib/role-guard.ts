@@ -34,6 +34,7 @@ export const ROLE_PERMISSION_MATRIX: Record<WorkspaceRole, readonly string[]> = 
     'INSTRUCTOR_SUBMIT_ITEM',
     'AUDITOR_ADJUDICATE_IRR',
     'AUDITOR_CERTIFY_ITEM',
+    'RECORD_LEDGER_ENTRY',
   ],
 };
 

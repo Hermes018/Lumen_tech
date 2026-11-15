@@ -7,6 +7,7 @@ import { useLocale } from 'next-intl';
 import { brand } from '@lumen/config';
 import {
   FileCheck2,
+  Landmark,
   Lock,
   Receipt,
   ShieldCheck,
@@ -19,7 +20,7 @@ import { WorkspaceMobileSheet } from '@/src/components/ui/WorkspacePrimitives';
 import { LocaleLink } from '../_components/LocaleLink';
 import { LocaleSwitcher } from '../_components/LocaleSwitcher';
 
-type AdminNavTabId = 'catalog' | 'promos' | 'orders' | 'cms' | 'scholars' | 'flags' | 'audit';
+type AdminNavTabId = 'catalog' | 'promos' | 'orders' | 'cms' | 'scholars' | 'flags' | 'audit' | 'treasury';
 
 interface AdminNavItem {
   id: AdminNavTabId;
@@ -79,6 +80,13 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     labelBn: 'নিরাপত্তা অডিট ও JSON ব্যাকআপ',
     icon: Lock,
   },
+  {
+    id: 'treasury',
+    href: '/admin?tab=treasury',
+    labelEn: 'Banking, Treasury & P&L',
+    labelBn: 'ব্যাংকিং, ট্রেজারি ও লাভ-ক্ষতি',
+    icon: Landmark,
+  },
 ];
 
 function resolveActiveAdminTab(rawTab: string | null): AdminNavTabId {
@@ -88,7 +96,8 @@ function resolveActiveAdminTab(rawTab: string | null): AdminNavTabId {
     rawTab === 'cms' ||
     rawTab === 'scholars' ||
     rawTab === 'flags' ||
-    rawTab === 'audit'
+    rawTab === 'audit' ||
+    rawTab === 'treasury'
   ) {
     return rawTab;
   }

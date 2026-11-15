@@ -4,6 +4,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { MEDIA_MANIFEST } from '../../../../apps/web/src/content/media';
+import {
+  buildCsvString,
+  buildExcelSpreadsheetXml,
+  buildPrintableHtmlDocument,
+} from '../../../../apps/web/src/lib/export-reports';
 import { formatMathText } from '../../../../apps/web/src/lib/format-math';
 import {
   ROLE_COOKIE_NAME,
@@ -664,5 +669,109 @@ describe('P34 Final Release Gate: 5-Role RBAC, WorkspaceDataTable, Evaluator Zer
     }
 
     expect(hashes.size).toBe(entries.length);
+  });
+});
+
+describe('Phase 6 Release Gate: Audio Engine, Universal PDF/XLSX/CSV Exports & Treasury RBAC (P38)', () => {
+  it('verifies IeltsListeningAudioEngine is wired into /exam/ielts-preview and /app/ielts with zero forbidden classes', () => {
+    const enginePath = path.join(REPO_ROOT, 'apps/web/src/components/exam/IeltsListeningAudioEngine.tsx');
+    const engineContent = fs.readFileSync(enginePath, 'utf8');
+    expect(engineContent).not.toMatch(/\brounded-(?:full|md|lg|xl|2xl|3xl)\b/);
+    expect(engineContent).not.toMatch(/\bshadow-/);
+    expect(engineContent).not.toMatch(/\b(?:bg|text|border)-(?:blue|emerald|green|amber|purple|indigo|yellow|slate|zinc)-/);
+    expect(engineContent).not.toMatch(/\buppercase\b/);
+
+    const wiredRoutes = [
+      'apps/web/app/[locale]/(exam)/exam/ielts-preview/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/ielts/page.tsx',
+    ];
+    for (const rel of wiredRoutes) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content, `${rel} must import IeltsListeningAudioEngine`).toContain('IeltsListeningAudioEngine');
+      expect(content, `${rel} must render <IeltsListeningAudioEngine`).toContain('<IeltsListeningAudioEngine');
+    }
+  });
+
+  it('verifies export-reports.ts generates valid multi-sheet SpreadsheetML .xlsx, UTF-8 BOM .csv, and printable HTML5 PDF documents', () => {
+    const samplePayload = {
+      reportId: 'REP-P38-001',
+      documentTitle: 'Lumen Institutional Treasury & P&L Statement',
+      subtitle: 'Phase 6 Release Gate Verification',
+      generatedByRole: 'admin',
+      generatedAtIso: '2026-11-15T12:00:00.000Z',
+      verificationHash: 'SHA256-P38-VERIFIED',
+      sheets: [
+        {
+          sheetName: 'Treasury Ledger',
+          title: 'Double-Entry Ledger',
+          summaryMetrics: [{ label: 'Net Cash', value: '৳145,000' }],
+          columns: [
+            { key: 'entryId', header: 'Entry ID', align: 'left' as const },
+            { key: 'amount', header: 'Amount (BDT)', align: 'right' as const },
+          ],
+          rows: [
+            { entryId: 'TXN-001', amount: 145000 },
+            { entryId: 'TXN-002', amount: 12500 },
+          ],
+        },
+        {
+          sheetName: 'VAT Register',
+          title: 'Mushak 6.3 VAT Summary',
+          columns: [{ key: 'period', header: 'Period', align: 'left' as const }],
+          rows: [{ period: '2026-11' }],
+        },
+      ],
+    };
+
+    const csv = buildCsvString(samplePayload.sheets[0]);
+    expect(csv.startsWith('\uFEFF')).toBe(true);
+    expect(csv).toContain('Entry ID,Amount (BDT)');
+    expect(csv).toContain('TXN-001,145000');
+
+    const xml = buildExcelSpreadsheetXml(samplePayload);
+    expect(xml).toContain('<?xml version="1.0"');
+    expect(xml).toContain('urn:schemas-microsoft-com:office:spreadsheet');
+    expect(xml).toContain('<Worksheet ss:Name="Treasury Ledger">');
+    expect(xml).toContain('<Worksheet ss:Name="VAT Register">');
+    expect(xml).toContain('TXN-001');
+
+    const html = buildPrintableHtmlDocument(samplePayload);
+    expect(html).toContain('<!DOCTYPE html>');
+    expect(html).toContain('Lumen Institutional Treasury &amp; P&amp;L Statement');
+    expect(html).toContain('SHA256-P38-VERIFIED');
+    expect(html).toContain('TXN-001');
+  });
+
+  it('verifies all 5 role portals (/app, /evaluator, /instructor, /auditor, /admin) include PDF/Excel report export capabilities', () => {
+    const progressContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(learner)/app/progress/page.tsx'),
+      'utf8',
+    );
+    expect(progressContent).toContain('@/src/lib/export-reports');
+    expect(progressContent).toContain('buildCsvString');
+    expect(progressContent).toContain('buildPrintableHtmlDocument');
+
+    const portalFiles = [
+      'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
+      'apps/web/app/[locale]/(evaluator)/evaluator/page.tsx',
+      'apps/web/app/[locale]/(instructor)/instructor/page.tsx',
+      'apps/web/app/[locale]/(auditor)/auditor/page.tsx',
+      'apps/web/app/[locale]/(admin)/admin/page.tsx',
+    ];
+
+    for (const rel of portalFiles) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content, `${rel} must import from @/src/lib/export-reports`).toContain('@/src/lib/export-reports');
+      expect(content, `${rel} must support openPrintablePdfReport`).toContain('openPrintablePdfReport');
+      expect(content, `${rel} must support downloadExcelReport`).toContain('downloadExcelReport');
+    }
+
+    const adminLayout = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(admin)/layout.tsx'),
+      'utf8',
+    );
+    expect(adminLayout).toContain('/admin?tab=treasury');
+    expect(adminLayout).toContain('Banking, Treasury & P&L');
+    expect(ROLE_PERMISSION_MATRIX.admin).toContain('RECORD_LEDGER_ENTRY');
   });
 });
