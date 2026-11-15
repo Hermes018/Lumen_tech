@@ -30,6 +30,8 @@ const WORKBENCH_SURFACES = [
   { label: "(learner)/layout", file: "apps/web/app/[locale]/(learner)/layout.tsx" },
   { label: "(admin)/layout", file: "apps/web/app/[locale]/(admin)/layout.tsx" },
   { label: "/app", file: "apps/web/app/[locale]/(learner)/app/page.tsx" },
+  { label: "/app/gre", file: "apps/web/app/[locale]/(learner)/app/gre/page.tsx" },
+  { label: "/app/ielts", file: "apps/web/app/[locale]/(learner)/app/ielts/page.tsx" },
   { label: "/app/vocab", file: "apps/web/app/[locale]/(learner)/app/vocab/page.tsx" },
   { label: "/app/vocab/play", file: "apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx" },
   { label: "/app/flashcards", file: "apps/web/app/[locale]/(learner)/app/flashcards/page.tsx" },
@@ -51,6 +53,8 @@ const LIVE_EXTRA_ROUTES = [
   "/tools/gre-score-calculator",
   "/tools/ielts-band-calculator",
   "/app",
+  "/app/gre",
+  "/app/ielts",
   "/app/vocab",
   "/app/vocab/play",
   "/app/flashcards",
@@ -228,6 +232,8 @@ if (serverUp || forceLive) {
       "/en/tools/gre-score-calculator",
       "/en/tools/ielts-band-calculator",
       "/en/app",
+      "/en/app/gre",
+      "/en/app/ielts",
     ];
 
     for (const route of liveRoutes) {

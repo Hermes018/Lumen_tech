@@ -1,26 +1,24 @@
-/** @purpose Learner Progress & Analytics view (/app/progress) with Pearl/Bone stationery mastery grid and 30-day calendar */
+/** @purpose Score Analytics & Topic Mastery (/app/progress) in Claude Editorial Ledger aesthetic with borderless SVG trajectory and 2-column mastery ledgers */
 import { getLocale } from 'next-intl/server';
 import {
-  StreakPill,
-  LevelProgressBar,
-  ScorePredictorChart,
-} from '@lumen/ui';
-import {
-  LEVEL_THRESHOLDS,
-  calculateStudyStreak,
+  calculateGreScorePrediction,
   calculateLevelInfo,
   calculateSkillMastery,
-  calculateGreScorePrediction,
+  calculateStudyStreak,
 } from '@lumen/core';
-import { ArrowLeft, Calendar, Flame, Shield, Trophy } from 'lucide-react';
-import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import { getLearnerDashboardData, type LearnerDashboardData } from '@/app/actions/analytics';
+import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
+import {
+  WorkspaceContainer,
+  WorkspaceHeader,
+  WorkspaceLedger,
+  WorkspaceLedgerRow,
+  WorkspaceProgressBar,
+  WorkspaceSectionTitle,
+  WorkspaceStatRow,
+} from '@/src/components/ui/WorkspacePrimitives';
 
 function getSandboxProgressData(): LearnerDashboardData {
-  const daysRemaining = Math.max(
-    0,
-    Math.ceil((new Date('2026-12-15T00:00:00Z').getTime() - Date.now()) / 86_400_000),
-  );
   return {
     actor: {
       id: 'sandbox-scholar',
@@ -28,7 +26,7 @@ function getSandboxProgressData(): LearnerDashboardData {
       email: 'ayman@lumen.academy',
       targetExam: 'GRE General',
       targetDate: '2026-12-15',
-      daysRemaining,
+      daysRemaining: 30,
       targetScore: 325,
     },
     streak: calculateStudyStreak(
@@ -46,9 +44,9 @@ function getSandboxProgressData(): LearnerDashboardData {
     level: calculateLevelInfo(1450),
     predictor: calculateGreScorePrediction({
       mocks: [
-        { attemptId: 'mock-01', date: '2026-10-20', quantScaled: 156, verbalScaled: 150, awaScore: 4.0 },
-        { attemptId: 'mock-02', date: '2026-11-02', quantScaled: 160, verbalScaled: 153, awaScore: 4.0 },
-        { attemptId: 'mock-03', date: '2026-11-09', quantScaled: 163, verbalScaled: 155, awaScore: 4.5 },
+        { attemptId: 'mock-01', date: '2026-10-20', quantScaled: 156, verbalScaled: 152, awaScore: 4.0 },
+        { attemptId: 'mock-02', date: '2026-11-02', quantScaled: 159, verbalScaled: 154, awaScore: 4.0 },
+        { attemptId: 'mock-03', date: '2026-11-09', quantScaled: 161, verbalScaled: 154, awaScore: 4.5 },
       ],
       practice: [
         { subject: 'quant', attempts: 85, correct: 70 },
@@ -71,19 +69,66 @@ function getSandboxProgressData(): LearnerDashboardData {
       title: 'Strengthen Text Completion Traps',
       description: 'Targeted drill on 3-blank pivot contrast structures · 10 questions · 12 min',
       actionLabel: 'Start Targeted Drill',
-      href: '/app/practice',
-      badge: 'High Impact',
+      href: '/app/gre?tab=drills',
     },
     stats: {
       quantAccuracy: 82,
       verbalMastery: 71,
       fsrsCardsDue: 45,
       fsrsCardsTotal: 1500,
-      openMistakesCount: 3,
+      openMistakesCount: 2,
       avgPaceSeconds: 78,
       mockExamsCompleted: 3,
     },
   };
+}
+
+const IELTS_SKILL_BREAKDOWN = [
+  {
+    id: 'listening',
+    nameEn: 'IELTS Listening',
+    nameBn: 'আইইএলটিএস লিসেনিং',
+    band: 8.0,
+    detailEn: '36 / 40 raw · Part 3–4 Academic Lectures',
+    detailBn: '৩৬ / ৪০ কাঁচা স্কোর · পার্ট ৩–৪ একাডেমিক লেকচার',
+  },
+  {
+    id: 'reading',
+    nameEn: 'IELTS Reading',
+    nameBn: 'আইইএলটিএস রিডিং',
+    band: 7.5,
+    detailEn: '34 / 40 raw · TFNG & Matching Headings',
+    detailBn: '৩৪ / ৪০ কাঁচা স্কোর · টিএফএনজি ও হেডিং ম্যাচিং',
+  },
+  {
+    id: 'writing',
+    nameEn: 'IELTS Writing',
+    nameBn: 'আইইএলটিএস রাইটিং',
+    band: 7.0,
+    detailEn: 'Task 1 (7.0) · Task 2 (7.0) · 4-Criterion Rubric',
+    detailBn: 'টাস্ক ১ (৭.০) · টাস্ক ২ (৭.০) · ৪-মানদণ্ড রুব্রিক',
+  },
+  {
+    id: 'speaking',
+    nameEn: 'IELTS Speaking',
+    nameBn: 'আইইএলটিএস স্পিকিং',
+    band: 7.5,
+    detailEn: 'Fluency 7.5 · Lexical 7.5 · Grammar 7.0 · Pronunciation 7.5',
+    detailBn: 'সাবলীলতা ৭.৫ · শব্দভাণ্ডার ৭.৫ · ব্যাকরণ ৭.০ · উচ্চারণ ৭.৫',
+  },
+];
+
+function getStageLabel(stage: string, isBn: boolean): string {
+  switch (stage) {
+    case 'mastered':
+      return isBn ? 'দক্ষ' : 'Mastered';
+    case 'proficient':
+      return isBn ? 'উন্নত' : 'Proficient';
+    case 'familiar':
+      return isBn ? 'পরিচিত' : 'Familiar';
+    default:
+      return isBn ? 'শুরু হয়নি' : 'Not Started';
+  }
 }
 
 export default async function LearnerProgressPage() {
@@ -93,283 +138,289 @@ export default async function LearnerProgressPage() {
   ]);
   const isBn = locale === 'bn';
 
-  const quantSkills = data.skills.filter((s) => s.subject === 'quant');
-  const verbalSkills = data.skills.filter((s) => s.subject === 'verbal');
+  const targetTotal = 325;
+  const chartPoints =
+    data.predictor.trendHistory.length >= 2
+      ? data.predictor.trendHistory
+      : [
+          { date: '2026-10-20', quant: 156, verbal: 152, total: 308, confidence: 'medium' as const },
+          { date: '2026-11-02', quant: 159, verbal: 154, total: 313, confidence: 'high' as const },
+          { date: '2026-11-09', quant: 161, verbal: 154, total: 315, confidence: 'high' as const },
+        ];
 
-  const getStageBadge = (stage: string) => {
-    switch (stage) {
-      case 'mastered':
-        return (
-          <span className="rounded-[4px] border border-emerald-700/30 bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-800">
-            {isBn ? 'দক্ষ (১০০%)' : 'Mastered (100%)'}
-          </span>
-        );
-      case 'proficient':
-        return (
-          <span className="rounded-[4px] border border-[var(--brand-deep)]/30 bg-[var(--bg-warm)] px-2 py-0.5 text-xs font-semibold text-[var(--brand-deep)]">
-            {isBn ? 'উন্নত' : 'Proficient'}
-          </span>
-        );
-      case 'familiar':
-        return (
-          <span className="rounded-[4px] border border-[var(--accent)]/40 bg-[var(--bg-tint)] px-2 py-0.5 text-xs font-semibold text-[var(--terracotta)]">
-            {isBn ? 'পরিচিত' : 'Familiar'}
-          </span>
-        );
-      default:
-        return (
-          <span className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-2 py-0.5 text-xs font-semibold text-[var(--text)]">
-            {isBn ? 'শুরু হয়নি' : 'Not Started'}
-          </span>
-        );
-    }
-  };
+  const minScore = 290;
+  const maxScore = 340;
+  const svgW = 680;
+  const svgH = 210;
+  const padL = 44;
+  const padR = 24;
+  const padT = 20;
+  const padB = 34;
+  const plotW = svgW - padL - padR;
+  const plotH = svgH - padT - padB;
+
+  const toY = (score: number) =>
+    padT + plotH - ((Math.max(minScore, Math.min(maxScore, score)) - minScore) / (maxScore - minScore)) * plotH;
+
+  const toX = (idx: number) =>
+    chartPoints.length <= 1 ? padL + plotW / 2 : padL + (idx / (chartPoints.length - 1)) * plotW;
+
+  const actualPolyline = chartPoints.map((pt, idx) => `${toX(idx)},${toY(pt.total)}`).join(' ');
+  const targetY = toY(targetTotal);
 
   return (
-    <div className="space-y-6">
-      {/* Header with Navigation */}
-      <div className="flex flex-col gap-4 border-b border-[var(--hairline)] pb-5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <LocaleLink
-            href="/app"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--text)] transition-colors hover:text-[var(--brand)]"
+    <WorkspaceContainer>
+      <WorkspaceHeader
+        title={isBn ? 'স্কোর বিশ্লেষণ ও বিষয়ভিত্তিক দক্ষতা' : 'Score Analytics & Topic Mastery'}
+        subtitle={
+          isBn
+            ? 'জিআরই ও আইইএলটিএস মক পরীক্ষার অগ্রগতির ধারা এবং বিষয়ভিত্তিক নির্ভুলতার হিসাব।'
+            : 'Diagnostic score trajectory and topic-level accuracy across GRE Quantitative, Verbal, and IELTS 4-Skill benchmarks.'
+        }
+        primaryAction={{
+          label: isBn ? 'ডায়াগনস্টিক মক চালু করুন →' : 'Launch Diagnostic Mock →',
+          href: '/exam/diagnostic',
+        }}
+        secondaryAction={{
+          label: isBn ? 'ভুলের খাতা দেখুন →' : 'Open Mistake Ledger →',
+          href: '/app/mistakes',
+        }}
+      />
+
+      <WorkspaceStatRow
+        stats={[
+          {
+            value: `${data.predictor.estimatedTotal} / 340`,
+            label: isBn
+              ? `জিআরই অনুমিত · Q${data.predictor.estimatedQuant} / V${data.predictor.estimatedVerbal}`
+              : `GRE Estimated · Q${data.predictor.estimatedQuant} / V${data.predictor.estimatedVerbal}`,
+            href: '/app/gre',
+            hrefLabel: isBn ? 'জিআরই ট্র্যাক →' : 'GRE Track →',
+          },
+          {
+            value: 'Band 7.5',
+            label: isBn ? 'আইইএলটিএস অনুমিত · লক্ষ্য ৮.০' : 'IELTS Estimated · Target 8.0',
+            href: '/app/ielts',
+            hrefLabel: isBn ? 'আইইএলটিএস ট্র্যাক →' : 'IELTS Track →',
+          },
+          {
+            value: `${data.stats.quantAccuracy}%`,
+            label: isBn
+              ? `কোয়ান্ট নির্ভুলতা · ${data.stats.mockExamsCompleted}টি মক`
+              : `Quant Accuracy · ${data.stats.mockExamsCompleted} Mocks`,
+          },
+          {
+            value: `${data.stats.verbalMastery}%`,
+            label: isBn
+              ? `ভার্বাল দক্ষতা · গড় গতি ${data.stats.avgPaceSeconds}সে`
+              : `Verbal Mastery · ${data.stats.avgPaceSeconds}s Avg Pace`,
+          },
+        ]}
+      />
+
+      {/* Borderless SVG Score Trajectory */}
+      <section className="border-b border-[var(--hairline)] pb-10 mb-10">
+        <WorkspaceSectionTitle
+          title={isBn ? 'জিআরই স্কোর অগ্রগতির ধারা' : 'GRE Score Trajectory'}
+          subtitle={
+            isBn
+              ? 'প্রকৃত মক ফলাফল (এসপ্রেসো রেখা) বনাম লক্ষ্য ৩২৫ (ক্রিমসন ড্যাশ রেখা)'
+              : 'Actual mock progression (Espresso solid) against Target 325 (Crimson dashed)'
+          }
+          rightAction={
+            <div className="flex items-center gap-5 text-xs text-[var(--text-muted)]">
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-block h-[2px] w-5 bg-[var(--brand-deep)]" />
+                <span>{isBn ? 'প্রকৃত স্কোর' : 'Actual'}</span>
+              </span>
+              <span className="inline-flex items-center gap-2">
+                <span className="inline-block h-[2px] w-5 border-t-2 border-dashed border-[var(--brand)]" />
+                <span>{isBn ? 'লক্ষ্য (৩২৫)' : 'Target (325)'}</span>
+              </span>
+            </div>
+          }
+        />
+
+        <div className="w-full overflow-x-auto">
+          <svg
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            className="w-full max-w-[680px] h-auto"
+            role="img"
+            aria-label={isBn ? 'জিআরই স্কোর অগ্রগতির চার্ট' : 'GRE Score Trajectory Chart'}
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{isBn ? 'ড্যাশবোর্ডে ফিরুন' : 'Back to Dashboard'}</span>
-          </LocaleLink>
-          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-[var(--brand-ink)]">
-            {isBn ? 'দক্ষতা অর্জন ও স্কোর বিশ্লেষণ' : 'Skill Mastery & Score Analytics'}
-          </h1>
-          <p className="mt-1 text-sm text-[var(--text)]">
-            {isBn
-              ? 'ডায়াগনস্টিক মেট্রিক্স, বিষয়ভিত্তিক দক্ষতা এবং ৩০-দিনের অধ্যয়ন ধারাবাহিকতা।'
-              : 'Comprehensive diagnostic metrics, topic-level mastery, and 30-day study consistency.'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <StreakPill
-            streak={data.streak.currentStreak}
-            isActiveToday={data.streak.isActiveToday}
-            freezesRemaining={data.streak.freezeCount}
-            variant="highlight"
-            size="lg"
-          />
-        </div>
-      </div>
-
-      {/* Level and Score Predictor Section */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-1">
-          <LevelProgressBar
-            level={data.level.level}
-            title={data.level.title}
-            totalXp={data.level.totalXp}
-            currentLevelXp={data.level.currentLevelXp}
-            xpForNextLevel={data.level.xpForNextLevel}
-            progressPct={data.level.progressPct}
-            nextLevelTitle={data.level.nextLevelTitle}
-          />
-
-          {/* Level Ranks Roadmap */}
-          <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-5">
-            <h2 className="flex items-center gap-1.5 text-xs font-bold tracking-wider text-[var(--brand)] uppercase">
-              <Trophy className="h-3.5 w-3.5" />
-              <span>{isBn ? 'র‍্যাংক অগ্রগতি রোডম্যাপ' : 'Rank Progression Roadmap'}</span>
-            </h2>
-            <div className="mt-3 divide-y divide-[var(--hairline)] border border-[var(--hairline)] text-xs">
-              {LEVEL_THRESHOLDS.slice(0, 6).map((tier) => {
-                const isCurrent = tier.level === data.level.level;
-                const isUnlocked = tier.level < data.level.level;
-                return (
-                  <div
-                    key={tier.level}
-                    className={`flex items-center justify-between px-3 py-2 ${
-                      isCurrent
-                        ? 'bg-[var(--bg-tint)] font-bold text-[var(--brand)]'
-                        : isUnlocked
-                          ? 'bg-[var(--bg-warm)] text-[var(--text)] line-through opacity-75'
-                          : 'bg-[var(--surface-paper)] text-[var(--text)]'
-                    }`}
+            {[300, 310, 320, 330].map((tick) => {
+              const y = toY(tick);
+              return (
+                <g key={tick}>
+                  <line
+                    x1={padL}
+                    y1={y}
+                    x2={svgW - padR}
+                    y2={y}
+                    stroke="var(--hairline)"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={padL - 8}
+                    y={y + 4}
+                    textAnchor="end"
+                    fontSize="11"
+                    fill="var(--text-muted)"
                   >
-                    <span>
-                      Level {tier.level}: {tier.title}
-                    </span>
-                    <span className="font-mono">{tier.requiredXp} XP</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+                    {tick}
+                  </text>
+                </g>
+              );
+            })}
 
-        <div className="lg:col-span-2">
-          <ScorePredictorChart
-            estimatedQuant={data.predictor.estimatedQuant}
-            estimatedVerbal={data.predictor.estimatedVerbal}
-            estimatedTotal={data.predictor.estimatedTotal}
-            estimatedAwa={data.predictor.estimatedAwa}
-            targetScore={{ quant: 165, verbal: 160, total: 325 }}
-            confidence={data.predictor.confidence}
-            trendHistory={data.predictor.trendHistory}
-          />
-        </div>
-      </div>
+            <line
+              x1={padL}
+              y1={targetY}
+              x2={svgW - padR}
+              y2={targetY}
+              stroke="var(--brand)"
+              strokeWidth="1.5"
+              strokeDasharray="6 4"
+            />
 
-      {/* 30-Day Activity & Consistency Calendar */}
-      <section className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hairline)] pb-4">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-[var(--brand-ink)]">
-            <Calendar className="h-5 w-5 text-[var(--brand)]" />
-            <span>{isBn ? '৩০-দিনের অধ্যয়ন ধারাবাহিকতা ক্যালেন্ডার' : '30-Day Study Consistency Calendar'}</span>
-          </h2>
-          <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--text)]">
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-none bg-[var(--accent)]" />
-              <span>{isBn ? 'সক্রিয় দিন' : 'Active Day'}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-none bg-[var(--brand-deep)]" />
-              <span>{isBn ? 'ফ্রিজ সুরক্ষিত' : 'Freeze Protected'}</span>
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="inline-block h-3 w-3 rounded-none border border-[var(--hairline)] bg-[var(--bg-warm)]" />
-              <span>{isBn ? 'বিরতি / মিস' : 'Rest / Missed'}</span>
-            </span>
-          </div>
-        </div>
+            <polyline
+              fill="none"
+              stroke="var(--brand-deep)"
+              strokeWidth="2.5"
+              points={actualPolyline}
+            />
 
-        <div className="mt-4 grid grid-cols-6 gap-2 sm:grid-cols-10 md:grid-cols-15">
-          {data.streak.calendar30Days.map((day) => {
-            const dateObj = new Date(day.date);
-            const label = `${dateObj.getUTCDate()} ${dateObj.toLocaleString('default', { month: 'short' })}`;
-
-            let bg = 'border-[var(--hairline)] bg-[var(--bg-warm)] text-[var(--text)]';
-            if (day.status === 'active') {
-              bg = 'border-[var(--accent)] bg-[var(--accent)] font-bold text-white';
-            } else if (day.status === 'frozen') {
-              bg = 'border-[var(--brand-deep)] bg-[var(--brand-deep)] font-bold text-white';
-            }
-
-            return (
-              <div
-                key={day.date}
-                className={`flex flex-col items-center justify-center rounded-[4px] border p-2 text-center text-xs ${bg}`}
-                title={`${day.date}: ${day.count} activities (${day.status})`}
-              >
-                <span className="text-[10px] opacity-85">{label.split(' ')[1]}</span>
-                <span className="text-sm font-semibold">{label.split(' ')[0]}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--hairline)] pt-4 text-xs text-[var(--text)]">
-          <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-[var(--accent)]" />
-            <span>
-              {isBn ? 'বর্তমান ধারা:' : 'Current Streak:'}{' '}
-              <strong className="text-[var(--brand-ink)]">{data.streak.currentStreak} days</strong>
-            </span>
-            <span className="mx-1 text-[var(--hairline)]">•</span>
-            <span>
-              {isBn ? 'সর্বোচ্চ ধারা:' : 'Longest Streak:'}{' '}
-              <strong className="text-[var(--brand-ink)]">{data.streak.longestStreak} days</strong>
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-[var(--brand-deep)]" />
-            <span>
-              {isBn ? 'ফ্রিজ উপলব্ধ:' : 'Freezes Available:'}{' '}
-              <strong className="text-[var(--brand-ink)]">{data.streak.freezeCount} of 2</strong>
-            </span>
-          </div>
+            {chartPoints.map((pt, idx) => {
+              const cx = toX(idx);
+              const cy = toY(pt.total);
+              return (
+                <g key={pt.date}>
+                  <circle cx={cx} cy={cy} r="4.5" fill="var(--brand-deep)" />
+                  <text
+                    x={cx}
+                    y={cy - 10}
+                    textAnchor="middle"
+                    fontSize="11"
+                    fontWeight="700"
+                    fill="var(--brand-deep)"
+                  >
+                    {pt.total}
+                  </text>
+                  <text
+                    x={cx}
+                    y={svgH - 10}
+                    textAnchor="middle"
+                    fontSize="11"
+                    fill="var(--text-muted)"
+                  >
+                    {pt.date}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
         </div>
       </section>
 
-      {/* Skill Mastery Grid */}
-      <section className="space-y-6">
+      {/* 2-Column Topic Mastery Hairline Ledgers */}
+      <section className="grid gap-10 lg:grid-cols-2">
         <div>
-          <h2 className="text-xl font-bold text-[var(--brand-ink)]">
-            {isBn ? 'কোয়ান্টিটেটিভ রিজনিং দক্ষতা' : 'Quantitative Reasoning Mastery'}
-          </h2>
-          <p className="text-xs text-[var(--text)]">
-            {isBn
-              ? 'স্কোর করা অবজেক্টিভ প্রশ্ন ও সেকশনাল টেস্টের ভিত্তিতে।'
-              : 'Based on scored objective questions and sectional tests.'}
-          </p>
+          <WorkspaceSectionTitle
+            title={isBn ? 'কোয়ান্টিটেটিভ ও ভার্বাল দক্ষতা' : 'Quantitative & Verbal Mastery'}
+            subtitle={
+              isBn
+                ? 'অবজেক্টিভ ড্রিল ও সেকশনাল টেস্টের ভিত্তিতে'
+                : 'Topic-level accuracy from calibrated drills'
+            }
+            rightAction={
+              <LocaleLink
+                href="/app/gre"
+                className="text-xs font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)]"
+              >
+                {isBn ? 'জিআরই ড্রিল →' : 'GRE Drills →'}
+              </LocaleLink>
+            }
+          />
+
+          <WorkspaceLedger>
+            {data.skills.map((skill) => (
+              <WorkspaceLedgerRow
+                key={skill.skillSlug}
+                left={
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
+                        {skill.name}
+                      </span>
+                      <span className="text-xs text-[var(--text-muted)] shrink-0">
+                        {getStageLabel(skill.stage, isBn)} · {skill.accuracy}%
+                      </span>
+                    </div>
+                    <WorkspaceProgressBar
+                      value={skill.accuracy}
+                      max={100}
+                      tone={skill.subject === 'quant' ? 'crimson' : 'espresso'}
+                      label={skill.name}
+                    />
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                      {skill.correctCount} / {skill.attemptsCount}{' '}
+                      {isBn ? 'সঠিক উত্তর' : 'items correct'}
+                    </p>
+                  </div>
+                }
+              />
+            ))}
+          </WorkspaceLedger>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          {quantSkills.map((skill) => (
-            <div
-              key={skill.skillSlug}
-              className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-4"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-bold text-[var(--brand-ink)]">{skill.name}</span>
-                {getStageBadge(skill.stage)}
-              </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-[var(--text)]">
-                <span>
-                  {isBn ? 'নির্ভুলতা:' : 'Accuracy:'}{' '}
-                  <strong className="text-[var(--brand-ink)]">{skill.accuracy}%</strong> (
-                  {skill.correctCount}/{skill.attemptsCount})
-                </span>
-                <span className="font-mono">
-                  {skill.pointsEarned} / {skill.pointsMax} pts
-                </span>
-              </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-none border border-[var(--hairline)] bg-[var(--bg-warm)]">
-                <div
-                  className="h-full rounded-none bg-[var(--brand)]"
-                  style={{ width: `${skill.accuracy}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <div>
+          <WorkspaceSectionTitle
+            title={isBn ? 'আইইএলটিএস ৪-স্কিল বিশ্লেষণ' : 'IELTS 4-Skill Breakdown'}
+            subtitle={
+              isBn
+                ? 'একাডেমিক ও জেনারেল ট্রেনিং ব্যান্ড অনুমান'
+                : 'Listening, Reading, Writing, and Speaking band estimates'
+            }
+            rightAction={
+              <LocaleLink
+                href="/app/ielts"
+                className="text-xs font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)]"
+              >
+                {isBn ? 'আইইএলটিএস ট্র্যাক →' : 'IELTS Track →'}
+              </LocaleLink>
+            }
+          />
 
-        <div className="pt-2">
-          <h2 className="text-xl font-bold text-[var(--brand-ink)]">
-            {isBn ? 'ভার্বাল রিজনিং দক্ষতা' : 'Verbal Reasoning Mastery'}
-          </h2>
-          <p className="text-xs text-[var(--text)]">
-            {isBn
-              ? 'টেক্সট কমপ্লিশন, সেন্টেন্স ইকুইভ্যালেন্স এবং রিডিং কমপ্রিহেনশন নির্ভুলতা।'
-              : 'Text Completion, Sentence Equivalence, and Reading Comprehension accuracy.'}
-          </p>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          {verbalSkills.map((skill) => (
-            <div
-              key={skill.skillSlug}
-              className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-4"
-            >
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-bold text-[var(--brand-ink)]">{skill.name}</span>
-                {getStageBadge(skill.stage)}
-              </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-[var(--text)]">
-                <span>
-                  {isBn ? 'নির্ভুলতা:' : 'Accuracy:'}{' '}
-                  <strong className="text-[var(--brand-ink)]">{skill.accuracy}%</strong> (
-                  {skill.correctCount}/{skill.attemptsCount})
-                </span>
-                <span className="font-mono">
-                  {skill.pointsEarned} / {skill.pointsMax} pts
-                </span>
-              </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-none border border-[var(--hairline)] bg-[var(--bg-warm)]">
-                <div
-                  className="h-full rounded-none bg-[var(--brand-deep)]"
-                  style={{ width: `${skill.accuracy}%` }}
-                />
-              </div>
-            </div>
-          ))}
+          <WorkspaceLedger>
+            {IELTS_SKILL_BREAKDOWN.map((item) => (
+              <WorkspaceLedgerRow
+                key={item.id}
+                left={
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
+                        {isBn ? item.nameBn : item.nameEn}
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--brand)] shrink-0">
+                        Band {item.band.toFixed(1)} / 9.0
+                      </span>
+                    </div>
+                    <WorkspaceProgressBar
+                      value={item.band}
+                      max={9}
+                      tone="espresso"
+                      label={isBn ? item.nameBn : item.nameEn}
+                    />
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                      {isBn ? item.detailBn : item.detailEn}
+                    </p>
+                  </div>
+                }
+              />
+            ))}
+          </WorkspaceLedger>
         </div>
       </section>
-    </div>
+    </WorkspaceContainer>
   );
 }

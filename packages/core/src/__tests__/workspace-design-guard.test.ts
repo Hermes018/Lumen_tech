@@ -121,3 +121,62 @@ describe('Workspace design & role isolation guards (P27)', () => {
     expect(authFormContent).toContain("setWorkspaceRoleCookie('admin')");
   });
 });
+
+describe('P28 Scholar Workspace Core & Dedicated GRE/IELTS Left Tabs', () => {
+  const P28_PAGES = [
+    'apps/web/app/[locale]/(learner)/app/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/gre/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/ielts/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/plan/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/mistakes/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/progress/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/practice/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/vocab/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx',
+  ];
+
+  it('verifies every P28 learner page composes WorkspacePrimitives with zero rainbow, shadow, RPG, or micro-eyebrow classes', () => {
+    for (const rel of P28_PAGES) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content).toContain('@/src/components/ui/WorkspacePrimitives');
+      expect(content).not.toMatch(/\brounded-(?:full|md|lg|xl|2xl|3xl)\b/);
+      expect(content).not.toMatch(/\bshadow-/);
+      expect(content).not.toMatch(
+        /\b(?:bg|text|border)-(?:blue|green|emerald|yellow|amber|purple|indigo|slate|zinc)-/,
+      );
+      expect(content).not.toMatch(/\buppercase\b/);
+      expect(content).not.toMatch(/text-\[(?:9|10|11)px\]/);
+      expect(content).not.toContain('Rank Progression Roadmap');
+      expect(content).not.toContain('Analytical Strategist');
+      expect(content).not.toContain('Apprentice Scholar');
+      expect(content).not.toMatch(/total XP earned/i);
+    }
+  });
+
+  it('verifies dedicated /app/gre and /app/ielts tracks and formatMathText coverage on math surfaces', () => {
+    const greContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(learner)/app/gre/page.tsx'),
+      'utf8',
+    );
+    expect(greContent).toContain('GRE® General Test Track');
+    expect(greContent).toContain('formatMathText(');
+    expect(greContent).toContain('evaluateAwaIssueEssay');
+
+    const ieltsContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(learner)/app/ielts/page.tsx'),
+      'utf8',
+    );
+    expect(ieltsContent).toContain('IELTS™ Academic & General Training Track');
+    expect(ieltsContent).toContain('evaluateIeltsWritingTask');
+    expect(ieltsContent).toContain('evaluateIeltsSpeaking');
+
+    for (const mathPage of [
+      'apps/web/app/[locale]/(learner)/app/mistakes/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/practice/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx',
+    ]) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, mathPage), 'utf8');
+      expect(content).toContain('formatMathText(');
+    }
+  });
+});
