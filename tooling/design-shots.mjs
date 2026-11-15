@@ -26,7 +26,9 @@ const WORKBENCH_SURFACES = [
   { label: "/for-institutions", file: "apps/web/app/[locale]/(marketing)/for-institutions/page.tsx" },
   { label: "/tools/gre-score-calculator", file: "apps/web/app/[locale]/(marketing)/tools/gre-score-calculator/page.tsx" },
   { label: "/tools/ielts-band-calculator", file: "apps/web/app/[locale]/(marketing)/tools/ielts-band-calculator/page.tsx" },
+  { label: "WorkspacePrimitives", file: "apps/web/src/components/ui/WorkspacePrimitives.tsx" },
   { label: "(learner)/layout", file: "apps/web/app/[locale]/(learner)/layout.tsx" },
+  { label: "(admin)/layout", file: "apps/web/app/[locale]/(admin)/layout.tsx" },
   { label: "/app", file: "apps/web/app/[locale]/(learner)/app/page.tsx" },
   { label: "/app/vocab", file: "apps/web/app/[locale]/(learner)/app/vocab/page.tsx" },
   { label: "/app/vocab/play", file: "apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx" },
@@ -57,7 +59,7 @@ const LIVE_EXTRA_ROUTES = [
   "/app/progress",
   "/app/plan",
   "/app/settings",
-  "/app/admin",
+  "/admin",
 ];
 
 const BOXED_PRIMITIVES = ["CalloutNotice", "CtaBand", "Button"];

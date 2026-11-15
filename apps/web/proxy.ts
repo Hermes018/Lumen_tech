@@ -1,12 +1,13 @@
-/** @purpose Next 16 proxy: next-intl routing + optimistic session guard + PDPO gate (D2, D4, P1-43, P1-44). Real auth is enforced server-side in pages/actions. */
+/** @purpose Next 16 proxy: next-intl routing + strict Scholar/Admin role isolation + optimistic session guard + PDPO gate (D2, D4, P1-43, P1-44, P27). */
 import { NextResponse, type NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { verifyPdpoCookie } from '@lumen/core';
 import { routing } from './src/i18n/routing';
+import { ROLE_COOKIE_NAME } from './src/lib/role-guard';
 
 const intl = createMiddleware(routing);
 
-// `/app` and `/app/*` (including `/app/admin`) load directly with a deterministic Sandbox Scholar/Admin fallback profile when unauthenticated (BATCH P23).
+// `/app/*` and `/admin` load directly with a deterministic Sandbox Scholar/Admin fallback profile when unauthenticated (BATCH P23 / P27), while enforcing strict `lumen_role` isolation.
 const PROTECTED_PREFIXES = [
   '/exam',
   '/studio',
@@ -16,7 +17,6 @@ const PROTECTED_PREFIXES = [
   '/finance',
   '/org',
   '/counsellor',
-  '/admin',
 ] as const;
 
 // Only these exact public preview pages skip auth (no substring match)
@@ -33,19 +33,36 @@ export default async function proxy(request: NextRequest) {
   const path = isBn ? pathname.slice(3) || '/' : pathname;
   const redirectPrefix = isBn ? '/bn' : '';
 
-  const isProtected =
-    PROTECTED_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`)) &&
-    !PUBLIC_EXAM.has(path);
-
   // 2. Skip static assets, internal Next.js requests, API webhooks
   if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
     return NextResponse.next();
   }
+
+  // 3. Strict Scholar vs. Admin Role Isolation (BATCH P27)
+  const lumenRole = request.cookies.get(ROLE_COOKIE_NAME)?.value;
+
+  if (/^\/(en|bn)?\/?app\/admin(\/|$)/.test(pathname)) {
+    const target = lumenRole === 'scholar' ? `${redirectPrefix}/app` : `${redirectPrefix}/admin`;
+    return NextResponse.redirect(new URL(target, request.url));
+  }
+
+  if (/^\/(en|bn)?\/?admin(\/|$)/.test(pathname) && lumenRole === 'scholar') {
+    return NextResponse.redirect(new URL(`${redirectPrefix}/app`, request.url));
+  }
+
+  if (/^\/(en|bn)?\/?app(\/|$)/.test(pathname) && lumenRole === 'admin') {
+    return NextResponse.redirect(new URL(`${redirectPrefix}/admin`, request.url));
+  }
+
+  const isProtected =
+    PROTECTED_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`)) &&
+    !PUBLIC_EXAM.has(path);
+
   if (!isProtected && STATIC_EXT_REGEX.test(pathname)) {
     return NextResponse.next();
   }
 
-  // 3. Optimistic Better Auth session cookie check (Edge Runtime safe)
+  // 4. Optimistic Better Auth session cookie check (Edge Runtime safe)
   const hasSession =
     request.cookies.get('better-auth.session_token')?.value ||
     request.cookies.get('__Secure-better-auth.session_token')?.value;
@@ -56,7 +73,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 4. Bangladesh PDPO 2025 guardian consent gate for under-18 learners (HMAC signed)
+  // 5. Bangladesh PDPO 2025 guardian consent gate for under-18 learners (HMAC signed)
   const minorCookie = request.cookies.get('lumen_is_minor')?.value;
   const isMinor = (await verifyPdpoCookie(minorCookie)) === 'true';
 
@@ -76,7 +93,7 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(consentUrl);
   }
 
-  // 5. Delegate to next-intl routing middleware
+  // 6. Delegate to next-intl routing middleware
   return intl(request);
 }
 

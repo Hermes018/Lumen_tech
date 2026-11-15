@@ -256,6 +256,43 @@ for (const match of mediaContent.matchAll(/src:\s*'([^']+)'/g)) {
   }
 }
 
+// 7. Claude Editorial Workspace Guard ([workspace-guard] — expanded across P27 -> P30)
+const WORKSPACE_GUARD_FILES = [
+  'apps/web/src/components/ui/WorkspacePrimitives.tsx',
+  'apps/web/app/[locale]/(learner)/layout.tsx',
+];
+const WORKSPACE_FORBIDDEN_PATTERNS = [
+  { name: 'rounded-full', regex: /\brounded-full\b/ },
+  { name: 'rounded-2xl', regex: /\brounded-2xl\b/ },
+  { name: 'rounded-3xl', regex: /\brounded-3xl\b/ },
+  { name: 'rounded-xl', regex: /\brounded-xl\b/ },
+  { name: 'bg-blue-', regex: /\bbg-blue-/ },
+  { name: 'text-blue-', regex: /\btext-blue-/ },
+  { name: 'border-blue-', regex: /\bborder-blue-/ },
+  { name: 'bg-emerald-', regex: /\bbg-emerald-/ },
+  { name: 'text-emerald-', regex: /\btext-emerald-/ },
+  { name: 'bg-yellow-', regex: /\bbg-yellow-/ },
+  { name: 'border-yellow-', regex: /\bborder-yellow-/ },
+  { name: 'Analytical Strategist', regex: /Analytical Strategist/ },
+  { name: 'Apprentice Scholar', regex: /Apprentice Scholar/ },
+  { name: 'Rank Progression Roadmap', regex: /Rank Progression Roadmap/ },
+  { name: 'total XP earned', regex: /total XP earned/i },
+];
+
+for (const rel of WORKSPACE_GUARD_FILES) {
+  const full = path.join(ROOT, rel);
+  if (!fs.existsSync(full)) {
+    errors.push(`[workspace-guard] Missing target file: ${rel}`);
+    continue;
+  }
+  const content = fs.readFileSync(full, 'utf8');
+  for (const pat of WORKSPACE_FORBIDDEN_PATTERNS) {
+    if (pat.regex.test(content)) {
+      errors.push(`[workspace-guard] Forbidden "${pat.name}" in ${rel}`);
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error(`design:lint FAILED (${errors.length} error(s)):`);
   for (const e of errors) {
@@ -265,5 +302,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified; asset-guard: ${checkedAssets} local WebP assets verified)`,
+  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified; asset-guard: ${checkedAssets} local WebP assets verified; workspace-guard: ${WORKSPACE_GUARD_FILES.length} files clean)`,
 );

@@ -11,6 +11,7 @@ import { LumenSparkMotif, PlaceholderImage } from '@/src/components/ui/primitive
 import { LocaleLink as Link } from '../../_components/LocaleLink';
 import { LocaleSwitcher } from '../../_components/LocaleSwitcher';
 import { sendPhoneOtpStubAction, verifyPhoneOtpStubAction } from '../../../actions/auth';
+import { setWorkspaceRoleCookie } from '@/src/lib/role-guard';
 
 export interface AuthFormProps {
   mode: 'sign-in' | 'sign-up';
@@ -666,13 +667,17 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                   : 'Instant Sandbox Preview (No OTP Required)'}
               </div>
               <div className="grid grid-cols-1 gap-2">
-                <Link
-                  href="/app"
-                  className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkspaceRoleCookie('scholar');
+                    router.push(`${basePrefix}/app`);
+                  }}
+                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
                 >
-                  <span>{isBn ? 'স্কলার ড্যাশবোর্ড (/app)' : 'Scholar Dashboard (/app)'}</span>
+                  <span>{isBn ? 'স্কলার ওয়ার্কস্পেস (/app)' : 'Scholar Workspace (/app)'}</span>
                   <span className="font-mono text-[var(--brand)]">→</span>
-                </Link>
+                </button>
                 <Link
                   href="/checkout?plan=gre-complete"
                   className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
@@ -684,17 +689,21 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                   </span>
                   <span className="font-mono text-[var(--brand)]">→</span>
                 </Link>
-                <Link
-                  href="/app/admin"
-                  className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkspaceRoleCookie('admin');
+                    router.push(`${basePrefix}/admin`);
+                  }}
+                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
                 >
                   <span>
                     {isBn
-                      ? 'অ্যাডমিন ও গভর্ন্যান্স কনসোল (/app/admin)'
-                      : 'Admin & Governance Console (/app/admin)'}
+                      ? 'অ্যাডমিন কনসোল (/admin)'
+                      : 'Institutional Admin Console (/admin)'}
                   </span>
                   <span className="font-mono text-[var(--brand)]">→</span>
-                </Link>
+                </button>
               </div>
             </div>
 
