@@ -377,18 +377,23 @@ export interface StatRowProps {
 export function StatRow({ stats }: StatRowProps) {
   const colClass =
     stats.length === 3
-      ? 'grid grid-cols-1 sm:grid-cols-3 gap-8'
-      : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8';
+      ? 'grid grid-cols-1 sm:grid-cols-3 gap-8 lg:gap-10 items-start justify-items-center text-center'
+      : 'grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-10 items-start justify-items-center text-center';
 
   return (
     <div>
       <div className={colClass}>
         {stats.map((stat) => (
-          <div key={stat.value} className="flex flex-col items-start">
-            <div className="lumen-stat-value whitespace-nowrap leading-none">
+          <div
+            key={stat.value}
+            className="flex flex-col items-center text-center max-w-[240px] mx-auto w-full"
+          >
+            <div className="lumen-stat-value block text-center whitespace-nowrap leading-none">
               {stat.value}
             </div>
-            <p className="text-sm text-[var(--text)] mt-2.5">{stat.caption}</p>
+            <p className="mt-2.5 text-sm text-[var(--text-secondary)] leading-snug text-center max-w-[22ch] mx-auto">
+              {stat.caption}
+            </p>
           </div>
         ))}
       </div>

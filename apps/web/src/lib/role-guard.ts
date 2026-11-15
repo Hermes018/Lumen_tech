@@ -134,3 +134,32 @@ export function setWorkspaceRoleCookie(role: WorkspaceRole): void {
   }
   document.cookie = `${ROLE_COOKIE_NAME}=${role}; path=/; max-age=2592000; SameSite=Lax`;
 }
+
+export function getAuthServiceInternalUrl(): string | null {
+  if (typeof process === 'undefined' || !process.env) {
+    return null;
+  }
+  return process.env.AUTH_SERVICE_URL ?? process.env.VERCEL_URL ?? null;
+}
+
+export async function fetchInternalAuthHealth(): Promise<{
+  ok: boolean;
+  service: string;
+  roles: string[];
+} | null> {
+  const baseUrl =
+    typeof process !== 'undefined' && process.env ? process.env.AUTH_SERVICE_URL ?? null : null;
+  if (!baseUrl) {
+    return null;
+  }
+  const healthUrl = new URL('/health', baseUrl);
+  const response = await fetch(healthUrl, { cache: 'no-store' });
+  if (!response.ok) {
+    return null;
+  }
+  return (await response.json()) as {
+    ok: boolean;
+    service: string;
+    roles: string[];
+  };
+}

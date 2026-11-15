@@ -853,3 +853,81 @@ describe('P40 EditorialQuote Alignment, Unique Nav Links & Legal Hub De-Slop', (
     expect(quoteBlock).toContain('border-y border-[var(--hairline)]');
   });
 });
+
+describe('P41 StatRow centering, pinned role sidebars & vercel.json multi-service config', () => {
+  it('verifies all 5 role layouts pin their desktop <aside> and render LocaleSwitcher + /sign-in', () => {
+    const roleLayouts = [
+      'apps/web/app/[locale]/(learner)/layout.tsx',
+      'apps/web/app/[locale]/(admin)/layout.tsx',
+      'apps/web/app/[locale]/(evaluator)/layout.tsx',
+      'apps/web/app/[locale]/(instructor)/layout.tsx',
+      'apps/web/app/[locale]/(auditor)/layout.tsx',
+    ];
+
+    for (const rel of roleLayouts) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content, `${rel} must pin desktop aside`).toContain('lg:h-screen');
+      expect(content, `${rel} must use sticky aside`).toContain('lg:sticky');
+      expect(content, `${rel} must stick to top-0`).toContain('lg:top-0');
+      expect(content, `${rel} must scroll middle nav`).toContain('overflow-y-auto');
+      expect(content, `${rel} must render LocaleSwitcher`).toContain('<LocaleSwitcher');
+      expect(content, `${rel} must link to /sign-in`).toContain('/sign-in');
+      expect(content, `${rel} must render Sign out`).toContain('Sign out');
+    }
+  });
+
+  it('verifies StatRow in primitives.tsx centers its stat columns', () => {
+    const primitivesContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/src/components/ui/primitives.tsx'),
+      'utf8',
+    );
+    const statStart = primitivesContent.indexOf('export function StatRow');
+    const stepStart = primitivesContent.indexOf('export function StepRow');
+    expect(statStart).toBeGreaterThan(-1);
+    expect(stepStart).toBeGreaterThan(statStart);
+    const statBlock = primitivesContent.slice(statStart, stepStart);
+    expect(statBlock).toContain('items-center');
+    expect(statBlock).toContain('text-center');
+  });
+
+  it('verifies vercel.json defines web + auth services, AUTH_SERVICE_URL binding, and /(.*) rewrite', () => {
+    const vercelPath = path.join(REPO_ROOT, 'vercel.json');
+    expect(fs.existsSync(vercelPath)).toBe(true);
+    const parsed = JSON.parse(fs.readFileSync(vercelPath, 'utf8')) as {
+      services: {
+        web: {
+          root: string;
+          framework: string;
+          bindings: Array<{ type: string; service: string; format: string; env: string }>;
+        };
+        auth: {
+          root: string;
+          runtime: string;
+          entrypoint: string;
+        };
+      };
+      rewrites: Array<{ source: string; destination: { service: string } }>;
+    };
+
+    expect(parsed.services.web.root).toBe('apps/web');
+    expect(parsed.services.web.framework).toBe('nextjs');
+    expect(parsed.services.web.bindings).toEqual([
+      {
+        type: 'service',
+        service: 'auth',
+        format: 'url',
+        env: 'AUTH_SERVICE_URL',
+      },
+    ]);
+    expect(parsed.services.auth).toEqual({
+      root: 'packages/auth',
+      runtime: 'node',
+      entrypoint: 'index.mjs',
+    });
+    expect(parsed.rewrites).toContainEqual({
+      source: '/(.*)',
+      destination: { service: 'web' },
+    });
+    expect(fs.existsSync(path.join(REPO_ROOT, 'packages/auth/index.mjs'))).toBe(true);
+  });
+});

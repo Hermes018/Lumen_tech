@@ -542,6 +542,25 @@ for (const rel of WORKSPACE_GUARD_FILES) {
   }
 }
 
+const PINNED_ROLE_LAYOUTS = [
+  'apps/web/app/[locale]/(learner)/layout.tsx',
+  'apps/web/app/[locale]/(admin)/layout.tsx',
+  'apps/web/app/[locale]/(evaluator)/layout.tsx',
+  'apps/web/app/[locale]/(instructor)/layout.tsx',
+  'apps/web/app/[locale]/(auditor)/layout.tsx',
+];
+
+for (const rel of PINNED_ROLE_LAYOUTS) {
+  const full = path.join(ROOT, rel);
+  if (!fs.existsSync(full)) continue;
+  const content = fs.readFileSync(full, 'utf8');
+  for (const requiredToken of ['lg:h-screen', 'lg:sticky', 'lg:top-0', '/sign-in']) {
+    if (!content.includes(requiredToken)) {
+      errors.push(`[workspace-guard] Missing pinned sidebar / sign-out token "${requiredToken}" in ${rel}`);
+    }
+  }
+}
+
 if (errors.length > 0) {
   console.error(`design:lint FAILED (${errors.length} error(s)):`);
   for (const e of errors) {

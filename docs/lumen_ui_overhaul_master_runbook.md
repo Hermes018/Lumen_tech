@@ -177,6 +177,8 @@ Verify that the upgraded IELTS/GRE Typing Studio (`BATCH P35`), the Certified Mu
 4. Revert any dirty `apps/web/next-env.d.ts` churn and update `docs/HANDOFF.md` and `docs/MISTAKE-LEDGER.md` with Phase 6 (`P35`–`P38`) receipts.
 5. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`, and `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
 6. Commit `BATCH P38` to `main`, verify `git status -sb` is clean, print the final verification receipts, and STOP.
+
+
 ---
 
 ## BATCH P39: PERCEPTUAL IMAGE DEDUPLICATION (`DHASH` + ENTROPY GUARD) & 100% AUTHENTIC PHOTOGRAPHIC ASSET REPLACEMENT ACROSS ALL 37 `.WEBP` SLOTS
@@ -236,3 +238,215 @@ Eliminate every visually duplicated/cloned photograph (such as `hero-gre` == `sp
 2. Run `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run` and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
 3. Run `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
 4. Commit `BATCH P39` to `main`, print the pairwise perceptual `dHash` distance report and all verification receipts, and STOP.
+
+
+
+---
+
+## BATCH P40 (ARGON HARDENED): EDITORIAL QUOTE LEFT-GRID ALIGNMENT, UNIQUE DEEP-LINK NAVIGATION OVERHAUL, PRICING VERTICAL RHYTHM & LEGAL HUB (`/TERMS`, `/PRIVACY`, `/REFUND-POLICY`, `/GRIEVANCE`) DE-SLOP
+
+### Objective
+1. Fix the left-side empty void next to `<EditorialQuote />` on `/gre` and `/ielts` (`edited-image_2.png`) by aligning `<EditorialQuote />` to the full `1200px` container grid instead of `max-w-[760px] mx-auto`.
+2. Eliminate all duplicate/colliding links in the header mega-menu, footer, and marketing cards (`nav.ts` & `marketing.ts`) so `IELTS Academic Guide`, `General Training Overview`, `4-Skill Format Breakdown`, `GRE Overview`, `Adaptive Quant & Verbal`, etc. each navigate to a **100% unique deep-linked URL** (`#section` or `?module=...`), enforced by `[unique-nav-links-guard]` in `tooling/design-lint.mjs`.
+3. Fix the cramped spacing between the VAT `CalloutNotice`, the `Billing Region & Currency` switcher, the `Full courses | Mock & AI credit passes` tabs, and the 3-column plan grid on `/pricing` (`image_8637a6.png`).
+4. Completely overhaul the Legal & Policy Hub (`layout.tsx`, `/terms`, `/privacy`, `/refund-policy`, `/grievance`) into the Claude Editorial Design Language—removing all `COMPLIANCE & LEGAL TRUST CENTER` blue eyebrows, `rounded-full` pill tabs, `rounded-2xl/3xl` outer cards, nested pastel blue/yellow/pink boxes, and indigo buttons—and lock all legal files into `[surface-guard]` and `[workspace-guard]` in `tooling/design-lint.mjs` and `tooling/design-shots.mjs`.
+
+### Allowed Files
+- `apps/web/src/components/ui/primitives.tsx`
+- `apps/web/src/content/nav.ts`
+- `apps/web/src/content/marketing.ts`
+- `apps/web/app/[locale]/(marketing)/gre/page.tsx`
+- `apps/web/app/[locale]/(marketing)/ielts/page.tsx`
+- `apps/web/app/[locale]/(marketing)/pricing/page.tsx`
+- `apps/web/app/[locale]/(marketing)/courses/page.tsx`
+- `apps/web/app/[locale]/(legal)/layout.tsx` (and/or any legal layout/component files under `apps/web/app/[locale]/**`)
+- `apps/web/app/[locale]/(legal)/terms/page.tsx` (or `apps/web/app/[locale]/(marketing)/terms/page.tsx` — check exact path with `find apps/web/app -name "page.tsx"`)
+- `apps/web/app/[locale]/(legal)/privacy/page.tsx` (or matching path in `apps/web/app`)
+- `apps/web/app/[locale]/(legal)/refund-policy/page.tsx` (or matching path in `apps/web/app`)
+- `apps/web/app/[locale]/(legal)/grievance/page.tsx` (or matching path in `apps/web/app`)
+- `tooling/design-lint.mjs`
+- `tooling/design-shots.mjs`
+- `packages/core/src/__tests__/ui-primitives-caps.test.ts`
+- `packages/core/src/__tests__/workspace-design-guard.test.ts`
+- `docs/HANDOFF.md`
+- `docs/MISTAKE-LEDGER.md`
+- `docs/lumen_ui_overhaul_master_runbook.md`
+
+### Step-by-Step Instructions for Argon (Execute Every Step in Order — Do Not Skip)
+
+#### Step 1: Fix `<EditorialQuote />` Left-Grid Void on `/gre` & `/ielts` (`apps/web/src/components/ui/primitives.tsx`)
+- Locate `export function EditorialQuote` in `apps/web/src/components/ui/primitives.tsx`.
+- **Problem:** Currently it uses `max-w-[760px] mx-auto`, which leaves a 220px blank hole on the left side of the 4-column container (`edited-image_2.png`).
+- **Fix:** Remove `max-w-[760px] mx-auto`! Instead, render `<EditorialQuote />` aligned flush with the left edge of the `<Container>` across a clean full-width architectural hairline band:
+  - Outer wrapper: `w-full border-y border-[var(--hairline)] py-8 md:py-10 my-2 flex flex-col md:flex-row md:items-center justify-between gap-6`
+  - Left group (`flex items-stretch gap-5 max-w-[78ch]`):
+    - Vertical accent bar (`w-[4px] shrink-0 bg-[var(--brand)]` for `crimson`, `bg-[var(--accent-orange)]` for `orange`, `bg-[var(--accent-blue)]` for `cobalt`).
+    - Quote text (`text-xl md:text-2xl font-bold leading-snug text-[var(--brand-deep)]`).
+  - Right group (`shrink-0 md:text-right border-t md:border-t-0 md:border-l border-[var(--hairline)] pt-4 md:pt-0 md:pl-8 flex flex-col justify-center`):
+    - Renders `attribution` in `text-sm font-semibold text-[var(--brand-deep)]` and a quiet methodology note `"Verified Exam Structure & Scoring Standard"` in `text-xs text-[var(--text-muted)] mt-1`.
+
+#### Step 2: Fix Cramped Spacing on `/pricing` (`apps/web/src/components/ui/primitives.tsx`)
+- Locate `PricingSwitcherSection` (and `CalloutNotice` when rendered on `/pricing`) in `apps/web/src/components/ui/primitives.tsx`.
+- **Problem (`image_8637a6.png`):** The `CalloutNotice` box (`15% VAT Included...`), the `Billing Region & Currency` bar, the `Full courses | Mock & AI credit passes` tabs, and the 3-column plan cards are jammed together with almost zero vertical spacing.
+- **Fix:**
+  1. In `CalloutNotice`: Ensure it has `mb-8 md:mb-10` bottom spacing when followed by another block, and `p-6 md:p-8`.
+  2. In `PricingSwitcherSection`:
+     - Add `mt-6 mb-10 p-5 md:p-6 bg-[var(--bg-warm)] border border-[var(--hairline)] rounded-[4px] flex flex-col sm:flex-row sm:items-center justify-between gap-4` to the **Billing Region & Currency** bar so it has generous breathing room below the VAT notice and above the tabs!
+     - Add `mb-10 border-b border-[var(--hairline)]` to the `Full courses | Mock & AI credit passes` tab bar so there is a clean `40px` vertical gap between the tab underline and the top of the 3-column plan cards!
+     - Add `gap-8 lg:gap-10 pt-2` to the 3-column plan grid (`grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10`), and give each plan column `pt-6 border-t-2 border-[var(--brand)] flex flex-col justify-between`.
+
+#### Step 3: Deduplicate All Mega-Menu, Footer & Page Links (`apps/web/src/content/nav.ts`, `marketing.ts`, `gre/page.tsx`, `ielts/page.tsx`, `primitives.tsx`)
+- Inspect `apps/web/src/content/nav.ts`.
+- **Problem (`image_863bdf.png` & `image_863b88.png`):** Multiple links inside `nav.ts` point to the exact same URL (e.g., `IELTS Academic Guide` and `General Training Overview` both point to `/ielts`; multiple links in the GRE rail point to `/gre`; multiple links in Courses point to `/courses`).
+- **Fix in `apps/web/src/content/nav.ts` (for both `en` and `bn`):** Every single link across all mega-menu rails (`gre-ielts`, `courses-prep`, `practice-tests`) and every footer column MUST have a **100% distinct `href`**:
+  - **Rail 01 (`GRE® General Test`):**
+    1. `GRE® Format & Overview` -> `/gre#overview`
+    2. `Section-Adaptive Quant & Verbal` -> `/gre#question-families`
+    3. `Analytical Writing (AWA) Rubric` -> `/gre#awa-rubric`
+    4. `1h 58m Section Timing & Scoring` -> `/gre#structure-scoring`
+    5. `15-Min Adaptive GRE Diagnostic` -> `/exam/diagnostic`
+    6. `GRE® Tuition & Study Plans` -> `/courses?track=gre`
+  - **Rail 02 (`IELTS™ Academic`):**
+    1. `IELTS™ Academic Overview` -> `/ielts?module=academic#overview`
+    2. `4-Skill Format & Timing Breakdown` -> `/ielts?module=academic#paper-breakdown`
+    3. `CD-IELTS Split-Screen Workbench` -> `/exam/ielts-preview`
+    4. `Academic Writing Task 1 & 2 Rubrics` -> `/ielts?module=academic#skill-workbenches`
+    5. `CD-IELTS Typing Speed Studio` -> `/tools/ielts-typing-test`
+    6. `IELTS™ Academic Tuition Plans` -> `/courses?track=ielts-academic`
+  - **Rail 03 (`IELTS™ General Training`):**
+    1. `General Training Overview (Migration & Work)` -> `/ielts?module=gt#academic-vs-gt`
+    2. `GT Task 1 Letter & Workplace Reading` -> `/ielts?module=gt#skill-workbenches`
+    3. `Single-Play Listening Audio Studio` -> `/exam/ielts-preview?skill=listening`
+    4. `IELTS™ Band Score Calculator` -> `/tools/ielts-band-calculator`
+    5. `Free 15-Min Baseline Diagnostic` -> `/exam/diagnostic?track=ielts-gt`
+    6. `GT Tuition & Mock Bundles` -> `/courses?track=ielts-gt`
+  - **Rail 04 (`Which Exam Do I Need?`):**
+    1. `GRE® vs. IELTS™ Admissions Guide` -> `/help#exam-comparison`
+    2. `GRE® Score Converter & Percentiles` -> `/tools/gre-score-calculator`
+    3. `Compare All Preparation Courses` -> `/courses`
+    4. `Transparent BDT & USD Pricing` -> `/pricing`
+    5. `University & Corporate Cohorts` -> `/for-institutions`
+    6. `Scholar Workspace & Study Plan` -> `/app`
+  - Ensure `courses-prep` panel links and `practice-tests` panel links in `nav.ts` also use distinct query/anchor targets (`/courses?filter=self-paced`, `/courses?filter=live`, `/courses?filter=mocks`, `/pricing#mock-passes`, etc.) and that `marketing.ts` home Exam Track columns link to `/gre`, `/ielts?module=academic#overview`, and `/ielts?module=gt#academic-vs-gt`!
+- **Add Semantic Anchor IDs in `primitives.tsx` (without adding `className` to strict `page.tsx` files!):**
+  - Add an optional `id?: string` prop to `Section`, `SideHeadingBlocks`, `Tabs`, `MediaColumns`, `SplitFeature`, and `Disclosure` in `apps/web/src/components/ui/primitives.tsx` (rendering `<section id={id} className="scroll-mt-24 ...">`).
+  - Pass `id="overview"`, `id="structure-scoring"`, `id="question-families"`, `id="awa-rubric"`, `id="paper-breakdown"`, `id="academic-vs-gt"`, `id="skill-workbenches"` in `gre/page.tsx`, `ielts/page.tsx`, `courses/page.tsx`, `pricing/page.tsx`, and `help/page.tsx`.
+  - In `tooling/design-lint.mjs` (`[link-guard]`): Strip `#anchor` and `?query` before checking if the base route exists on disk, AND add **`[unique-nav-links-guard]`** asserting that within any mega-menu rail or panel in `nav.ts`, zero links share a duplicate `href`!
+
+#### Step 4: Overhaul All Legal & Policy Pages (`/terms`, `/privacy`, `/refund-policy`, `/grievance`) Into the Claude Editorial Design Language
+- First, run `find apps/web/app -maxdepth 5 -name "page.tsx" | grep -E "terms|privacy|refund|grievance"` and inspect their parent `layout.tsx` (e.g., `apps/web/app/[locale]/(legal)/layout.tsx` or wherever `Lumen Academy Legal & Policy Hub` is rendered).
+- **Eliminate 100% of the AI Slop Visible in `image_85e266.png` – `image_85e204.png`:**
+  - Delete all `COMPLIANCE & LEGAL TRUST CENTER` and `STATUTORY COMPLIANCE NOTICE` electric-blue uppercase eyebrows!
+  - Delete all `rounded-full` pill buttons (`Terms of Service`, `Privacy Policy (PDPO 2025)`, `Refund & Cancellation`, `Grievance Officer`).
+  - Delete the giant `rounded-2xl` / `rounded-3xl` white bordered outer card wrapper and `shadow-*`.
+  - Delete all pastel blue (`bg-blue-*`, `border-blue-*`), yellow (`bg-amber-*`, `border-yellow-*`), pink/red (`bg-rose-*`, `border-red-*`), and indigo/purple (`bg-indigo-*`, `text-indigo-*`) boxes and buttons!
+- **Rebuild the Legal Hub Layout & All 4 Pages (`/terms`, `/privacy`, `/refund-policy`, `/grievance`) Using `WorkspacePrimitives` & Token-Pure Editorial Styling:**
+  - Include `<TopRibbon />`, `<UtilityBar />`, `<MainNav />`, and `<Footer />` (or inherit from the marketing/legal shell) so navigation is 100% consistent with the rest of the website.
+  - **Top Editorial Band (`bg-[var(--bg-warm)] border-b border-[var(--hairline)] py-10 md:py-14`):**
+    - Clean `h1` (`text-3xl md:text-4xl font-extrabold text-[var(--brand-deep)] tracking-tight`): `"Legal, Privacy & Statutory Governance"` (`"আইনি নীতিমালা, গোপনীয়তা ও অভিযোগ প্রতিকার"` in `bn`).
+    - Subtitle (`text-base text-[var(--text-secondary)] mt-2 max-w-[65ch]`): `"Authoritative terms, Bangladesh PDPO 2025 data protections, 7-day refund guarantees, and statutory grievance resolution."`
+    - **Sharp Hairline Document Tab Bar (`flex flex-wrap gap-6 border-t border-[var(--hairline)] mt-8 pt-4`):**
+      - 4 clean links (`rounded-none`, active link has `border-b-2 border-[var(--brand)] text-[var(--brand-deep)] font-semibold pb-2`, inactive has `text-[var(--text-secondary)] hover:text-[var(--brand-deep)] pb-2`):
+        1. `Terms of Service` (`/terms`)
+        2. `Privacy Policy (PDPO 2025)` (`/privacy`)
+        3. `Refund & Cancellation Policy` (`/refund-policy`)
+        4. `Grievance Redressal Officer` (`/grievance`)
+  - **Inside Each Legal Page (`max-w-[960px] mx-auto px-5 sm:px-8 py-10 md:py-14 bg-[var(--bg)]`):**
+    - Use `<WorkspaceHeader>` (with `Effective Date: November 13, 2026` and a **`Print / Save Official Policy (PDF)`** action using `window.print()` or `openPrintablePdfReport`).
+    - Use at most **1 `<WorkspaceFocusSheet>`** (`bg-[var(--surface-paper)] border border-[var(--hairline)] border-l-[3px] border-l-[var(--brand)] p-6 mb-10`) for the statutory summary callout at the top of each document.
+    - Use `<WorkspaceDataTable>` for:
+      - The **Eligibility Windows Table** on `/refund-policy` (`Product Category (Row Header)` | `Statutory Refund Window` | `Consumption Ceiling` | `Policy Code`).
+      - The **3-Tier Escalation & Response SLA Table** on `/grievance` (`Escalation Tier (Row Header)` | `Scope of Dispute` | `Responsible Officer` | `Binding SLA Target`) — replacing the 3 pastel blue/yellow/pink cards in `image_85e266.png`!
+      - The **Data Categories & Retention Table** on `/privacy` (`Data Category (Row Header)` | `Purpose of Processing` | `PDPO 2025 Lawful Basis` | `Retention & Erasure Rule`).
+    - Render all numbered legal clauses (`1. Acceptance of Terms`, etc.) as clean open-canvas typographic sections separated by `divide-y divide-[var(--hairline)]` (`py-6`) with `text-[var(--brand-deep)] font-bold text-lg` headings and `text-[var(--text-primary)] leading-relaxed max-w-[72ch]` body paragraphs.
+- **Register All Legal Files in `tooling/design-lint.mjs` & `tooling/design-shots.mjs`:**
+  - Add the legal `layout.tsx` and all 4 legal `page.tsx` files (`/terms`, `/privacy`, `/refund-policy`, `/grievance`) to `[surface-guard]` and `[workspace-guard]` in `tooling/design-lint.mjs` and `WORKBENCH_SURFACES` in `tooling/design-shots.mjs` so any `rounded-full`, `rounded-xl/2xl/3xl`, `bg-blue-*`, `text-indigo-*`, or uppercase eyebrow in legal pages fails CI immediately!
+  - Add unit tests in `packages/core/src/__tests__/workspace-design-guard.test.ts` verifying:
+    1. All 4 legal routes (`/terms`, `/privacy`, `/refund-policy`, `/grievance`) and their layout contain zero `rounded-full`, `rounded-2xl`, `rounded-3xl`, `bg-blue-`, `text-indigo-`, or `COMPLIANCE & LEGAL TRUST CENTER` eyebrows.
+    2. `nav.ts` contains zero duplicate `href` values within any mega-menu rail or panel.
+    3. `EditorialQuote` in `primitives.tsx` does not use `max-w-[760px] mx-auto`.
+
+### Verification
+1. Run `pnpm design:lint` and `pnpm design:shots`.
+2. Run `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run` and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+3. Run `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
+4. Commit `BATCH P40` to `main`, print all raw verification receipts, and STOP.
+
+
+---
+
+## BATCH P41 (ARGON HARDENED): STATROW 4-COLUMN OPTICAL CENTERING (`40+`), STICKY PINNED SIDEBAR FOOTER (`LOCALE + SIGN OUT`) ACROSS ALL 5 ROLE PORTALS, AND VERCEL MULTI-SERVICE DEPLOYMENT CONFIG (`VERCEL.JSON`)
+
+### Objective
+1. Fix the optical alignment of `<StatRow />` (`edited-image_3.png`) in `apps/web/src/components/ui/primitives.tsx` and `apps/web/app/tokens.css` so all 4 stat values (`1h 58m`, `4 Skills`, `1,500+`, `40+`) and their captions are centered within their columns (`items-center text-center`) and balanced symmetrically across the `<LumenSparkMotif />` divider.
+2. Fix the disappearing `EN / বাংলা` and `Switch Role / Sign out` footer across all 5 role portals (`(learner)/layout.tsx`, `(admin)/layout.tsx`, `(evaluator)/layout.tsx`, `(instructor)/layout.tsx`, `(auditor)/layout.tsx`) (`image_6bed7a.png`, `edited-image_4.png`, `edited-image_5.png`) by pinning every desktop `<aside>` to the viewport (`lg:h-screen lg:sticky lg:top-0 overflow-hidden`) with an independently scrollable middle nav (`flex-1 overflow-y-auto`) and a permanently pinned bottom footer (`shrink-0 border-t border-[var(--hairline)]`) that always displays `<LocaleSwitcher />`, the active role label, and `Switch Role / Sign out` without scrolling.
+3. Add `vercel.json` at the repository root with multi-service configuration (`web` + internal `auth` service binding `AUTH_SERVICE_URL`), add a lightweight Node HTTP entrypoint `packages/auth/index.mjs` so Vercel's `node` runtime builds cleanly, and wire `process.env.AUTH_SERVICE_URL` / `process.env.VERCEL_URL` resolution in `apps/web`.
+
+### Allowed Files
+- `vercel.json` (new at repo root)
+- `packages/auth/index.mjs` (new lightweight Node HTTP health/verify entrypoint for Vercel `auth` service)
+- `apps/web/src/lib/role-guard.ts`
+- `apps/web/app/tokens.css`
+- `apps/web/src/components/ui/primitives.tsx`
+- `apps/web/app/[locale]/(learner)/layout.tsx`
+- `apps/web/app/[locale]/(admin)/layout.tsx`
+- `apps/web/app/[locale]/(evaluator)/layout.tsx`
+- `apps/web/app/[locale]/(instructor)/layout.tsx`
+- `apps/web/app/[locale]/(auditor)/layout.tsx`
+- `tooling/design-lint.mjs`
+- `packages/core/src/__tests__/workspace-design-guard.test.ts`
+- `docs/HANDOFF.md`
+- `docs/MISTAKE-LEDGER.md`
+- `docs/lumen_ui_overhaul_master_runbook.md`
+
+### Step-by-Step Instructions for Argon (Execute Every Step in Order)
+
+#### Step 1: Center-Align `<StatRow />` Cells So `40+` Is Perfectly Centered (`primitives.tsx` & `tokens.css`)
+- Locate `export function StatRow` in `apps/web/src/components/ui/primitives.tsx`.
+- **Problem (`edited-image_3.png`):** Each stat cell uses `items-start text-left`, causing short numerals like `40+` to look off-center relative to longer captions and the centered `<LumenSparkMotif />` divider below.
+- **Fix:**
+  - In `StatRow` (`apps/web/src/components/ui/primitives.tsx`):
+    - Render the 4-column grid as `grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-10 items-start justify-items-center text-center`.
+    - Inside each stat item `div`, use `flex flex-col items-center text-center max-w-[240px] mx-auto` (or `md:border-r md:last:border-r-0 border-[var(--hairline)] md:px-4 w-full flex flex-col items-center text-center`).
+    - Ensure `.lumen-stat-value` is `block text-center whitespace-nowrap leading-none` and the caption `<p>` below it is `mt-2.5 text-sm text-[var(--text-secondary)] leading-snug text-center max-w-[22ch] mx-auto`.
+
+#### Step 2: Pin the Left Sidebar & Bottom Sign-Out Footer (`lg:h-screen lg:sticky lg:top-0`) Across All 5 Role Portals
+- Inspect all 5 role layout files:
+  1. `apps/web/app/[locale]/(learner)/layout.tsx`
+  2. `apps/web/app/[locale]/(admin)/layout.tsx`
+  3. `apps/web/app/[locale]/(evaluator)/layout.tsx`
+  4. `apps/web/app/[locale]/(instructor)/layout.tsx`
+  5. `apps/web/app/[locale]/(auditor)/layout.tsx`
+- **Problem (`image_6bed7a.png`, `edited-image_4.png`, `edited-image_5.png`):** The desktop `<aside>` grows with the page height instead of pinning to `100vh`, so on long pages (`/app/vocab`, `/app/progress`, `/admin`), the bottom footer containing `<LocaleSwitcher />` and `Switch Role / Sign out` scrolls off-screen below the fold!
+- **Fix in ALL 5 Layout Files:**
+  - Set the desktop `<aside>` className to include `hidden lg:flex lg:w-[252px] lg:shrink-0 lg:flex-col lg:h-screen lg:sticky lg:top-0 lg:overflow-hidden border-r border-[var(--hairline)] bg-[var(--bg-warm)]`.
+  - Structure the `<aside>` interior into 3 explicit flex zones:
+    1. **Top Brand Header (`shrink-0 px-5 pt-6 pb-4 border-b border-[var(--hairline)]`):** `<LumenSparkMotif />`, `{brand.name}`, and portal subtitle.
+    2. **Scrollable Middle Navigation (`flex-1 overflow-y-auto px-3 py-4 space-y-5`):** All `<WorkspaceNavLink>` groups.
+    3. **Pinned Bottom Utility & Sign-Out Footer (`shrink-0 border-t border-[var(--hairline)] bg-[var(--bg-warm)] px-5 py-4 space-y-2.5`):**
+       - `<LocaleSwitcher />` (imported untouched from `../_components/LocaleSwitcher`).
+       - Active role identity line (`text-xs font-medium text-[var(--text-secondary)] truncate`).
+       - Prominent underlined **`Switch Role / Sign out →`** link (`<LocaleLink href="/sign-in" className="inline-block text-xs font-semibold text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)]">`) — verify this link is present in **all 5 layouts** (including `(admin)/layout.tsx`!) and also inside `<WorkspaceMobileSheet>` for mobile viewports.
+
+#### Step 3: Add `vercel.json` Multi-Service Config & `AUTH_SERVICE_URL` Binding
+- Create `vercel.json` at the repo root (`/home/ayra/Lumen_tech/Lumen_tech/vercel.json`) with:
+  - `services.web`: `{ "root": "apps/web", "framework": "nextjs", "bindings": [{ "type": "service", "service": "auth", "format": "url", "env": "AUTH_SERVICE_URL" }] }`
+  - `services.auth`: `{ "root": "packages/auth", "runtime": "node", "entrypoint": "index.mjs" }`
+  - `rewrites`: `[{ "source": "/(.*)", "destination": { "service": "web" } }]`
+- Create `packages/auth/index.mjs` exporting a standard Node HTTP handler (`export default function handler(req, res)`) that responds with JSON `{ ok: true, service: "lumen-auth", roles: ["scholar", "evaluator", "instructor", "auditor", "admin"] }` so Vercel's `node` service builder compiles `packages/auth` cleanly without adding any npm dependencies.
+- In `apps/web/src/lib/role-guard.ts`, export `getAuthServiceInternalUrl(): string | null` reading `process.env.AUTH_SERVICE_URL ?? null` (and `fetchInternalAuthHealth()` using `new URL('/health', process.env.AUTH_SERVICE_URL)`) so runtime server functions use the bound `AUTH_SERVICE_URL` variable when injected by Vercel Services.
+
+#### Step 4: Enforce Pinned Sidebar & `vercel.json` Guards in `tooling/design-lint.mjs` & `workspace-design-guard.test.ts`
+- In `tooling/design-lint.mjs` (`[workspace-guard]`):
+  - Assert that all 5 portal layouts (`(learner)/layout.tsx`, `(admin)/layout.tsx`, `(evaluator)/layout.tsx`, `(instructor)/layout.tsx`, `(auditor)/layout.tsx`) contain `lg:h-screen` and `lg:sticky` and `lg:top-0` and `/sign-in` (`Switch Role / Sign out`).
+- In `packages/core/src/__tests__/workspace-design-guard.test.ts`:
+  - Add unit tests verifying:
+    1. All 5 role layouts pin their desktop `<aside>` with `lg:h-screen lg:sticky lg:top-0`, scroll nav with `overflow-y-auto`, and render both `<LocaleSwitcher` and `/sign-in` (`Sign out`).
+    2. `StatRow` in `primitives.tsx` centers its stat columns (`items-center` and `text-center`).
+    3. `vercel.json` defines `services.web`, `services.auth`, the `AUTH_SERVICE_URL` service binding, and the `/(.*)` rewrite to `web`.
+
+### Verification
+1. Run `pnpm design:lint` and `pnpm design:shots`.
+2. Run `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run` and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+3. Run `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
+4. Commit `BATCH P41` to `main`, print the raw verification receipts, and STOP.

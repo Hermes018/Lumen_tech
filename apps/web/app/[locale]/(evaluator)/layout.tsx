@@ -143,11 +143,11 @@ export default function EvaluatorLayout({ children }: { children: ReactNode }) {
   );
 
   const footerContent = (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="lumen-locale-light inline-flex items-center">
         <LocaleSwitcher />
       </div>
-      <div className="text-xs font-medium text-[var(--brand-deep)] leading-relaxed">
+      <div className="text-xs font-medium text-[var(--text-secondary)] truncate">
         {isBn
           ? 'ভূমিকা: ব্লাইন্ড রুব্রিক ইভ্যালুয়েটর · জিরো-PII মোড'
           : 'Role: Blind Rubric Evaluator · Zero-PII Mode'}
@@ -155,9 +155,9 @@ export default function EvaluatorLayout({ children }: { children: ReactNode }) {
       <div>
         <LocaleLink
           href="/sign-in"
-          className="text-xs font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
+          className="inline-block text-xs font-semibold text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)]"
         >
-          {isBn ? 'ভূমিকা পরিবর্তন / সাইন আউট' : 'Switch Role / Sign out'}
+          {isBn ? 'ভূমিকা পরিবর্তন / সাইন আউট →' : 'Switch Role / Sign out →'}
         </LocaleLink>
       </div>
     </div>
@@ -173,12 +173,12 @@ export default function EvaluatorLayout({ children }: { children: ReactNode }) {
         closeLabel={isBn ? 'ইভ্যালুয়েটর মেনু বন্ধ করুন' : 'Close evaluator navigation'}
       />
 
-      <aside className="hidden lg:flex w-full lg:w-[256px] shrink-0 bg-[var(--bg-warm)] border-b lg:border-b-0 lg:border-r border-[var(--hairline)] flex-col justify-between">
-        <div className="px-4 py-6 space-y-7">
-          <div className="px-2 pb-4 border-b border-[var(--hairline)]">{brandHeader}</div>
-          {navigationContent}
+      <aside className="hidden lg:flex lg:w-[252px] lg:shrink-0 lg:flex-col lg:h-screen lg:sticky lg:top-0 lg:overflow-hidden border-r border-[var(--hairline)] bg-[var(--bg-warm)]">
+        <div className="shrink-0 px-5 pt-6 pb-4 border-b border-[var(--hairline)]">{brandHeader}</div>
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5">{navigationContent}</div>
+        <div className="shrink-0 border-t border-[var(--hairline)] bg-[var(--bg-warm)] px-5 py-4 space-y-2.5">
+          {footerContent}
         </div>
-        <div className="border-t border-[var(--hairline)] px-5 py-5">{footerContent}</div>
       </aside>
 
       <main className="min-w-0 flex-1 bg-[var(--bg)]">{children}</main>
