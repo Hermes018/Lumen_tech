@@ -1,5 +1,5 @@
 /** @purpose Institutional UI design lint guard: protected i18n files, suppression ban, and primitive-only marketing page check */
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -334,6 +334,72 @@ if (bnSplitIdx === -1) {
   }
 }
 
+// 6c. Perceptual Image Deduplication & Entropy Guard ([perceptual-image-guard])
+let perceptualSummary = '0 files';
+{
+  const imagesDir = path.join(ROOT, 'apps/web/public/images');
+  const pyScript = [
+    'import os, glob, json, sys',
+    'from PIL import Image',
+    'lut = [i >> 3 for i in range(256)] * 3',
+    'files = sorted(glob.glob(os.path.join(sys.argv[1], "*.webp")))',
+    'out = []',
+    'for f in files:',
+    '    im = Image.open(f).convert("RGB")',
+    '    w, h = im.size',
+    '    g = im.convert("L").resize((9, 8), Image.Resampling.BILINEAR)',
+    '    fn = getattr(g, "get_flattened_data", g.getdata)',
+    '    px = list(fn())',
+    '    bits = 0',
+    '    for y in range(8):',
+    '        for x in range(8):',
+    '            bits = (bits << 1) | (1 if px[y*9 + x] > px[y*9 + x + 1] else 0)',
+    '    q5_colors = im.point(lut).getcolors(maxcolors=65536)',
+    '    uniq_q5 = len(q5_colors)',
+    '    max_q5_ratio = max(c for c, _ in q5_colors) / (w * h)',
+    '    out.append({"file": os.path.basename(f), "dhash": f"{bits:016x}", "uniq_q5": uniq_q5, "max_q5_ratio": max_q5_ratio})',
+    'print(json.dumps(out))',
+  ].join('\n');
+
+  let metrics = [];
+  try {
+    const raw = execFileSync('python3', ['-c', pyScript, imagesDir], { encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 });
+    metrics = JSON.parse(raw);
+  } catch (err) {
+    errors.push(`[perceptual-image-guard] Failed to decode WebP assets via python3/PIL: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  const popcount64 = (aHex, bHex) => {
+    let x = BigInt('0x' + aHex) ^ BigInt('0x' + bHex);
+    let c = 0;
+    while (x > 0n) {
+      x &= x - 1n;
+      c += 1;
+    }
+    return c;
+  };
+
+  let minDhashDist = 64;
+  for (const item of metrics) {
+    if (item.uniq_q5 < 800) {
+      errors.push(`[perceptual-image-guard] Synthetic/low-entropy image ${item.file} (uniq_q5=${item.uniq_q5} < 800)`);
+    }
+    if (item.max_q5_ratio > 0.28) {
+      errors.push(`[perceptual-image-guard] Flat solid-background image ${item.file} (max_q5_ratio=${(item.max_q5_ratio * 100).toFixed(2)}% > 28%)`);
+    }
+  }
+  for (let i = 0; i < metrics.length; i += 1) {
+    for (let j = i + 1; j < metrics.length; j += 1) {
+      const dist = popcount64(metrics[i].dhash, metrics[j].dhash);
+      if (dist < minDhashDist) minDhashDist = dist;
+      if (dist < 14) {
+        errors.push(`[perceptual-image-guard] Perceptual clone detected: ${metrics[i].file} <-> ${metrics[j].file} (dHash Hamming distance ${dist} < 14)`);
+      }
+    }
+  }
+  perceptualSummary = `${metrics.length} files, min dHash dist=${minDhashDist}`;
+}
+
 // 7. Claude Editorial Workspace Guard ([workspace-guard] — expanded across P27 -> P30)
 const WORKSPACE_GUARD_FILES = [
   'apps/web/src/components/ui/WorkspacePrimitives.tsx',
@@ -423,5 +489,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified; asset-guard: ${checkedAssets} local WebP assets verified; workspace-guard: ${WORKSPACE_GUARD_FILES.length} files clean)`,
+  `design:lint PASSED (i18n guard: ${PROTECTED_I18N_FILES.length} files clean; suppression scan: ${srcFiles.length} files clean; primitive-only pages checked: ${checkedPages}${STRICT_PAGES ? ' [strict-pages]' : ''}; surface-guard: ${SURFACE_GEOMETRY_FILES.length} files clean; link-guard: ${checkedHrefOccurrences} hrefs -> ${verifiedRoutes.size} routes verified; asset-guard: ${checkedAssets} local WebP assets verified; perceptual-image-guard: ${perceptualSummary}; workspace-guard: ${WORKSPACE_GUARD_FILES.length} files clean)`,
 );

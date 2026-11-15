@@ -177,3 +177,62 @@ Verify that the upgraded IELTS/GRE Typing Studio (`BATCH P35`), the Certified Mu
 4. Revert any dirty `apps/web/next-env.d.ts` churn and update `docs/HANDOFF.md` and `docs/MISTAKE-LEDGER.md` with Phase 6 (`P35`–`P38`) receipts.
 5. Run `pnpm design:lint`, `pnpm design:shots`, `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run`, `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`, and `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
 6. Commit `BATCH P38` to `main`, verify `git status -sb` is clean, print the final verification receipts, and STOP.
+---
+
+## BATCH P39: PERCEPTUAL IMAGE DEDUPLICATION (`DHASH` + ENTROPY GUARD) & 100% AUTHENTIC PHOTOGRAPHIC ASSET REPLACEMENT ACROSS ALL 37 `.WEBP` SLOTS
+
+### Objective
+Eliminate every visually duplicated/cloned photograph (such as `hero-gre` == `split-gre-adaptive`, `col-gre-general` == `split-gre-hints`, `hero-ielts` == `split-ielts-cbt`, `col-ielts-academic` == `split-ielts-rubric`) and every flat synthetic vector diagram (`col-gre-verbal`, `col-gre-awa`, `col-ielts-listening`, `col-ielts-reading`, etc.) across `apps/web/public/images/*.webp` by replacing all cloned and synthetic `.webp` files with **genuinely distinct, natural-light photographic images** and enforcing an automated **64-bit Perceptual Difference Hash (`dHash` Hamming distance `>= 14`) + Natural Photo Entropy Guard** in `tooling/design-lint.mjs` and `packages/core/src/__tests__/ui-primitives-caps.test.ts`.
+
+### Allowed Files
+- `apps/web/public/images/*.webp`
+- `apps/web/src/content/media.ts`
+- `apps/web/src/content/marketing.ts`
+- `tooling/design-lint.mjs`
+- `packages/core/src/__tests__/ui-primitives-caps.test.ts`
+- `docs/MISTAKE-LEDGER.md`
+- `docs/HANDOFF.md`
+- `docs/lumen_ui_overhaul_master_runbook.md`
+
+### Step-by-Step Implementation
+1. **Forensic Audit of All `.webp` Files in `apps/web/public/images/`:**
+   - Write a deterministic Node/Python inspection script using `sharp` or `python3` (`PIL` / `webp`) to compute for every `.webp` file in `apps/web/public/images/` (all 33 `MEDIA_MANIFEST` slots + `dest-us.webp`, `dest-uk.webp`, `dest-ca.webp`, `dest-au.webp`):
+     1. **64-bit Perceptual Difference Hash (`dHash`):** Resize image to `9x8` grayscale; for each of the 8 rows and 8 adjacent column pairs, set bit `1` if `pixel[x] > pixel[x+1]` else `0`.
+     2. **8x8 Color Histogram Cosine / L1 Distance:** Average RGB values across an `8x8` grid.
+     3. **Photographic Entropy & Unique Color Count:** Number of unique RGB triplets (`quantized to 5-bit per channel`) and maximum single-color pixel ratio (flat vector illustrations have `< 600` quantized RGB buckets or `> 30%` identical background pixels, whereas real photographs have `>= 900` quantized RGB buckets and natural lighting gradients).
+   - Identify every pair of `.webp` files with `dHash` Hamming distance `< 14` (visual clones/crops/re-encodes) and every `.webp` file that is a flat vector diagram instead of a photograph.
+
+2. **Replace Every Cloned or Synthetic `.webp` File With a 100% Distinct, Topic-Relevant Real Photograph:**
+   - **STRICT BAN ON TEST GAMING (`Playbook B9`):** You are strictly forbidden from cropping, flipping, rotating, tinting, or re-encoding an existing `.webp` file in `apps/web/public/images/` to fake a different hash! You are also strictly forbidden from generating flat SVG/canvas vector charts, waveforms, or UI boxes as `.webp` files.
+   - Source and encode genuine, distinct, high-resolution creative-commons / licensed candid educational & architectural photographs (`4:3` for `col-*` `<= 60KB`; `16:10` for `hero-*` and `split-*` `<= 120KB`) into `apps/web/public/images/<slot>.webp` so that every single slot depicts its specific real-world subject:
+     - `hero-home.webp`: Bangladeshi university scholars collaborating around laptops in a warm library.
+     - `hero-gre.webp`: Focused graduate test-taker writing analytical notes at a desk with a coffee mug.
+     - `split-gre-adaptive.webp`: Close-up of a scholar solving quantitative problems on a dual-screen computer workstation (MUST NOT be the coffee-mug pen photo!).
+     - `split-gre-hints.webp`: Mentor and student reviewing an algebraic notebook step-by-step in a study room (MUST NOT be the `col-gre-general` photo!).
+     - `col-gre-quant.webp`: Real photograph of mathematical geometry/calculus notes, compass, and scientific workspace on a wooden desk.
+     - `col-gre-verbal.webp`: Real photograph of a scholar reading dense academic literature and annotating vocabulary in a university reading room (NO flat vector bar charts!).
+     - `col-gre-awa.webp`: Real photograph of hands typing an analytical essay on a mechanical/laptop keyboard in warm daylight (NO flat vector UI diagram!).
+     - `col-gre-mocks.webp`: Real photograph of a computer-based testing laboratory / row of exam monitors.
+     - `hero-ielts.webp`: Candidate practicing at a laptop screen with wristwatch timing.
+     - `split-ielts-cbt.webp`: Close-up of a student wearing studio headphones working through a computer-delivered exam screen (MUST NOT be the wristwatch finger-pointing photo!).
+     - `split-ielts-rubric.webp`: IELTS instructor giving 1-on-1 written rubric feedback on an essay draft across a desk (MUST NOT be the graduation mortarboard photo!).
+     - `col-ielts-listening.webp`: Real photograph of a learner wearing over-ear headphones taking listening notes in a quiet booth (NO flat vector waveform!).
+     - `col-ielts-reading.webp`: Real photograph of a student highlighting an academic journal article alongside a laptop (NO flat vector diagram!).
+     - `col-ielts-writing.webp`: Real photograph of two scholars reviewing written Task 1/Task 2 essays at a study table.
+     - `col-ielts-speaking.webp`: Real photograph of a face-to-face speaking interview between an examiner and candidate.
+     - `hero-courses.webp`, `col-self-paced.webp`, `col-live-cohort.webp`, `col-mock-pass.webp`, `col-course-gre-complete.webp`, `col-course-ielts-complete.webp`, `col-course-dual-bundle.webp`: 7 completely distinct real photographs of self-paced study, live classroom teaching, mock test centers, and study materials.
+     - `hero-institutions.webp`, `col-inst-cohort.webp`, `col-inst-analytics.webp`, `col-inst-vat.webp`: 4 completely distinct real photographs of a university campus lecture hall, faculty boardroom, institutional data review, and finance/compliance office.
+     - `hero-pricing.webp`, `hero-help.webp`, `nav-editorial.webp`, `split-diagnostic.webp`, `col-gre-general.webp`, `col-ielts-academic.webp`, `col-ielts-gt.webp`: Verify none of these share any base photo with any other slot!
+
+3. **Enforce `[perceptual-image-guard]` in `tooling/design-lint.mjs` & `packages/core/src/__tests__/ui-primitives-caps.test.ts`:**
+   - Implement a deterministic perceptual image decoder in `tooling/design-lint.mjs` (and in `ui-primitives-caps.test.ts`) that decodes every `.webp` file in `apps/web/public/images/` and enforces:
+     1. **Zero Perceptual Clones (`dHash` Hamming Distance `>= 14`):** Compare the 64-bit `dHash` of all `.webp` files pairwise; fail immediately if any two images have a Hamming distance `< 14` (catches crops, re-encodes, and minor edits).
+     2. **Zero Flat Vector Diagrams (`Photographic Entropy Guard`):** Fail immediately if any `.webp` file has `< 800` unique quantized 5-bit RGB colors or `> 28%` identical solid-color pixels (catches synthetic SVG/canvas bar charts and waveforms).
+     3. **Zero Slot Reuse Across All Pages (`marketing.ts` + `destinations`):** Every `photoSlot` across `home` (including `destinations`), `gre`, `ielts`, `courses`, `pricing`, `forInstitutions`, and `help` is used at most 1 time across the entire site.
+   - Log this escaped defect (`B9: Test gaming via re-encoded duplicate WebP photos and flat SVG diagrams`) in `docs/MISTAKE-LEDGER.md` and update `docs/HANDOFF.md`.
+
+### Verification
+1. Run `pnpm design:lint` and `pnpm design:shots`.
+2. Run `NODE_OPTIONS="--max-old-space-size=2048" pnpm --filter @lumen/core exec vitest run` and `cd apps/web && NODE_OPTIONS="--max-old-space-size=2048" pnpm exec tsc --noEmit --incremental`.
+3. Run `NODE_OPTIONS="--max-old-space-size=3072" pnpm --filter @lumen/web build`.
+4. Commit `BATCH P39` to `main`, print the pairwise perceptual `dHash` distance report and all verification receipts, and STOP.

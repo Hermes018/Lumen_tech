@@ -1,4 +1,5 @@
 /** @purpose Word-cap validation helper and unit tests enforcing the 12 Lumen UI Laws copy limits */
+import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -312,6 +313,69 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
     }
 
     expect(sha256Hashes.size).toBe(slotMatches.length);
+  });
+
+  it('enforces [perceptual-image-guard] (dHash Hamming distance >= 14 and natural photo entropy across all WebP assets)', () => {
+    const imagesDir = path.resolve(__dirname, '../../../../apps/web/public/images');
+    const pyScript = [
+      'import os, glob, json, sys',
+      'from PIL import Image',
+      'lut = [i >> 3 for i in range(256)] * 3',
+      'files = sorted(glob.glob(os.path.join(sys.argv[1], "*.webp")))',
+      'out = []',
+      'for f in files:',
+      '    im = Image.open(f).convert("RGB")',
+      '    w, h = im.size',
+      '    g = im.convert("L").resize((9, 8), Image.Resampling.BILINEAR)',
+      '    fn = getattr(g, "get_flattened_data", g.getdata)',
+      '    px = list(fn())',
+      '    bits = 0',
+      '    for y in range(8):',
+      '        for x in range(8):',
+      '            bits = (bits << 1) | (1 if px[y*9 + x] > px[y*9 + x + 1] else 0)',
+      '    q5_colors = im.point(lut).getcolors(maxcolors=65536)',
+      '    uniq_q5 = len(q5_colors)',
+      '    max_q5_ratio = max(c for c, _ in q5_colors) / (w * h)',
+      '    out.append({"file": os.path.basename(f), "dhash": f"{bits:016x}", "uniq_q5": uniq_q5, "max_q5_ratio": max_q5_ratio})',
+      'print(json.dumps(out))',
+    ].join('\n');
+
+    const raw = execFileSync('python3', ['-c', pyScript, imagesDir], {
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
+    });
+    const metrics = JSON.parse(raw) as Array<{
+      file: string;
+      dhash: string;
+      uniq_q5: number;
+      max_q5_ratio: number;
+    }>;
+
+    expect(metrics.length).toBeGreaterThanOrEqual(33);
+
+    for (const item of metrics) {
+      expect(item.uniq_q5, `Low-entropy/synthetic image ${item.file}`).toBeGreaterThanOrEqual(800);
+      expect(item.max_q5_ratio, `Flat solid-background image ${item.file}`).toBeLessThanOrEqual(0.28);
+    }
+
+    const popcount64 = (aHex: string, bHex: string): number => {
+      let x = BigInt('0x' + aHex) ^ BigInt('0x' + bHex);
+      let c = 0;
+      while (x > 0n) {
+        x &= x - 1n;
+        c += 1;
+      }
+      return c;
+    };
+
+    for (let i = 0; i < metrics.length; i += 1) {
+      for (let j = i + 1; j < metrics.length; j += 1) {
+        const a = metrics[i]!;
+        const b = metrics[j]!;
+        const dist = popcount64(a.dhash, b.dhash);
+        expect(dist, `Perceptual clone: ${a.file} <-> ${b.file} (dHash=${dist})`).toBeGreaterThanOrEqual(14);
+      }
+    }
   });
 
   it('enforces [slot-uniqueness-guard] with zero photoSlot reuse across all pages in MARKETING_CONTENT', () => {
