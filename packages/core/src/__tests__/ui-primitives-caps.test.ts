@@ -296,7 +296,7 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
     expect(mediaSrc).not.toMatch(/https?:\/\//i);
 
     const slotMatches = [...mediaSrc.matchAll(/'([a-z0-9-]+)':\s*\{[\s\S]*?src:\s*'([^']+)'/g)];
-    expect(slotMatches.length).toBeGreaterThanOrEqual(24);
+    expect(slotMatches.length).toBeGreaterThanOrEqual(32);
 
     const sha256Hashes = new Set<string>();
     for (const match of slotMatches) {
@@ -312,6 +312,22 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
     }
 
     expect(sha256Hashes.size).toBe(slotMatches.length);
+  });
+
+  it('enforces [slot-uniqueness-guard] with zero photoSlot reuse across all pages in MARKETING_CONTENT', () => {
+    for (const locale of ['en', 'bn'] as const) {
+      const allStrings = collectStrings(MARKETING_CONTENT[locale], locale);
+      const counts = new Map<string, string[]>();
+      for (const { path: fieldPath, value } of allStrings) {
+        if (!fieldPath.endsWith('.photoSlot')) continue;
+        const list = counts.get(value) ?? [];
+        list.push(fieldPath);
+        counts.set(value, list);
+      }
+      const duplicates = [...counts.entries()].filter(([, paths]) => paths.length > 1);
+      expect(duplicates, `Duplicate photoSlot(s) in ${locale}`).toEqual([]);
+      expect(counts.size).toBe(32);
+    }
   });
 
   it('keeps home stats 40+ numeral single-token concise in both locales', () => {

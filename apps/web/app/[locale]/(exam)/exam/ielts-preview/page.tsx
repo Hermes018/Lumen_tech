@@ -7,6 +7,7 @@ import { LocaleLink as Link } from '../../../_components/LocaleLink';
 import { LocaleSwitcher } from '../../../_components/LocaleSwitcher';
 import { brand } from '@lumen/config';
 import { LumenSparkMotif } from '@/src/components/ui/primitives';
+import { IeltsListeningAudioEngine } from '@/src/components/exam/IeltsListeningAudioEngine';
 import { countWords } from '@lumen/ai';
 import {
   Clock,
@@ -824,6 +825,15 @@ export default function IeltsPreviewPage() {
                       </p>
                     </div>
                   )}
+                </div>
+
+                <div className="mt-6 border-t border-[var(--hairline)] pt-5">
+                  <IeltsListeningAudioEngine
+                    isBn={isBn}
+                    defaultPartNumber={1}
+                    defaultMode="strict"
+                    postSubmissionUnlocked={listeningChecked}
+                  />
                 </div>
               </div>
             )}

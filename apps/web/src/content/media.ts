@@ -8,6 +8,7 @@ export type MediaSlotId =
   | 'hero-courses'
   | 'hero-pricing'
   | 'hero-help'
+  | 'hero-institutions'
   | 'track-gre'
   | 'track-ielts-ac'
   | 'track-ielts-gt'
@@ -23,8 +24,16 @@ export type MediaSlotId =
   | 'split-ielts-rubric'
   | 'col-gre-quant'
   | 'col-gre-verbal'
+  | 'col-gre-awa'
+  | 'col-gre-mocks'
+  | 'col-ielts-listening'
+  | 'col-ielts-reading'
   | 'col-ielts-writing'
   | 'col-ielts-speaking'
+  | 'col-course-gre-complete'
+  | 'col-live-cohort'
+  | 'col-course-ielts-complete'
+  | 'col-self-paced'
   | 'col-inst-cohort';
 
 export type PhotoSlot = MediaSlotId;
@@ -86,6 +95,14 @@ export const MEDIA_SLOTS: Record<MediaSlotId, MediaSlotEntry> = {
     themeColor: 'var(--crimson)',
     captionEn: 'Clear answers on mocks, bKash/card checkout, and score reviews.',
     captionBn: 'মক পরীক্ষা, বিকাশ/কার্ড পেমেন্ট ও স্কোর রিভিউ সংক্রান্ত সহায়তা।',
+  },
+  'hero-institutions': {
+    altEn: `${brand.name} institutional university partnerships and campus cohort analytics`,
+    altBn: 'লুমেন একাডেমির প্রাতিষ্ঠানিক বিশ্ববিদ্যালয় পার্টনারশিপ ও ক্যাম্পাস কোহর্ট অ্যানালিটিক্স',
+    src: '/images/hero-institutions.webp',
+    themeColor: 'var(--brand-deep)',
+    captionEn: 'Bulk campus seat licensing, Mushak-6.3 VAT invoicing, and cohort diagnostics.',
+    captionBn: 'বাল্ক ক্যাম্পাস সিট লাইসেন্সিং, মূসক-৬.৩ ভ্যাট চালান এবং কোহর্ট ডায়াগনস্টিকস।',
   },
   'track-gre': {
     altEn: 'GRE Verbal, Quantitative Reasoning, and AWA preparation track',
@@ -230,6 +247,70 @@ export const MEDIA_SLOTS: Record<MediaSlotId, MediaSlotEntry> = {
     themeColor: 'var(--brand-deep)',
     captionEn: 'Instructor-led evening cohorts and campus diagnostic analytics.',
     captionBn: 'ইন্সট্রাক্টর-চালিত সান্ধ্য কোহর্ট ও ক্যাম্পাস ডায়াগনস্টিক অ্যানালিটিক্স।',
+  },
+  'col-gre-awa': {
+    altEn: 'GRE Analytical Writing Issue essay rubric and structured thesis workbench',
+    altBn: 'জিআরই অ্যানালিটিক্যাল রাইটিং ইস্যু এসে রুব্রিক ও থিসিস ওয়ার্কবেঞ্চ',
+    src: '/images/col-gre-awa.webp',
+    themeColor: 'var(--terracotta)',
+    captionEn: '0–6 Analytical Writing rubric coaching with 30-minute timed prompts.',
+    captionBn: '৩০ মিনিটের টাইমড প্রম্পটসহ ০–৬ অ্যানালিটিক্যাল রাইটিং রুব্রিক কোচিং।',
+  },
+  'col-gre-mocks': {
+    altEn: 'GRE Problem Solving, Data Interpretation charts, and timed mock runner',
+    altBn: 'জিআরই প্রবলেম সলভিং, ডেটা ইন্টারপ্রিটেশন চার্ট এবং টাইমড মক রানার',
+    src: '/images/col-gre-mocks.webp',
+    themeColor: 'var(--brand)',
+    captionEn: '27-question Quantitative sections with multi-chart data interpretation drills.',
+    captionBn: 'মাল্টি-চার্ট ডেটা ইন্টারপ্রিটেশন ড্রিলসহ ২৭-প্রশ্নের কোয়ান্টিটেটিভ সেকশন।',
+  },
+  'col-ielts-listening': {
+    altEn: 'CD-IELTS Listening 4-part audio player and distractor trap transcript',
+    altBn: 'সিডি-আইইএলটিএস লিসেনিং ৪-পার্ট অডিও প্লেয়ার ও ডিস্ট্র্যাক্টর ট্র্যাপ ট্রান্সক্রিপ্ট',
+    src: '/images/col-ielts-listening.webp',
+    themeColor: 'var(--crimson)',
+    captionEn: 'Single-play British, Australian, and North American Listening sections.',
+    captionBn: 'সিঙ্গেল-প্লে ব্রিটিশ, অস্ট্রেলিয়ান ও উত্তর আমেরিকান লিসেনিং সেকশন।',
+  },
+  'col-ielts-reading': {
+    altEn: 'IELTS split-pane Academic Reading passage with highlighted evidence',
+    altBn: 'হাইলাইট করা প্রমাণসহ আইইএলটিএস স্প্লিট-পেইন একাডেমিক রিডিং প্যাসেজ',
+    src: '/images/col-ielts-reading.webp',
+    themeColor: 'var(--brand)',
+    captionEn: 'True/False/Not Given, Matching Headings, and passage highlighting.',
+    captionBn: 'ট্রু/ফলস/নট গিভেন, ম্যাচিং হেডিংস এবং প্যাসেজ হাইলাইটিং।',
+  },
+  'col-course-gre-complete': {
+    altEn: 'GRE Complete Self-Paced 4-module curriculum and FSRS vocabulary deck',
+    altBn: 'জিআরই কমপ্লিট সেলফ-পেসড ৪-মডিউল পাঠ্যক্রম ও এফএসআরএস ভোকাব ডেক',
+    src: '/images/col-course-gre-complete.webp',
+    themeColor: 'var(--terracotta)',
+    captionEn: '6 full-length 1h 58m GRE mocks and 1,500+ FSRS-4.5 vocabulary cards.',
+    captionBn: '৬টি পূর্ণাঙ্গ ১ ঘণ্টা ৫৮ মিনিটের জিআরই মক ও ১,৫০০+ এফএসআরএস ভোকাব কার্ড।',
+  },
+  'col-live-cohort': {
+    altEn: 'GRE Live Dhaka Evening Cohort Sunday, Tuesday, and Thursday schedule',
+    altBn: 'জিআরই লাইভ ঢাকা সান্ধ্য কোহর্ট রবি, মঙ্গল ও বৃহস্পতিবারের সময়সূচি',
+    src: '/images/col-live-cohort.webp',
+    themeColor: 'var(--brand)',
+    captionEn: '24 live evening workshops with instructor office hours and error-log reviews.',
+    captionBn: 'ইন্সট্রাক্টর অফিস আওয়ার ও এরর-লগ রিভিউসহ ২৪টি লাইভ সান্ধ্য কর্মশালা।',
+  },
+  'col-course-ielts-complete': {
+    altEn: 'IELTS Academic Complete 4-skill Band 7.0 to 8.5 preparation track',
+    altBn: 'আইইএলটিএস একাডেমিক কমপ্লিট ৪-স্কিল ব্যান্ড ৭.০ থেকে ৮.৫ প্রস্তুতি ট্র্যাক',
+    src: '/images/col-course-ielts-complete.webp',
+    themeColor: 'var(--crimson)',
+    captionEn: '6 full CD-IELTS mocks, Typing Studio, and 12 AI rubric evaluations.',
+    captionBn: '৬টি পূর্ণ সিডি-আইইএলটিএস মক, টাইপিং স্টুডিও ও ১২টি এআই রুব্রিক মূল্যায়ন।',
+  },
+  'col-self-paced': {
+    altEn: 'IELTS General Training formal letter and workplace reading preparation',
+    altBn: 'আইইএলটিএস জেনারেল ট্রেনিং ফরমাল লেটার ও কর্মক্ষেত্রভিত্তিক রিডিং প্রস্তুতি',
+    src: '/images/col-self-paced.webp',
+    themeColor: 'var(--accent)',
+    captionEn: 'Task 1 formal/semi-formal letters and 5 timed General Training mocks.',
+    captionBn: 'টাস্ক ১ ফরমাল/সেমি-ফরমাল লেটার ও ৫টি টাইমড জেনারেল ট্রেনিং মক।',
   },
 };
 

@@ -12,6 +12,7 @@ import {
   type IeltsWritingTaskEvalOutput,
 } from '@lumen/ai';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
+import { IeltsListeningAudioEngine } from '@/src/components/exam/IeltsListeningAudioEngine';
 import {
   WorkspaceContainer,
   WorkspaceDataTable,
@@ -715,6 +716,15 @@ function IeltsWorkspaceContent() {
                 : 'Interactive True / False / Not Given, Matching Headings, and Part 4 Academic Lecture Note Completion.'
             }
           />
+
+          <div className="mb-8">
+            <IeltsListeningAudioEngine
+              isBn={isBn}
+              defaultPartNumber={1}
+              defaultMode="guided"
+              postSubmissionUnlocked={true}
+            />
+          </div>
 
           <WorkspaceDataTable
             caption={isBn ? 'রিডিং ও লিসেনিং প্যাসেজ ড্রিল' : 'Passage Drills'}

@@ -28,6 +28,7 @@ const WORKBENCH_SURFACES = [
   { label: "/tools/ielts-band-calculator", file: "apps/web/app/[locale]/(marketing)/tools/ielts-band-calculator/page.tsx" },
   { label: "/tools/ielts-typing-test", file: "apps/web/app/[locale]/(marketing)/tools/ielts-typing-test/page.tsx" },
   { label: "TypingPracticeEngine", file: "apps/web/src/components/typing/TypingPracticeEngine.tsx" },
+  { label: "IeltsListeningAudioEngine", file: "apps/web/src/components/exam/IeltsListeningAudioEngine.tsx" },
   { label: "WorkspacePrimitives", file: "apps/web/src/components/ui/WorkspacePrimitives.tsx" },
   { label: "(learner)/layout", file: "apps/web/app/[locale]/(learner)/layout.tsx" },
   { label: "(evaluator)/layout", file: "apps/web/app/[locale]/(evaluator)/layout.tsx" },

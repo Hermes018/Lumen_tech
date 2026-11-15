@@ -131,6 +131,7 @@ const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(marketing)/tools/ielts-band-calculator/page.tsx',
   'apps/web/app/[locale]/(marketing)/tools/ielts-typing-test/page.tsx',
   'apps/web/src/components/typing/TypingPracticeEngine.tsx',
+  'apps/web/src/components/exam/IeltsListeningAudioEngine.tsx',
   'apps/web/app/[locale]/(learner)/layout.tsx',
   'apps/web/app/[locale]/(learner)/app/page.tsx',
   'apps/web/app/[locale]/(learner)/app/gre/page.tsx',
@@ -303,14 +304,40 @@ for (const match of mediaContent.matchAll(/src:\s*'([^']+)'/g)) {
     seenHashes.set(sha256, srcPath);
   }
 }
-if (checkedAssets < 24) {
-  errors.push(`[asset-guard] Expected at least 24 MEDIA_SLOTS entries in apps/web/src/content/media.ts, found ${checkedAssets}`);
+if (checkedAssets < 32) {
+  errors.push(`[asset-guard] Expected at least 32 MEDIA_SLOTS entries in apps/web/src/content/media.ts, found ${checkedAssets}`);
+}
+
+// 6b. Zero Slot Reuse Guard ([slot-uniqueness-guard])
+const MARKETING_FILE = path.join(ROOT, 'apps/web/src/content/marketing.ts');
+const marketingContent = fs.readFileSync(MARKETING_FILE, 'utf8');
+const bnSplitIdx = marketingContent.indexOf('\n  bn: {');
+if (bnSplitIdx === -1) {
+  errors.push('[slot-uniqueness-guard] Could not locate bn locale block in apps/web/src/content/marketing.ts');
+} else {
+  const localeSlices = [
+    { locale: 'en', slice: marketingContent.slice(0, bnSplitIdx) },
+    { locale: 'bn', slice: marketingContent.slice(bnSplitIdx) },
+  ];
+  for (const { locale, slice } of localeSlices) {
+    const slotCounts = new Map();
+    for (const m of slice.matchAll(/photoSlot:\s*'([a-z0-9-]+)'/g)) {
+      const slot = m[1];
+      slotCounts.set(slot, (slotCounts.get(slot) ?? 0) + 1);
+    }
+    for (const [slot, count] of slotCounts.entries()) {
+      if (count > 1) {
+        errors.push(`[slot-uniqueness-guard] Duplicate photoSlot "${slot}" (${count}x) in marketing.ts (${locale})`);
+      }
+    }
+  }
 }
 
 // 7. Claude Editorial Workspace Guard ([workspace-guard] — expanded across P27 -> P30)
 const WORKSPACE_GUARD_FILES = [
   'apps/web/src/components/ui/WorkspacePrimitives.tsx',
   'apps/web/src/components/typing/TypingPracticeEngine.tsx',
+  'apps/web/src/components/exam/IeltsListeningAudioEngine.tsx',
   'apps/web/app/[locale]/(marketing)/tools/ielts-typing-test/page.tsx',
   'apps/web/app/[locale]/(learner)/layout.tsx',
   'apps/web/app/[locale]/(learner)/app/page.tsx',

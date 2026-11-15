@@ -646,9 +646,9 @@ describe('P34 Final Release Gate: 5-Role RBAC, WorkspaceDataTable, Evaluator Zer
     expect(evaluatorPage).toContain('SUB-8492');
   });
 
-  it('verifies all 24 .webp assets in MEDIA_MANIFEST exist on disk with unique SHA-256 hashes', () => {
+  it('verifies all >= 32 .webp assets in MEDIA_MANIFEST exist on disk with unique SHA-256 hashes', () => {
     const entries = Object.entries(MEDIA_MANIFEST);
-    expect(entries.length).toBe(24);
+    expect(entries.length).toBeGreaterThanOrEqual(32);
 
     const hashes = new Set<string>();
     const webPublicRoot = path.join(REPO_ROOT, 'apps/web/public');
@@ -663,6 +663,6 @@ describe('P34 Final Release Gate: 5-Role RBAC, WorkspaceDataTable, Evaluator Zer
       hashes.add(crypto.createHash('sha256').update(buf).digest('hex'));
     }
 
-    expect(hashes.size).toBe(24);
+    expect(hashes.size).toBe(entries.length);
   });
 });

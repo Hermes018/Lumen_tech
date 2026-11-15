@@ -12,6 +12,10 @@ import {
   writingBand,
   speakingBand,
 } from '../exam/ielts-scoring';
+import {
+  IELTS_LISTENING_SCRIPTS,
+  buildDeterministicWavDataUri,
+} from '../../../../apps/web/src/content/ielts-listening-scripts';
 
 describe('IELTS 4-Skill Band Tables and Scoring', () => {
   describe('Raw to Band Conversions', () => {
@@ -107,6 +111,49 @@ describe('IELTS 4-Skill Band Tables and Scoring', () => {
       expect(speakingBand([7.0, 7.0, 6.5, 6.5])).toBe(7.0); // mean 6.75 -> 7.0
       expect(speakingBand([6.0, 6.0, 6.5, 6.5])).toBe(6.5); // mean 6.25 -> 6.5
       expect(speakingBand([6.0, 6.0, 6.0, 6.5])).toBe(6.0); // mean 6.125 -> 6.0
+    });
+  });
+
+  describe('CD-IELTS 4-Part Listening Scripts & Deterministic 44.1kHz PCM WAV Engine', () => {
+    it('provides all 4 official CD-IELTS Listening sections with multi-accent speakers and distractor traps', () => {
+      expect(IELTS_LISTENING_SCRIPTS).toHaveLength(4);
+      expect(IELTS_LISTENING_SCRIPTS.map((p) => p.partNumber)).toEqual([1, 2, 3, 4]);
+
+      const accents = new Set(
+        IELTS_LISTENING_SCRIPTS.flatMap((part) => part.segments.map((seg) => seg.accent)),
+      );
+      expect(accents.has('en-GB')).toBe(true);
+      expect(accents.has('en-AU')).toBe(true);
+      expect(accents.has('en-US')).toBe(true);
+
+      const distractorNotes = IELTS_LISTENING_SCRIPTS.flatMap((part) =>
+        part.segments.filter((seg) => Boolean(seg.distractorTrapNote)),
+      );
+      expect(distractorNotes.length).toBeGreaterThanOrEqual(5);
+
+      for (const part of IELTS_LISTENING_SCRIPTS) {
+        expect(part.durationSec).toBeGreaterThan(0);
+        for (const seg of part.segments) {
+          expect(seg.startSec).toBeGreaterThanOrEqual(0);
+          expect(seg.endSec).toBeGreaterThan(seg.startSec);
+          expect(seg.endSec).toBeLessThanOrEqual(part.durationSec);
+        }
+      }
+    });
+
+    it('synthesizes a valid 44.1kHz mono 16-bit PCM RIFF/WAVE data URI', () => {
+      const uri = buildDeterministicWavDataUri(1, 261.63);
+      expect(uri.startsWith('data:audio/wav;base64,')).toBe(true);
+      const base64 = uri.slice('data:audio/wav;base64,'.length);
+      const buf = Buffer.from(base64, 'base64');
+      expect(buf.subarray(0, 4).toString('ascii')).toBe('RIFF');
+      expect(buf.subarray(8, 12).toString('ascii')).toBe('WAVE');
+      expect(buf.subarray(12, 16).toString('ascii')).toBe('fmt ');
+      expect(buf.readUInt16LE(20)).toBe(1); // PCM
+      expect(buf.readUInt16LE(22)).toBe(1); // Mono
+      expect(buf.readUInt32LE(24)).toBe(44100); // 44.1kHz
+      expect(buf.readUInt16LE(34)).toBe(16); // 16-bit
+      expect(buf.subarray(36, 40).toString('ascii')).toBe('data');
     });
   });
 });
