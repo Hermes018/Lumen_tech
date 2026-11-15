@@ -139,6 +139,7 @@ const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(learner)/app/mistakes/page.tsx',
   'apps/web/app/[locale]/(learner)/app/progress/page.tsx',
   'apps/web/app/[locale]/(learner)/app/plan/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
   'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
   'apps/web/app/[locale]/(learner)/app/admin/page.tsx',
 ];
@@ -272,9 +273,13 @@ const WORKSPACE_GUARD_FILES = [
   'apps/web/app/[locale]/(learner)/app/vocab/page.tsx',
   'apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx',
   'apps/web/app/[locale]/(learner)/app/flashcards/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
 ];
 const WORKSPACE_FORBIDDEN_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },
+  { name: 'rounded-md', regex: /\brounded-md\b/ },
+  { name: 'rounded-lg', regex: /\brounded-lg\b/ },
   { name: 'rounded-2xl', regex: /\brounded-2xl\b/ },
   { name: 'rounded-3xl', regex: /\brounded-3xl\b/ },
   { name: 'rounded-xl', regex: /\brounded-xl\b/ },
@@ -291,13 +296,19 @@ const WORKSPACE_FORBIDDEN_PATTERNS = [
   { name: 'bg-indigo-', regex: /\bbg-indigo-/ },
   { name: 'bg-yellow-', regex: /\bbg-yellow-/ },
   { name: 'border-yellow-', regex: /\bborder-yellow-/ },
+  { name: 'bg-slate-', regex: /\bbg-slate-/ },
+  { name: 'bg-zinc-', regex: /\bbg-zinc-/ },
   { name: 'uppercase', regex: /\buppercase\b/ },
+  { name: 'text-[9px]', regex: /text-\[9px\]/ },
   { name: 'text-[10px]', regex: /text-\[10px\]/ },
   { name: 'text-[11px]', regex: /text-\[11px\]/ },
   { name: 'Analytical Strategist', regex: /Analytical Strategist/ },
   { name: 'Apprentice Scholar', regex: /Apprentice Scholar/ },
+  { name: 'Mastery Candidate', regex: /Mastery Candidate/ },
+  { name: 'Distinguished Scholar', regex: /Distinguished Scholar/ },
   { name: 'Rank Progression Roadmap', regex: /Rank Progression Roadmap/ },
   { name: 'total XP earned', regex: /total XP earned/i },
+  { name: 'raw JSX inline LaTeX', regex: />[^<{]*\$[^$\n]*[\^_\\][^<$]*\$\s*</ },
 ];
 
 for (const rel of WORKSPACE_GUARD_FILES) {

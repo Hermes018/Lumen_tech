@@ -180,3 +180,54 @@ describe('P28 Scholar Workspace Core & Dedicated GRE/IELTS Left Tabs', () => {
     }
   });
 });
+
+describe('P29 Billing & Settings Workspace Guards', () => {
+  const P29_PAGES = [
+    'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
+  ];
+
+  it('verifies /app/billing and /app/settings compose WorkspacePrimitives with zero forbidden styles or hydration traps', () => {
+    for (const rel of P29_PAGES) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content).toContain('@/src/components/ui/WorkspacePrimitives');
+      expect(content).toContain('setMounted(true)');
+      expect(content).not.toMatch(/\brounded-(?:full|md|lg|xl|2xl|3xl)\b/);
+      expect(content).not.toMatch(/\bshadow-/);
+      expect(content).not.toMatch(
+        /\b(?:bg|text|border)-(?:blue|green|emerald|yellow|amber|purple|indigo|slate|zinc)-/,
+      );
+      expect(content).not.toMatch(/\buppercase\b/);
+      expect(content).not.toMatch(/text-\[(?:9|10|11)px\]/);
+      expect(content).not.toContain('UNVERIFIED (MINOR)');
+      expect(content).not.toContain('SEND GUARDIAN VERIFICATION REQUEST');
+    }
+  });
+
+  it('verifies /app/billing includes Mushak 6.3 receipt, split-pay installments, and refund controls', () => {
+    const billingContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(learner)/app/billing/page.tsx'),
+      'utf8',
+    );
+    expect(billingContent).toContain('INV-2026-1041');
+    expect(billingContent).toContain('INV-2026-0892');
+    expect(billingContent).toContain('Mushak 6.3');
+    expect(billingContent).toContain('Settle Installment Now');
+    expect(billingContent).toContain('Request 7-Day Refund');
+    expect(billingContent).toContain('/api/checkout/verify');
+    expect(billingContent).toContain('/api/admin/catalog');
+  });
+
+  it('verifies /app/settings includes AI zero-training privacy, JSON portability, erasure, and closed guardian disclosure', () => {
+    const settingsContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(learner)/app/settings/page.tsx'),
+      'utf8',
+    );
+    expect(settingsContent).toContain('Zero Training Guarantee');
+    expect(settingsContent).toContain('Cohort Percentile Anonymization');
+    expect(settingsContent).toContain('Admin Support PII Masking');
+    expect(settingsContent).toContain('Export Complete Personal Archive (JSON)');
+    expect(settingsContent).toContain('Request Permanent Account & Data Erasure');
+    expect(settingsContent).toContain('<details className="lumen-disclosure');
+  });
+});

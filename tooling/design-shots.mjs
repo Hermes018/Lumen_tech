@@ -39,6 +39,7 @@ const WORKBENCH_SURFACES = [
   { label: "/app/mistakes", file: "apps/web/app/[locale]/(learner)/app/mistakes/page.tsx" },
   { label: "/app/progress", file: "apps/web/app/[locale]/(learner)/app/progress/page.tsx" },
   { label: "/app/plan", file: "apps/web/app/[locale]/(learner)/app/plan/page.tsx" },
+  { label: "/app/billing", file: "apps/web/app/[locale]/(learner)/app/billing/page.tsx" },
   { label: "/app/settings", file: "apps/web/app/[locale]/(learner)/app/settings/page.tsx" },
   { label: "/app/admin", file: "apps/web/app/[locale]/(learner)/app/admin/page.tsx" },
 ];
@@ -62,6 +63,7 @@ const LIVE_EXTRA_ROUTES = [
   "/app/mistakes",
   "/app/progress",
   "/app/plan",
+  "/app/billing",
   "/app/settings",
   "/admin",
 ];
@@ -234,6 +236,8 @@ if (serverUp || forceLive) {
       "/en/app",
       "/en/app/gre",
       "/en/app/ielts",
+      "/en/app/billing",
+      "/en/app/settings",
     ];
 
     for (const route of liveRoutes) {
