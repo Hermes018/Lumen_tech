@@ -142,6 +142,8 @@ const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
   'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
   'apps/web/app/[locale]/(learner)/app/admin/page.tsx',
+  'apps/web/app/[locale]/(admin)/layout.tsx',
+  'apps/web/app/[locale]/(admin)/admin/page.tsx',
 ];
 const FORBIDDEN_ROUNDED_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },
@@ -239,6 +241,12 @@ for (const rel of LINK_GUARD_FILES) {
   }
 }
 
+if (!routeExists('/admin')) {
+  errors.push('[link-guard] Missing required dedicated /admin route');
+} else {
+  verifiedRoutes.add('/admin');
+}
+
 // 6. Local Self-Hosted Media Asset Guard
 const MEDIA_FILE = path.join(ROOT, 'apps/web/src/content/media.ts');
 const mediaContent = fs.readFileSync(MEDIA_FILE, 'utf8');
@@ -275,6 +283,9 @@ const WORKSPACE_GUARD_FILES = [
   'apps/web/app/[locale]/(learner)/app/flashcards/page.tsx',
   'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
   'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/admin/page.tsx',
+  'apps/web/app/[locale]/(admin)/layout.tsx',
+  'apps/web/app/[locale]/(admin)/admin/page.tsx',
 ];
 const WORKSPACE_FORBIDDEN_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },

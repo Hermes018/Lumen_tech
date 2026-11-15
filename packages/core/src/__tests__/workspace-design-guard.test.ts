@@ -231,3 +231,84 @@ describe('P29 Billing & Settings Workspace Guards', () => {
     expect(settingsContent).toContain('<details className="lumen-disclosure');
   });
 });
+
+describe('P30 Role-Isolated Institutional Admin Console (/admin) Guards', () => {
+  const P30_WORKSPACE_FILES = [
+    'apps/web/app/[locale]/(admin)/layout.tsx',
+    'apps/web/app/[locale]/(admin)/admin/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/admin/page.tsx',
+    'apps/web/app/[locale]/(learner)/layout.tsx',
+    'apps/web/app/[locale]/(learner)/app/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/gre/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/ielts/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/plan/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/mistakes/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/progress/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/practice/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/vocab/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/vocab/play/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/flashcards/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
+    'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
+  ];
+
+  it('verifies zero files in (learner) or (admin) violate [workspace-guard]', () => {
+    for (const rel of P30_WORKSPACE_FILES) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content).not.toMatch(/\brounded-(?:full|md|lg|xl|2xl|3xl)\b/);
+      expect(content).not.toMatch(/\bshadow-/);
+      expect(content).not.toMatch(
+        /\b(?:bg|text|border)-(?:blue|green|emerald|yellow|amber|purple|indigo|slate|zinc)-/,
+      );
+      expect(content).not.toMatch(/\buppercase\b/);
+      expect(content).not.toMatch(/text-\[(?:9|10|11)px\]/);
+      expect(content).not.toContain('Analytical Strategist');
+      expect(content).not.toContain('Apprentice Scholar');
+      expect(content).not.toContain('Mastery Candidate');
+      expect(content).not.toContain('Distinguished Scholar');
+      expect(content).not.toContain('Rank Progression Roadmap');
+      expect(content).not.toMatch(/total XP earned/i);
+    }
+  });
+
+  it('verifies (admin)/layout.tsx is strictly isolated with zero student study links or RPG clutter', () => {
+    const adminLayout = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(admin)/layout.tsx'),
+      'utf8',
+    );
+    expect(adminLayout).not.toContain('FSRS Vocab');
+    expect(adminLayout).not.toContain('Mistake Ledger');
+    expect(adminLayout).not.toContain('Study Plan');
+    expect(adminLayout).not.toContain('/app/vocab');
+    expect(adminLayout).not.toContain('/app/mistakes');
+    expect(adminLayout).toContain('/admin?tab=catalog');
+    expect(adminLayout).toContain('/admin?tab=scholars');
+    expect(adminLayout).toContain('/admin?tab=audit');
+    expect(adminLayout).toContain('Institutional Governance & ERP');
+  });
+
+  it('verifies (admin)/admin/page.tsx uses maskEmailForAdmin, maskPhoneForAdmin, blind hashes, and progressive-disclosure editingSlug', () => {
+    const adminPage = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(admin)/admin/page.tsx'),
+      'utf8',
+    );
+    expect(adminPage).toContain('@/src/components/ui/WorkspacePrimitives');
+    expect(adminPage).toContain('maskEmailForAdmin');
+    expect(adminPage).toContain('maskPhoneForAdmin');
+    expect(adminPage).toContain('ADMIN_PII_REVEAL');
+    expect(adminPage).toContain('SUB-8492');
+    expect(adminPage).toContain('editingSlug');
+    expect(adminPage).toContain('setMounted(true)');
+  });
+
+  it('verifies legacy (learner)/app/admin/page.tsx cleanly redirects to /admin or /app', () => {
+    const legacyAdmin = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(learner)/app/admin/page.tsx'),
+      'utf8',
+    );
+    expect(legacyAdmin).toContain('ROLE_COOKIE_NAME');
+    expect(legacyAdmin).toContain("role === 'scholar'");
+    expect(legacyAdmin).toContain('/admin');
+    expect(legacyAdmin).toContain('/app');
+  });
+});

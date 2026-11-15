@@ -29,6 +29,7 @@ const WORKBENCH_SURFACES = [
   { label: "WorkspacePrimitives", file: "apps/web/src/components/ui/WorkspacePrimitives.tsx" },
   { label: "(learner)/layout", file: "apps/web/app/[locale]/(learner)/layout.tsx" },
   { label: "(admin)/layout", file: "apps/web/app/[locale]/(admin)/layout.tsx" },
+  { label: "/admin", file: "apps/web/app/[locale]/(admin)/admin/page.tsx" },
   { label: "/app", file: "apps/web/app/[locale]/(learner)/app/page.tsx" },
   { label: "/app/gre", file: "apps/web/app/[locale]/(learner)/app/gre/page.tsx" },
   { label: "/app/ielts", file: "apps/web/app/[locale]/(learner)/app/ielts/page.tsx" },
@@ -238,6 +239,7 @@ if (serverUp || forceLive) {
       "/en/app/ielts",
       "/en/app/billing",
       "/en/app/settings",
+      "/en/admin",
     ];
 
     for (const route of liveRoutes) {
