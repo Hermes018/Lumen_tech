@@ -659,6 +659,45 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
               </div>
             </details>
 
+            <div className="border-t border-[var(--hairline)] pt-5 mt-5 space-y-3">
+              <div className="text-xs font-semibold text-[var(--brand-ink)]">
+                {isBn
+                  ? 'তাৎক্ষণিক ডেমো প্রিভিউ (ওটিপি ছাড়াই)'
+                  : 'Instant Sandbox Preview (No OTP Required)'}
+              </div>
+              <div className="grid grid-cols-1 gap-2">
+                <Link
+                  href="/app"
+                  className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>{isBn ? 'স্কলার ড্যাশবোর্ড (/app)' : 'Scholar Dashboard (/app)'}</span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </Link>
+                <Link
+                  href="/checkout?plan=gre-complete"
+                  className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>
+                    {isBn
+                      ? 'বিডিটি চেকআউট ও ভ্যাট লেজার (/checkout)'
+                      : 'BDT Checkout & VAT Ledger (/checkout)'}
+                  </span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </Link>
+                <Link
+                  href="/app/admin"
+                  className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>
+                    {isBn
+                      ? 'অ্যাডমিন ও গভর্ন্যান্স কনসোল (/app/admin)'
+                      : 'Admin & Governance Console (/app/admin)'}
+                  </span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </Link>
+              </div>
+            </div>
+
             {mode === 'sign-up' && (
               <div className="flex items-center gap-2 text-xs text-[var(--text)]">
                 <KeyRound className="h-3.5 w-3.5 shrink-0 text-[var(--brand)]" />

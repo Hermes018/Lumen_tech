@@ -14,6 +14,7 @@ import {
   Flame,
   Zap,
   User,
+  ShieldCheck,
 } from 'lucide-react';
 import { LumenSparkMotif } from '@/src/components/ui/primitives';
 import { LocaleLink } from '../_components/LocaleLink';
@@ -65,6 +66,11 @@ export default async function LearnerLayout({ children }: { children: ReactNode 
       href: '/exam/ielts-preview',
       label: isBn ? 'আইইএলটিএস সিমুলেটর' : 'CD-IELTS Simulator',
       icon: FileText,
+    },
+    {
+      href: '/app/admin',
+      label: isBn ? 'অ্যাডমিন কনসোল' : 'Admin Console',
+      icon: ShieldCheck,
     },
   ];
 
@@ -170,6 +176,10 @@ export default async function LearnerLayout({ children }: { children: ReactNode 
             <div className="hidden items-center gap-1 rounded-[4px] border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white sm:inline-flex">
               <Zap className="h-3.5 w-3.5 text-[var(--accent)]" />
               <span>{isBn ? '১২০ ক্রেডিট' : '120 Credits'}</span>
+            </div>
+
+            <div className="hidden items-center gap-1.5 rounded-[4px] border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-medium text-white/90 xl:inline-flex">
+              <span>{isBn ? 'আয়মান আর. • জিআরই ও আইইএলটিএস কোহর্ট' : 'Ayman R. • GRE & IELTS Cohort'}</span>
             </div>
 
             <LocaleLink

@@ -18,9 +18,17 @@ import { initiateCheckoutAction, submitManualCheckoutAction } from '@/app/action
 import { BangladeshPaymentTrustBar } from '../../(marketing)/_components/BangladeshPaymentTrustBar';
 import { LocaleLink } from '../../_components/LocaleLink';
 
+export interface CheckoutUser {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  role?: string;
+}
+
 export interface CheckoutClientProps {
   initialProduct: ProductDefinition;
   locale?: 'en' | 'bn';
+  user?: CheckoutUser | null;
 }
 
 type PaymentMethodId = 'bkash' | 'nagad' | 'rocket' | 'card' | 'manual';
@@ -48,10 +56,11 @@ function formatDateOffset(days: number, isBn: boolean): string {
   return str;
 }
 
-export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutClientProps) {
+export function CheckoutClient({ initialProduct, locale: propLocale, user }: CheckoutClientProps) {
   const hookLocale = useLocale();
   const locale = propLocale ?? (hookLocale === 'bn' ? 'bn' : 'en');
   const isBn = locale === 'bn';
+  const isGuest = !user?.email;
 
   const [selectedProduct, setSelectedProduct] = useState<ProductDefinition>(initialProduct);
   React.useEffect(() => {
@@ -69,13 +78,13 @@ export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutC
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('bkash');
   const [manualMethod, setManualMethod] = useState<'bkash' | 'nagad'>('bkash');
 
-  const [name, setName] = useState('Ayman Rahman');
-  const [email, setEmail] = useState('aymanrahman30@gmail.com');
-  const [phone, setPhone] = useState('01712345678');
+  const [name, setName] = useState(user?.name && user.name !== 'Guest Scholar' ? user.name : '');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('House 12, Road 4, Dhanmondi');
   const [city, setCity] = useState('Dhaka');
   const [trxId, setTrxId] = useState('');
-  const [manualSenderPhone, setManualSenderPhone] = useState('01712345678');
+  const [manualSenderPhone, setManualSenderPhone] = useState('');
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [manualSuccessMsg, setManualSuccessMsg] = useState<string | null>(null);
@@ -115,14 +124,29 @@ export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutC
     setErrorMsg(null);
     setManualSuccessMsg(null);
 
+    const effectiveName = name.trim() || 'Guest Scholar';
+    const effectiveEmail = email.trim() || 'guest@lumen.demo';
+    const effectivePhone = phone.trim() || '+8801712345678';
+
     startTransition(async () => {
       try {
         if (paymentMethod !== 'manual') {
+          if (isGuest) {
+            setDemoReceipt({
+              orderCode: `LMN-${selectedProduct.slug.toUpperCase().slice(0, 4)}-6309`,
+              activatedAt: new Date().toLocaleTimeString(isBn ? 'bn-BD' : 'en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+            });
+            return;
+          }
+
           const res = await initiateCheckoutAction({
             productSlug: selectedProduct.slug,
-            name,
-            email,
-            phone,
+            name: effectiveName,
+            email: effectiveEmail,
+            phone: effectivePhone,
             address,
             city,
           });
@@ -148,14 +172,14 @@ export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutC
 
           const res = await submitManualCheckoutAction({
             productSlug: selectedProduct.slug,
-            name,
-            email,
-            phone,
+            name: effectiveName,
+            email: effectiveEmail,
+            phone: effectivePhone,
             address,
             city,
             method: manualMethod,
             trxId: trxId.trim().toUpperCase(),
-            senderNumber: manualSenderPhone.trim() || phone.trim(),
+            senderNumber: manualSenderPhone.trim() || effectivePhone,
           });
 
           if (res.ok) {
@@ -245,13 +269,79 @@ export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutC
       </div>
 
       <form onSubmit={handleCheckoutSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        {/* Left 7 Columns: Step 1 Plan & Schedule + Step 2 Billing & Payment Method */}
+        {/* Left 7 Columns: Guest Identity (if guest) + Plan & Schedule + Billing & Payment Method */}
         <div className="lg:col-span-7 space-y-8">
-          {/* Step 1: Plan & Schedule Selection */}
-          <section className="bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8 space-y-6">
+          {isGuest && (
+            <section className="rounded-[4px] bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8 space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hairline)] pb-4">
+                <h2 className="lumen-h3">
+                  {isBn
+                    ? 'ধাপ ১: শিক্ষার্থীর অ্যাকাউন্ট ও মূসক ৬.৩ বিলিং পরিচয়'
+                    : 'Step 1: Scholar Account & Mushak 6.3 Billing Identity'}
+                </h2>
+                <LocaleLink
+                  href="/sign-in"
+                  className="text-xs font-semibold text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand)]"
+                >
+                  {isBn ? 'ইতিমধ্যে অ্যাকাউন্ট আছে? সাইন ইন করুন' : 'Already have an account? Sign in'}
+                </LocaleLink>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-[var(--brand-ink)]">
+                    {isBn ? 'শিক্ষার্থীর পূর্ণ নাম' : 'Full Name'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder={isBn ? 'আয়মান রহমান' : 'Ayman Rahman'}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--brand-ink)]">
+                    {isBn ? 'ইমেইল ঠিকানা' : 'Email Address'}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="scholar@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[var(--brand-ink)]">
+                    {isBn ? 'বাংলাদেশ মোবাইল (+880)' : 'Bangladesh Mobile'}
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+8801XXXXXXXXX"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                  />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Plan & Schedule Selection */}
+          <section className="rounded-[4px] bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8 space-y-6">
             <div className="flex items-center justify-between border-b border-[var(--hairline)] pb-4">
               <h2 className="lumen-h3">
-                {isBn ? 'ধাপ ১: প্ল্যান ও পেমেন্ট শিডিউল' : 'Step 1: Plan & Schedule Selection'}
+                {isGuest
+                  ? isBn
+                    ? 'ধাপ ২: প্ল্যান ও পেমেন্ট শিডিউল'
+                    : 'Step 2: Plan & Schedule Selection'
+                  : isBn
+                    ? 'ধাপ ১: প্ল্যান ও পেমেন্ট শিডিউল'
+                    : 'Step 1: Plan & Schedule Selection'}
               </h2>
               <span className="font-mono text-xs text-[var(--text)]">
                 {isBn ? 'বিডিটি (৳)' : 'BDT (৳)'}
@@ -489,46 +579,50 @@ export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutC
 
             {/* Billing Inputs */}
             <div className="border-t border-[var(--hairline)] pt-5 space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-[var(--brand-ink)]">
-                  {isBn ? 'শিক্ষার্থীর পূর্ণ নাম' : 'Student Full Name'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
-                />
-              </div>
+              {!isGuest && (
+                <>
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--brand-ink)]">
+                      {isBn ? 'শিক্ষার্থীর পূর্ণ নাম' : 'Student Full Name'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                    />
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[var(--brand-ink)]">
-                    {isBn ? 'ইমেইল ঠিকানা' : 'Email Address'}
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[var(--brand-ink)]">
-                    {isBn ? 'মোবাইল নম্বর (বাংলাদেশ)' : 'Mobile Number (BD)'}
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="01XXXXXXXXX"
-                    className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
-                  />
-                </div>
-              </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--brand-ink)]">
+                        {isBn ? 'ইমেইল ঠিকানা' : 'Email Address'}
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[var(--brand-ink)]">
+                        {isBn ? 'মোবাইল নম্বর (বাংলাদেশ)' : 'Mobile Number (BD)'}
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="+8801XXXXXXXXX"
+                        className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-2.5 text-sm text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2">
@@ -702,8 +796,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale }: CheckoutC
               </div>
               <p className="text-[var(--text)]">
                 {isBn
-                  ? `${name} (${email})-এর জন্য ${selectedProduct.name} মূসক ৬.৩ রসিদসহ (${demoReceipt.activatedAt}) প্রস্তুত।`
-                  : `${selectedProduct.name} activated for ${name} (${email}) with Mushak 6.3 VAT ledger at ${demoReceipt.activatedAt}.`}
+                  ? `${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'})-এর জন্য ${selectedProduct.name} মূসক ৬.৩ রসিদসহ (${demoReceipt.activatedAt}) প্রস্তুত।`
+                  : `${selectedProduct.name} activated for ${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'}) with Mushak 6.3 VAT ledger at ${demoReceipt.activatedAt}.`}
               </p>
               <LocaleLink
                 href="/app"

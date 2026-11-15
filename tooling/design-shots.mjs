@@ -36,6 +36,7 @@ const WORKBENCH_SURFACES = [
   { label: "/app/progress", file: "apps/web/app/[locale]/(learner)/app/progress/page.tsx" },
   { label: "/app/plan", file: "apps/web/app/[locale]/(learner)/app/plan/page.tsx" },
   { label: "/app/settings", file: "apps/web/app/[locale]/(learner)/app/settings/page.tsx" },
+  { label: "/app/admin", file: "apps/web/app/[locale]/(learner)/app/admin/page.tsx" },
 ];
 
 const LIVE_EXTRA_ROUTES = [
@@ -56,6 +57,7 @@ const LIVE_EXTRA_ROUTES = [
   "/app/progress",
   "/app/plan",
   "/app/settings",
+  "/app/admin",
 ];
 
 const BOXED_PRIMITIVES = ["CalloutNotice", "CtaBand", "Button"];

@@ -138,6 +138,7 @@ const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(learner)/app/progress/page.tsx',
   'apps/web/app/[locale]/(learner)/app/plan/page.tsx',
   'apps/web/app/[locale]/(learner)/app/settings/page.tsx',
+  'apps/web/app/[locale]/(learner)/app/admin/page.tsx',
 ];
 const FORBIDDEN_ROUNDED_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },

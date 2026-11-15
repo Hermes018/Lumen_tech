@@ -50,6 +50,20 @@ function resolveProduct(planParam?: string): ProductDefinition {
   return CANONICAL_PRODUCTS[0]!;
 }
 
+export interface CheckoutUserProfile {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+const GUEST_CHECKOUT_USER: CheckoutUserProfile = {
+  id: 'guest-preview',
+  email: '',
+  name: 'Guest Scholar',
+  role: 'guest',
+};
+
 export default async function CheckoutPage({
   params,
   searchParams,
@@ -61,6 +75,7 @@ export default async function CheckoutPage({
   const resolvedSearchParams = await searchParams;
   const isBn = locale === 'bn';
   const initialProduct = resolveProduct(resolvedSearchParams.plan || resolvedSearchParams.product);
+  const user: CheckoutUserProfile = GUEST_CHECKOUT_USER;
 
   return (
     <main className="min-h-screen w-full bg-[var(--bg)] text-[var(--text)]" data-locale={locale}>
@@ -75,7 +90,11 @@ export default async function CheckoutPage({
           </div>
         }
       >
-        <CheckoutClient initialProduct={initialProduct} locale={isBn ? 'bn' : 'en'} />
+        <CheckoutClient
+          initialProduct={initialProduct}
+          locale={isBn ? 'bn' : 'en'}
+          user={user}
+        />
       </React.Suspense>
     </main>
   );
