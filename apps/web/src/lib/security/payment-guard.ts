@@ -311,11 +311,77 @@ export interface RuntimeInstructorDoubt {
   status: 'Open Escalation' | 'Resolved';
 }
 
+export interface RuntimeBankAccount {
+  id: string;
+  name: string;
+  institution: string;
+  accountNumber: string;
+  currency: SupportedCurrency;
+  balance: number;
+  reconciliationStatus: 'Reconciled' | 'Clearing Escrow' | 'Pending Settlement';
+  lastReconciledAt: string;
+}
+
+export type LedgerCategory =
+  | 'PURCHASE_FULL'
+  | 'PURCHASE_SPLIT_INSTALLMENT'
+  | 'RECEIVABLE_INSTALLMENT_DUE'
+  | 'REFUND_7DAY_POLICY'
+  | 'EXPENSE_EVALUATOR_PAYOUT'
+  | 'EXPENSE_FACULTY_PAYROLL'
+  | 'EXPENSE_CLOUD_AI_INFRA'
+  | 'EXPENSE_MARKETING'
+  | 'TAX_VAT_MUSHAK_63';
+
+export type LedgerEntryType = 'EXPENSE' | 'PAYOUT' | 'REFUND' | 'BANK_TRANSFER' | 'PURCHASE';
+
+export interface RuntimeLedgerEntry {
+  id: string;
+  timestamp: string;
+  type: LedgerEntryType;
+  category: LedgerCategory;
+  description: string;
+  amount: number;
+  currency: SupportedCurrency;
+  accountId: string;
+  referenceId: string;
+  debitAccount: string;
+  creditAccount: string;
+  vatMushakAmount: number;
+  recordedBy: string;
+}
+
+export interface FinancialSummary {
+  grossRevenueBdt: number;
+  grossRevenueUsd: number;
+  gatewayClearingFeesBdt: number;
+  refundsAndReturnsBdt: number;
+  netRevenueBdt: number;
+  vatPayableMushakBdt: number;
+  totalExpensesBdt: number;
+  netOperatingProfitBdt: number;
+  accountsReceivableSplitBdt: number;
+  totalTreasuryCashBdt: number;
+  totalTreasuryCashUsd: number;
+}
+
+export interface RecordLedgerEntryInput {
+  type: LedgerEntryType;
+  category: LedgerCategory;
+  description: string;
+  amount: number;
+  currency: SupportedCurrency;
+  accountId: string;
+  referenceId: string;
+}
+
 export interface RuntimeCatalogSnapshot {
   plans: Record<string, RuntimeCatalogPlan>;
   feeRates: RuntimeFeeRates;
   promoCodes: Record<string, RuntimePromoCode>;
   orders: RuntimeAdminOrder[];
+  bankAccounts: RuntimeBankAccount[];
+  ledgerEntries: RuntimeLedgerEntry[];
   topRibbon: RuntimeTopRibbonCms;
   moderationQueue: RuntimeModerationSubmission[];
   cmsItems: RuntimeCmsVocabFaqItem[];
@@ -941,6 +1007,215 @@ function createInitialRuntimeState(): RuntimeCatalogSnapshot {
         status: 'Open Escalation',
       },
     ],
+    bankAccounts: [
+      {
+        id: 'BANK-BDT-BRAC',
+        name: 'BRAC Bank PLC — Corporate Operating A/C (BDT)',
+        institution: 'BRAC Bank PLC',
+        accountNumber: '#1501-204982-001',
+        currency: 'BDT',
+        balance: 642500,
+        reconciliationStatus: 'Reconciled',
+        lastReconciledAt: '2026-11-15 09:00 BST',
+      },
+      {
+        id: 'WALLET-BDT-BKASH',
+        name: 'bKash & Nagad Merchant Settlement Wallet (BDT)',
+        institution: 'bKash / Nagad Merchant',
+        accountNumber: '#01711-889900',
+        currency: 'BDT',
+        balance: 184220,
+        reconciliationStatus: 'Reconciled',
+        lastReconciledAt: '2026-11-15 09:15 BST',
+      },
+      {
+        id: 'GATEWAY-BDT-SSL',
+        name: 'SSLCommerz / Nexus Split-Pay Clearing Escrow (BDT)',
+        institution: 'SSLCommerz',
+        accountNumber: '#SSL-ESCROW-09',
+        currency: 'BDT',
+        balance: 92450,
+        reconciliationStatus: 'Clearing Escrow',
+        lastReconciledAt: '2026-11-15 08:45 BST',
+      },
+      {
+        id: 'BANK-USD-STRIPE',
+        name: 'Stripe Global & Wise Institutional Treasury (USD)',
+        institution: 'Stripe / Wise',
+        accountNumber: 'acct_1LumenGlobal',
+        currency: 'USD',
+        balance: 4860,
+        reconciliationStatus: 'Reconciled',
+        lastReconciledAt: '2026-11-15 04:00 UTC',
+      },
+    ],
+    ledgerEntries: [
+      {
+        id: 'LED-2026-001',
+        timestamp: '2026-11-15 09:15 BST',
+        type: 'PURCHASE',
+        category: 'PURCHASE_FULL',
+        description: 'IELTS Academic Plus — Full Enrollment (Nusrat Jahan)',
+        amount: 6490,
+        currency: 'BDT',
+        accountId: 'WALLET-BDT-BKASH',
+        referenceId: 'INV-2026-1041',
+        debitAccount: '1020 · bKash/Nagad Merchant Wallet',
+        creditAccount: '4010 · Tuition & Mock Revenue',
+        vatMushakAmount: 847,
+        recordedBy: 'SSLCommerz Webhook',
+      },
+      {
+        id: 'LED-2026-002',
+        timestamp: '2026-11-15 09:10 BST',
+        type: 'PURCHASE',
+        category: 'PURCHASE_SPLIT_INSTALLMENT',
+        description: 'GRE Complete — Installment 1/2 Paid (Ayman Rahman)',
+        amount: 5027,
+        currency: 'BDT',
+        accountId: 'GATEWAY-BDT-SSL',
+        referenceId: 'INV-2026-0892',
+        debitAccount: '1030 · Split-Pay Clearing Escrow',
+        creditAccount: '4010 · Tuition & Mock Revenue',
+        vatMushakAmount: 656,
+        recordedBy: 'bKash Split-Pay Gateway',
+      },
+      {
+        id: 'LED-2026-003',
+        timestamp: '2026-11-15 09:10 BST',
+        type: 'PURCHASE',
+        category: 'RECEIVABLE_INSTALLMENT_DUE',
+        description: 'GRE Complete — Deferred Installment 2/2 Receivable (Due +30d)',
+        amount: 5027,
+        currency: 'BDT',
+        accountId: 'GATEWAY-BDT-SSL',
+        referenceId: 'INV-2026-0892-R2',
+        debitAccount: '1200 · Accounts Receivable (Split-Pay)',
+        creditAccount: '2050 · Deferred Tuition Revenue',
+        vatMushakAmount: 0,
+        recordedBy: 'Split-Pay Schedule Engine',
+      },
+      {
+        id: 'LED-2026-004',
+        timestamp: '2026-11-14 16:40 BST',
+        type: 'PURCHASE',
+        category: 'PURCHASE_FULL',
+        description: 'Lumen All-Access Annual Pass — Cohort Batch 09 (14 Scholars)',
+        amount: 139860,
+        currency: 'BDT',
+        accountId: 'BANK-BDT-BRAC',
+        referenceId: 'INV-2026-0875',
+        debitAccount: '1010 · BRAC Bank Corporate A/C',
+        creditAccount: '4010 · Tuition & Mock Revenue',
+        vatMushakAmount: 18243,
+        recordedBy: 'BRAC Corporate Settlement',
+      },
+      {
+        id: 'LED-2026-005',
+        timestamp: '2026-11-14 14:20 UTC',
+        type: 'PURCHASE',
+        category: 'PURCHASE_FULL',
+        description: 'International Diaspora GRE + IELTS Bundle (USD Settlement)',
+        amount: 1428,
+        currency: 'USD',
+        accountId: 'BANK-USD-STRIPE',
+        referenceId: 'STRP-2026-4410',
+        debitAccount: '1040 · Stripe Global USD Treasury',
+        creditAccount: '4020 · International Tuition Revenue',
+        vatMushakAmount: 0,
+        recordedBy: 'Stripe Webhook',
+      },
+      {
+        id: 'LED-2026-006',
+        timestamp: '2026-11-14 11:05 BST',
+        type: 'REFUND',
+        category: 'REFUND_7DAY_POLICY',
+        description: '7-Day Money-Back Guarantee Refund — IELTS GT (Farhan S.)',
+        amount: 7475,
+        currency: 'BDT',
+        accountId: 'WALLET-BDT-BKASH',
+        referenceId: 'RFN-2026-019',
+        debitAccount: '4090 · Sales Returns & 7-Day Refunds',
+        creditAccount: '1020 · bKash/Nagad Merchant Wallet',
+        vatMushakAmount: 975,
+        recordedBy: 'Admin Finance Desk',
+      },
+      {
+        id: 'LED-2026-007',
+        timestamp: '2026-11-13 18:00 BST',
+        type: 'PAYOUT',
+        category: 'EXPENSE_EVALUATOR_PAYOUT',
+        description: 'Human Evaluator Batch Payout — 112 Blind Writing/Speaking Scripts',
+        amount: 28000,
+        currency: 'BDT',
+        accountId: 'BANK-BDT-BRAC',
+        referenceId: 'PAY-EVAL-2026-11',
+        debitAccount: '5100 · Evaluator Grading COGS',
+        creditAccount: '1010 · BRAC Bank Corporate A/C',
+        vatMushakAmount: 0,
+        recordedBy: 'Admin Payroll Run',
+      },
+      {
+        id: 'LED-2026-008',
+        timestamp: '2026-11-13 17:30 BST',
+        type: 'PAYOUT',
+        category: 'EXPENSE_FACULTY_PAYROLL',
+        description: 'Faculty Cohort Stipend — GRE Quant & CD-IELTS Live Mentors',
+        amount: 45000,
+        currency: 'BDT',
+        accountId: 'BANK-BDT-BRAC',
+        referenceId: 'PAY-FAC-2026-11',
+        debitAccount: '5200 · Faculty Instruction Payroll',
+        creditAccount: '1010 · BRAC Bank Corporate A/C',
+        vatMushakAmount: 0,
+        recordedBy: 'Admin Payroll Run',
+      },
+      {
+        id: 'LED-2026-009',
+        timestamp: '2026-11-12 10:15 UTC',
+        type: 'EXPENSE',
+        category: 'EXPENSE_CLOUD_AI_INFRA',
+        description: 'Neon Postgres, R2 Audio Storage & Deepgram/LLM Inference Cluster',
+        amount: 18500,
+        currency: 'BDT',
+        accountId: 'BANK-BDT-BRAC',
+        referenceId: 'INFRA-2026-11',
+        debitAccount: '6100 · Cloud & AI Inference OPEX',
+        creditAccount: '1010 · BRAC Bank Corporate A/C',
+        vatMushakAmount: 0,
+        recordedBy: 'CloudOps Billing',
+      },
+      {
+        id: 'LED-2026-010',
+        timestamp: '2026-11-11 15:00 BST',
+        type: 'EXPENSE',
+        category: 'EXPENSE_MARKETING',
+        description: 'DU / BUET / NSU Campus Diagnostic Awareness & Print Collateral',
+        amount: 12400,
+        currency: 'BDT',
+        accountId: 'WALLET-BDT-BKASH',
+        referenceId: 'MKT-2026-11',
+        debitAccount: '6200 · Campus & Acquisition OPEX',
+        creditAccount: '1020 · bKash/Nagad Merchant Wallet',
+        vatMushakAmount: 0,
+        recordedBy: 'Growth Operations',
+      },
+      {
+        id: 'LED-2026-011',
+        timestamp: '2026-11-10 12:00 BST',
+        type: 'EXPENSE',
+        category: 'TAX_VAT_MUSHAK_63',
+        description: 'NBR Mushak 6.3 Output VAT Accrual (15% Statutory Remittance)',
+        amount: 18771,
+        currency: 'BDT',
+        accountId: 'BANK-BDT-BRAC',
+        referenceId: 'M63-CHALAN-2026-11',
+        debitAccount: '2200 · NBR VAT Payable (Mushak 6.3)',
+        creditAccount: '1010 · BRAC Bank Corporate A/C',
+        vatMushakAmount: 18771,
+        recordedBy: 'Compliance & Tax Filing',
+      },
+    ],
     chainVerifiedAtIso: null,
     updatedAtIso: new Date().toISOString(),
   };
@@ -963,13 +1238,17 @@ function getStore(): RuntimeCatalogSnapshot {
       !existing.evaluatorSubmissions ||
       !existing.instructorCohorts ||
       !existing.instructorItems ||
-      !existing.instructorDoubts
+      !existing.instructorDoubts ||
+      !existing.bankAccounts ||
+      !existing.ledgerEntries
     ) {
       const defaults = createInitialRuntimeState();
       existing.evaluatorSubmissions = existing.evaluatorSubmissions ?? defaults.evaluatorSubmissions;
       existing.instructorCohorts = existing.instructorCohorts ?? defaults.instructorCohorts;
       existing.instructorItems = existing.instructorItems ?? defaults.instructorItems;
       existing.instructorDoubts = existing.instructorDoubts ?? defaults.instructorDoubts;
+      existing.bankAccounts = existing.bankAccounts ?? defaults.bankAccounts;
+      existing.ledgerEntries = existing.ledgerEntries ?? defaults.ledgerEntries;
       existing.chainVerifiedAtIso = existing.chainVerifiedAtIso ?? null;
     }
   }
@@ -1690,6 +1969,193 @@ export function verifyRuntimeAuditChain(actor = 'Psychometric Auditor'): Runtime
     'AUDITOR_VERIFY_CHAIN',
     'Immutable Compliance Ledger',
     `Cryptographic SHA-256 chain verified across ${store.auditLogs.length} audit entries`,
+    'Verified',
+  );
+
+  return cloneSnapshot(store);
+}
+
+const BDT_PER_USD_EQUIVALENT = 120;
+
+function toBdtAmount(amount: number, currency: SupportedCurrency): number {
+  return currency === 'USD' ? Math.round(amount * BDT_PER_USD_EQUIVALENT) : Math.round(amount);
+}
+
+export function computeFinancialSummary(
+  snapshot?: Pick<RuntimeCatalogSnapshot, 'orders' | 'ledgerEntries' | 'bankAccounts'>,
+): FinancialSummary {
+  const source = snapshot ?? getStore();
+  const ledger = source.ledgerEntries ?? [];
+  const orders = source.orders ?? [];
+  const accounts = source.bankAccounts ?? [];
+
+  let grossRevenueBdt = 0;
+  let grossRevenueUsd = 0;
+  let refundsAndReturnsBdt = 0;
+  let totalExpensesBdt = 0;
+  let accountsReceivableSplitBdt = 0;
+
+  for (const entry of ledger) {
+    if (entry.category === 'PURCHASE_FULL' || entry.category === 'PURCHASE_SPLIT_INSTALLMENT') {
+      if (entry.currency === 'USD') {
+        grossRevenueUsd = Number((grossRevenueUsd + entry.amount).toFixed(2));
+        grossRevenueBdt += toBdtAmount(entry.amount, 'USD');
+      } else {
+        grossRevenueBdt += Math.round(entry.amount);
+      }
+    } else if (entry.category === 'RECEIVABLE_INSTALLMENT_DUE') {
+      accountsReceivableSplitBdt += toBdtAmount(entry.amount, entry.currency);
+    } else if (entry.category === 'REFUND_7DAY_POLICY') {
+      refundsAndReturnsBdt += toBdtAmount(entry.amount, entry.currency);
+    } else if (
+      entry.category === 'EXPENSE_EVALUATOR_PAYOUT' ||
+      entry.category === 'EXPENSE_FACULTY_PAYROLL' ||
+      entry.category === 'EXPENSE_CLOUD_AI_INFRA' ||
+      entry.category === 'EXPENSE_MARKETING'
+    ) {
+      totalExpensesBdt += toBdtAmount(entry.amount, entry.currency);
+    }
+  }
+
+  let gatewayClearingFeesBdt = 0;
+  for (const order of orders) {
+    if (order.splitStatus === 'Refunded') continue;
+    const orderBdt = toBdtAmount(order.amount, order.currency);
+    if (order.splitMode === 'split-2') {
+      gatewayClearingFeesBdt += Math.round(orderBdt * SPLIT_PROCESSING_FEE_RATES['split-2']);
+    } else if (order.splitMode === 'split-3') {
+      gatewayClearingFeesBdt += Math.round(orderBdt * SPLIT_PROCESSING_FEE_RATES['split-3']);
+    } else {
+      gatewayClearingFeesBdt += Math.round(orderBdt * 0.015);
+    }
+  }
+
+  const netRevenueBdt = Math.max(0, grossRevenueBdt - refundsAndReturnsBdt - gatewayClearingFeesBdt);
+  const domesticTaxableBdt = Math.max(
+    0,
+    grossRevenueBdt - toBdtAmount(grossRevenueUsd, 'USD') - refundsAndReturnsBdt,
+  );
+  const vatPayableMushakBdt = Math.round((domesticTaxableBdt * DEFAULT_VAT_RATE_BDT) / (1 + DEFAULT_VAT_RATE_BDT));
+  const netOperatingProfitBdt = netRevenueBdt - vatPayableMushakBdt - totalExpensesBdt;
+
+  let totalTreasuryCashBdt = 0;
+  let totalTreasuryCashUsd = 0;
+  for (const acct of accounts) {
+    if (acct.currency === 'USD') {
+      totalTreasuryCashUsd = Number((totalTreasuryCashUsd + acct.balance).toFixed(2));
+    } else {
+      totalTreasuryCashBdt += Math.round(acct.balance);
+    }
+  }
+
+  return {
+    grossRevenueBdt,
+    grossRevenueUsd,
+    gatewayClearingFeesBdt,
+    refundsAndReturnsBdt,
+    netRevenueBdt,
+    vatPayableMushakBdt,
+    totalExpensesBdt,
+    netOperatingProfitBdt,
+    accountsReceivableSplitBdt,
+    totalTreasuryCashBdt,
+    totalTreasuryCashUsd,
+  };
+}
+
+function resolveDebitCreditAccounts(
+  category: LedgerCategory,
+  accountLabel: string,
+): { debitAccount: string; creditAccount: string } {
+  switch (category) {
+    case 'PURCHASE_FULL':
+    case 'PURCHASE_SPLIT_INSTALLMENT':
+      return { debitAccount: accountLabel, creditAccount: '4010 · Tuition & Mock Revenue' };
+    case 'RECEIVABLE_INSTALLMENT_DUE':
+      return {
+        debitAccount: '1200 · Accounts Receivable (Split-Pay)',
+        creditAccount: '2050 · Deferred Tuition Revenue',
+      };
+    case 'REFUND_7DAY_POLICY':
+      return { debitAccount: '4090 · Sales Returns & 7-Day Refunds', creditAccount: accountLabel };
+    case 'EXPENSE_EVALUATOR_PAYOUT':
+      return { debitAccount: '5100 · Evaluator Grading COGS', creditAccount: accountLabel };
+    case 'EXPENSE_FACULTY_PAYROLL':
+      return { debitAccount: '5200 · Faculty Instruction Payroll', creditAccount: accountLabel };
+    case 'EXPENSE_CLOUD_AI_INFRA':
+      return { debitAccount: '6100 · Cloud & AI Inference OPEX', creditAccount: accountLabel };
+    case 'EXPENSE_MARKETING':
+      return { debitAccount: '6200 · Campus & Acquisition OPEX', creditAccount: accountLabel };
+    case 'TAX_VAT_MUSHAK_63':
+      return { debitAccount: '2200 · NBR VAT Payable (Mushak 6.3)', creditAccount: accountLabel };
+  }
+}
+
+export function recordRuntimeLedgerEntry(
+  input: RecordLedgerEntryInput,
+  actor = 'Admin Console',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  if (!Number.isFinite(input.amount) || input.amount <= 0) {
+    throw new PaymentSecurityError('SECURITY_PRICE_TAMPER_DETECTED', 'Ledger amount must be a positive finite number');
+  }
+  const targetAccount = store.bankAccounts.find((a) => a.id === input.accountId);
+  if (!targetAccount) {
+    throw new PaymentSecurityError('SECURITY_UNKNOWN_PLAN', `Unknown treasury account "${input.accountId}"`);
+  }
+
+  const normalizedAmount =
+    input.currency === 'USD' ? Number(input.amount.toFixed(2)) : Math.round(input.amount);
+
+  if (input.type === 'PURCHASE') {
+    targetAccount.balance =
+      targetAccount.currency === 'USD'
+        ? Number((targetAccount.balance + normalizedAmount).toFixed(2))
+        : Math.round(targetAccount.balance + normalizedAmount);
+  } else if (input.type === 'EXPENSE' || input.type === 'PAYOUT' || input.type === 'REFUND') {
+    targetAccount.balance =
+      targetAccount.currency === 'USD'
+        ? Number((targetAccount.balance - normalizedAmount).toFixed(2))
+        : Math.round(targetAccount.balance - normalizedAmount);
+  }
+  targetAccount.lastReconciledAt = new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC';
+
+  const { debitAccount, creditAccount } = resolveDebitCreditAccounts(
+    input.category,
+    `${targetAccount.id} · ${targetAccount.institution}`,
+  );
+  const vatMushakAmount =
+    input.currency === 'BDT' &&
+    (input.category === 'PURCHASE_FULL' ||
+      input.category === 'PURCHASE_SPLIT_INSTALLMENT' ||
+      input.category === 'TAX_VAT_MUSHAK_63')
+      ? Math.round((normalizedAmount * DEFAULT_VAT_RATE_BDT) / (1 + DEFAULT_VAT_RATE_BDT))
+      : 0;
+
+  const entry: RuntimeLedgerEntry = {
+    id: `LED-${new Date().getFullYear()}-${String(store.ledgerEntries.length + 101)}`,
+    timestamp: new Date().toISOString().replace('T', ' ').slice(0, 16) + ' UTC',
+    type: input.type,
+    category: input.category,
+    description: input.description.trim(),
+    amount: normalizedAmount,
+    currency: input.currency,
+    accountId: targetAccount.id,
+    referenceId: input.referenceId.trim() || `REF-${Date.now()}`,
+    debitAccount,
+    creditAccount,
+    vatMushakAmount,
+    recordedBy: actor,
+  };
+
+  store.ledgerEntries = [entry, ...store.ledgerEntries];
+
+  appendAudit(
+    store,
+    actor,
+    'RECORD_LEDGER_ENTRY',
+    'Treasury & Double-Entry Ledger',
+    `${entry.type} (${entry.category}) ${entry.currency} ${entry.amount} on ${targetAccount.id} [${entry.referenceId}]`,
     'Verified',
   );
 

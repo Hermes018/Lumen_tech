@@ -4,6 +4,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { brand } from '@lumen/config';
 import { ShieldCheck } from 'lucide-react';
 import {
   WorkspaceContainer,
@@ -21,6 +22,11 @@ import type {
   RuntimeInstructorDoubt,
   RuntimeInstructorItem,
 } from '@/src/lib/security/payment-guard';
+import {
+  downloadExcelReport,
+  openPrintablePdfReport,
+  type InstitutionalReportPayload,
+} from '@/src/lib/export-reports';
 
 type InstructorTabId = 'cohorts' | 'telemetry' | 'authoring' | 'doubts';
 
@@ -538,7 +544,124 @@ function InstructorStudioContent() {
       ) : null}
 
       {mounted && !loading && activeTab === 'cohorts' ? (
-        <section>
+        <section className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-3">
+            <span className="text-xs font-medium text-[var(--brand-deep)]">
+              {isBn
+                ? 'কোহর্ট উপস্থিতি ও গ্রেডবুক রিপোর্ট রপ্তানি'
+                : 'Cohort Diagnostic, Attendance & Gradebook Export'}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const payload: InstitutionalReportPayload = {
+                    reportId: `LMN-COHORT-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                    documentTitle: 'Cohort Diagnostic, Syllabus & Attendance Report',
+                    subtitle: 'Faculty Cohort Schedule, Attendance Rates & Active Drill Assignments',
+                    organizationName: brand.name,
+                    generatedByRole: 'Faculty Instructor Studio',
+                    generatedAtIso: new Date().toISOString(),
+                    verificationHash: 'HMAC-SHA256:FACULTY-COHORT-REPORT',
+                    sheets: [
+                      {
+                        sheetName: 'Cohort Attendance',
+                        title: 'Live Cohort Schedule & Attendance',
+                        columns: [
+                          { key: 'id', header: 'Cohort ID', align: 'left' },
+                          { key: 'name', header: 'Cohort Name', align: 'left' },
+                          { key: 'schedule', header: 'Schedule', align: 'left' },
+                          { key: 'enrolled', header: 'Enrolled', align: 'right' },
+                          { key: 'attendance', header: 'Attendance', align: 'right' },
+                          { key: 'drill', header: 'Assigned Drill', align: 'left' },
+                        ],
+                        rows: cohorts.map((c) => ({
+                          id: c.id,
+                          name: c.name,
+                          schedule: c.schedule,
+                          enrolled: c.enrolledCount,
+                          attendance: `${c.attendancePct}%`,
+                          drill: c.assignedDrill ?? 'None',
+                        })),
+                      },
+                    ],
+                  };
+                  openPrintablePdfReport(payload);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+              >
+                <span>
+                  {isBn
+                    ? 'কোহর্ট ডায়াগনস্টিক ও উপস্থিতি রিপোর্ট (PDF)'
+                    : 'Print Cohort Diagnostic & Attendance Report (PDF)'}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const payload: InstitutionalReportPayload = {
+                    reportId: `LMN-GRADEBOOK-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                    documentTitle: 'Faculty Cohort Gradebook & Item Telemetry Workbook',
+                    subtitle: 'Cohort Attendance, Assigned Drills & 3-Tier Item Authoring Bank',
+                    organizationName: brand.name,
+                    generatedByRole: 'Faculty Instructor Studio',
+                    generatedAtIso: new Date().toISOString(),
+                    verificationHash: 'HMAC-SHA256:FACULTY-GRADEBOOK-XLS',
+                    sheets: [
+                      {
+                        sheetName: 'Cohort Gradebook',
+                        title: 'Live Cohort Schedule & Attendance',
+                        columns: [
+                          { key: 'id', header: 'Cohort ID', align: 'left' },
+                          { key: 'name', header: 'Cohort Name', align: 'left' },
+                          { key: 'enrolled', header: 'Enrolled', align: 'right' },
+                          { key: 'attendance', header: 'Attendance (%)', align: 'right' },
+                          { key: 'syllabus', header: 'Syllabus Note', align: 'left' },
+                          { key: 'drill', header: 'Assigned Drill', align: 'left' },
+                        ],
+                        rows: cohorts.map((c) => ({
+                          id: c.id,
+                          name: c.name,
+                          enrolled: c.enrolledCount,
+                          attendance: c.attendancePct,
+                          syllabus: c.syllabusNote,
+                          drill: c.assignedDrill ?? 'None',
+                        })),
+                      },
+                      {
+                        sheetName: 'Item Bank',
+                        title: 'Authored Curriculum Items',
+                        columns: [
+                          { key: 'id', header: 'Item ID', align: 'left' },
+                          { key: 'domain', header: 'Domain', align: 'left' },
+                          { key: 'pValue', header: 'Difficulty p', align: 'right' },
+                          { key: 'rpb', header: 'Discrimination rpb', align: 'right' },
+                          { key: 'qaStatus', header: 'QA Status', align: 'left' },
+                        ],
+                        rows: items.map((item) => ({
+                          id: item.id,
+                          domain: item.domain,
+                          pValue: item.difficultyPValue,
+                          rpb: item.discriminationRpb,
+                          qaStatus: item.qaStatus,
+                        })),
+                      },
+                    ],
+                  };
+                  downloadExcelReport(
+                    payload,
+                    `lumen-cohort-gradebook-${new Date().toISOString().slice(0, 10)}`,
+                  );
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+              >
+                <span>
+                  {isBn ? 'কোহর্ট গ্রেডবুক রপ্তানি (.xlsx)' : 'Export Cohort Gradebook (.xlsx)'}
+                </span>
+              </button>
+            </div>
+          </div>
+
           <WorkspaceSectionTitle
             title={isBn ? 'লাইভ কোহর্ট শিডিউল ও উপস্থিতি' : 'Live Cohort Schedule & Attendance Table'}
             subtitle={

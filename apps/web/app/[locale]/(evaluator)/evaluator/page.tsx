@@ -4,6 +4,7 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { brand } from '@lumen/config';
 import { ShieldCheck } from 'lucide-react';
 import {
   WorkspaceContainer,
@@ -18,6 +19,11 @@ import type {
   RuntimeCatalogSnapshot,
   RuntimeEvaluatorSubmission,
 } from '@/src/lib/security/payment-guard';
+import {
+  downloadExcelReport,
+  openPrintablePdfReport,
+  type InstitutionalReportPayload,
+} from '@/src/lib/export-reports';
 
 type EvaluatorTabId = 'queue' | 'workbench' | 'payouts';
 
@@ -570,7 +576,152 @@ function EvaluatorDeskContent() {
       ) : null}
 
       {mounted && !loading && activeTab === 'payouts' ? (
-        <section>
+        <section className="space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-3">
+            <span className="text-xs font-medium text-[var(--brand-deep)]">
+              {isBn
+                ? 'ইভ্যালুয়েটর পেআউট রেমিট্যান্স ও গ্রেডিং এক্সেল রপ্তানি'
+                : 'Evaluator Contractor Remittance & Graded Submissions Export'}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const payload: InstitutionalReportPayload = {
+                    reportId: `LMN-EVAL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                    documentTitle: 'Monthly Evaluator Payout Remittance & SLA Statement',
+                    subtitle: 'Zero-PII Blind Grading Piece-Rate Settlements & Inter-Rater Reliability',
+                    organizationName: brand.name,
+                    generatedByRole: 'Certified Human Evaluator',
+                    generatedAtIso: new Date().toISOString(),
+                    verificationHash: 'HMAC-SHA256:EVALUATOR-PAYOUT-LEDGER',
+                    sheets: [
+                      {
+                        sheetName: 'Payout Remittance',
+                        title: 'Monthly Piece-Rate Payout Batches',
+                        columns: [
+                          { key: 'batch', header: 'Batch ID', align: 'left' },
+                          { key: 'period', header: 'Period', align: 'left' },
+                          { key: 'scripts', header: 'Scripts Graded', align: 'right' },
+                          { key: 'sla', header: 'SLA Compliance', align: 'right' },
+                          { key: 'irr', header: 'IRR Agreement', align: 'right' },
+                          { key: 'payoutBdt', header: 'Payout (BDT)', align: 'right' },
+                          { key: 'payoutUsd', header: 'Payout (USD)', align: 'right' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: PAYOUT_LEDGER_ROWS.map((r) => ({
+                          batch: r.batchId,
+                          period: r.windowLabel,
+                          scripts: r.scriptsGraded,
+                          sla: r.slaCompliance,
+                          irr: r.irrAgreement,
+                          payoutBdt: r.payoutBdt,
+                          payoutUsd: r.payoutUsd,
+                          status: r.settlementStatus,
+                        })),
+                      },
+                      {
+                        sheetName: 'Graded Submissions',
+                        title: 'Blind-Graded Submission Log',
+                        columns: [
+                          { key: 'id', header: 'Submission Hash', align: 'left' },
+                          { key: 'task', header: 'Task', align: 'left' },
+                          { key: 'aiBand', header: 'AI Band', align: 'right' },
+                          { key: 'humanBand', header: 'Evaluator Band', align: 'right' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: submissions.map((s) => ({
+                          id: s.id,
+                          task: s.examTask,
+                          aiBand: s.aiPreScore,
+                          humanBand: s.humanBand ?? 'Pending',
+                          status: s.status,
+                        })),
+                      },
+                    ],
+                  };
+                  openPrintablePdfReport(payload);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+              >
+                <span>
+                  {isBn
+                    ? 'মাসিক ইভ্যালুয়েটর পেআউট রেমিট্যান্স প্রিন্ট (PDF)'
+                    : 'Print Monthly Evaluator Payout Remittance (PDF)'}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const payload: InstitutionalReportPayload = {
+                    reportId: `LMN-EVAL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                    documentTitle: 'Evaluator Graded Submissions & Earnings Workbook',
+                    subtitle: 'Piece-Rate SLA Batches & Blind Submission Scores',
+                    organizationName: brand.name,
+                    generatedByRole: 'Certified Human Evaluator',
+                    generatedAtIso: new Date().toISOString(),
+                    verificationHash: 'HMAC-SHA256:EVALUATOR-EARNINGS-XLS',
+                    sheets: [
+                      {
+                        sheetName: 'Payout Remittance',
+                        title: 'Monthly Piece-Rate Payout Batches',
+                        columns: [
+                          { key: 'batch', header: 'Batch ID', align: 'left' },
+                          { key: 'period', header: 'Period', align: 'left' },
+                          { key: 'scripts', header: 'Scripts Graded', align: 'right' },
+                          { key: 'sla', header: 'SLA Compliance', align: 'right' },
+                          { key: 'irr', header: 'IRR Agreement', align: 'right' },
+                          { key: 'payoutBdt', header: 'Payout (BDT)', align: 'right' },
+                          { key: 'payoutUsd', header: 'Payout (USD)', align: 'right' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: PAYOUT_LEDGER_ROWS.map((r) => ({
+                          batch: r.batchId,
+                          period: r.windowLabel,
+                          scripts: r.scriptsGraded,
+                          sla: r.slaCompliance,
+                          irr: r.irrAgreement,
+                          payoutBdt: r.payoutBdt,
+                          payoutUsd: r.payoutUsd,
+                          status: r.settlementStatus,
+                        })),
+                      },
+                      {
+                        sheetName: 'Graded Submissions',
+                        title: 'Blind-Graded Submission Log',
+                        columns: [
+                          { key: 'id', header: 'Submission Hash', align: 'left' },
+                          { key: 'task', header: 'Task', align: 'left' },
+                          { key: 'aiBand', header: 'AI Band', align: 'right' },
+                          { key: 'humanBand', header: 'Evaluator Band', align: 'right' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: submissions.map((s) => ({
+                          id: s.id,
+                          task: s.examTask,
+                          aiBand: s.aiPreScore,
+                          humanBand: s.humanBand ?? 'Pending',
+                          status: s.status,
+                        })),
+                      },
+                    ],
+                  };
+                  downloadExcelReport(
+                    payload,
+                    `lumen-evaluator-earnings-${new Date().toISOString().slice(0, 10)}`,
+                  );
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+              >
+                <span>
+                  {isBn
+                    ? 'গ্রেডেড সাবমিশন ও আয় রপ্তানি (.xlsx)'
+                    : 'Export Graded Submissions & Earnings (.xlsx)'}
+                </span>
+              </button>
+            </div>
+          </div>
+
           <WorkspaceSectionTitle
             title={isBn ? 'ইভ্যালুয়েটর এসএলএ ও পিস-রেট পেআউট লেজার' : 'Evaluator SLA & Piece-Rate Payout Ledger'}
             subtitle={

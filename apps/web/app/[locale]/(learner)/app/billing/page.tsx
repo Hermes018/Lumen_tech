@@ -15,6 +15,11 @@ import {
   WorkspaceStatRow,
   WorkspaceTabs,
 } from '@/src/components/ui/WorkspacePrimitives';
+import {
+  downloadExcelReport,
+  openPrintablePdfReport,
+  type InstitutionalReportPayload,
+} from '@/src/lib/export-reports';
 
 type BillingTab = 'history' | 'installments' | 'catalog';
 type CurrencyCode = 'BDT' | 'USD';
@@ -480,6 +485,108 @@ export default function ScholarBillingPage() {
           },
         ]}
       />
+
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-y border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-3">
+        <span className="text-xs font-medium text-[var(--brand-deep)]">
+          {isBn
+            ? 'বিলিং স্টেটমেন্ট ও মূসক ৬.৩ কর ইনভয়েস রপ্তানি'
+            : 'Scholar Billing Statement & Official NBR Mushak 6.3 Export'}
+        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const payload: InstitutionalReportPayload = {
+                reportId: `LMN-BILL-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                documentTitle: 'Scholar Payment, Installment & Tax Invoice Statement',
+                subtitle: 'Verified Tuition Receipts, Split-Pay Schedule & NBR Mushak 6.3 Tax Lines',
+                organizationName: brand.name,
+                generatedByRole: 'Scholar Self-Service',
+                generatedAtIso: new Date().toISOString(),
+                verificationHash: 'HMAC-SHA256:SCHOLAR-BILLING-LEDGER',
+                sheets: [
+                  {
+                    sheetName: 'Invoices & Payments',
+                    title: 'Payment & Installment Statement',
+                    columns: [
+                      { key: 'id', header: 'Invoice ID', align: 'left' },
+                      { key: 'date', header: 'Date', align: 'left' },
+                      { key: 'plan', header: 'Plan / Cohort', align: 'left' },
+                      { key: 'method', header: 'Method', align: 'left' },
+                      { key: 'formType', header: 'Tax Form', align: 'center' },
+                      { key: 'amount', header: 'Amount', align: 'right' },
+                      { key: 'status', header: 'Status', align: 'left' },
+                    ],
+                    rows: invoices.map((inv) => ({
+                      id: inv.id,
+                      date: inv.dateEn,
+                      plan: inv.titleEn,
+                      method: inv.method,
+                      formType: inv.formType,
+                      amount: inv.amountDisplay,
+                      status: inv.status,
+                    })),
+                  },
+                ],
+              };
+              downloadExcelReport(payload, `lumen-payment-statement-${new Date().toISOString().slice(0, 10)}`);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+          >
+            <Receipt className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>
+              {isBn
+                ? 'পেমেন্ট ও কিস্তি স্টেটমেন্ট (.xlsx)'
+                : 'Download Payment & Installment Statement (.xlsx)'}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const payload: InstitutionalReportPayload = {
+                reportId: `LMN-M63-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                documentTitle: 'Official Tax / NBR Mushak 6.3 Invoice & Installment Statement',
+                subtitle: 'Certified Bangladesh VAT (15% Mushak 6.3) & International Tuition Receipt',
+                organizationName: brand.name,
+                generatedByRole: 'Scholar Self-Service',
+                generatedAtIso: new Date().toISOString(),
+                verificationHash: 'HMAC-SHA256:MUSHAK-63-TAX-RECEIPT',
+                sheets: [
+                  {
+                    sheetName: 'Tax Invoices',
+                    title: 'Official Tax / Mushak 6.3 Invoices',
+                    columns: [
+                      { key: 'id', header: 'Invoice ID', align: 'left' },
+                      { key: 'title', header: 'Description', align: 'left' },
+                      { key: 'baseTuition', header: 'Base Tuition', align: 'right' },
+                      { key: 'vatLine', header: 'VAT / Mushak 6.3', align: 'right' },
+                      { key: 'amount', header: 'Total Paid', align: 'right' },
+                      { key: 'status', header: 'Status', align: 'left' },
+                    ],
+                    rows: invoices.map((inv) => ({
+                      id: inv.id,
+                      title: inv.titleEn,
+                      baseTuition: inv.baseTuition,
+                      vatLine: inv.vatLine,
+                      amount: inv.amountDisplay,
+                      status: inv.status,
+                    })),
+                  },
+                ],
+              };
+              openPrintablePdfReport(payload);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+          >
+            <Printer className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>
+              {isBn
+                ? 'অফিশিয়াল ট্যাক্স / মূসক ৬.৩ ইনভয়েস (PDF)'
+                : 'Print Official Tax / Mushak 6.3 Invoice (PDF)'}
+            </span>
+          </button>
+        </div>
+      </div>
 
       {notice ? (
         <div

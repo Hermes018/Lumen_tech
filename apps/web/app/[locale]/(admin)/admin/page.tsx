@@ -15,15 +15,24 @@ import {
   WorkspaceTabs,
 } from '@/src/components/ui/WorkspacePrimitives';
 import { maskEmailForAdmin, maskPhoneForAdmin } from '@/src/lib/role-guard';
-import type {
-  RuntimeAuditEntry,
-  RuntimeCatalogPlan,
-  RuntimeCatalogSnapshot,
-  RuntimeFeatureFlags,
-  RuntimePsychometricItem,
-  SplitMode,
-  SupportedCurrency,
+import {
+  computeFinancialSummary,
+  type LedgerCategory,
+  type LedgerEntryType,
+  type RuntimeAuditEntry,
+  type RuntimeCatalogPlan,
+  type RuntimeCatalogSnapshot,
+  type RuntimeFeatureFlags,
+  type RuntimePsychometricItem,
+  type SplitMode,
+  type SupportedCurrency,
 } from '@/src/lib/security/payment-guard';
+import {
+  downloadCsvReport,
+  downloadExcelReport,
+  openPrintablePdfReport,
+  type InstitutionalReportPayload,
+} from '@/src/lib/export-reports';
 
 type AdminModuleTab =
   | 'catalog'
@@ -32,7 +41,8 @@ type AdminModuleTab =
   | 'cms'
   | 'scholars'
   | 'flags'
-  | 'audit';
+  | 'audit'
+  | 'treasury';
 
 interface PlanDraft {
   baseBdt: string;
@@ -84,7 +94,8 @@ function resolveAdminTab(rawTab: string | null): AdminModuleTab {
     rawTab === 'cms' ||
     rawTab === 'scholars' ||
     rawTab === 'flags' ||
-    rawTab === 'audit'
+    rawTab === 'audit' ||
+    rawTab === 'treasury'
   ) {
     return rawTab;
   }
@@ -92,6 +103,192 @@ function resolveAdminTab(rawTab: string | null): AdminModuleTab {
     return 'flags';
   }
   return 'catalog';
+}
+
+type TreasuryFilter =
+  | 'all'
+  | 'purchases'
+  | 'receivables'
+  | 'refunds'
+  | 'payouts'
+  | 'opex'
+  | 'vat';
+
+function buildAdminTreasuryReportPayload(
+  snap: RuntimeCatalogSnapshot,
+): InstitutionalReportPayload {
+  const summary = computeFinancialSummary(snap);
+  const generatedAtIso = new Date().toISOString();
+  const reportId = `LMN-FIN-${generatedAtIso.slice(0, 10).replace(/-/g, '')}`;
+  const accounts = snap.bankAccounts ?? [];
+  const ledger = snap.ledgerEntries ?? [];
+  const orders = snap.orders ?? [];
+
+  const purchases = ledger.filter(
+    (e) => e.category === 'PURCHASE_FULL' || e.category === 'PURCHASE_SPLIT_INSTALLMENT',
+  );
+  const expensesAndPayouts = ledger.filter(
+    (e) =>
+      e.category === 'EXPENSE_EVALUATOR_PAYOUT' ||
+      e.category === 'EXPENSE_FACULTY_PAYROLL' ||
+      e.category === 'EXPENSE_CLOUD_AI_INFRA' ||
+      e.category === 'EXPENSE_MARKETING',
+  );
+  const refunds = ledger.filter((e) => e.category === 'REFUND_7DAY_POLICY');
+  const vatRows = ledger.filter((e) => e.vatMushakAmount > 0 || e.category === 'TAX_VAT_MUSHAK_63');
+
+  return {
+    reportId,
+    documentTitle: `${brand.name} — Consolidated Financial, Treasury & NBR Mushak 6.3 Filing`,
+    subtitle: 'Double-Entry General Ledger, Bank Reconciliation, P&L Statement & Statutory VAT Register',
+    organizationName: brand.name,
+    generatedByRole: 'Ayman Rahman (Institutional Admin)',
+    generatedAtIso,
+    currencyNote: 'Primary: BDT (৳) · International: USD ($) @ ৳120/USD',
+    verificationHash: `HMAC-SHA256:${snap.updatedAtIso.replace(/[^0-9A-Za-z]/g, '').slice(0, 24)}`,
+    sheets: [
+      {
+        sheetName: 'Summary P&L',
+        title: 'Consolidated Profit & Loss (P&L) Statement',
+        summaryMetrics: [
+          { label: 'Gross Revenue (BDT eq.)', value: `৳${summary.grossRevenueBdt.toLocaleString('en-US')}` },
+          { label: 'Net Revenue', value: `৳${summary.netRevenueBdt.toLocaleString('en-US')}` },
+          { label: 'Total Operating Expenses', value: `৳${summary.totalExpensesBdt.toLocaleString('en-US')}` },
+          { label: 'Net Operating Profit', value: `৳${summary.netOperatingProfitBdt.toLocaleString('en-US')}` },
+        ],
+        columns: [
+          { key: 'lineItem', header: 'P&L Line Item', align: 'left' },
+          { key: 'basis', header: 'Accounting Basis', align: 'left' },
+          { key: 'amountBdt', header: 'Amount (BDT ৳)', align: 'right' },
+        ],
+        rows: [
+          { lineItem: 'Gross Tuition & Mock Revenue (BDT eq.)', basis: 'Accrued Inflows', amountBdt: summary.grossRevenueBdt },
+          { lineItem: 'International USD Revenue (Gross)', basis: `USD $${summary.grossRevenueUsd.toFixed(2)}`, amountBdt: Math.round(summary.grossRevenueUsd * 120) },
+          { lineItem: 'Less: 7-Day Policy Refunds & Returns', basis: 'Contra-Revenue', amountBdt: -summary.refundsAndReturnsBdt },
+          { lineItem: 'Less: Gateway & Split-Pay Clearing Fees', basis: '2.85% / 4.75% / 1.5%', amountBdt: -summary.gatewayClearingFeesBdt },
+          { lineItem: 'Net Revenue', basis: 'After Returns & Clearing', amountBdt: summary.netRevenueBdt },
+          { lineItem: 'Less: NBR Mushak 6.3 Output VAT (15%)', basis: 'Statutory Liability', amountBdt: -summary.vatPayableMushakBdt },
+          { lineItem: 'Less: Evaluator, Faculty, Infra & Marketing OPEX', basis: 'COGS + OPEX', amountBdt: -summary.totalExpensesBdt },
+          { lineItem: 'Net Operating Profit', basis: 'Bottom-Line Operating Surplus', amountBdt: summary.netOperatingProfitBdt },
+          { lineItem: 'Memo: Split-Pay Accounts Receivable', basis: 'Deferred Installments Due', amountBdt: summary.accountsReceivableSplitBdt },
+        ],
+      },
+      {
+        sheetName: 'Treasury Accounts',
+        title: 'Treasury & Gateway Settlement Accounts',
+        columns: [
+          { key: 'id', header: 'Account ID', align: 'left' },
+          { key: 'name', header: 'Account Name', align: 'left' },
+          { key: 'accountNumber', header: 'Account / Merchant #', align: 'left' },
+          { key: 'currency', header: 'Currency', align: 'center' },
+          { key: 'balance', header: 'Current Balance', align: 'right' },
+          { key: 'status', header: 'Reconciliation', align: 'left' },
+          { key: 'reconciledAt', header: 'Last Reconciled', align: 'left' },
+        ],
+        rows: accounts.map((a) => ({
+          id: a.id,
+          name: a.name,
+          accountNumber: a.accountNumber,
+          currency: a.currency,
+          balance: a.balance,
+          status: a.reconciliationStatus,
+          reconciledAt: a.lastReconciledAt,
+        })),
+      },
+      {
+        sheetName: 'Purchases & Orders',
+        title: 'Verified Tuition Purchases & Split-Pay Orders',
+        columns: [
+          { key: 'ref', header: 'Reference / Order ID', align: 'left' },
+          { key: 'timestamp', header: 'Timestamp', align: 'left' },
+          { key: 'description', header: 'Description / Plan', align: 'left' },
+          { key: 'currency', header: 'Currency', align: 'center' },
+          { key: 'amount', header: 'Amount', align: 'right' },
+          { key: 'account', header: 'Settlement Account', align: 'left' },
+        ],
+        rows: [
+          ...purchases.map((p) => ({
+            ref: p.referenceId,
+            timestamp: p.timestamp,
+            description: p.description,
+            currency: p.currency,
+            amount: p.amount,
+            account: p.accountId,
+          })),
+          ...orders.map((o) => ({
+            ref: o.id,
+            timestamp: o.createdAt,
+            description: `${o.planLabel} (${o.splitStatus}) — ${o.paymentMethod}`,
+            currency: o.currency,
+            amount: o.amount,
+            account: o.mushakChalanId ?? 'Pending Mushak',
+          })),
+        ],
+      },
+      {
+        sheetName: 'Expenses & Payouts',
+        title: 'Evaluator Payouts, Faculty Payroll & Operating Expenses',
+        columns: [
+          { key: 'id', header: 'Ledger ID', align: 'left' },
+          { key: 'referenceId', header: 'Reference', align: 'left' },
+          { key: 'category', header: 'Category', align: 'left' },
+          { key: 'description', header: 'Description', align: 'left' },
+          { key: 'debitAccount', header: 'Debit GL', align: 'left' },
+          { key: 'creditAccount', header: 'Credit GL', align: 'left' },
+          { key: 'amount', header: 'Amount', align: 'right' },
+        ],
+        rows: expensesAndPayouts.map((e) => ({
+          id: e.id,
+          referenceId: e.referenceId,
+          category: e.category,
+          description: e.description,
+          debitAccount: e.debitAccount,
+          creditAccount: e.creditAccount,
+          amount: e.amount,
+        })),
+      },
+      {
+        sheetName: 'Refunds & Returns',
+        title: '7-Day Money-Back Guarantee Refunds & Returns',
+        columns: [
+          { key: 'id', header: 'Ledger ID', align: 'left' },
+          { key: 'referenceId', header: 'Refund Ref', align: 'left' },
+          { key: 'timestamp', header: 'Timestamp', align: 'left' },
+          { key: 'description', header: 'Description', align: 'left' },
+          { key: 'currency', header: 'Currency', align: 'center' },
+          { key: 'amount', header: 'Refund Amount', align: 'right' },
+        ],
+        rows: refunds.map((r) => ({
+          id: r.id,
+          referenceId: r.referenceId,
+          timestamp: r.timestamp,
+          description: r.description,
+          currency: r.currency,
+          amount: r.amount,
+        })),
+      },
+      {
+        sheetName: 'NBR Mushak 6.3 VAT Register',
+        title: 'Bangladesh NBR Mushak 6.3 Statutory VAT Register (15%)',
+        columns: [
+          { key: 'id', header: 'Ledger ID', align: 'left' },
+          { key: 'referenceId', header: 'Chalan / Ref', align: 'left' },
+          { key: 'timestamp', header: 'Timestamp', align: 'left' },
+          { key: 'description', header: 'Taxable Supply / Filing', align: 'left' },
+          { key: 'grossAmount', header: 'Gross Amount (BDT)', align: 'right' },
+          { key: 'vatAmount', header: 'VAT 15% (BDT)', align: 'right' },
+        ],
+        rows: vatRows.map((v) => ({
+          id: v.id,
+          referenceId: v.referenceId,
+          timestamp: v.timestamp,
+          description: v.description,
+          grossAmount: v.amount,
+          vatAmount: v.vatMushakAmount,
+        })),
+      },
+    ],
+  };
 }
 
 function AdminConsoleContent() {
@@ -108,6 +305,27 @@ function AdminConsoleContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ tone: 'ok' | 'err'; text: string } | null>(null);
+
+  // Module 8: Banking, Treasury, Double-Entry Ledger & Reports
+  const [treasuryFilter, setTreasuryFilter] = useState<TreasuryFilter>('all');
+  const [ledgerDrawerOpen, setLedgerDrawerOpen] = useState(false);
+  const [ledgerDraft, setLedgerDraft] = useState<{
+    type: LedgerEntryType;
+    category: LedgerCategory;
+    description: string;
+    amount: string;
+    currency: SupportedCurrency;
+    accountId: string;
+    referenceId: string;
+  }>({
+    type: 'EXPENSE',
+    category: 'EXPENSE_EVALUATOR_PAYOUT',
+    description: '',
+    amount: '',
+    currency: 'BDT',
+    accountId: 'BANK-BDT-BRAC',
+    referenceId: '',
+  });
 
   // Module 1: Catalog, Fees & Single-Row Progressive Disclosure Editor
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
@@ -424,6 +642,11 @@ function AdminConsoleContent() {
       id: 'audit',
       label: isBn ? '৭. নিরাপত্তা অডিট ও ব্যাকআপ' : 'Security Audit & Backup',
       count: combinedAuditLogs.length || undefined,
+    },
+    {
+      id: 'treasury',
+      label: isBn ? '৮. ব্যাংকিং, ট্রেজারি ও পিএন্ডএল' : 'Banking, Treasury & P&L',
+      count: catalog?.ledgerEntries?.length || undefined,
     },
   ];
 
@@ -1960,6 +2183,403 @@ function AdminConsoleContent() {
               },
             }))}
           />
+        </section>
+      ) : null}
+
+      {catalog && activeTab === 'treasury' ? (
+        <section aria-label={isBn ? 'ব্যাংকিং, ট্রেজারি ও পিএন্ডএল' : 'Banking, Treasury & P&L'} className="space-y-8">
+          {(() => {
+            const summary = computeFinancialSummary(catalog);
+            const accounts = catalog.bankAccounts ?? [];
+            const allLedger = catalog.ledgerEntries ?? [];
+            const filteredLedger = allLedger.filter((entry) => {
+              if (treasuryFilter === 'all') return true;
+              if (treasuryFilter === 'purchases') {
+                return entry.category === 'PURCHASE_FULL' || entry.category === 'PURCHASE_SPLIT_INSTALLMENT';
+              }
+              if (treasuryFilter === 'receivables') return entry.category === 'RECEIVABLE_INSTALLMENT_DUE';
+              if (treasuryFilter === 'refunds') return entry.category === 'REFUND_7DAY_POLICY';
+              if (treasuryFilter === 'payouts') {
+                return (
+                  entry.category === 'EXPENSE_EVALUATOR_PAYOUT' ||
+                  entry.category === 'EXPENSE_FACULTY_PAYROLL'
+                );
+              }
+              if (treasuryFilter === 'opex') {
+                return (
+                  entry.category === 'EXPENSE_CLOUD_AI_INFRA' ||
+                  entry.category === 'EXPENSE_MARKETING'
+                );
+              }
+              if (treasuryFilter === 'vat') {
+                return entry.category === 'TAX_VAT_MUSHAK_63' || entry.vatMushakAmount > 0;
+              }
+              return true;
+            });
+
+            const treasuryStats = [
+              {
+                value: `৳${summary.grossRevenueBdt.toLocaleString('en-US')} / ৳${summary.netRevenueBdt.toLocaleString('en-US')}`,
+                label: isBn ? 'মোট ও নিট রাজস্ব (৳ / $)' : `Gross & Net Revenue ($${summary.grossRevenueUsd.toFixed(0)} USD incl.)`,
+              },
+              {
+                value: `৳${summary.accountsReceivableSplitBdt.toLocaleString('en-US')} / ৳${summary.gatewayClearingFeesBdt.toLocaleString('en-US')}`,
+                label: isBn ? 'স্প্লিট-পে প্রাপ্য ও গেটওয়ে ফি (২.৮৫% / ৪.৭৫%)' : 'Split-Pay Receivables & Gateway Fees (2.85% / 4.75%)',
+              },
+              {
+                value: `৳${summary.totalExpensesBdt.toLocaleString('en-US')} / ৳${summary.refundsAndReturnsBdt.toLocaleString('en-US')}`,
+                label: isBn ? 'অপারেটিং খরচ, পেআউট ও রিফান্ড' : 'Operating Expenses, Payouts & 7-Day Refunds',
+              },
+              {
+                value: `৳${summary.netOperatingProfitBdt.toLocaleString('en-US')}`,
+                label: isBn
+                  ? `নিট মুনাফা (মূসক ৬.৩ ভ্যাট: ৳${summary.vatPayableMushakBdt.toLocaleString('en-US')})`
+                  : `Net Operating Profit (NBR Mushak 6.3 VAT: ৳${summary.vatPayableMushakBdt.toLocaleString('en-US')})`,
+              },
+            ];
+
+            return (
+              <>
+                <div className="border-y border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="font-serif text-base font-medium text-[var(--brand-deep)]">
+                        {isBn
+                          ? 'প্রাতিষ্ঠানিক আর্থিক ও মূসক ৬.৩ রিপোর্ট ফাইলিং বার'
+                          : 'Universal Business Report Filing Bar (6-Sheet Excel, UTF-8 CSV & Print PDF)'}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        {isBn
+                          ? `মোট ট্রেজারি নগদ: ৳${summary.totalTreasuryCashBdt.toLocaleString('en-US')} + $${summary.totalTreasuryCashUsd.toFixed(2)} USD`
+                          : `Live Treasury Cash: ৳${summary.totalTreasuryCashBdt.toLocaleString('en-US')} BDT + $${summary.totalTreasuryCashUsd.toFixed(2)} USD`}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadExcelReport(
+                            buildAdminTreasuryReportPayload(catalog),
+                            `lumen-financial-workbook-${new Date().toISOString().slice(0, 10)}`,
+                          )
+                        }
+                        className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3.5 py-2 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+                      >
+                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>
+                          {isBn
+                            ? 'সম্পূর্ণ আর্থিক ওয়ার্কবুক (.xlsx — ৬ শিট)'
+                            : 'Download Complete Financial Workbook (.xlsx — 6 Sheets)'}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          downloadCsvReport(
+                            buildAdminTreasuryReportPayload(catalog),
+                            `lumen-accounting-ledger-${new Date().toISOString().slice(0, 10)}`,
+                            3,
+                          )
+                        }
+                        className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3.5 py-2 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+                      >
+                        <Download className="h-3.5 w-3.5" aria-hidden="true" />
+                        <span>{isBn ? 'অ্যাকাউন্টিং লেজার (.csv)' : 'Download Accounting Ledger (.csv)'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openPrintablePdfReport(buildAdminTreasuryReportPayload(catalog))}
+                        className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3.5 py-2 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+                      >
+                        <span>
+                          {isBn
+                            ? 'অফিশিয়াল পিএন্ডএল ও ট্যাক্স রিপোর্ট প্রিন্ট (PDF)'
+                            : 'Print / Save Official P&L & Tax Report (PDF)'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <WorkspaceStatRow stats={treasuryStats} />
+
+                <div>
+                  <WorkspaceSectionTitle
+                    title={isBn ? 'ট্রেজারি ও গেটওয়ে সেটেলমেন্ট অ্যাকাউন্ট' : 'Treasury & Gateway Settlement Accounts'}
+                    subtitle={
+                      isBn
+                        ? 'BRAC ব্যাংক, bKash/Nagad, SSLCommerz এসক্রো এবং Stripe Global USD অ্যাকাউন্ট ব্যালেন্স।'
+                        : 'Live reconciliation across BRAC Bank PLC, bKash/Nagad merchant wallet, SSLCommerz split-pay escrow, and Stripe USD.'
+                    }
+                  />
+                  <WorkspaceDataTable
+                    caption={isBn ? 'ট্রেজারি ও গেটওয়ে অ্যাকাউন্ট' : 'Treasury & Gateway Settlement Accounts'}
+                    columns={[
+                      { key: 'accountNumber', header: isBn ? 'অ্যাকাউন্ট #' : 'Account / Merchant #' },
+                      { key: 'currency', header: isBn ? 'মুদ্রা' : 'Currency', align: 'center' },
+                      { key: 'balance', header: isBn ? 'ব্যালেন্স' : 'Live Balance', align: 'right' },
+                      { key: 'status', header: isBn ? 'স্ট্যাটাস' : 'Reconciliation' },
+                      { key: 'reconciledAt', header: isBn ? 'সর্বশেষ সমন্বয়' : 'Last Reconciled', align: 'right' },
+                    ]}
+                    rows={accounts.map((acct) => ({
+                      id: acct.id,
+                      rowHeader: acct.name,
+                      rowSubheader: `${acct.id} · ${acct.institution}`,
+                      cells: {
+                        accountNumber: <span className="font-mono text-xs">{acct.accountNumber}</span>,
+                        currency: <span className="text-xs font-medium">{acct.currency}</span>,
+                        balance: (
+                          <span className="font-medium tabular-nums">
+                            {acct.currency === 'USD'
+                              ? `$${acct.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                              : `৳${acct.balance.toLocaleString('en-US')}`}
+                          </span>
+                        ),
+                        status: <span className="text-xs text-[var(--brand-deep)]">{acct.reconciliationStatus}</span>,
+                        reconciledAt: <span className="font-mono text-xs text-[var(--text-muted)]">{acct.lastReconciledAt}</span>,
+                      },
+                    }))}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex flex-wrap items-end justify-between gap-4">
+                    <WorkspaceSectionTitle
+                      title={
+                        isBn
+                          ? 'সাধারণ আর্থিক লেজার — ক্রয়, খরচ, পেআউট ও রিফান্ড'
+                          : 'General Monetary Ledger — Purchases, Expenses, Payouts, Refunds & Returns'
+                      }
+                      subtitle={
+                        isBn
+                          ? 'ডাবল-এন্ট্রি ডেবিট/ক্রেডিট খতিয়ান এবং মূসক ৬.৩ ভ্যাট হিসাব।'
+                          : 'Double-entry debit/credit journal with live bank balance updates and NBR Mushak 6.3 VAT tracking.'
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setLedgerDrawerOpen((prev) => !prev)}
+                      className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3.5 py-2 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+                    >
+                      <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>
+                        {isBn ? '+ খরচ / পেআউট / ব্যাংক এন্ট্রি যোগ করুন' : '+ Record Expense / Payout / Bank Entry'}
+                      </span>
+                    </button>
+                  </div>
+
+                  {ledgerDrawerOpen ? (
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const parsedAmount = Number(ledgerDraft.amount);
+                        if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+                          setStatusMessage({ tone: 'err', text: 'Enter a valid positive amount.' });
+                          return;
+                        }
+                        void postAdminMutation(
+                          {
+                            action: 'RECORD_LEDGER_ENTRY',
+                            type: ledgerDraft.type,
+                            category: ledgerDraft.category,
+                            description: ledgerDraft.description.trim() || `${ledgerDraft.type} — ${ledgerDraft.category}`,
+                            amount: parsedAmount,
+                            currency: ledgerDraft.currency,
+                            accountId: ledgerDraft.accountId,
+                            referenceId: ledgerDraft.referenceId.trim() || `REF-${Date.now()}`,
+                          },
+                          isBn
+                            ? 'নতুন ডাবল-এন্ট্রি লেজার রেকর্ড এবং ব্যাংক ব্যালেন্স আপডেট করা হয়েছে।'
+                            : 'Double-entry ledger transaction recorded and treasury balance updated.',
+                        );
+                        setLedgerDrawerOpen(false);
+                        setLedgerDraft((prev) => ({ ...prev, description: '', amount: '', referenceId: '' }));
+                      }}
+                      className="grid gap-4 border border-[var(--hairline)] bg-[var(--surface-paper)] p-4 md:grid-cols-3"
+                    >
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-[var(--brand-deep)]">Entry Type</span>
+                        <select
+                          value={ledgerDraft.type}
+                          onChange={(e) => setLedgerDraft((p) => ({ ...p, type: e.target.value as LedgerEntryType }))}
+                          className="w-full rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs"
+                        >
+                          <option value="EXPENSE">EXPENSE</option>
+                          <option value="PAYOUT">PAYOUT</option>
+                          <option value="REFUND">REFUND</option>
+                          <option value="PURCHASE">PURCHASE</option>
+                          <option value="BANK_TRANSFER">BANK_TRANSFER</option>
+                        </select>
+                      </label>
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-[var(--brand-deep)]">GL Category</span>
+                        <select
+                          value={ledgerDraft.category}
+                          onChange={(e) => setLedgerDraft((p) => ({ ...p, category: e.target.value as LedgerCategory }))}
+                          className="w-full rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs"
+                        >
+                          <option value="EXPENSE_EVALUATOR_PAYOUT">EXPENSE_EVALUATOR_PAYOUT</option>
+                          <option value="EXPENSE_FACULTY_PAYROLL">EXPENSE_FACULTY_PAYROLL</option>
+                          <option value="EXPENSE_CLOUD_AI_INFRA">EXPENSE_CLOUD_AI_INFRA</option>
+                          <option value="EXPENSE_MARKETING">EXPENSE_MARKETING</option>
+                          <option value="REFUND_7DAY_POLICY">REFUND_7DAY_POLICY</option>
+                          <option value="PURCHASE_FULL">PURCHASE_FULL</option>
+                          <option value="PURCHASE_SPLIT_INSTALLMENT">PURCHASE_SPLIT_INSTALLMENT</option>
+                          <option value="RECEIVABLE_INSTALLMENT_DUE">RECEIVABLE_INSTALLMENT_DUE</option>
+                          <option value="TAX_VAT_MUSHAK_63">TAX_VAT_MUSHAK_63</option>
+                        </select>
+                      </label>
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-[var(--brand-deep)]">Treasury Account</span>
+                        <select
+                          value={ledgerDraft.accountId}
+                          onChange={(e) => {
+                            const nextAcct = accounts.find((a) => a.id === e.target.value);
+                            setLedgerDraft((p) => ({
+                              ...p,
+                              accountId: e.target.value,
+                              currency: nextAcct?.currency ?? p.currency,
+                            }));
+                          }}
+                          className="w-full rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs"
+                        >
+                          {accounts.map((a) => (
+                            <option key={a.id} value={a.id}>
+                              {a.id} ({a.currency})
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="block text-xs md:col-span-2">
+                        <span className="mb-1 block font-medium text-[var(--brand-deep)]">Description</span>
+                        <input
+                          type="text"
+                          required
+                          value={ledgerDraft.description}
+                          onChange={(e) => setLedgerDraft((p) => ({ ...p, description: e.target.value }))}
+                          placeholder="e.g. Evaluator Batch Payout — November 2026"
+                          className="w-full rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs"
+                        />
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className="block text-xs">
+                          <span className="mb-1 block font-medium text-[var(--brand-deep)]">
+                            Amount ({ledgerDraft.currency})
+                          </span>
+                          <input
+                            type="number"
+                            min="1"
+                            step="any"
+                            required
+                            value={ledgerDraft.amount}
+                            onChange={(e) => setLedgerDraft((p) => ({ ...p, amount: e.target.value }))}
+                            placeholder="5000"
+                            className="w-full rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs tabular-nums"
+                          />
+                        </label>
+                        <label className="block text-xs">
+                          <span className="mb-1 block font-medium text-[var(--brand-deep)]">Reference ID</span>
+                          <input
+                            type="text"
+                            value={ledgerDraft.referenceId}
+                            onChange={(e) => setLedgerDraft((p) => ({ ...p, referenceId: e.target.value }))}
+                            placeholder="PAY-2026-12"
+                            className="w-full rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs font-mono"
+                          />
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2 md:col-span-3">
+                        <button
+                          type="submit"
+                          disabled={saving}
+                          className="rounded-sm bg-[var(--brand)] px-4 py-1.5 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)] disabled:opacity-60"
+                        >
+                          {saving ? 'Recording...' : 'Post Double-Entry Ledger'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setLedgerDrawerOpen(false)}
+                          className="rounded-sm border border-[var(--hairline)] px-3 py-1.5 text-xs text-[var(--text-muted)]"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
+
+                  <div className="flex flex-wrap gap-2">
+                    {(
+                      [
+                        ['all', 'All'],
+                        ['purchases', 'Purchases & Inflows'],
+                        ['receivables', 'Split-Pay Receivables'],
+                        ['refunds', 'Refunds & Returns'],
+                        ['payouts', 'Evaluator & Faculty Payouts'],
+                        ['opex', 'Operating Expenses'],
+                        ['vat', 'NBR VAT'],
+                      ] as const
+                    ).map(([key, label]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setTreasuryFilter(key)}
+                        className={`rounded-sm border px-3 py-1.5 text-xs font-medium ${
+                          treasuryFilter === key
+                            ? 'border-[var(--brand)] bg-[var(--brand)] text-[var(--on-brand)]'
+                            : 'border-[var(--hairline)] bg-[var(--bg)] text-[var(--brand-deep)] hover:border-[var(--brand)]'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <WorkspaceDataTable
+                    caption={isBn ? 'সাধারণ আর্থিক লেজার' : 'General Monetary Ledger'}
+                    columns={[
+                      { key: 'referenceId', header: isBn ? 'রেফারেন্স' : 'Ref / Timestamp' },
+                      { key: 'category', header: isBn ? 'খাত' : 'GL Category' },
+                      { key: 'accounts', header: isBn ? 'ডেবিট / ক্রেডিট' : 'Debit -> Credit GL' },
+                      { key: 'amount', header: isBn ? 'পরিমাণ' : 'Amount', align: 'right' },
+                      { key: 'vat', header: isBn ? 'মূসক ৬.৩' : 'Mushak VAT', align: 'right' },
+                    ]}
+                    rows={filteredLedger.map((entry) => ({
+                      id: entry.id,
+                      rowHeader: entry.description,
+                      rowSubheader: `${entry.id} · ${entry.accountId} · Recorded by ${entry.recordedBy}`,
+                      cells: {
+                        referenceId: (
+                          <div className="text-xs">
+                            <div className="font-mono font-medium text-[var(--brand-deep)]">{entry.referenceId}</div>
+                            <div className="text-[var(--text-muted)]">{entry.timestamp}</div>
+                          </div>
+                        ),
+                        category: <span className="font-mono text-xs">{entry.category}</span>,
+                        accounts: (
+                          <div className="text-xs text-[var(--text-muted)]">
+                            <div>Dr: {entry.debitAccount}</div>
+                            <div>Cr: {entry.creditAccount}</div>
+                          </div>
+                        ),
+                        amount: (
+                          <span className="font-medium tabular-nums">
+                            {entry.currency === 'USD'
+                              ? `$${entry.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                              : `৳${entry.amount.toLocaleString('en-US')}`}
+                          </span>
+                        ),
+                        vat: (
+                          <span className="text-xs tabular-nums text-[var(--text-muted)]">
+                            {entry.vatMushakAmount > 0 ? `৳${entry.vatMushakAmount.toLocaleString('en-US')}` : '—'}
+                          </span>
+                        ),
+                      },
+                    }))}
+                  />
+                </div>
+              </>
+            );
+          })()}
         </section>
       ) : null}
     </WorkspaceContainer>

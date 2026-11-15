@@ -4,6 +4,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  buildCsvString,
+  buildExcelSpreadsheetXml,
+  buildPrintableHtmlDocument,
+  type InstitutionalReportPayload,
+} from '../../../../apps/web/src/lib/export-reports';
+import {
   SECURITY_POLICY,
   checkRateLimit,
   resetRateLimitStore,
@@ -19,7 +25,9 @@ import {
   applyRuntimeScholarAction,
   clearIdempotencyReplayCache,
   computeCanonicalOrder,
+  computeFinancialSummary,
   getRuntimeCatalog,
+  recordRuntimeLedgerEntry,
   resetRuntimeCatalogToDefaults,
   signWebhookPayload,
   toggleRuntimeFeatureFlag,
@@ -367,6 +375,113 @@ describe('Batch P20 Modular Cybersecurity & Payment Integrity Suite', () => {
       expect(scholar?.aiCreditsRemaining).toBe(34);
 
       expect(snap.auditLogs[0]?.action).toBe('SCHOLAR_GRANT_AI_CREDITS');
+    });
+  });
+
+  describe('Enterprise Banking, Double-Entry Ledger & Universal Export Engine (BATCH P37)', () => {
+    it('computes live P&L financial summary and updates treasury cash on RECORD_LEDGER_ENTRY', () => {
+      resetRuntimeCatalogToDefaults('Test Runner');
+      const initialSnap = getRuntimeCatalog();
+      expect(initialSnap.bankAccounts.length).toBe(4);
+      expect(initialSnap.ledgerEntries.length).toBeGreaterThanOrEqual(11);
+
+      const initialSummary = computeFinancialSummary(initialSnap);
+      expect(initialSummary.grossRevenueBdt).toBeGreaterThan(0);
+      expect(initialSummary.grossRevenueUsd).toBeGreaterThan(0);
+      expect(initialSummary.vatPayableMushakBdt).toBeGreaterThan(0);
+      expect(initialSummary.totalExpensesBdt).toBeGreaterThan(0);
+      expect(initialSummary.accountsReceivableSplitBdt).toBe(5027);
+      expect(initialSummary.totalTreasuryCashBdt).toBe(642500 + 184220 + 92450);
+      expect(initialSummary.totalTreasuryCashUsd).toBe(4860);
+
+      const bracBefore = initialSnap.bankAccounts.find((a) => a.id === 'BANK-BDT-BRAC')?.balance ?? 0;
+      const updatedSnap = recordRuntimeLedgerEntry(
+        {
+          type: 'PAYOUT',
+          category: 'EXPENSE_EVALUATOR_PAYOUT',
+          description: 'November Blind Evaluator Settlement',
+          amount: 15000,
+          currency: 'BDT',
+          accountId: 'BANK-BDT-BRAC',
+          referenceId: 'PAY-EVAL-TEST-01',
+        },
+        'Admin Tester',
+      );
+
+      const bracAfter = updatedSnap.bankAccounts.find((a) => a.id === 'BANK-BDT-BRAC')?.balance ?? 0;
+      expect(bracAfter).toBe(bracBefore - 15000);
+      expect(updatedSnap.ledgerEntries[0]?.referenceId).toBe('PAY-EVAL-TEST-01');
+      expect(updatedSnap.auditLogs[0]?.action).toBe('RECORD_LEDGER_ENTRY');
+
+      const updatedSummary = computeFinancialSummary(updatedSnap);
+      expect(updatedSummary.totalExpensesBdt).toBe(initialSummary.totalExpensesBdt + 15000);
+
+      expect(() =>
+        recordRuntimeLedgerEntry({
+          type: 'EXPENSE',
+          category: 'EXPENSE_MARKETING',
+          description: 'Invalid negative',
+          amount: -500,
+          currency: 'BDT',
+          accountId: 'BANK-BDT-BRAC',
+          referenceId: 'BAD-1',
+        }),
+      ).toThrow('SECURITY_PRICE_TAMPER_DETECTED');
+    });
+
+    it('generates RFC-4180 UTF-8 BOM CSV, SpreadsheetML Excel XML, and A4 Printable HTML', () => {
+      const payload: InstitutionalReportPayload = {
+        reportId: 'LMN-FIN-20261115',
+        documentTitle: 'Institutional Treasury & Mushak 6.3 Filing',
+        subtitle: 'Consolidated P&L & Double-Entry Ledger',
+        organizationName: 'Institutional Academy',
+        generatedByRole: 'Institutional Admin',
+        generatedAtIso: '2026-11-15T12:00:00.000Z',
+        currencyNote: 'BDT ৳ & USD $',
+        verificationHash: 'HMAC-SHA256:TESTHASH1234',
+        sheets: [
+          {
+            sheetName: 'Summary P&L / Test: [2026]',
+            title: 'Consolidated P&L',
+            summaryMetrics: [{ label: 'Gross Revenue', value: '৳322,737' }],
+            columns: [
+              { key: 'item', header: 'Line Item', align: 'left' },
+              { key: 'amount', header: 'Amount (BDT)', align: 'right' },
+            ],
+            rows: [
+              { item: 'আইইএলটিএস টিউশন (BDT ৳)', amount: 6490 },
+              { item: 'Evaluator Payout, "Batch 1"', amount: -28000 },
+            ],
+          },
+          {
+            sheetName: 'Treasury Accounts',
+            title: 'Bank Accounts',
+            columns: [{ key: 'acct', header: 'Account', align: 'left' }],
+            rows: [{ acct: 'BRAC Bank PLC' }],
+          },
+        ],
+      };
+
+      const csv = buildCsvString(payload.sheets[0]!);
+      expect(csv.startsWith('\uFEFF')).toBe(true);
+      expect(csv).toContain('Line Item,Amount (BDT)');
+      expect(csv).toContain('আইইএলটিএস টিউশন (BDT ৳),6490');
+      expect(csv).toContain('"Evaluator Payout, ""Batch 1""",-28000');
+
+      const xml = buildExcelSpreadsheetXml(payload);
+      expect(xml).toContain('<?mso-application progid="Excel.Sheet"?>');
+      expect(xml).toContain('<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"');
+      expect(xml).toContain('<Worksheet ss:Name="Summary P&amp;L   Test   2026">');
+      expect(xml).toContain('<Worksheet ss:Name="Treasury Accounts">');
+      expect(xml).toContain('<Data ss:Type="Number">6490</Data>');
+      expect(xml).toContain('ss:Color="#F6F1EA"');
+
+      const html = buildPrintableHtmlDocument(payload);
+      expect(html).toContain('<!DOCTYPE html>');
+      expect(html).toContain('@media print');
+      expect(html).toContain('HMAC-SHA256:TESTHASH1234');
+      expect(html).toContain('Prepared By');
+      expect(html).toContain('Verified By Compliance Auditor');
     });
   });
 });

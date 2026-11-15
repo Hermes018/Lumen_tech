@@ -1,5 +1,6 @@
 /** @purpose Score Analytics & Topic Mastery (/app/progress) in Claude Editorial Ledger aesthetic with borderless SVG trajectory and 2-column mastery ledgers */
 import { getLocale } from 'next-intl/server';
+import { brand } from '@lumen/config';
 import {
   calculateGreScorePrediction,
   calculateLevelInfo,
@@ -16,6 +17,11 @@ import {
   WorkspaceSectionTitle,
   WorkspaceStatRow,
 } from '@/src/components/ui/WorkspacePrimitives';
+import {
+  buildCsvString,
+  buildPrintableHtmlDocument,
+  type InstitutionalReportPayload,
+} from '@/src/lib/export-reports';
 
 function getSandboxProgressData(): LearnerDashboardData {
   return {
@@ -216,6 +222,82 @@ export default async function LearnerProgressPage() {
           },
         ]}
       />
+
+      {(() => {
+        const progressReportPayload: InstitutionalReportPayload = {
+          reportId: `LMN-PROG-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+          documentTitle: 'Official Score Readiness & Diagnostic Transcript',
+          subtitle: `Scholar: ${data.actor.name} · Target: ${data.actor.targetExam} (${data.actor.targetScore})`,
+          organizationName: brand.name,
+          generatedByRole: 'Scholar Progress Analytics',
+          generatedAtIso: new Date().toISOString(),
+          verificationHash: `HMAC-SHA256:TRANSCRIPT-${data.predictor.estimatedTotal}-Q${data.predictor.estimatedQuant}-V${data.predictor.estimatedVerbal}`,
+          sheets: [
+            {
+              sheetName: 'Mastery & Readiness',
+              title: 'Skill Mastery & Diagnostic Readiness',
+              summaryMetrics: [
+                { label: 'GRE Estimated', value: `${data.predictor.estimatedTotal} / 340` },
+                { label: 'Quant / Verbal', value: `Q${data.predictor.estimatedQuant} / V${data.predictor.estimatedVerbal}` },
+                { label: 'Quant Accuracy', value: `${data.stats.quantAccuracy}%` },
+                { label: 'Verbal Mastery', value: `${data.stats.verbalMastery}%` },
+              ],
+              columns: [
+                { key: 'topic', header: 'Topic / Skill', align: 'left' },
+                { key: 'section', header: 'Section', align: 'left' },
+                { key: 'mastery', header: 'Mastery (%)', align: 'right' },
+                { key: 'attempts', header: 'Attempts', align: 'right' },
+                { key: 'status', header: 'Readiness Status', align: 'left' },
+              ],
+              rows: data.skills.map((skill) => ({
+                topic: skill.name,
+                section: skill.subject === 'quant' ? 'Quantitative' : 'Verbal',
+                mastery: skill.accuracy,
+                attempts: skill.attemptsCount,
+                status: skill.accuracy >= 75 ? 'Exam Ready' : 'Drill Recommended',
+              })),
+            },
+          ],
+        };
+        const firstSheet = progressReportPayload.sheets[0];
+        const masteryCsvHref = `data:text/csv;charset=utf-8,${encodeURIComponent(
+          firstSheet ? buildCsvString(firstSheet) : '',
+        )}`;
+        const printableTranscriptHref = `data:text/html;charset=utf-8,${encodeURIComponent(
+          buildPrintableHtmlDocument(progressReportPayload),
+        )}`;
+
+        return (
+          <div className="mb-8 flex flex-wrap items-center justify-between gap-3 border-y border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-3">
+            <span className="text-xs font-medium text-[var(--brand-deep)]">
+              {isBn
+                ? 'অফিশিয়াল স্কোর ট্রান্সক্রিপ্ট ও দক্ষতার তথ্য রপ্তানি'
+                : 'Official Score Readiness Transcript & Mastery Data Export'}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <a
+                href={printableTranscriptHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+              >
+                <span>
+                  {isBn
+                    ? 'অফিশিয়াল স্কোর রেডিনেস ও ট্রান্সক্রিপ্ট প্রিন্ট (PDF)'
+                    : 'Print Official Score Readiness & Diagnostic Transcript (PDF)'}
+                </span>
+              </a>
+              <a
+                href={masteryCsvHref}
+                download={`lumen-mastery-data-${new Date().toISOString().slice(0, 10)}.csv`}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+              >
+                <span>{isBn ? 'মাস্টারি ডেটা রপ্তানি (.csv)' : 'Export Mastery Data (.csv)'}</span>
+              </a>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Borderless SVG Score Trajectory */}
       <section className="border-b border-[var(--hairline)] pb-10 mb-10">

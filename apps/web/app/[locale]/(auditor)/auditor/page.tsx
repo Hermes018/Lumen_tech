@@ -4,6 +4,7 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
+import { brand } from '@lumen/config';
 import { Download, ShieldCheck } from 'lucide-react';
 import {
   WorkspaceContainer,
@@ -21,6 +22,11 @@ import type {
   RuntimeEvaluatorSubmission,
   RuntimeInstructorItem,
 } from '@/src/lib/security/payment-guard';
+import {
+  downloadExcelReport,
+  openPrintablePdfReport,
+  type InstitutionalReportPayload,
+} from '@/src/lib/export-reports';
 
 type AuditorTabId = 'irr' | 'item-qa' | 'compliance';
 
@@ -524,6 +530,145 @@ function AuditorConsoleContent() {
 
       {mounted && !loading && activeTab === 'compliance' ? (
         <section className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-3">
+            <span className="text-xs font-medium text-[var(--brand-deep)]">
+              {isBn
+                ? 'অফিশিয়াল সাইকোমেট্রিক ও নিরাপত্তা অডিট ফাইলিং'
+                : 'Official Psychometric, IRR & Security Audit Filing'}
+            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const payload: InstitutionalReportPayload = {
+                    reportId: `LMN-AUD-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                    documentTitle: 'Official Psychometric & Security Audit Filing',
+                    subtitle: 'Immutable Compliance Chain, IRR Adjudications & Item Certification Log',
+                    organizationName: brand.name,
+                    generatedByRole: 'Psychometric & QA Auditor',
+                    generatedAtIso: new Date().toISOString(),
+                    verificationHash: `HMAC-SHA256:${chainVerifiedAt ?? 'AUDIT-CHAIN-ACTIVE'}`,
+                    sheets: [
+                      {
+                        sheetName: 'Security Audit Log',
+                        title: 'Immutable Security, PII Reveal & Financial Audit Ledger',
+                        columns: [
+                          { key: 'id', header: 'Audit ID', align: 'left' },
+                          { key: 'timestamp', header: 'Timestamp', align: 'left' },
+                          { key: 'actor', header: 'Actor', align: 'left' },
+                          { key: 'action', header: 'Action', align: 'left' },
+                          { key: 'subsystem', header: 'Subsystem', align: 'left' },
+                          { key: 'detail', header: 'Detail', align: 'left' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: auditLogs.map((a) => ({
+                          id: a.id,
+                          timestamp: a.timestamp,
+                          actor: a.actor,
+                          action: a.action,
+                          subsystem: a.subsystem,
+                          detail: a.detail,
+                          status: a.status,
+                        })),
+                      },
+                    ],
+                  };
+                  openPrintablePdfReport(payload);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm bg-[var(--brand)] px-3 py-1.5 text-xs font-medium text-[var(--on-brand)] hover:bg-[var(--brand-deep)]"
+              >
+                <span>
+                  {isBn
+                    ? 'অফিশিয়াল সাইকোমেট্রিক ও নিরাপত্তা অডিট প্রিন্ট (PDF)'
+                    : 'Print Official Psychometric & Security Audit Filing (PDF)'}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const payload: InstitutionalReportPayload = {
+                    reportId: `LMN-AUD-XLS-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}`,
+                    documentTitle: 'Complete Audit, IRR Adjudication & Item QA Workbook',
+                    subtitle: 'Security Audit Chain, Blind IRR Discrepancies & Psychometric Item Certification',
+                    organizationName: brand.name,
+                    generatedByRole: 'Psychometric & QA Auditor',
+                    generatedAtIso: new Date().toISOString(),
+                    verificationHash: `HMAC-SHA256:${chainVerifiedAt ?? 'AUDIT-WORKBOOK-XLS'}`,
+                    sheets: [
+                      {
+                        sheetName: 'Security Audit Log',
+                        title: 'Immutable Security Audit Ledger',
+                        columns: [
+                          { key: 'id', header: 'Audit ID', align: 'left' },
+                          { key: 'timestamp', header: 'Timestamp', align: 'left' },
+                          { key: 'actor', header: 'Actor', align: 'left' },
+                          { key: 'action', header: 'Action', align: 'left' },
+                          { key: 'detail', header: 'Detail', align: 'left' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: auditLogs.map((a) => ({
+                          id: a.id,
+                          timestamp: a.timestamp,
+                          actor: a.actor,
+                          action: a.action,
+                          detail: a.detail,
+                          status: a.status,
+                        })),
+                      },
+                      {
+                        sheetName: 'IRR Adjudication',
+                        title: 'Inter-Rater Reliability (IRR) Submissions',
+                        columns: [
+                          { key: 'id', header: 'Submission Hash', align: 'left' },
+                          { key: 'task', header: 'Task', align: 'left' },
+                          { key: 'aiBand', header: 'AI Band', align: 'right' },
+                          { key: 'humanBand', header: 'Human Band', align: 'right' },
+                          { key: 'status', header: 'Status', align: 'left' },
+                        ],
+                        rows: submissions.map((s) => ({
+                          id: s.id,
+                          task: s.examTask,
+                          aiBand: s.aiPreScore,
+                          humanBand: s.humanBand ?? 'Pending',
+                          status: s.status,
+                        })),
+                      },
+                      {
+                        sheetName: 'Item QA Bank',
+                        title: 'Psychometric Item Certification Bank',
+                        columns: [
+                          { key: 'id', header: 'Item ID', align: 'left' },
+                          { key: 'domain', header: 'Domain', align: 'left' },
+                          { key: 'pValue', header: 'Difficulty p', align: 'right' },
+                          { key: 'rpb', header: 'Discrimination rpb', align: 'right' },
+                          { key: 'qaStatus', header: 'QA Status', align: 'left' },
+                        ],
+                        rows: items.map((item) => ({
+                          id: item.id,
+                          domain: item.domain,
+                          pValue: item.difficultyPValue,
+                          rpb: item.discriminationRpb,
+                          qaStatus: item.qaStatus,
+                        })),
+                      },
+                    ],
+                  };
+                  downloadExcelReport(
+                    payload,
+                    `lumen-audit-irr-workbook-${new Date().toISOString().slice(0, 10)}`,
+                  );
+                }}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]"
+              >
+                <span>
+                  {isBn
+                    ? 'সম্পূর্ণ অডিট ও আইআরআর ওয়ার্কবুক (.xlsx)'
+                    : 'Export Complete Audit & IRR Workbook (.xlsx)'}
+                </span>
+              </button>
+            </div>
+          </div>
+
           <WorkspaceSectionTitle
             title={isBn ? 'অপরিবর্তনীয় নিরাপত্তা, PII রিভিল ও রিফান্ড অডিট' : 'Immutable Security, PII Reveal & Refund Audit Table'}
             subtitle={

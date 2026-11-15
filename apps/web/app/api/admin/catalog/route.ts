@@ -17,6 +17,7 @@ import {
   certifyRuntimeAuditorItem,
   getRuntimeCatalog,
   PaymentSecurityError,
+  recordRuntimeLedgerEntry,
   resetRuntimeCatalogToDefaults,
   resolveRuntimeInstructorDoubt,
   submitRuntimeEvaluatorGrade,
@@ -218,6 +219,27 @@ const auditorVerifyChainSchema = z.object({
   action: z.literal('AUDITOR_VERIFY_CHAIN'),
 });
 
+const recordLedgerEntrySchema = z.object({
+  action: z.literal('RECORD_LEDGER_ENTRY'),
+  type: z.enum(['EXPENSE', 'PAYOUT', 'REFUND', 'BANK_TRANSFER', 'PURCHASE']),
+  category: z.enum([
+    'PURCHASE_FULL',
+    'PURCHASE_SPLIT_INSTALLMENT',
+    'RECEIVABLE_INSTALLMENT_DUE',
+    'REFUND_7DAY_POLICY',
+    'EXPENSE_EVALUATOR_PAYOUT',
+    'EXPENSE_FACULTY_PAYROLL',
+    'EXPENSE_CLOUD_AI_INFRA',
+    'EXPENSE_MARKETING',
+    'TAX_VAT_MUSHAK_63',
+  ]),
+  description: z.string().min(2).max(240),
+  amount: z.number().positive().finite(),
+  currency: z.enum(['BDT', 'USD']),
+  accountId: z.string().min(2).max(60),
+  referenceId: z.string().min(2).max(80),
+});
+
 const adminCatalogActionSchema = z.union([
   updatePlanSchema,
   addPlanSchema,
@@ -237,6 +259,7 @@ const adminCatalogActionSchema = z.union([
   auditorAdjudicateIrrSchema,
   auditorCertifyItemSchema,
   auditorVerifyChainSchema,
+  recordLedgerEntrySchema,
 ]);
 
 function resolveActorLabel(role: WorkspaceRole): string {
@@ -341,7 +364,9 @@ export async function POST(request: NextRequest) {
     callerRole = parsedRole;
   }
 
-  const rbacCheck = enforceRoleActionPermission(callerRole, payload.action);
+  const permissionAction =
+    payload.action === 'RECORD_LEDGER_ENTRY' ? 'ORDER_ACTION' : payload.action;
+  const rbacCheck = enforceRoleActionPermission(callerRole, permissionAction);
   if (!rbacCheck.allowed) {
     return NextResponse.json(
       {
@@ -550,6 +575,21 @@ export async function POST(request: NextRequest) {
       }
       case 'AUDITOR_VERIFY_CHAIN': {
         catalog = verifyRuntimeAuditChain(actor);
+        break;
+      }
+      case 'RECORD_LEDGER_ENTRY': {
+        catalog = recordRuntimeLedgerEntry(
+          {
+            type: payload.type,
+            category: payload.category,
+            description: payload.description,
+            amount: payload.amount,
+            currency: payload.currency,
+            accountId: payload.accountId,
+            referenceId: payload.referenceId,
+          },
+          actor,
+        );
         break;
       }
     }
