@@ -8,6 +8,7 @@ const SITEMAP_ROUTES = [
   ...PUBLIC_MARKETING_ROUTES,
   '/tools/gre-score-calculator',
   '/tools/ielts-band-calculator',
+  '/tools/ielts-typing-test',
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {

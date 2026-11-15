@@ -924,7 +924,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             'Module 1: Listening & Split-Pane Reading — True/False/Not Given, Headings & Distractor Drills (16 lessons)',
             'Module 2: Academic Writing — Task 1 Chart/Process Reports & Task 2 Essay Structures (12 lessons)',
             'Module 3: Speaking Workbench — Part 1–3 Cue-Card Drills with 4-Criterion Rubric Notes',
-            'Module 4: Exam Simulation — 6 Full Computer-Delivered IELTS Academic Mocks + 12 AI Evaluations',
+            'Module 4: Exam Simulation — 6 Full CD-IELTS Mocks + CD-IELTS Typing Studio + 12 AI Evaluations',
           ],
         },
         {
@@ -943,7 +943,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             'Module 1: Everyday & Workplace Reading — Notices, Handbooks & Long-Passage Skimming (12 lessons)',
             'Module 2: Task 1 Letter Frameworks — Formal, Semi-Formal & Informal Tone Mastery (8 lessons)',
             'Module 3: Task 2 Opinion & Discussion Essays + Speaking Part 1–3 Fluency Drills',
-            'Module 4: Exam Simulation — 5 Full Computer-Delivered General Training Mocks',
+            'Module 4: Exam Simulation — 5 Full CD-IELTS General Training Mocks + CD-IELTS Typing Studio',
           ],
         },
         {
@@ -962,7 +962,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             'Module 1: 18 Live Dhaka-Evening Workshops on Writing Task 1/2 & Speaking Fluency',
             'Module 2: 8 Human-Graded Writing Tasks with Line-by-Line Band-Descriptor Feedback',
             'Module 3: 4 Live 1-on-1 Speaking Mock Interviews with Pronunciation & Lexical Coaching',
-            'Module 4: Full Computer-Delivered 4-Skill Mock Library (6 Timed Mocks Included)',
+            'Module 4: Full Computer-Delivered 4-Skill Mock Library (6 Timed Mocks + CD-IELTS Typing Studio)',
           ],
         },
       ],
@@ -1012,7 +1012,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Full Academic or General Training self-paced prep.',
             bullets: [
               'All 4-skill video modules',
-              '6 full computer-delivered mocks',
+              '6 CD-IELTS mocks + Typing Studio',
               '12 AI Writing & Speaking evaluations',
               'Mushak 6.3 VAT invoice',
             ],
@@ -1042,7 +1042,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Instructor-led evening classes plus full mock and grading access.',
             bullets: [
               'Live Dhaka-evening classes',
-              'Human + AI essay feedback',
+              'Human + AI feedback & Typing Studio',
               '2 or 3-part bKash split-pay',
               'Mushak 6.3 VAT invoice',
             ],
@@ -1857,7 +1857,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             'মডিউল ১: লিসেনিং ও স্প্লিট-পেইন রিডিং — True/False/Not Given ও হেডিং ম্যাচিং (১৬ লেসন)',
             'মডিউল ২: একাডেমিক রাইটিং — টাস্ক ১ চার্ট/প্রসেস ও টাস্ক ২ প্রবন্ধ কাঠামো (১২ লেসন)',
             'মডিউল ৩: স্পিকিং ওয়ার্কবেঞ্চ — ৪-মানদণ্ড রুব্রিকসহ পার্ট ১–৩ কিউ-কার্ড অনুশীলন',
-            'মডিউল ৪: পরীক্ষার অনুশীলন — ৬টি কম্পিউটার-ভিত্তিক মক ও ১২টি এআই মূল্যায়ন',
+            'মডিউল ৪: পরীক্ষার অনুশীলন — ৬টি সিডি-আইইএলটিএস মক + টাইপিং স্টুডিও ও ১২টি এআই মূল্যায়ন',
           ],
         },
         {
@@ -1876,7 +1876,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             'মডিউল ১: দৈনন্দিন ও কর্মক্ষেত্রের রিডিং — নোটিশ, হ্যান্ডবুক ও প্যাসেজ স্কিমিং (১২ লেসন)',
             'মডিউল ২: টাস্ক ১ চিঠির কাঠামো — ফরমাল, সেমি-ফরমাল ও ইনফরমাল টোন (৮ লেসন)',
             'মডিউল ৩: টাস্ক ২ মতামত ও আলোচনাধর্মী রচনা + স্পিকিং পার্ট ১–৩ ফ্লুয়েন্সি অনুশীলন',
-            'মডিউল ৪: পরীক্ষার অনুশীলন — ৫টি পূর্ণাঙ্গ কম্পিউটার-ভিত্তিক জেনারেল ট্রেনিং মক',
+            'মডিউল ৪: পরীক্ষার অনুশীলন — ৫টি সিডি-আইইএলটিএস জেনারেল ট্রেনিং মক + টাইপিং স্টুডিও',
           ],
         },
         {
@@ -1895,7 +1895,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             'মডিউল ১: রাইটিং টাস্ক ১/২ ও স্পিকিং ফ্লুয়েন্সির ওপর ১৮টি লাইভ সন্ধ্যাকালীন ওয়ার্কশপ',
             'মডিউল ২: ব্যান্ড মানদণ্ড অনুযায়ী শিক্ষকের হাতে ৮টি রচনা মূল্যায়ন ও বিস্তারিত নোট',
             'মডিউল ৩: উচ্চারণ ও শব্দভাণ্ডার কোচিংসহ ৪টি লাইভ ১-টু-১ স্পিকিং মক ইন্টারভিউ',
-            'মডিউল ৪: কম্পিউটার-ভিত্তিক ৪-স্কিল মক টেস্ট লাইব্রেরি (৬টি সময়বদ্ধ মক অন্তর্ভুক্ত)',
+            'মডিউল ৪: কম্পিউটার-ভিত্তিক ৪-স্কিল মক টেস্ট লাইব্রেরি (৬টি মক + টাইপিং স্টুডিও)',
           ],
         },
       ],
@@ -1945,7 +1945,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'একাডেমিক বা জেনারেল ট্রেনিংয়ের পূর্ণাঙ্গ সেলফ-পেসড প্রস্তুতি।',
             bullets: [
               '৪টি স্কিলের সব ভিডিও মডিউল',
-              '৬টি পূর্ণাঙ্গ কম্পিউটার-ভিত্তিক মক',
+              '৬টি সিডি-আইইএলটিএস মক ও টাইপিং স্টুডিও',
               '১২টি এআই রাইটিং ও স্পিকিং রিভিউ',
               'মুসক ৬.৩ ভ্যাট চালান',
             ],
@@ -1975,7 +1975,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'শিক্ষকের সরাসরি সন্ধ্যাকালীন ক্লাস এবং পূর্ণাঙ্গ মক ও গ্রেডিং সুবিধা।',
             bullets: [
               'ঢাকার সন্ধ্যাকালীন লাইভ ক্লাস',
-              'শিক্ষক ও এআই রচনা ফিডব্যাক',
+              'শিক্ষক ও এআই ফিডব্যাক + টাইপিং স্টুডিও',
               'বিকাশে ২ বা ৩ কিস্তি সুবিধা',
               'মুসক ৬.৩ ভ্যাট চালান',
             ],

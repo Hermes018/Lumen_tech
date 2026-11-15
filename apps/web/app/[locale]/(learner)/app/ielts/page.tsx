@@ -15,6 +15,7 @@ import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
   WorkspaceDataTable,
+  WorkspaceFocusSheet,
   WorkspaceHeader,
   WorkspaceProgressBar,
   WorkspaceSectionTitle,
@@ -301,6 +302,32 @@ function IeltsWorkspaceContent() {
             label: isBn ? '৪-মানদণ্ড রুব্রিক ভিত্তিক' : '4-Criterion Rubric',
           },
         ]}
+      />
+
+      <WorkspaceFocusSheet
+        title={
+          isBn
+            ? 'সিডি-আইইএলটিএস টাইপিং স্পিড ও বানান স্টুডিও'
+            : 'CD-IELTS Typing Speed & Spelling Studio'
+        }
+        body={
+          isBn
+            ? 'কম্পিউটার-ভিত্তিক রাইটিং টাস্ক ১ ও ২ (৪০০ শব্দ) নির্ধারিত সময়ে শেষ করতে এবং লিসেনিংয়ের কঠিন বানান ভুল এড়াতে প্রতি-সেকেন্ড WPM টেলিমেট্রিসহ অনুশীলন করুন।'
+            : 'Build timed fluency for 400-word CD-IELTS Writing (Task 1 + Task 2) and eliminate double-consonant Listening spelling errors with per-second WPM telemetry.'
+        }
+        meta={
+          isBn
+            ? 'টাস্ক ২ ব্যান্ড ৮.৫ প্রবন্ধ · টাস্ক ১ ডেটা রিপোর্ট · লিসেনিং বানান সতর্কতা'
+            : 'Task 2 Band 8.5 Prose · Task 1 Data Reports · Listening Spelling Traps'
+        }
+        primaryAction={{
+          label: isBn ? 'টাইপিং স্টুডিও খুলুন →' : 'Open CD-IELTS Typing Studio →',
+          href: '/app/typing',
+        }}
+        secondaryAction={{
+          label: isBn ? 'পাবলিক টাইপিং টেস্ট দেখুন' : 'Public Speed Benchmark',
+          href: '/tools/ielts-typing-test',
+        }}
       />
 
       <WorkspaceTabs

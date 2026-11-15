@@ -8,6 +8,7 @@ import {
   BookOpenCheck,
   LineChart,
   GraduationCap,
+  Keyboard,
   Languages,
   Layers,
   Receipt,
@@ -66,6 +67,11 @@ export default async function LearnerLayout({ children }: { children: ReactNode 
           href: '/app/ielts',
           label: isBn ? 'আইইএলটিএস একাডেমিক ও জিটি' : 'IELTS™ Academic & GT',
           icon: Languages,
+        },
+        {
+          href: '/app/typing',
+          label: isBn ? 'সিডি-আইইএলটিএস টাইপিং স্টুডিও' : 'CD-IELTS Typing Studio',
+          icon: Keyboard,
         },
         {
           href: '/app/vocab',

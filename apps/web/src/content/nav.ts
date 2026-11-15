@@ -295,6 +295,11 @@ export const NAV_DATA: Record<NavLocale, NavLocaleData> = {
           href: '/exam/ielts-preview',
         },
         {
+          title: 'IELTS Typing Speed Test',
+          description: 'Measure Net WPM, accuracy, and 400-word CD-IELTS pacing.',
+          href: '/tools/ielts-typing-test',
+        },
+        {
           title: 'GRE® Quantitative Workbench',
           description: 'Interactive quantitative comparison and problem-solving drills.',
           href: '/gre#sample',
@@ -313,6 +318,7 @@ export const NAV_DATA: Record<NavLocale, NavLocaleData> = {
           links: [
             { label: 'GRE® Computer-Based Prep', href: '/gre' },
             { label: 'IELTS™ Academic & General', href: '/ielts' },
+            { label: 'IELTS Typing Speed Test', href: '/tools/ielts-typing-test' },
             { label: 'Active-Recall Vocabulary', href: '/gre#vocab' },
             { label: '15-Min Free Diagnostic', href: '/exam/diagnostic' },
           ],
@@ -568,6 +574,11 @@ export const NAV_DATA: Record<NavLocale, NavLocaleData> = {
           href: '/exam/ielts-preview',
         },
         {
+          title: 'IELTS টাইপিং স্পিড টেস্ট',
+          description: 'নেট WPM, নির্ভুলতা ও ৪০০-শব্দের সিডি-আইইএলটিএস গতি যাচাই করুন।',
+          href: '/tools/ielts-typing-test',
+        },
+        {
           title: 'GRE® কোয়ান্টিটেটিভ ওয়ার্কবেঞ্চ',
           description: 'ইন্টারেক্টিভ কোয়ান্টিটেটিভ ও প্রবলেম-সলভিং ড্রিল।',
           href: '/gre#sample',
@@ -586,6 +597,7 @@ export const NAV_DATA: Record<NavLocale, NavLocaleData> = {
           links: [
             { label: 'GRE® কম্পিউটার-ভিত্তিক প্রস্তুতি', href: '/gre' },
             { label: 'IELTS™ একাডেমিক ও জেনারেল', href: '/ielts' },
+            { label: 'IELTS টাইপিং স্পিড টেস্ট', href: '/tools/ielts-typing-test' },
             { label: 'অ্যাক্টিভ-রিকল ভোকাবুলারি', href: '/gre#vocab' },
             { label: '১৫ মিনিটের ফ্রি ডায়াগনস্টিক', href: '/exam/diagnostic' },
           ],
