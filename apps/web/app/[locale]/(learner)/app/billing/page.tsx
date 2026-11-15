@@ -8,9 +8,8 @@ import { Printer, Receipt, RotateCcw, ShieldCheck } from 'lucide-react';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceProgressBar,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
@@ -528,71 +527,72 @@ export default function ScholarBillingPage() {
             }
           />
 
-          <WorkspaceLedger>
-            {invoices.map((inv) => (
-              <div key={inv.id} className="py-1">
-                <WorkspaceLedgerRow
-                  left={
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2.5 text-xs text-[var(--text-muted)]">
-                        <span>{isBn ? inv.dateBn : inv.dateEn}</span>
-                        <span>·</span>
-                        <span className="font-mono text-[var(--brand-deep)]">{inv.id}</span>
-                        <span>·</span>
-                        <span>{inv.method}</span>
-                      </div>
-                      <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {isBn ? inv.titleBn : inv.titleEn}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                        {isBn ? inv.detailBn : inv.detailEn}
-                      </div>
+          <WorkspaceDataTable
+            caption={isBn ? 'পেমেন্ট ও রসিদ ইতিহাস' : 'Payment & Invoice History'}
+            columns={[
+              { key: 'dateMethod', header: isBn ? 'তারিখ ও মাধ্যম' : 'Date & Method' },
+              { key: 'amount', header: isBn ? 'পরিমাণ ও অবস্থা' : 'Amount & Status', align: 'right' },
+              { key: 'action', header: isBn ? 'কার্যক্রম' : 'Actions', align: 'right' },
+            ]}
+            rows={invoices.map((inv) => ({
+              id: inv.id,
+              rowHeader: (
+                <span className="font-semibold text-[var(--brand-deep)]">
+                  {isBn ? inv.titleBn : inv.titleEn}
+                </span>
+              ),
+              rowSubheader: `${inv.id} · ${isBn ? inv.detailBn : inv.detailEn}`,
+              cells: {
+                dateMethod: (
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {isBn ? inv.dateBn : inv.dateEn} · {inv.method}
+                  </span>
+                ),
+                amount: (
+                  <div className="space-y-0.5 text-right">
+                    <div className="text-sm font-bold text-[var(--brand-deep)]">
+                      {inv.amountDisplay}
                     </div>
-                  }
-                  right={
-                    <div className="flex flex-wrap items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-sm font-bold text-[var(--brand-deep)]">
-                          {inv.amountDisplay}
-                        </div>
-                        <div className="text-xs text-[var(--text-muted)]">
-                          {statusLabel(inv.status, isBn)}
-                        </div>
-                      </div>
+                    <div className="text-xs text-[var(--text-muted)]">
+                      {statusLabel(inv.status, isBn)}
+                    </div>
+                  </div>
+                ),
+                action: (
+                  <div className="flex flex-wrap items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedInvoiceId(selectedInvoiceId === inv.id ? null : inv.id)
+                      }
+                      className="underline underline-offset-4 text-sm font-medium text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
+                    >
+                      {selectedInvoiceId === inv.id
+                        ? isBn
+                          ? 'রসিদ বন্ধ করুন'
+                          : 'Hide Invoice'
+                        : isBn
+                          ? 'সরকারি রসিদ দেখুন →'
+                          : 'View Official Invoice →'}
+                    </button>
 
+                    {inv.refundable && inv.status === 'Paid' ? (
                       <button
                         type="button"
                         onClick={() =>
-                          setSelectedInvoiceId(selectedInvoiceId === inv.id ? null : inv.id)
+                          setRefundTargetId(refundTargetId === inv.id ? null : inv.id)
                         }
-                        className="underline underline-offset-4 text-sm font-medium text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
+                        className="underline underline-offset-4 text-sm font-medium text-[var(--brand)] hover:text-[var(--link)] leading-relaxed"
                       >
-                        {selectedInvoiceId === inv.id
-                          ? isBn
-                            ? 'রসিদ বন্ধ করুন'
-                            : 'Hide Invoice'
-                          : isBn
-                            ? 'সরকারি রসিদ দেখুন →'
-                            : 'View Official Invoice →'}
+                        {isBn ? '৭-দিনের রিফান্ড অনুরোধ' : 'Request 7-Day Refund'}
                       </button>
-
-                      {inv.refundable && inv.status === 'Paid' ? (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setRefundTargetId(refundTargetId === inv.id ? null : inv.id)
-                          }
-                          className="underline underline-offset-4 text-sm font-medium text-[var(--brand)] hover:text-[var(--link)] leading-relaxed"
-                        >
-                          {isBn ? '৭-দিনের রিফান্ড অনুরোধ' : 'Request 7-Day Refund'}
-                        </button>
-                      ) : null}
-                    </div>
-                  }
-                />
-
-                {refundTargetId === inv.id ? (
-                  <div className="mx-2 mb-4 border border-[var(--hairline)] bg-[var(--surface-paper)] p-4 space-y-3">
+                    ) : null}
+                  </div>
+                ),
+              },
+              expandedContent:
+                refundTargetId === inv.id ? (
+                  <div className="space-y-3 py-1">
                     <div className="flex items-center gap-2 text-sm font-semibold text-[var(--brand-deep)]">
                       <RotateCcw className="h-4 w-4 text-[var(--brand)]" />
                       <span>
@@ -642,10 +642,9 @@ export default function ScholarBillingPage() {
                       </button>
                     </div>
                   </div>
-                ) : null}
-              </div>
-            ))}
-          </WorkspaceLedger>
+                ) : undefined,
+            }))}
+          />
 
           {selectedInvoice ? (
             <section
@@ -800,62 +799,69 @@ export default function ScholarBillingPage() {
             />
           </div>
 
-          <WorkspaceLedger>
-            <WorkspaceLedgerRow
-              left={
-                <div className="space-y-1">
-                  <div className="text-sm font-semibold text-[var(--brand-deep)]">
+          <WorkspaceDataTable
+            caption={isBn ? 'কিস্তির সময়সূচী' : 'Installment Schedule'}
+            columns={[
+              { key: 'schedule', header: isBn ? 'সময়সূচী ও রসিদ' : 'Schedule & Receipt' },
+              { key: 'amount', header: isBn ? 'পরিমাণ' : 'Amount', align: 'right' },
+              { key: 'action', header: isBn ? 'কার্যক্রম' : 'Action', align: 'right' },
+            ]}
+            rows={[
+              {
+                id: 'inst-1',
+                rowHeader: (
+                  <span className="font-semibold text-[var(--brand-deep)]">
                     {isBn
                       ? 'কিস্তি ১ / ২ (ডাউন পেমেন্ট · ৫০%)'
                       : 'Installment 1 of 2 (Down Payment · 50%)'}
-                  </div>
-                  <div className="text-xs text-[var(--text-muted)]">
-                    {isBn
-                      ? 'পরিশোধিত ১৫ নভেম্বর ২০২৬ · রসিদ INV-2026-1041'
-                      : 'Paid Nov 15, 2026 · Receipt INV-2026-1041'}
-                  </div>
-                </div>
-              }
-              right={
-                <div className="flex items-center gap-4">
-                  <span className="font-bold text-[var(--brand-deep)]">৳5,027 BDT</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedInvoiceId('INV-2026-1041');
-                      setActiveTab('history');
-                    }}
-                    className="underline underline-offset-4 text-sm text-[var(--brand-deep)] hover:text-[var(--brand)]"
-                  >
-                    {isBn ? 'রসিদ দেখুন →' : 'View Receipt →'}
-                  </button>
-                </div>
-              }
-            />
-
-            <WorkspaceLedgerRow
-              left={
-                <div className="space-y-1">
-                  <div className="text-sm font-semibold text-[var(--brand-deep)]">
+                  </span>
+                ),
+                cells: {
+                  schedule: (
+                    <span className="text-xs text-[var(--text-muted)]">
+                      {isBn
+                        ? 'পরিশোধিত ১৫ নভেম্বর ২০২৬ · রসিদ INV-2026-1041'
+                        : 'Paid Nov 15, 2026 · Receipt INV-2026-1041'}
+                    </span>
+                  ),
+                  amount: <span className="font-bold text-[var(--brand-deep)]">৳5,027 BDT</span>,
+                  action: (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedInvoiceId('INV-2026-1041');
+                        setActiveTab('history');
+                      }}
+                      className="underline underline-offset-4 text-sm text-[var(--brand-deep)] hover:text-[var(--brand)]"
+                    >
+                      {isBn ? 'রসিদ দেখুন →' : 'View Receipt →'}
+                    </button>
+                  ),
+                },
+              },
+              {
+                id: 'inst-2',
+                rowHeader: (
+                  <span className="font-semibold text-[var(--brand-deep)]">
                     {isBn
                       ? 'কিস্তি ২ / ২ (চূড়ান্ত ব্যালেন্স · ৫০%)'
                       : 'Installment 2 of 2 (Final Balance · 50%)'}
-                  </div>
-                  <div className="text-xs text-[var(--text-muted)]">
-                    {installment2Paid
-                      ? isBn
-                        ? 'পরিশোধিত ১৫ নভেম্বর ২০২৬ · রসিদ INV-2026-1099'
-                        : 'Paid Nov 15, 2026 · Receipt INV-2026-1099'
-                      : isBn
-                        ? 'পরিশোধের শেষ তারিখ ১৫ ডিসেম্বর ২০২৬'
-                        : 'Due Dec 15, 2026'}
-                  </div>
-                </div>
-              }
-              right={
-                <div className="flex flex-wrap items-center gap-4">
-                  <span className="font-bold text-[var(--brand-deep)]">৳5,026 BDT</span>
-                  {installment2Paid ? (
+                  </span>
+                ),
+                cells: {
+                  schedule: (
+                    <span className="text-xs text-[var(--text-muted)]">
+                      {installment2Paid
+                        ? isBn
+                          ? 'পরিশোধিত ১৫ নভেম্বর ২০২৬ · রসিদ INV-2026-1099'
+                          : 'Paid Nov 15, 2026 · Receipt INV-2026-1099'
+                        : isBn
+                          ? 'পরিশোধের শেষ তারিখ ১৫ ডিসেম্বর ২০২৬'
+                          : 'Due Dec 15, 2026'}
+                    </span>
+                  ),
+                  amount: <span className="font-bold text-[var(--brand-deep)]">৳5,026 BDT</span>,
+                  action: installment2Paid ? (
                     <button
                       type="button"
                       onClick={() => {
@@ -881,11 +887,11 @@ export default function ScholarBillingPage() {
                           ? 'এখনই কিস্তি পরিশোধ করুন →'
                           : 'Settle Installment Now →'}
                     </button>
-                  )}
-                </div>
-              }
-            />
-          </WorkspaceLedger>
+                  ),
+                },
+              },
+            ]}
+          />
         </section>
       ) : null}
 
@@ -926,54 +932,54 @@ export default function ScholarBillingPage() {
             }
           />
 
-          <WorkspaceLedger>
-            {catalogPlans.map((plan) => (
-              <WorkspaceLedgerRow
-                key={plan.planId}
-                left={
-                  <div className="space-y-1">
-                    <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {isBn ? plan.nameBn : plan.nameEn}
+          <WorkspaceDataTable
+            caption={isBn ? 'উপলব্ধ কোর্স প্ল্যান' : 'Available Course Plans'}
+            columns={[
+              { key: 'price', header: isBn ? 'মূল্য ও ভ্যাট' : 'Price & Tax', align: 'right' },
+              { key: 'action', header: isBn ? 'এনরোলমেন্ট' : 'Enrollment', align: 'right' },
+            ]}
+            rows={catalogPlans.map((plan) => ({
+              id: plan.planId,
+              rowHeader: (
+                <span className="font-semibold text-[var(--brand-deep)]">
+                  {isBn ? plan.nameBn : plan.nameEn}
+                </span>
+              ),
+              rowSubheader: (isBn ? plan.featuresBn : plan.featuresEn).join(' · '),
+              cells: {
+                price: (
+                  <div className="space-y-0.5 text-right">
+                    <div className="text-sm font-bold text-[var(--brand-deep)]">
+                      {currency === 'BDT'
+                        ? `৳${plan.totalBdt.toLocaleString('en-US')} BDT`
+                        : `$${plan.baseUsd.toLocaleString('en-US')} USD`}
                     </div>
-                    <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {(isBn ? plan.featuresBn : plan.featuresEn).join(' · ')}
-                    </div>
-                  </div>
-                }
-                right={
-                  <div className="flex flex-wrap items-center gap-5">
-                    <div className="text-right">
-                      <div className="text-sm font-bold text-[var(--brand-deep)]">
-                        {currency === 'BDT'
-                          ? `৳${plan.totalBdt.toLocaleString('en-US')} BDT`
-                          : `$${plan.baseUsd.toLocaleString('en-US')} USD`}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)]">
-                        {currency === 'BDT'
-                          ? plan.allowSplit && plan.splitPayEligible
-                            ? isBn
-                              ? '১৫% ভ্যাটসহ · ২/৩ কিস্তি উপলব্ধ'
-                              : 'inc. 15% VAT · 2/3-part split eligible'
-                            : isBn
-                              ? '১৫% ভ্যাটসহ · পূর্ণ পেমেন্ট'
-                              : 'inc. 15% VAT · full payment'
+                    <div className="text-xs text-[var(--text-muted)]">
+                      {currency === 'BDT'
+                        ? plan.allowSplit && plan.splitPayEligible
+                          ? isBn
+                            ? '১৫% ভ্যাটসহ · ২/৩ কিস্তি উপলব্ধ'
+                            : 'inc. 15% VAT · 2/3-part split eligible'
                           : isBn
-                            ? '০% রপ্তানি কর'
-                            : '0% export tax'}
-                      </div>
+                            ? '১৫% ভ্যাটসহ · পূর্ণ পেমেন্ট'
+                            : 'inc. 15% VAT · full payment'
+                        : isBn
+                          ? '০% রপ্তানি কর'
+                          : '0% export tax'}
                     </div>
-
-                    <LocaleLink
-                      href={`/checkout?plan=${plan.planId}&currency=${currency}`}
-                      className="underline underline-offset-4 text-sm font-medium text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
-                    >
-                      {isBn ? 'এনরোল বা আপগ্রেড →' : 'Enroll or Upgrade →'}
-                    </LocaleLink>
                   </div>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+                ),
+                action: (
+                  <LocaleLink
+                    href={`/checkout?plan=${plan.planId}&currency=${currency}`}
+                    className="underline underline-offset-4 text-sm font-medium text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
+                  >
+                    {isBn ? 'এনরোল বা আপগ্রেড →' : 'Enroll or Upgrade →'}
+                  </LocaleLink>
+                ),
+              },
+            }))}
+          />
         </section>
       ) : null}
     </WorkspaceContainer>

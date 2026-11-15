@@ -5,9 +5,8 @@ import { fetchVocabCards } from '@/app/actions/practice';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceProgressBar,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
@@ -132,31 +131,28 @@ export default async function VocabHubPage() {
           }
         />
 
-        <WorkspaceLedger>
-          {studyModes.map((m) => (
-            <WorkspaceLedgerRow
-              key={m.href}
-              left={
-                <div>
-                  <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                    {isBn ? m.modeBn : m.modeEn}
-                  </p>
-                  <p className="text-xs text-[var(--text)] leading-relaxed">
-                    {isBn ? m.descBn : m.descEn}
-                  </p>
-                </div>
-              }
-              right={
+        <WorkspaceDataTable
+          caption={isBn ? 'অধ্যয়ন মোডসমূহ' : 'Study Modes'}
+          columns={[
+            { key: 'mode', header: isBn ? 'অধ্যয়ন মোড' : 'Study Mode' },
+            { key: 'action', header: isBn ? 'চালু করুন' : 'Action', align: 'right' },
+          ]}
+          rows={studyModes.map((m) => ({
+            id: m.href,
+            rowHeader: isBn ? m.modeBn : m.modeEn,
+            rowSubheader: isBn ? m.descBn : m.descEn,
+            cells: {
+              action: (
                 <LocaleLink
                   href={m.href}
                   className="text-sm font-medium text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] leading-relaxed"
                 >
                   {isBn ? 'মোড চালু করুন →' : 'Play Mode →'}
                 </LocaleLink>
-              }
-            />
-          ))}
-        </WorkspaceLedger>
+              ),
+            },
+          }))}
+        />
       </section>
 
       <section>
@@ -164,44 +160,43 @@ export default async function VocabHubPage() {
           title={isBn ? 'সক্রিয় কিউরেটেড ডেক' : 'Active Curated Decks'}
         />
 
-        <WorkspaceLedger>
-          {curatedDecks.map((deck) => (
-            <WorkspaceLedgerRow
-              key={deck.id}
-              left={
-                <div className="space-y-2 max-w-md">
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {isBn ? deck.titleBn : deck.titleEn}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {isBn ? deck.subBn : deck.subEn}
-                    </p>
-                  </div>
-                  <WorkspaceProgressBar
-                    value={deck.value}
-                    max={deck.max}
-                    tone={deck.tone}
-                    label={isBn ? deck.titleBn : deck.titleEn}
-                  />
-                </div>
-              }
-              right={
-                <>
-                  <span className="font-mono text-xs text-[var(--text-muted)]">
-                    {deck.value} / {deck.max}
-                  </span>
-                  <LocaleLink
-                    href={deck.href}
-                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
-                  >
-                    {isBn ? deck.ctaBn : deck.ctaEn}
-                  </LocaleLink>
-                </>
-              }
-            />
-          ))}
-        </WorkspaceLedger>
+        <WorkspaceDataTable
+          caption={isBn ? 'সক্রিয় কিউরেটেড ডেক' : 'Curated Vocabulary Decks'}
+          columns={[
+            { key: 'deck', header: isBn ? 'ভোকাবুলারি ডেক' : 'Vocabulary Deck' },
+            { key: 'progress', header: isBn ? 'অগ্রগতি' : 'Mastery Progress', widthClass: 'min-w-[180px]' },
+            { key: 'cards', header: isBn ? 'কার্ড' : 'Cards', align: 'right' },
+            { key: 'action', header: isBn ? 'অ্যাকশন' : 'Action', align: 'right' },
+          ]}
+          rows={curatedDecks.map((deck) => ({
+            id: deck.id,
+            rowHeader: isBn ? deck.titleBn : deck.titleEn,
+            rowSubheader: isBn ? deck.subBn : deck.subEn,
+            cells: {
+              progress: (
+                <WorkspaceProgressBar
+                  value={deck.value}
+                  max={deck.max}
+                  tone={deck.tone}
+                  label={isBn ? deck.titleBn : deck.titleEn}
+                />
+              ),
+              cards: (
+                <span className="font-mono text-xs text-[var(--text-muted)]">
+                  {deck.value} / {deck.max}
+                </span>
+              ),
+              action: (
+                <LocaleLink
+                  href={deck.href}
+                  className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
+                >
+                  {isBn ? deck.ctaBn : deck.ctaEn}
+                </LocaleLink>
+              ),
+            },
+          }))}
+        />
       </section>
     </WorkspaceContainer>
   );

@@ -10,9 +10,8 @@ import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import { formatMathText } from '@/src/lib/format-math';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceProgressBar,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
@@ -339,8 +338,15 @@ function GreWorkspaceContent() {
             </div>
           </div>
 
-          <WorkspaceLedger>
-            {filteredQuestions.map((q, idx) => {
+          <WorkspaceDataTable
+            caption={isBn ? 'অ্যাডাপ্টিভ কোয়ান্ট ও ভার্বাল ড্রিল' : 'Adaptive Quant & Verbal Drills'}
+            columns={[
+              { key: 'item', header: isBn ? 'আইটেম ও বিষয়' : 'Item & Topic' },
+              { key: 'prompt', header: isBn ? 'প্রশ্ন' : 'Prompt' },
+              { key: 'difficulty', header: isBn ? 'স্তর' : 'Difficulty' },
+              { key: 'action', header: isBn ? 'সমাধান' : 'Solver', align: 'right' },
+            ]}
+            rows={filteredQuestions.map((q, idx) => {
               const quant = isQuantQuestion(q);
               const isOpen = openItemId === q.id;
               const isAwaItem = q.questionType === 'gre_awa_issue';
@@ -350,196 +356,189 @@ function GreWorkspaceContent() {
               const correct = isChecked && isAnswerCorrect(q);
               const isSaved = Boolean(savedToMistakes[q.id]);
 
-              return (
-                <div key={q.id} className="py-4 px-2">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-                        <span className="font-mono font-semibold text-[var(--brand-deep)]">
-                          #{String(idx + 1).padStart(2, '0')}
-                        </span>
-                        <span>·</span>
-                        <span>{quant ? 'Quantitative' : 'Verbal / AWA'}</span>
-                        <span>·</span>
-                        <span>{getDifficultyLabel(q.difficultyB, isBn)}</span>
-                        <span>·</span>
-                        <span className="capitalize">{q.topicSlug.replace(/-/g, ' ')}</span>
+              return {
+                id: q.id,
+                rowHeader: `#${String(idx + 1).padStart(2, '0')} · ${quant ? 'Quantitative' : 'Verbal / AWA'}`,
+                rowSubheader: q.topicSlug.replace(/-/g, ' '),
+                cells: {
+                  prompt: (
+                    <span className="text-sm text-[var(--brand-deep)] leading-relaxed">
+                      {formatMathText(q.promptMd)}
+                    </span>
+                  ),
+                  difficulty: (
+                    <span className="text-xs text-[var(--text-muted)]">
+                      {getDifficultyLabel(q.difficultyB, isBn)}
+                    </span>
+                  ),
+                  action: (
+                    <button
+                      type="button"
+                      onClick={() => setOpenItemId(isOpen ? null : q.id)}
+                      className="text-sm font-semibold text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] leading-relaxed whitespace-nowrap"
+                    >
+                      {isOpen
+                        ? isBn
+                          ? 'বন্ধ করুন'
+                          : 'Close Solver'
+                        : isBn
+                          ? 'সমাধান করুন →'
+                          : 'Solve Item →'}
+                    </button>
+                  ),
+                },
+                expandedContent: isOpen ? (
+                  <div className="space-y-5">
+                    {q.passageMd ? (
+                      <div className="border-l-2 border-[var(--hairline)] pl-4 text-sm text-[var(--text)] leading-relaxed whitespace-pre-line">
+                        {formatMathText(q.passageMd)}
                       </div>
-                      <p className="text-sm font-medium text-[var(--brand-deep)] leading-relaxed">
-                        {formatMathText(q.promptMd)}
-                      </p>
-                    </div>
+                    ) : null}
 
-                    <div className="flex items-center gap-4 shrink-0 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => setOpenItemId(isOpen ? null : q.id)}
-                        className="text-sm font-semibold text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] leading-relaxed"
-                      >
-                        {isOpen
-                          ? isBn
-                            ? 'বন্ধ করুন'
-                            : 'Close Solver'
-                          : isBn
-                            ? 'সমাধান করুন →'
-                            : 'Solve Item →'}
-                      </button>
-                    </div>
-                  </div>
-
-                  {isOpen ? (
-                    <div className="mt-5 border-t border-[var(--hairline)] pt-5 space-y-5 bg-[var(--surface-paper)] p-5">
-                      {q.passageMd ? (
-                        <div className="border-l-2 border-[var(--hairline)] pl-4 text-sm text-[var(--text)] leading-relaxed whitespace-pre-line">
-                          {formatMathText(q.passageMd)}
-                        </div>
-                      ) : null}
-
-                      {isAwaItem ? (
-                        <div className="space-y-3">
-                          <p className="text-sm text-[var(--text)] leading-relaxed">
-                            {isBn
-                              ? 'এই ইস্যু প্রম্পটটি রাইটিং ল্যাবে মূল্যায়ন করুন অথবা নিচে ৩-স্তরের কৌশলগত হিন্ট দেখুন।'
-                              : 'Draft and score this Issue essay in the AWA Lab tab, or inspect the 3-tier strategy hints below.'}
-                          </p>
-                          <button
-                            type="button"
-                            onClick={() => setActiveTab('awa')}
-                            className="inline-flex items-center bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)]"
-                          >
-                            {isBn ? 'এডব্লিউএ ল্যাবে খুলুন →' : 'Open in AWA Lab →'}
-                          </button>
-                        </div>
-                      ) : q.options.length > 0 ? (
-                        <div className="space-y-2">
-                          {q.options.map((opt) => {
-                            const selected = picked.includes(opt.id);
-                            const isTargetCorrect = q.correctAnswers.includes(opt.id);
-                            let choiceStyle =
-                              'border-[var(--hairline)] bg-[var(--bg)] text-[var(--brand-deep)] hover:border-[var(--brand)]';
-                            if (isChecked && isTargetCorrect) {
-                              choiceStyle =
-                                'border-[var(--brand-deep)] bg-[var(--bg-warm)] text-[var(--brand-deep)] font-semibold';
-                            } else if (isChecked && selected && !isTargetCorrect) {
-                              choiceStyle =
-                                'border-[var(--brand)] bg-[var(--bg-tint)] text-[var(--brand)]';
-                            } else if (selected) {
-                              choiceStyle =
-                                'border-[var(--brand)] bg-[var(--bg-tint)] text-[var(--brand-deep)] font-semibold';
-                            }
-                            return (
-                              <button
-                                key={opt.id}
-                                type="button"
-                                onClick={() => handleToggleChoice(q, opt.id)}
-                                className={`w-full text-left flex items-start gap-3 rounded-[4px] border px-4 py-2.5 text-sm leading-relaxed transition-colors ${choiceStyle}`}
-                              >
-                                <span className="font-mono font-semibold shrink-0">{opt.id}.</span>
-                                <span>{formatMathText(opt.text)}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap items-center gap-3">
-                          <label className="text-xs font-medium text-[var(--text-muted)]">
-                            {isBn ? 'সংখ্যাসূচক উত্তর (যেমন 36 বা 5/33):' : 'Numeric Entry (e.g., 36 or 5/33):'}
-                          </label>
-                          <input
-                            type="text"
-                            value={numericInputs[q.id] ?? ''}
-                            onChange={(e) => {
-                              setNumericInputs((prev) => ({ ...prev, [q.id]: e.target.value }));
-                              setCheckedItems((prev) => ({ ...prev, [q.id]: false }));
-                            }}
-                            placeholder="Enter value..."
-                            className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--brand-deep)] focus:border-[var(--brand)] focus:outline-none"
-                          />
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-4">
-                        {!isAwaItem ? (
-                          <button
-                            type="button"
-                            onClick={() => handleCheckAnswer(q)}
-                            className="bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)] transition-colors"
-                          >
-                            {isBn ? 'উত্তর যাচাই করুন' : 'Check Answer'}
-                          </button>
-                        ) : null}
-
-                        {q.hints.length > 0 && hintTier < (drillMode === 'timed' ? 1 : q.hints.length) ? (
-                          <button
-                            type="button"
-                            onClick={() => handleRevealNextHint(q)}
-                            className="text-xs font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)]"
-                          >
-                            {isBn
-                              ? `হিন্ট ${hintTier + 1} দেখুন (${q.hints[hintTier]?.label ?? ''})`
-                              : `Reveal Hint ${hintTier + 1} (${q.hints[hintTier]?.label ?? ''})`}
-                          </button>
-                        ) : null}
-
+                    {isAwaItem ? (
+                      <div className="space-y-3">
+                        <p className="text-sm text-[var(--text)] leading-relaxed">
+                          {isBn
+                            ? 'এই ইস্যু প্রম্পটটি রাইটিং ল্যাবে মূল্যায়ন করুন অথবা নিচে ৩-স্তরের কৌশলগত হিন্ট দেখুন।'
+                            : 'Draft and score this Issue essay in the AWA Lab tab, or inspect the 3-tier strategy hints below.'}
+                        </p>
                         <button
                           type="button"
-                          onClick={() => setSavedToMistakes((prev) => ({ ...prev, [q.id]: true }))}
+                          onClick={() => setActiveTab('awa')}
+                          className="inline-flex items-center bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)]"
+                        >
+                          {isBn ? 'এডব্লিউএ ল্যাবে খুলুন →' : 'Open in AWA Lab →'}
+                        </button>
+                      </div>
+                    ) : q.options.length > 0 ? (
+                      <div className="space-y-2">
+                        {q.options.map((opt) => {
+                          const selected = picked.includes(opt.id);
+                          const isTargetCorrect = q.correctAnswers.includes(opt.id);
+                          let choiceStyle =
+                            'border-[var(--hairline)] bg-[var(--bg)] text-[var(--brand-deep)] hover:border-[var(--brand)]';
+                          if (isChecked && isTargetCorrect) {
+                            choiceStyle =
+                              'border-[var(--brand-deep)] bg-[var(--bg-warm)] text-[var(--brand-deep)] font-semibold';
+                          } else if (isChecked && selected && !isTargetCorrect) {
+                            choiceStyle =
+                              'border-[var(--brand)] bg-[var(--bg-tint)] text-[var(--brand)]';
+                          } else if (selected) {
+                            choiceStyle =
+                              'border-[var(--brand)] bg-[var(--bg-tint)] text-[var(--brand-deep)] font-semibold';
+                          }
+                          return (
+                            <button
+                              key={opt.id}
+                              type="button"
+                              onClick={() => handleToggleChoice(q, opt.id)}
+                              className={`w-full text-left flex items-start gap-3 rounded-[4px] border px-4 py-2.5 text-sm leading-relaxed transition-colors ${choiceStyle}`}
+                            >
+                              <span className="font-mono font-semibold shrink-0">{opt.id}.</span>
+                              <span>{formatMathText(opt.text)}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <label className="text-xs font-medium text-[var(--text-muted)]">
+                          {isBn ? 'সংখ্যাসূচক উত্তর (যেমন 36 বা 5/33):' : 'Numeric Entry (e.g., 36 or 5/33):'}
+                        </label>
+                        <input
+                          type="text"
+                          value={numericInputs[q.id] ?? ''}
+                          onChange={(e) => {
+                            setNumericInputs((prev) => ({ ...prev, [q.id]: e.target.value }));
+                            setCheckedItems((prev) => ({ ...prev, [q.id]: false }));
+                          }}
+                          placeholder="Enter value..."
+                          className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--brand-deep)] focus:border-[var(--brand)] focus:outline-none"
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-4">
+                      {!isAwaItem ? (
+                        <button
+                          type="button"
+                          onClick={() => handleCheckAnswer(q)}
+                          className="bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)] transition-colors"
+                        >
+                          {isBn ? 'উত্তর যাচাই করুন' : 'Check Answer'}
+                        </button>
+                      ) : null}
+
+                      {q.hints.length > 0 && hintTier < (drillMode === 'timed' ? 1 : q.hints.length) ? (
+                        <button
+                          type="button"
+                          onClick={() => handleRevealNextHint(q)}
                           className="text-xs font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)]"
                         >
-                          {isSaved
-                            ? isBn
-                              ? 'ভুলের খাতায় সংরক্ষিত ✓'
-                              : 'Saved to Mistake Ledger ✓'
-                            : isBn
-                              ? 'ভুলের খাতায় সংরক্ষণ করুন'
-                              : 'Save to Mistake Ledger'}
+                          {isBn
+                            ? `হিন্ট ${hintTier + 1} দেখুন (${q.hints[hintTier]?.label ?? ''})`
+                            : `Reveal Hint ${hintTier + 1} (${q.hints[hintTier]?.label ?? ''})`}
                         </button>
-
-                        {isSaved ? (
-                          <LocaleLink
-                            href="/app/mistakes"
-                            className="text-xs font-medium text-[var(--brand)] underline underline-offset-4"
-                          >
-                            {isBn ? 'খাতা খুলুন →' : 'Open Mistake Ledger →'}
-                          </LocaleLink>
-                        ) : null}
-                      </div>
-
-                      {hintTier > 0 ? (
-                        <div className="border-t border-[var(--hairline)] pt-4 space-y-2.5">
-                          {q.hints.slice(0, hintTier).map((h) => (
-                            <div key={h.tier} className="border-l-2 border-[var(--brand)] pl-3 text-xs leading-relaxed text-[var(--text)]">
-                              <span className="font-semibold text-[var(--brand-deep)]">
-                                Hint {h.tier} ({h.label}):{' '}
-                              </span>
-                              {formatMathText(h.content_md)}
-                            </div>
-                          ))}
-                        </div>
                       ) : null}
 
-                      {isChecked ? (
-                        <div className="border-t border-[var(--hairline)] pt-4 space-y-2">
-                          <p className="text-sm font-semibold text-[var(--brand-deep)]">
-                            {correct
-                              ? isBn
-                                ? 'সঠিক উত্তর!'
-                                : 'Correct Answer'
-                              : isBn
-                                ? `সঠিক উত্তর: ${q.correctAnswers.join(', ')}`
-                                : `Correct Answer: ${q.correctAnswers.join(', ')}`}
-                          </p>
-                          <p className="text-xs text-[var(--text)] whitespace-pre-line leading-relaxed">
-                            {formatMathText(q.writtenExplanationMd)}
-                          </p>
-                        </div>
+                      <button
+                        type="button"
+                        onClick={() => setSavedToMistakes((prev) => ({ ...prev, [q.id]: true }))}
+                        className="text-xs font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)]"
+                      >
+                        {isSaved
+                          ? isBn
+                            ? 'ভুলের খাতায় সংরক্ষিত ✓'
+                            : 'Saved to Mistake Ledger ✓'
+                          : isBn
+                            ? 'ভুলের খাতায় সংরক্ষণ করুন'
+                            : 'Save to Mistake Ledger'}
+                      </button>
+
+                      {isSaved ? (
+                        <LocaleLink
+                          href="/app/mistakes"
+                          className="text-xs font-medium text-[var(--brand)] underline underline-offset-4"
+                        >
+                          {isBn ? 'খাতা খুলুন →' : 'Open Mistake Ledger →'}
+                        </LocaleLink>
                       ) : null}
                     </div>
-                  ) : null}
-                </div>
-              );
+
+                    {hintTier > 0 ? (
+                      <div className="border-t border-[var(--hairline)] pt-4 space-y-2.5">
+                        {q.hints.slice(0, hintTier).map((h) => (
+                          <div key={h.tier} className="border-l-2 border-[var(--brand)] pl-3 text-xs leading-relaxed text-[var(--text)]">
+                            <span className="font-semibold text-[var(--brand-deep)]">
+                              Hint {h.tier} ({h.label}):{' '}
+                            </span>
+                            {formatMathText(h.content_md)}
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {isChecked ? (
+                      <div className="border-t border-[var(--hairline)] pt-4 space-y-2">
+                        <p className="text-sm font-semibold text-[var(--brand-deep)]">
+                          {correct
+                            ? isBn
+                              ? 'সঠিক উত্তর!'
+                              : 'Correct Answer'
+                            : isBn
+                              ? `সঠিক উত্তর: ${q.correctAnswers.join(', ')}`
+                              : `Correct Answer: ${q.correctAnswers.join(', ')}`}
+                        </p>
+                        <p className="text-xs text-[var(--text)] whitespace-pre-line leading-relaxed">
+                          {formatMathText(q.writtenExplanationMd)}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : undefined,
+              };
             })}
-          </WorkspaceLedger>
+          />
         </section>
       ) : null}
 
@@ -553,36 +552,34 @@ function GreWorkspaceContent() {
                 : '1h 58m computer-delivered simulation with 2 Quantitative, 2 Verbal, and 1 Analytical Writing section.'
             }
           />
-          <WorkspaceLedger>
-            {GRE_MOCK_LEDGER.map((mock) => (
-              <WorkspaceLedgerRow
-                key={mock.id}
-                left={
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {isBn ? mock.titleBn : mock.titleEn}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {mock.breakdown}
-                    </p>
-                  </div>
-                }
-                right={
-                  <>
-                    <span className="text-xs text-[var(--text-muted)]">
-                      {isBn ? mock.statusBn : mock.statusEn}
-                    </span>
-                    <LocaleLink
-                      href="/exam/diagnostic"
-                      className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
-                    >
-                      {isBn ? 'সিবিটি সিমুলেটর চালু করুন →' : 'Launch CBT Simulator →'}
-                    </LocaleLink>
-                  </>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+          <WorkspaceDataTable
+            caption={isBn ? 'পূর্ণ সেকশন-অ্যাডাপ্টিভ জিআরই সিবিটি মক' : 'Full Section-Adaptive GRE CBT Mocks'}
+            columns={[
+              { key: 'mock', header: isBn ? 'মক পরীক্ষা' : 'Mock Exam' },
+              { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+              { key: 'action', header: isBn ? 'অ্যাকশন' : 'Action', align: 'right' },
+            ]}
+            rows={GRE_MOCK_LEDGER.map((mock) => ({
+              id: mock.id,
+              rowHeader: isBn ? mock.titleBn : mock.titleEn,
+              rowSubheader: mock.breakdown,
+              cells: {
+                status: (
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {isBn ? mock.statusBn : mock.statusEn}
+                  </span>
+                ),
+                action: (
+                  <LocaleLink
+                    href="/exam/diagnostic"
+                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
+                  >
+                    {isBn ? 'সিবিটি সিমুলেটর চালু করুন →' : 'Launch CBT Simulator →'}
+                  </LocaleLink>
+                ),
+              },
+            }))}
+          />
         </section>
       ) : null}
 
@@ -664,8 +661,14 @@ function GreWorkspaceContent() {
                   }
                   subtitle={`${awaResult.wordCount} words · Confidence: ${awaResult.evaluation.confidence}`}
                 />
-                <WorkspaceLedger>
-                  {[
+                <WorkspaceDataTable
+                  caption={isBn ? 'এডব্লিউএ রুব্রিক বিশ্লেষণ' : 'AWA Rubric Evaluation'}
+                  columns={[
+                    { key: 'dimension', header: isBn ? 'মানদণ্ড' : 'Criterion' },
+                    { key: 'progress', header: isBn ? 'অগ্রগতি' : 'Score Bar', widthClass: 'min-w-[160px]' },
+                    { key: 'band', header: isBn ? 'ব্যান্ড' : 'Band', align: 'right' },
+                  ]}
+                  rows={[
                     {
                       label: isBn ? 'থিসিস ও দৃষ্টিভঙ্গির স্পষ্টতা' : 'Thesis Clarity & Insight',
                       dim: awaResult.evaluation.dimensions.position_insight,
@@ -682,30 +685,20 @@ function GreWorkspaceContent() {
                       label: isBn ? 'বাক্যবৈচিত্র্য ও ভাষার প্রয়োগ' : 'Syntactic Variety & Language Use',
                       dim: awaResult.evaluation.dimensions.language_use,
                     },
-                  ].map((item) => (
-                    <WorkspaceLedgerRow
-                      key={item.label}
-                      left={
-                        <div className="space-y-2 max-w-[60ch]">
-                          <p className="text-sm font-semibold text-[var(--brand-deep)]">
-                            {item.label}
-                          </p>
-                          <p className="text-xs text-[var(--text)] leading-relaxed">
-                            {item.dim.rationale}
-                          </p>
-                        </div>
-                      }
-                      right={
-                        <div className="w-40 space-y-1.5">
-                          <div className="flex items-center justify-between text-xs font-semibold text-[var(--brand-deep)]">
-                            <span>{item.dim.band.toFixed(1)} / 6.0</span>
-                          </div>
-                          <WorkspaceProgressBar value={item.dim.band} max={6} tone="crimson" />
-                        </div>
-                      }
-                    />
-                  ))}
-                </WorkspaceLedger>
+                  ].map((item) => ({
+                    id: item.label,
+                    rowHeader: item.label,
+                    rowSubheader: item.dim.rationale,
+                    cells: {
+                      progress: <WorkspaceProgressBar value={item.dim.band} max={6} tone="crimson" />,
+                      band: (
+                        <span className="font-semibold text-[var(--brand-deep)]">
+                          {item.dim.band.toFixed(1)} / 6.0
+                        </span>
+                      ),
+                    },
+                  }))}
+                />
               </div>
             ) : (
               <p className="text-sm text-[var(--brand)]">{awaResult.error}</p>
@@ -732,34 +725,34 @@ function GreWorkspaceContent() {
               </LocaleLink>
             }
           />
-          <WorkspaceLedger>
-            {QUANT_FORMULA_SHEETS.map((sheet) => (
-              <WorkspaceLedgerRow
-                key={sheet.id}
-                left={
-                  <div className="space-y-1">
-                    <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {isBn ? sheet.topicBn : sheet.topicEn}
-                    </p>
-                    <p className="font-mono text-xs text-[var(--brand)] leading-relaxed">
-                      {formatMathText(sheet.formula)}
-                    </p>
-                    <p className="text-xs text-[var(--text)] leading-relaxed">
-                      {isBn ? sheet.trapBn : sheet.trapEn}
-                    </p>
-                  </div>
-                }
-                right={
+          <WorkspaceDataTable
+            caption={isBn ? 'কোয়ান্টিটেটিভ সূত্র ও ফাঁদ সতর্কতা' : 'Quant Formula Sheets'}
+            columns={[
+              { key: 'topic', header: isBn ? 'বিষয় ও ফাঁদ সতর্কতা' : 'Topic & Trap Alert' },
+              { key: 'formula', header: isBn ? 'মূল সূত্র' : 'Key Formula' },
+              { key: 'action', header: isBn ? 'অনুশীলন' : 'Drill', align: 'right' },
+            ]}
+            rows={QUANT_FORMULA_SHEETS.map((sheet) => ({
+              id: sheet.id,
+              rowHeader: isBn ? sheet.topicBn : sheet.topicEn,
+              rowSubheader: isBn ? sheet.trapBn : sheet.trapEn,
+              cells: {
+                formula: (
+                  <span className="font-mono text-xs text-[var(--brand)] leading-relaxed">
+                    {formatMathText(sheet.formula)}
+                  </span>
+                ),
+                action: (
                   <LocaleLink
                     href="/app/vocab/play?mode=quant_formula"
-                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
+                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed whitespace-nowrap"
                   >
                     {isBn ? 'কার্ডে অনুশীলন করুন →' : 'Drill Formula Cards →'}
                   </LocaleLink>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+                ),
+              },
+            }))}
+          />
         </section>
       ) : null}
     </WorkspaceContainer>

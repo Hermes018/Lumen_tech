@@ -1,4 +1,5 @@
 /** @purpose Word-cap validation helper and unit tests enforcing the 12 Lumen UI Laws copy limits */
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -287,7 +288,7 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
     expect(robotsSrc).toContain("'/dev/'");
   });
 
-  it('verifies every MEDIA_SLOTS entry points to a local /images/<slot>.webp file on disk', () => {
+  it('verifies every MEDIA_SLOTS entry points to a unique local /images/<slot>.webp file on disk', () => {
     const webRoot = path.resolve(__dirname, '../../../../apps/web');
     const mediaPath = path.join(webRoot, 'src/content/media.ts');
     const mediaSrc = fs.readFileSync(mediaPath, 'utf8');
@@ -295,14 +296,26 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
     expect(mediaSrc).not.toMatch(/https?:\/\//i);
 
     const slotMatches = [...mediaSrc.matchAll(/'([a-z0-9-]+)':\s*\{[\s\S]*?src:\s*'([^']+)'/g)];
-    expect(slotMatches.length).toBeGreaterThanOrEqual(15);
+    expect(slotMatches.length).toBeGreaterThanOrEqual(24);
 
+    const sha256Hashes = new Set<string>();
     for (const match of slotMatches) {
       const slot = match[1];
       const src = match[2];
       expect(src).toBe(`/images/${slot}.webp`);
       const diskPath = path.join(webRoot, 'public', src);
       expect(fs.existsSync(diskPath)).toBe(true);
+      const buf = fs.readFileSync(diskPath);
+      const maxBytes = slot?.startsWith('hero-') || slot?.startsWith('split-') ? 120 * 1024 : 60 * 1024;
+      expect(buf.byteLength).toBeLessThanOrEqual(maxBytes);
+      sha256Hashes.add(crypto.createHash('sha256').update(buf).digest('hex'));
     }
+
+    expect(sha256Hashes.size).toBe(slotMatches.length);
+  });
+
+  it('keeps home stats 40+ numeral single-token concise in both locales', () => {
+    expect(MARKETING_CONTENT.en.home.stats[3]?.value).toBe('40+');
+    expect(MARKETING_CONTENT.bn.home.stats[3]?.value).toBe('৪০+');
   });
 });

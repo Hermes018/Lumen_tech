@@ -59,6 +59,16 @@ body {
   max-width: 65ch;
 }
 
+.lumen-stat-value {
+  font-size: clamp(1.75rem, 2.6vw, 2.75rem);
+  line-height: 1;
+  font-weight: 800;
+  color: var(--brand);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
 /* High-contrast white typography inside crimson/deep-brand heroes & bands */
 .lumen-hero-inverse .lumen-h1,
 .lumen-hero-inverse .lumen-h2,

@@ -14,9 +14,8 @@ import {
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceProgressBar,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
@@ -347,36 +346,46 @@ function IeltsWorkspaceContent() {
                 : 'Computer-delivered Listening, Reading, Writing, and Speaking simulations with section band breakdowns.'
             }
           />
-          <WorkspaceLedger>
-            {filteredMocks.map((mock) => (
-              <WorkspaceLedgerRow
-                key={mock.id}
-                left={
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {isBn ? mock.titleBn : mock.titleEn}
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {mock.breakdown}
-                    </p>
-                  </div>
-                }
-                right={
-                  <>
-                    <span className="text-xs text-[var(--text-muted)]">
-                      {isBn ? mock.statusBn : mock.statusEn}
-                    </span>
-                    <LocaleLink
-                      href="/exam/ielts-preview"
-                      className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
-                    >
-                      {isBn ? 'সিডি-আইইএলটিএস ওয়ার্কবেঞ্চ খুলুন →' : 'Open CD-IELTS Workbench →'}
-                    </LocaleLink>
-                  </>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+          <WorkspaceDataTable
+            caption={isBn ? '৪-স্কিল সিডি-আইইএলটিএস মক' : '4-Skill CD-IELTS Mocks'}
+            columns={[
+              { key: 'mock', header: isBn ? 'মক পরীক্ষা' : 'Mock Exam' },
+              { key: 'module', header: isBn ? 'মডিউল' : 'Module' },
+              { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+              { key: 'action', header: isBn ? 'ওয়ার্কবেঞ্চ' : 'Action', align: 'right' },
+            ]}
+            rows={filteredMocks.map((mock) => ({
+              id: mock.id,
+              rowHeader: isBn ? mock.titleBn : mock.titleEn,
+              rowSubheader: mock.breakdown,
+              cells: {
+                module: (
+                  <span className="text-xs font-medium text-[var(--brand-deep)]">
+                    {mock.module === 'academic'
+                      ? isBn
+                        ? 'একাডেমিক'
+                        : 'Academic'
+                      : isBn
+                        ? 'জেনারেল ট্রেনিং'
+                        : 'General Training'}
+                  </span>
+                ),
+                status: (
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {isBn ? mock.statusBn : mock.statusEn}
+                  </span>
+                ),
+                action: (
+                  <LocaleLink
+                    href="/exam/ielts-preview"
+                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed whitespace-nowrap"
+                  >
+                    {isBn ? 'সিডি-আইইএলটিএস ওয়ার্কবেঞ্চ খুলুন →' : 'Open CD-IELTS Workbench →'}
+                  </LocaleLink>
+                ),
+              },
+            }))}
+          />
         </section>
       ) : null}
 
@@ -473,13 +482,16 @@ function IeltsWorkspaceContent() {
                 }
                 subtitle={`${writingEval.wordCount} words · Estimated Rubric Assessment`}
               />
-              <WorkspaceLedger>
-                {[
+              <WorkspaceDataTable
+                caption={isBn ? 'রাইটিং ৪-মানদণ্ড রুব্রিক বিশ্লেষণ' : 'Writing 4-Criterion Rubric'}
+                columns={[
+                  { key: 'criterion', header: isBn ? 'মানদণ্ড' : 'Criterion' },
+                  { key: 'progress', header: isBn ? 'ব্যান্ড সূচক' : 'Band Progress', widthClass: 'min-w-[160px]' },
+                  { key: 'band', header: isBn ? 'ব্যান্ড' : 'Band', align: 'right' },
+                ]}
+                rows={[
                   {
-                    label:
-                      writingTask === 'task1'
-                        ? 'Task Achievement'
-                        : 'Task Response',
+                    label: writingTask === 'task1' ? 'Task Achievement' : 'Task Response',
                     crit: writingEval.dimensions.task_response,
                   },
                   {
@@ -494,28 +506,20 @@ function IeltsWorkspaceContent() {
                     label: 'Grammatical Range & Accuracy',
                     crit: writingEval.dimensions.grammar_range_accuracy,
                   },
-                ].map((row) => (
-                  <WorkspaceLedgerRow
-                    key={row.label}
-                    left={
-                      <div className="space-y-1.5 max-w-[60ch]">
-                        <p className="text-sm font-semibold text-[var(--brand-deep)]">{row.label}</p>
-                        <p className="text-xs text-[var(--text)] leading-relaxed">
-                          {row.crit.rationale}
-                        </p>
-                      </div>
-                    }
-                    right={
-                      <div className="w-40 space-y-1.5">
-                        <div className="text-xs font-semibold text-[var(--brand-deep)]">
-                          Band {row.crit.band.toFixed(1)} / 9.0
-                        </div>
-                        <WorkspaceProgressBar value={row.crit.band} max={9} tone="crimson" />
-                      </div>
-                    }
-                  />
-                ))}
-              </WorkspaceLedger>
+                ].map((row) => ({
+                  id: row.label,
+                  rowHeader: row.label,
+                  rowSubheader: row.crit.rationale,
+                  cells: {
+                    progress: <WorkspaceProgressBar value={row.crit.band} max={9} tone="crimson" />,
+                    band: (
+                      <span className="font-semibold text-[var(--brand-deep)]">
+                        Band {row.crit.band.toFixed(1)} / 9.0
+                      </span>
+                    ),
+                  },
+                }))}
+              />
 
               {writingEval.improvements.length > 0 ? (
                 <div className="border-l-2 border-[var(--brand)] pl-4 space-y-1.5">
@@ -640,8 +644,14 @@ function IeltsWorkspaceContent() {
                 }
                 subtitle={`Speech rate: ${speakingEval.speechMetrics.wpm} WPM · Lexical Upgrading Analysis`}
               />
-              <WorkspaceLedger>
-                {[
+              <WorkspaceDataTable
+                caption={isBn ? 'স্পিকিং ৪-মানদণ্ড রুব্রিক বিশ্লেষণ' : 'Speaking 4-Criterion Rubric'}
+                columns={[
+                  { key: 'criterion', header: isBn ? 'মানদণ্ড' : 'Criterion' },
+                  { key: 'progress', header: isBn ? 'ব্যান্ড সূচক' : 'Band Progress', widthClass: 'min-w-[160px]' },
+                  { key: 'band', header: isBn ? 'ব্যান্ড' : 'Band', align: 'right' },
+                ]}
+                rows={[
                   { label: 'Fluency & Coherence', crit: speakingEval.dimensions.fluency_coherence },
                   { label: 'Lexical Resource', crit: speakingEval.dimensions.lexical_resource },
                   {
@@ -649,28 +659,20 @@ function IeltsWorkspaceContent() {
                     crit: speakingEval.dimensions.grammar_range_accuracy,
                   },
                   { label: 'Pronunciation (ASR Proxy)', crit: speakingEval.dimensions.pronunciation },
-                ].map((row) => (
-                  <WorkspaceLedgerRow
-                    key={row.label}
-                    left={
-                      <div className="space-y-1.5 max-w-[60ch]">
-                        <p className="text-sm font-semibold text-[var(--brand-deep)]">{row.label}</p>
-                        <p className="text-xs text-[var(--text)] leading-relaxed">
-                          {row.crit.rationale}
-                        </p>
-                      </div>
-                    }
-                    right={
-                      <div className="w-40 space-y-1.5">
-                        <div className="text-xs font-semibold text-[var(--brand-deep)]">
-                          Band {row.crit.band.toFixed(1)} / 9.0
-                        </div>
-                        <WorkspaceProgressBar value={row.crit.band} max={9} tone="espresso" />
-                      </div>
-                    }
-                  />
-                ))}
-              </WorkspaceLedger>
+                ].map((row) => ({
+                  id: row.label,
+                  rowHeader: row.label,
+                  rowSubheader: row.crit.rationale,
+                  cells: {
+                    progress: <WorkspaceProgressBar value={row.crit.band} max={9} tone="espresso" />,
+                    band: (
+                      <span className="font-semibold text-[var(--brand-deep)]">
+                        Band {row.crit.band.toFixed(1)} / 9.0
+                      </span>
+                    ),
+                  },
+                }))}
+              />
             </div>
           ) : null}
         </section>
@@ -687,26 +689,45 @@ function IeltsWorkspaceContent() {
             }
           />
 
-          <WorkspaceLedger>
-            {RL_DRILLS.map((drill) => {
+          <WorkspaceDataTable
+            caption={isBn ? 'রিডিং ও লিসেনিং প্যাসেজ ড্রিল' : 'Passage Drills'}
+            columns={[
+              { key: 'drill', header: isBn ? 'প্যাসেজ ড্রিল' : 'Passage Drill' },
+              { key: 'skill', header: isBn ? 'ধরন' : 'Question Family' },
+              { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+              { key: 'action', header: isBn ? 'অনুশীলন' : 'Action', align: 'right' },
+            ]}
+            rows={RL_DRILLS.map((drill) => {
               const isOpen = openDrillId === drill.id;
               const selected = drillAnswers[drill.id] ?? '';
               const checked = Boolean(drillChecked[drill.id]);
               const correct = checked && selected === drill.correct;
 
-              return (
-                <div key={drill.id} className="py-4 px-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <p className="text-xs text-[var(--text-muted)] leading-relaxed">{drill.skill}</p>
-                      <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {isBn ? drill.titleBn : drill.titleEn}
-                      </p>
-                    </div>
+              return {
+                id: drill.id,
+                rowHeader: isBn ? drill.titleBn : drill.titleEn,
+                cells: {
+                  skill: <span className="text-xs text-[var(--text-muted)]">{drill.skill}</span>,
+                  status: (
+                    <span className="text-xs font-medium text-[var(--brand-deep)]">
+                      {checked
+                        ? correct
+                          ? isBn
+                            ? 'সঠিক'
+                            : 'Correct'
+                          : isBn
+                            ? 'পর্যালোচনা প্রয়োজন'
+                            : 'Review'
+                        : isBn
+                          ? 'প্রস্তুত'
+                          : 'Ready'}
+                    </span>
+                  ),
+                  action: (
                     <button
                       type="button"
                       onClick={() => setOpenDrillId(isOpen ? null : drill.id)}
-                      className="text-sm font-medium text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] shrink-0"
+                      className="text-sm font-medium text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] whitespace-nowrap"
                     >
                       {isOpen
                         ? isBn
@@ -716,68 +737,67 @@ function IeltsWorkspaceContent() {
                           ? 'প্যাসেজ খুলুন →'
                           : 'Open Passage Drill →'}
                     </button>
-                  </div>
-
-                  {isOpen ? (
-                    <div className="mt-4 border-t border-[var(--hairline)] pt-4 space-y-4 bg-[var(--surface-paper)] p-5">
-                      <p className="border-l-2 border-[var(--brand)] pl-4 text-sm text-[var(--text)] leading-relaxed">
-                        {drill.passage}
-                      </p>
-                      <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {drill.question}
-                      </p>
-                      <div className="space-y-2">
-                        {drill.options.map((opt) => {
-                          const isSelected = selected === opt;
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => {
-                                setDrillAnswers((prev) => ({ ...prev, [drill.id]: opt }));
-                                setDrillChecked((prev) => ({ ...prev, [drill.id]: false }));
-                              }}
-                              className={
-                                isSelected
-                                  ? 'w-full text-left rounded-[4px] border border-[var(--brand)] bg-[var(--bg-tint)] px-4 py-2.5 text-sm font-semibold text-[var(--brand-deep)] leading-relaxed'
-                                  : 'w-full text-left rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--brand-deep)] hover:border-[var(--brand)] leading-relaxed'
-                              }
-                            >
-                              {opt}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setDrillChecked((prev) => ({ ...prev, [drill.id]: true }))}
-                        className="bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)]"
-                      >
-                        {isBn ? 'উত্তর যাচাই করুন' : 'Check Answer'}
-                      </button>
-
-                      {checked ? (
-                        <div className="border-t border-[var(--hairline)] pt-3 space-y-1">
-                          <p className="text-sm font-semibold text-[var(--brand-deep)]">
-                            {correct
-                              ? isBn
-                                ? 'সঠিক উত্তর!'
-                                : 'Correct Answer'
-                              : isBn
-                                ? `সঠিক উত্তর: ${drill.correct}`
-                                : `Correct Answer: ${drill.correct}`}
-                          </p>
-                          <p className="text-xs text-[var(--text)] leading-relaxed">
-                            {drill.explanation}
-                          </p>
-                        </div>
-                      ) : null}
+                  ),
+                },
+                expandedContent: isOpen ? (
+                  <div className="space-y-4">
+                    <p className="border-l-2 border-[var(--brand)] pl-4 text-sm text-[var(--text)] leading-relaxed">
+                      {drill.passage}
+                    </p>
+                    <p className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
+                      {drill.question}
+                    </p>
+                    <div className="space-y-2">
+                      {drill.options.map((opt) => {
+                        const isSelected = selected === opt;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            onClick={() => {
+                              setDrillAnswers((prev) => ({ ...prev, [drill.id]: opt }));
+                              setDrillChecked((prev) => ({ ...prev, [drill.id]: false }));
+                            }}
+                            className={
+                              isSelected
+                                ? 'w-full text-left rounded-[4px] border border-[var(--brand)] bg-[var(--bg-tint)] px-4 py-2.5 text-sm font-semibold text-[var(--brand-deep)] leading-relaxed'
+                                : 'w-full text-left rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--brand-deep)] hover:border-[var(--brand)] leading-relaxed'
+                            }
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
                     </div>
-                  ) : null}
-                </div>
-              );
+                    <button
+                      type="button"
+                      onClick={() => setDrillChecked((prev) => ({ ...prev, [drill.id]: true }))}
+                      className="bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)]"
+                    >
+                      {isBn ? 'উত্তর যাচাই করুন' : 'Check Answer'}
+                    </button>
+
+                    {checked ? (
+                      <div className="border-t border-[var(--hairline)] pt-3 space-y-1">
+                        <p className="text-sm font-semibold text-[var(--brand-deep)]">
+                          {correct
+                            ? isBn
+                              ? 'সঠিক উত্তর!'
+                              : 'Correct Answer'
+                            : isBn
+                              ? `সঠিক উত্তর: ${drill.correct}`
+                              : `Correct Answer: ${drill.correct}`}
+                        </p>
+                        <p className="text-xs text-[var(--text)] leading-relaxed">
+                          {drill.explanation}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : undefined,
+              };
             })}
-          </WorkspaceLedger>
+          />
         </section>
       ) : null}
     </WorkspaceContainer>

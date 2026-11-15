@@ -18,9 +18,8 @@ import {
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
   WorkspaceTabs,
@@ -213,70 +212,83 @@ export default function StudyPlanPage() {
           }
         />
 
-        <WorkspaceLedger>
-          {weekTasks.map((task) => {
+        <WorkspaceDataTable
+          caption={
+            isBn
+              ? `সপ্তাহ ${selectedWeek}-এর দৈনিক মাইলফলক`
+              : `Week ${selectedWeek} Daily Milestones`
+          }
+          columns={[
+            { key: 'milestone', header: isBn ? 'মাইলফলক' : 'Milestone' },
+            { key: 'date', header: isBn ? 'তারিখ' : 'Date' },
+            { key: 'minutes', header: isBn ? 'সময়' : 'Est. Time', align: 'right' },
+            { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+            { key: 'action', header: isBn ? 'অ্যাকশন' : 'Action', align: 'right' },
+          ]}
+          rows={weekTasks.map((task) => {
             const isDone = task.status === 'completed';
             const isMissed = task.status === 'missed';
 
-            return (
-              <WorkspaceLedgerRow
-                key={task.id}
-                left={
-                  <div className="flex items-start gap-3.5">
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={isDone}
-                      aria-label={task.title}
-                      onClick={() => {
-                        void handleToggleTask(task.id);
-                      }}
-                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[2px] border transition-colors ${
-                        isDone
-                          ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
-                          : 'border-[var(--hairline)] bg-[var(--surface-paper)] text-transparent hover:border-[var(--brand)]'
-                      }`}
-                    >
-                      <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                    <div className="min-w-0">
-                      <p
-                        className={`text-sm font-semibold leading-relaxed ${
-                          isDone
-                            ? 'line-through text-[var(--text-muted)]'
-                            : 'text-[var(--brand-deep)]'
-                        }`}
-                      >
-                        {task.title}
-                      </p>
-                      <p className="text-xs text-[var(--text)] leading-relaxed">
-                        {task.description}
-                      </p>
-                    </div>
-                  </div>
-                }
-                right={
-                  <>
-                    {isMissed ? (
-                      <span className="text-xs font-semibold text-[var(--brand)]">
-                        {isBn ? 'মিসড' : 'Missed'}
-                      </span>
-                    ) : null}
-                    <span className="font-mono text-xs text-[var(--text-muted)]">
-                      {task.dateStr} · {task.estimatedMinutes}m
-                    </span>
-                    <LocaleLink
-                      href={getTaskHref(task.type)}
-                      className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
-                    >
-                      {isBn ? 'কাজ খুলুন →' : 'Open Task →'}
-                    </LocaleLink>
-                  </>
-                }
-              />
-            );
+            return {
+              id: task.id,
+              rowHeader: (
+                <div className="flex items-start gap-3">
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={isDone}
+                    aria-label={task.title}
+                    onClick={() => {
+                      void handleToggleTask(task.id);
+                    }}
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[2px] border transition-colors ${
+                      isDone
+                        ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
+                        : 'border-[var(--hairline)] bg-[var(--bg)] text-transparent hover:border-[var(--brand)]'
+                    }`}
+                  >
+                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                  <span
+                    className={
+                      isDone
+                        ? 'line-through text-[var(--text-muted)]'
+                        : 'text-[var(--brand-deep)]'
+                    }
+                  >
+                    {task.title}
+                  </span>
+                </div>
+              ),
+              rowSubheader: task.description,
+              cells: {
+                date: <span className="font-mono text-xs text-[var(--text-muted)]">{task.dateStr}</span>,
+                minutes: <span className="font-mono text-xs">{task.estimatedMinutes}m</span>,
+                status: isMissed ? (
+                  <span className="text-xs font-semibold text-[var(--brand)]">
+                    {isBn ? 'মিসড' : 'Missed'}
+                  </span>
+                ) : isDone ? (
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {isBn ? 'সম্পন্ন' : 'Completed'}
+                  </span>
+                ) : (
+                  <span className="text-xs font-medium text-[var(--brand-deep)]">
+                    {isBn ? 'নির্ধারিত' : 'Scheduled'}
+                  </span>
+                ),
+                action: (
+                  <LocaleLink
+                    href={getTaskHref(task.type)}
+                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
+                  >
+                    {isBn ? 'কাজ খুলুন →' : 'Open Task →'}
+                  </LocaleLink>
+                ),
+              },
+            };
           })}
-        </WorkspaceLedger>
+        />
       </section>
 
       <section>
@@ -287,33 +299,34 @@ export default function StudyPlanPage() {
               : 'Targeted Weak Areas Driving This Schedule'
           }
         />
-        <WorkspaceLedger>
-          {plan.weakTopics.map((topic) => (
-            <WorkspaceLedgerRow
-              key={topic}
-              left={
-                <div>
-                  <p className="text-sm font-semibold capitalize text-[var(--brand-deep)] leading-relaxed">
-                    {topic.replace(/-/g, ' ')}
-                  </p>
-                  <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                    {isBn
-                      ? 'সোক্রেটিক সমাধান ও হিন্ট-মুক্ত পুনরায় চেষ্টার জন্য নির্ধারিত।'
-                      : 'Scheduled for Socratic walkthroughs and hint-free Mistake Ledger retries.'}
-                  </p>
-                </div>
-              }
-              right={
+        <WorkspaceDataTable
+          caption={
+            isBn
+              ? 'পরিকল্পনায় অগ্রাধিকারপ্রাপ্ত দুর্বল বিষয়'
+              : 'Targeted Weak Areas Driving This Schedule'
+          }
+          columns={[
+            { key: 'topic', header: isBn ? 'বিষয়' : 'Weak Topic' },
+            { key: 'action', header: isBn ? 'অনুশীলন' : 'Action', align: 'right' },
+          ]}
+          rows={plan.weakTopics.map((topic) => ({
+            id: topic,
+            rowHeader: <span className="capitalize">{topic.replace(/-/g, ' ')}</span>,
+            rowSubheader: isBn
+              ? 'সোক্রেটিক সমাধান ও হিন্ট-মুক্ত পুনরায় চেষ্টার জন্য নির্ধারিত।'
+              : 'Scheduled for Socratic walkthroughs and hint-free Mistake Ledger retries.',
+            cells: {
+              action: (
                 <LocaleLink
                   href="/app/gre?tab=drills"
                   className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
                 >
                   {isBn ? 'বিষয় অনুশীলন করুন →' : 'Practice Topic →'}
                 </LocaleLink>
-              }
-            />
-          ))}
-        </WorkspaceLedger>
+              ),
+            },
+          }))}
+        />
       </section>
     </WorkspaceContainer>
   );

@@ -274,6 +274,112 @@ export function WorkspaceLedgerRow({
   );
 }
 
+export interface WorkspaceTableColumn {
+  key: string;
+  header: string;
+  align?: 'left' | 'right' | 'center';
+  widthClass?: string;
+}
+
+export interface WorkspaceTableRow {
+  id: string;
+  rowHeader: ReactNode;
+  rowSubheader?: string;
+  cells: Record<string, ReactNode>;
+  expandedContent?: ReactNode;
+}
+
+export interface WorkspaceDataTableProps {
+  columns: WorkspaceTableColumn[];
+  rows: WorkspaceTableRow[];
+  emptyMessage?: string;
+  caption?: string;
+}
+
+function getTableAlignClass(align?: 'left' | 'right' | 'center'): string {
+  if (align === 'right') return 'text-right';
+  if (align === 'center') return 'text-center';
+  return 'text-left';
+}
+
+export function WorkspaceDataTable({
+  columns,
+  rows,
+  emptyMessage = 'No records found.',
+  caption,
+}: WorkspaceDataTableProps) {
+  const firstCol = columns[0];
+  const restCols = columns.slice(1);
+
+  return (
+    <div className="border border-[var(--hairline)] rounded-[4px] overflow-x-auto bg-[var(--surface-paper)] mb-8">
+      <table className="w-full border-collapse text-left">
+        {caption ? <caption className="sr-only">{caption}</caption> : null}
+        <thead className="bg-[var(--bg-warm)] border-b border-[var(--hairline)]">
+          <tr className="divide-x divide-[var(--hairline)]">
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                scope="col"
+                className={`px-4 py-3 text-xs font-semibold text-[var(--brand-deep)] tracking-normal ${getTableAlignClass(col.align)} ${col.widthClass ?? ''}`.trim()}
+              >
+                {col.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-[var(--hairline)]">
+          {rows.length === 0 ? (
+            <tr>
+              <td
+                colSpan={Math.max(1, columns.length)}
+                className="px-4 py-8 text-center text-sm text-[var(--text-muted)]"
+              >
+                {emptyMessage}
+              </td>
+            </tr>
+          ) : (
+            rows.map((row) => (
+              <React.Fragment key={row.id}>
+                <tr className="divide-x divide-[var(--hairline)] even:bg-[var(--bg)]/45 hover:bg-[var(--bg-warm)]/65 transition-colors duration-150">
+                  {firstCol ? (
+                    <th
+                      scope="row"
+                      className={`px-4 py-3.5 font-semibold text-sm text-[var(--brand-deep)] bg-[var(--bg)]/35 align-middle ${getTableAlignClass(firstCol.align)} ${firstCol.widthClass ?? ''}`.trim()}
+                    >
+                      <div>{row.rowHeader}</div>
+                      {row.rowSubheader ? (
+                        <span className="block text-xs font-normal text-[var(--text-muted)] mt-0.5">
+                          {row.rowSubheader}
+                        </span>
+                      ) : null}
+                    </th>
+                  ) : null}
+                  {restCols.map((col) => (
+                    <td
+                      key={col.key}
+                      className={`px-4 py-3.5 text-sm text-[var(--text)] tabular-nums align-middle ${getTableAlignClass(col.align)} ${col.widthClass ?? ''}`.trim()}
+                    >
+                      {row.cells[col.key] ?? null}
+                    </td>
+                  ))}
+                </tr>
+                {row.expandedContent ? (
+                  <tr className="bg-[var(--bg-warm)]/40 border-t border-[var(--hairline)]">
+                    <td colSpan={Math.max(1, columns.length)} className="p-5">
+                      {row.expandedContent}
+                    </td>
+                  </tr>
+                ) : null}
+              </React.Fragment>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export interface WorkspaceProgressBarProps {
   value: number;
   max?: number;

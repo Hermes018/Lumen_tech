@@ -7,10 +7,9 @@ import { Check } from 'lucide-react';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceFocusSheet,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
 } from '@/src/components/ui/WorkspacePrimitives';
@@ -189,61 +188,73 @@ export default function LearnerAppPage() {
           }
         />
 
-        <WorkspaceLedger>
-          {TODAY_TASKS.map((task) => {
+        <WorkspaceDataTable
+          caption={isBn ? 'আজকের স্টাডি লেজার' : "Today's Study Checklist"}
+          columns={[
+            { key: 'session', header: isBn ? 'সেশন' : 'Session' },
+            { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+            { key: 'duration', header: isBn ? 'সময়কাল' : 'Duration', align: 'right' },
+            { key: 'action', header: isBn ? 'অ্যাকশন' : 'Action', align: 'right' },
+          ]}
+          rows={TODAY_TASKS.map((task) => {
             const isDone = Boolean(completedIds[task.id]);
-            return (
-              <WorkspaceLedgerRow
-                key={task.id}
-                left={
-                  <div className="flex items-start gap-3.5">
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={isDone}
-                      aria-label={isBn ? task.titleBn : task.titleEn}
-                      onClick={() => toggleTask(task.id)}
-                      className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[2px] border transition-colors ${
-                        isDone
-                          ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
-                          : 'border-[var(--hairline)] bg-[var(--surface-paper)] text-transparent hover:border-[var(--brand)]'
-                      }`}
-                    >
-                      <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                    </button>
-                    <div className="min-w-0">
-                      <p
-                        className={`text-sm font-semibold leading-relaxed ${
-                          isDone
-                            ? 'line-through text-[var(--text-muted)]'
-                            : 'text-[var(--brand-deep)]'
-                        }`}
-                      >
-                        {isBn ? task.titleBn : task.titleEn}
-                      </p>
-                      <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                        {isBn ? task.trackBn : task.trackEn}
-                      </p>
-                    </div>
-                  </div>
-                }
-                right={
-                  <>
-                    <span className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {isBn ? task.durationBn : task.durationEn}
-                    </span>
-                    <LocaleLink
-                      href={task.href}
-                      className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
-                    >
-                      {isBn ? 'সেশন খুলুন →' : 'Open Session →'}
-                    </LocaleLink>
-                  </>
-                }
-              />
-            );
+            return {
+              id: task.id,
+              rowHeader: (
+                <div className="flex items-start gap-3">
+                  <button
+                    type="button"
+                    role="checkbox"
+                    aria-checked={isDone}
+                    aria-label={isBn ? task.titleBn : task.titleEn}
+                    onClick={() => toggleTask(task.id)}
+                    className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[2px] border transition-colors ${
+                      isDone
+                        ? 'border-[var(--brand)] bg-[var(--brand)] text-white'
+                        : 'border-[var(--hairline)] bg-[var(--bg)] text-transparent hover:border-[var(--brand)]'
+                    }`}
+                  >
+                    <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                  </button>
+                  <span
+                    className={
+                      isDone
+                        ? 'line-through text-[var(--text-muted)]'
+                        : 'text-[var(--brand-deep)]'
+                    }
+                  >
+                    {isBn ? task.titleBn : task.titleEn}
+                  </span>
+                </div>
+              ),
+              rowSubheader: isBn ? task.trackBn : task.trackEn,
+              cells: {
+                status: (
+                  <span
+                    className={`text-xs font-medium ${
+                      isDone ? 'text-[var(--text-muted)]' : 'text-[var(--brand-deep)]'
+                    }`}
+                  >
+                    {isDone ? (isBn ? 'সম্পন্ন' : 'Completed') : isBn ? 'বাকি' : 'Pending'}
+                  </span>
+                ),
+                duration: (
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {isBn ? task.durationBn : task.durationEn}
+                  </span>
+                ),
+                action: (
+                  <LocaleLink
+                    href={task.href}
+                    className="text-sm font-medium text-[var(--brand-deep)] underline underline-offset-4 hover:text-[var(--brand)] leading-relaxed"
+                  >
+                    {isBn ? 'সেশন খুলুন →' : 'Open Session →'}
+                  </LocaleLink>
+                ),
+              },
+            };
           })}
-        </WorkspaceLedger>
+        />
       </section>
     </WorkspaceContainer>
   );

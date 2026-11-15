@@ -384,11 +384,11 @@ export function StatRow({ stats }: StatRowProps) {
     <div>
       <div className={colClass}>
         {stats.map((stat) => (
-          <div key={stat.value}>
-            <div className="text-4xl lg:text-5xl font-extrabold text-[var(--brand)]">
+          <div key={stat.value} className="flex flex-col items-start">
+            <div className="lumen-stat-value whitespace-nowrap leading-none">
               {stat.value}
             </div>
-            <p className="text-sm text-[var(--text)] mt-2">{stat.caption}</p>
+            <p className="text-sm text-[var(--text)] mt-2.5">{stat.caption}</p>
           </div>
         ))}
       </div>
@@ -420,7 +420,7 @@ export function StepRow({ title, intro, locale, steps }: StepRowProps) {
   return (
     <div className="space-y-10">
       <div className="max-w-3xl space-y-3">
-        <Heading level={2}>{title}</Heading>
+        <Heading level={2} showMotif={false}>{title}</Heading>
         {intro ? <p className="lumen-body">{intro}</p> : null}
       </div>
 

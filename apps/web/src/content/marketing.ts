@@ -348,8 +348,8 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           verified: true,
         },
         {
-          value: '40+ Rubrics',
-          caption: 'Calibrated Automated & Mentor Writing Evaluations',
+          value: '40+',
+          caption: 'Calibrated Writing & Speaking Rubrics',
           verified: true,
         },
       ],
@@ -571,7 +571,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
         intro: 'Structured lessons, trap clinics, and timed drills across every GRE question type.',
         items: [
           {
-            photoSlot: 'track-gre',
+            photoSlot: 'col-gre-quant',
             accentColor: 'terracotta',
             title: 'Quantitative Comparison',
             href: '/courses',
@@ -579,7 +579,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Compare Quantity A and B systematically using boundary numbers, zero, negatives, and fractions.',
           },
           {
-            photoSlot: 'hero-gre',
+            photoSlot: 'track-gre',
             accentColor: 'brand',
             title: 'Problem Solving & Data Analysis',
             href: '/courses',
@@ -587,7 +587,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Solve multi-chart percentage, ratio, algebra, geometry, and combinatorics problems under strict pacing.',
           },
           {
-            photoSlot: 'mega-courses',
+            photoSlot: 'col-gre-verbal',
             accentColor: 'crimson',
             title: 'Text Completion & Sentence Equivalence',
             href: '/courses',
@@ -595,7 +595,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Predict blank meanings from contrast pivots and retain high-frequency vocabulary with spaced repetition.',
           },
           {
-            photoSlot: 'split-diagnostic',
+            photoSlot: 'col-inst-cohort',
             accentColor: 'accent',
             title: 'Analytical Writing Issue Essay',
             href: '/exam/diagnostic',
@@ -612,7 +612,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
       },
       splitFeatures: [
         {
-          photoSlot: 'track-gre',
+          photoSlot: 'split-gre-adaptive',
           photoSide: 'left',
           backdrop: 'orange',
           title: 'Section-Adaptive Quant & Verbal Mastery',
@@ -621,7 +621,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           ctaHref: '/pricing',
         },
         {
-          photoSlot: 'split-diagnostic',
+          photoSlot: 'split-gre-hints',
           photoSide: 'right',
           backdrop: 'cobalt',
           title: 'Progressive 3-Tier Hint Guidance',
@@ -761,7 +761,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
         intro: 'Focused practice for every paper in Academic and General Training.',
         items: [
           {
-            photoSlot: 'hero-ielts',
+            photoSlot: 'track-ielts-gt',
             accentColor: 'crimson',
             title: 'Listening',
             href: '/exam/ielts-preview',
@@ -777,7 +777,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Highlight passages and solve True/False/Not Given, matching headings, and summary tasks.',
           },
           {
-            photoSlot: 'track-ielts-gt',
+            photoSlot: 'col-ielts-writing',
             accentColor: 'terracotta',
             title: 'Writing',
             href: '/courses',
@@ -785,7 +785,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'Draft Academic charts, General letters, and essays with live word counts and rubric notes.',
           },
           {
-            photoSlot: 'split-diagnostic',
+            photoSlot: 'col-ielts-speaking',
             accentColor: 'accent',
             title: 'Speaking',
             href: '/courses',
@@ -802,7 +802,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
       },
       splitFeatures: [
         {
-          photoSlot: 'track-ielts-ac',
+          photoSlot: 'split-ielts-cbt',
           photoSide: 'left',
           backdrop: 'orange',
           title: 'Four-Skill Computer-Delivered Precision',
@@ -811,7 +811,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           ctaHref: '/pricing',
         },
         {
-          photoSlot: 'track-ielts-gt',
+          photoSlot: 'split-ielts-rubric',
           photoSide: 'right',
           backdrop: 'crimson',
           title: 'Line-by-Line Band 7.5+ Rubric Feedback',
@@ -893,7 +893,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           id: 'gre-live-cohort',
           category: 'gre',
           mode: 'live',
-          photoSlot: 'hero-gre',
+          photoSlot: 'col-inst-cohort',
           accentColor: 'brand',
           title: 'GRE Live Evening Cohort',
           forWhom: 'For learners wanting live Dhaka-time classes and weekly instructor Q&A.',
@@ -950,7 +950,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           id: 'ielts-live-cohort',
           category: 'ielts',
           mode: 'live',
-          photoSlot: 'hero-ielts',
+          photoSlot: 'col-ielts-speaking',
           accentColor: 'crimson',
           title: 'IELTS Live Writing & Speaking',
           forWhom: 'For candidates seeking live instructor coaching and human essay grading.',
@@ -1285,8 +1285,8 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           verified: true,
         },
         {
-          value: '৪০+ রুব্রিক',
-          caption: 'স্বয়ংক্রিয় ও মেন্টর রাইটিং মূল্যায়ন মানদণ্ড',
+          value: '৪০+',
+          caption: 'মানসম্মত রাইটিং ও স্পিকিং রুব্রিক',
           verified: true,
         },
       ],
@@ -1505,7 +1505,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
         intro: 'প্রতিটি জিআরই প্রশ্নের ধরনের জন্য সুগঠিত পাঠ, ট্র্যাপ ক্লিনিক ও সময়বদ্ধ অনুশীলন।',
         items: [
           {
-            photoSlot: 'track-gre',
+            photoSlot: 'col-gre-quant',
             accentColor: 'terracotta',
             title: 'কোয়ান্টিটেটিভ কম্পারিজন',
             href: '/courses',
@@ -1513,7 +1513,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'শূন্য, ঋণাত্মক ও ভগ্নাংশ বসিয়ে দ্রুত এবং নির্ভুলভাবে দুটি রাশির তুলনা করুন।',
           },
           {
-            photoSlot: 'hero-gre',
+            photoSlot: 'track-gre',
             accentColor: 'brand',
             title: 'প্রবলেম সলভিং ও ডেটা অ্যানালাইসিস',
             href: '/courses',
@@ -1521,7 +1521,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'নির্ধারিত সময়ের মধ্যে শতকরা, অনুপাত, বীজগণিত, জ্যামিতি ও চার্ট-ভিত্তিক প্রশ্ন সমাধান করুন।',
           },
           {
-            photoSlot: 'mega-courses',
+            photoSlot: 'col-gre-verbal',
             accentColor: 'crimson',
             title: 'টেক্সট কমপ্লিশন ও সেন্টেন্স ইকুইভ্যালেন্স',
             href: '/courses',
@@ -1529,7 +1529,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'বাক্যের যুক্তি বুঝে শূন্যস্থান পূরণ করুন এবং স্পেসড রিপিটিশনের মাধ্যমে শব্দ মনে রাখুন।',
           },
           {
-            photoSlot: 'split-diagnostic',
+            photoSlot: 'col-inst-cohort',
             accentColor: 'accent',
             title: 'অ্যানালিটিক্যাল রাইটিং ইস্যু রচনা',
             href: '/exam/diagnostic',
@@ -1546,7 +1546,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
       },
       splitFeatures: [
         {
-          photoSlot: 'track-gre',
+          photoSlot: 'split-gre-adaptive',
           photoSide: 'left',
           backdrop: 'orange',
           title: 'সেকশন-অ্যাডাপ্টিভ কোয়ান্ট ও ভার্বাল প্রস্তুতি',
@@ -1555,7 +1555,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           ctaHref: '/pricing',
         },
         {
-          photoSlot: 'split-diagnostic',
+          photoSlot: 'split-gre-hints',
           photoSide: 'right',
           backdrop: 'cobalt',
           title: 'ধাপে ধাপে ৩-স্তরের হিন্ট সহায়তা',
@@ -1694,7 +1694,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
         intro: 'একাডেমিক ও জেনারেল ট্রেনিংয়ের প্রতিটি পেপারের জন্য আলাদা অনুশীলন।',
         items: [
           {
-            photoSlot: 'hero-ielts',
+            photoSlot: 'track-ielts-gt',
             accentColor: 'crimson',
             title: 'লিসেনিং',
             href: '/exam/ielts-preview',
@@ -1710,7 +1710,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'প্যাসেজ হাইলাইট করে ট্রু/ফলস/নট গিভেন ও হেডিং ম্যাচিং প্রশ্ন সমাধান করুন।',
           },
           {
-            photoSlot: 'track-ielts-gt',
+            photoSlot: 'col-ielts-writing',
             accentColor: 'terracotta',
             title: 'রাইটিং',
             href: '/courses',
@@ -1718,7 +1718,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
             body: 'লাইভ ওয়ার্ড কাউন্টার ও রুব্রিক নোটসহ চার্ট, চিঠি ও প্রবন্ধ লিখুন।',
           },
           {
-            photoSlot: 'split-diagnostic',
+            photoSlot: 'col-ielts-speaking',
             accentColor: 'accent',
             title: 'স্পিকিং',
             href: '/courses',
@@ -1735,7 +1735,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
       },
       splitFeatures: [
         {
-          photoSlot: 'track-ielts-ac',
+          photoSlot: 'split-ielts-cbt',
           photoSide: 'left',
           backdrop: 'orange',
           title: 'চার-দক্ষতার কম্পিউটার-ভিত্তিক অনুশীলন',
@@ -1744,7 +1744,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           ctaHref: '/pricing',
         },
         {
-          photoSlot: 'track-ielts-gt',
+          photoSlot: 'split-ielts-rubric',
           photoSide: 'right',
           backdrop: 'crimson',
           title: 'ব্যান্ড ৭.৫+ রুব্রিক ভিত্তিক মূল্যায়ন',
@@ -1826,7 +1826,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           id: 'gre-live-cohort',
           category: 'gre',
           mode: 'live',
-          photoSlot: 'hero-gre',
+          photoSlot: 'col-inst-cohort',
           accentColor: 'brand',
           title: 'জিআরই লাইভ ইভনিং ব্যাচ',
           forWhom: 'যারা ঢাকার সন্ধ্যাকালীন লাইভ ক্লাস ও শিক্ষকের সরাসরি দিকনির্দেশনা চান।',
@@ -1883,7 +1883,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           id: 'ielts-live-cohort',
           category: 'ielts',
           mode: 'live',
-          photoSlot: 'hero-ielts',
+          photoSlot: 'col-ielts-speaking',
           accentColor: 'crimson',
           title: 'আইইএলটিএস লাইভ রাইটিং ও স্পিকিং',
           forWhom: 'যারা লাইভ কোচিং এবং শিক্ষকের হাতে রচনা মূল্যায়ন চান।',

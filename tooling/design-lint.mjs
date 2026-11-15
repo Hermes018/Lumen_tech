@@ -1,5 +1,6 @@
 /** @purpose Institutional UI design lint guard: protected i18n files, suppression ban, and primitive-only marketing page check */
 import { execSync } from 'node:child_process';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -251,6 +252,7 @@ if (!routeExists('/admin')) {
 const MEDIA_FILE = path.join(ROOT, 'apps/web/src/content/media.ts');
 const mediaContent = fs.readFileSync(MEDIA_FILE, 'utf8');
 let checkedAssets = 0;
+const seenHashes = new Map();
 if (/https?:\/\//i.test(mediaContent)) {
   errors.push('[asset-guard] External http(s) URL found in apps/web/src/content/media.ts; all media slots must be local /images/<slot>.webp');
 }
@@ -264,7 +266,27 @@ for (const match of mediaContent.matchAll(/src:\s*'([^']+)'/g)) {
   const diskPath = path.join(ROOT, 'apps/web/public', srcPath);
   if (!fs.existsSync(diskPath)) {
     errors.push(`[asset-guard] Missing local WebP asset on disk: apps/web/public${srcPath}`);
+    continue;
   }
+  const buf = fs.readFileSync(diskPath);
+  const slotName = path.basename(srcPath, '.webp');
+  const maxBytes = slotName.startsWith('hero-') || slotName.startsWith('split-') ? 120 * 1024 : 60 * 1024;
+  if (buf.byteLength > maxBytes) {
+    errors.push(
+      `[asset-guard] Asset ${srcPath} exceeds size cap (${buf.byteLength} bytes > ${maxBytes} bytes)`
+    );
+  }
+  const sha256 = crypto.createHash('sha256').update(buf).digest('hex');
+  if (seenHashes.has(sha256)) {
+    errors.push(
+      `[asset-guard] Duplicate WebP asset binary detected (SHA-256 ${sha256}): ${srcPath} matches ${seenHashes.get(sha256)}`
+    );
+  } else {
+    seenHashes.set(sha256, srcPath);
+  }
+}
+if (checkedAssets < 24) {
+  errors.push(`[asset-guard] Expected at least 24 MEDIA_SLOTS entries in apps/web/src/content/media.ts, found ${checkedAssets}`);
 }
 
 // 7. Claude Editorial Workspace Guard ([workspace-guard] — expanded across P27 -> P30)

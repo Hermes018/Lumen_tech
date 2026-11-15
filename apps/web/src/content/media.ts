@@ -16,7 +16,18 @@ export type MediaSlotId =
   | 'dest-canada'
   | 'dest-australia'
   | 'split-diagnostic'
-  | 'mega-courses';
+  | 'mega-courses'
+  | 'split-gre-adaptive'
+  | 'split-gre-hints'
+  | 'split-ielts-cbt'
+  | 'split-ielts-rubric'
+  | 'col-gre-quant'
+  | 'col-gre-verbal'
+  | 'col-ielts-writing'
+  | 'col-ielts-speaking'
+  | 'col-inst-cohort';
+
+export type PhotoSlot = MediaSlotId;
 
 export interface MediaSlotEntry {
   altEn: string;
@@ -148,4 +159,78 @@ export const MEDIA_SLOTS: Record<MediaSlotId, MediaSlotEntry> = {
     captionEn: 'Explore GRE, IELTS Academic, and General Training tracks.',
     captionBn: 'জিআরই, আইইএলটিএস একাডেমিক ও জেনারেল ট্রেনিং ট্র্যাক দেখুন।',
   },
+  'split-gre-adaptive': {
+    altEn: 'Section-adaptive GRE Quantitative and Verbal testing interface',
+    altBn: 'সেকশন-অ্যাডাপ্টিভ জিআরই কোয়ান্টিটেটিভ ও ভার্বাল টেস্টিং ইন্টারফেস',
+    src: '/images/split-gre-adaptive.webp',
+    themeColor: 'var(--terracotta)',
+    captionEn: 'ETS-faithful Section 1 to Section 2 difficulty routing.',
+    captionBn: 'সেকশন ১ থেকে সেকশন ২-এ অফিসিয়াল অ্যাডাপ্টিভ রাউটিং।',
+  },
+  'split-gre-hints': {
+    altEn: 'Progressive three-tier Socratic GRE hint guidance workspace',
+    altBn: 'তিন-স্তরের সোক্রেটিক জিআরই হিন্ট গাইডেন্স ওয়ার্কস্পেস',
+    src: '/images/split-gre-hints.webp',
+    themeColor: 'var(--accent-blue)',
+    captionEn: 'Step-by-step conceptual nudges before full worked solutions.',
+    captionBn: 'পূর্ণ সমাধানের আগে ধাপে ধাপে ধারণাগত হিন্ট।',
+  },
+  'split-ielts-cbt': {
+    altEn: 'Computer-delivered IELTS four-skill split-pane simulator',
+    altBn: 'কম্পিউটার-ভিত্তিক আইইএলটিএস ৪-স্কিল স্প্লিট-পেইন সিমুলেটর',
+    src: '/images/split-ielts-cbt.webp',
+    themeColor: 'var(--crimson)',
+    captionEn: 'Split-pane Reading passages, single-play Listening, and timed Writing.',
+    captionBn: 'স্প্লিট-পেইন রিডিং, সিঙ্গেল-প্লে লিসেনিং এবং টাইমড রাইটিং।',
+  },
+  'split-ielts-rubric': {
+    altEn: 'Line-by-line IELTS Writing and Speaking four-criterion rubric feedback',
+    altBn: 'লাইন-বাই-লাইন আইইএলটিএস রাইটিং ও স্পিকিং ৪-মানদণ্ড রুব্রিক ফিডব্যাক',
+    src: '/images/split-ielts-rubric.webp',
+    themeColor: 'var(--brand)',
+    captionEn: 'Criterion-by-criterion Band 7.5+ evaluation and rewrite guidance.',
+    captionBn: 'ব্যান্ড ৭.৫+ মানদণ্ড অনুযায়ী বিশ্লেষণ ও সংশোধন নির্দেশিকা।',
+  },
+  'col-gre-quant': {
+    altEn: 'GRE Quantitative Comparison and Data Interpretation problem clinic',
+    altBn: 'জিআরই কোয়ান্টিটেটিভ কম্প্যারিজন ও ডেটা ইন্টারপ্রিটেশন অনুশীলন',
+    src: '/images/col-gre-quant.webp',
+    themeColor: 'var(--terracotta)',
+    captionEn: 'Boundary testing and algebraic trap elimination drills.',
+    captionBn: 'বীজগণিত ও জ্যামিতিক ফাঁদ এড়ানোর বিশেষ অনুশীলন।',
+  },
+  'col-gre-verbal': {
+    altEn: 'GRE Text Completion, Sentence Equivalence, and FSRS vocabulary study',
+    altBn: 'জিআরই টেক্সট কমপ্লিশন, সেন্টেন্স ইকুইভ্যালেন্স ও এফএসআরএস ভোকাবুলারি',
+    src: '/images/col-gre-verbal.webp',
+    themeColor: 'var(--crimson)',
+    captionEn: 'Contrast pivots and bilingual spaced-repetition vocabulary cards.',
+    captionBn: 'কনট্রাস্ট পিভট ও দ্বিভাষিক স্পেসড-রিপিটিশন ভোকাব কার্ড।',
+  },
+  'col-ielts-writing': {
+    altEn: 'IELTS Writing Task 1 data report and Task 2 discursive essay lab',
+    altBn: 'আইইএলটিএস রাইটিং টাস্ক ১ ডেটা রিপোর্ট ও টাস্ক ২ প্রবন্ধ ল্যাব',
+    src: '/images/col-ielts-writing.webp',
+    themeColor: 'var(--terracotta)',
+    captionEn: 'Live word counts and Band 8.0 coherence structure coaching.',
+    captionBn: 'লাইভ শব্দ গণনা ও ব্যান্ড ৮.০ কাঠামোগত কোচিং।',
+  },
+  'col-ielts-speaking': {
+    altEn: 'IELTS Speaking Part 1 to Part 3 cue card practice studio',
+    altBn: 'আইইএলটিএস স্পিকিং পার্ট ১ থেকে ৩ কিউ কার্ড প্র্যাকটিস স্টুডিও',
+    src: '/images/col-ielts-speaking.webp',
+    themeColor: 'var(--accent)',
+    captionEn: '1-minute cue card timer and lexical upgrading feedback.',
+    captionBn: '১-মিনিটের কিউ কার্ড টাইমার ও লেক্সিক্যাল ফিডব্যাক।',
+  },
+  'col-inst-cohort': {
+    altEn: 'Dhaka live cohort and university institutional preparation seminar',
+    altBn: 'ঢাকা লাইভ কোহর্ট ও প্রাতিষ্ঠানিক প্রস্তুতি সেমিনার',
+    src: '/images/col-inst-cohort.webp',
+    themeColor: 'var(--brand-deep)',
+    captionEn: 'Instructor-led evening cohorts and campus diagnostic analytics.',
+    captionBn: 'ইন্সট্রাক্টর-চালিত সান্ধ্য কোহর্ট ও ক্যাম্পাস ডায়াগনস্টিক অ্যানালিটিক্স।',
+  },
 };
+
+export const MEDIA_MANIFEST = MEDIA_SLOTS;

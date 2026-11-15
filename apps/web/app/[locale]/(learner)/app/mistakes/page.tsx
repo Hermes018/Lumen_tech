@@ -16,8 +16,8 @@ import { fetchMistakesAction, retryMistakeAction } from '@/app/actions/mistakes'
 import { formatMathText } from '@/src/lib/format-math';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
   WorkspaceTabs,
@@ -278,137 +278,137 @@ export default function MistakesPage() {
         </label>
       </div>
 
-      {visibleMistakes.length === 0 ? (
-        <div className="border-y border-[var(--hairline)] py-10 text-center text-sm text-[var(--text-muted)]">
-          {isBn
+      <WorkspaceDataTable
+        caption={isBn ? 'নথিভুক্ত ভুলের তালিকা' : 'Mistake Remediation Table'}
+        emptyMessage={
+          isBn
             ? 'এই ফিল্টারে কোনো ভুল আইটেম পাওয়া যায়নি।'
-            : 'No mistake entries match the active filters.'}
-        </div>
-      ) : (
-        <WorkspaceLedger>
-          {visibleMistakes.map((entry) => {
-            const isOpen = entry.status === 'open';
-            const isRetrying = activeRetryId === entry.questionId;
-            const fb = retryFeedback[entry.questionId];
+            : 'No mistake entries match the active filters.'
+        }
+        columns={[
+          { key: 'question', header: isBn ? 'প্রশ্ন ও ডায়াগনোসিস' : 'Question & Diagnosis' },
+          { key: 'subject', header: isBn ? 'বিষয়' : 'Subject' },
+          { key: 'cause', header: isBn ? 'ত্রুটির ধরন' : 'Error Cause' },
+          { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+          { key: 'action', header: isBn ? 'সংশোধন' : 'Action', align: 'right' },
+        ]}
+        rows={visibleMistakes.map((entry) => {
+          const isOpen = entry.status === 'open';
+          const isRetrying = activeRetryId === entry.questionId;
+          const fb = retryFeedback[entry.questionId];
 
-            return (
-              <div key={entry.id} className="py-5 px-2">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1 space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--text-muted)]">
-                      <span className="font-semibold text-[var(--brand-deep)] capitalize">
-                        {entry.subject}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        {isBn
-                          ? CAUSE_LABELS[entry.errorCategory].bn
-                          : CAUSE_LABELS[entry.errorCategory].en}
-                      </span>
-                      <span>·</span>
-                      <span className="capitalize">{entry.topicSlug.replace(/-/g, ' ')}</span>
-                      <span>·</span>
-                      <span className={isOpen ? 'font-semibold text-[var(--brand)]' : 'text-[var(--brand-deep)]'}>
-                        {isOpen ? (isBn ? 'খোলা' : 'Open') : isBn ? 'সমাধানকৃত' : 'Resolved'}
-                      </span>
-                    </div>
-
-                    <p className="text-sm font-medium text-[var(--brand-deep)] leading-relaxed">
-                      {formatMathText(entry.questionPrompt)}
-                    </p>
-
-                    {entry.notes ? (
-                      <p className="text-xs text-[var(--text)] leading-relaxed">
-                        <span className="font-semibold text-[var(--brand-deep)]">
-                          {isBn ? 'নোট: ' : 'Diagnosis: '}
-                        </span>
-                        {formatMathText(entry.notes)}
-                      </p>
-                    ) : null}
+          return {
+            id: entry.id,
+            rowHeader: formatMathText(entry.questionPrompt),
+            rowSubheader: entry.notes
+              ? `${isBn ? 'নোট: ' : 'Diagnosis: '}${formatMathText(entry.notes)}`
+              : entry.topicSlug.replace(/-/g, ' '),
+            cells: {
+              subject: (
+                <div className="space-y-0.5 text-xs">
+                  <div className="font-semibold text-[var(--brand-deep)] capitalize">
+                    {entry.subject}
                   </div>
-
-                  <div className="shrink-0 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isRetrying) {
-                          setActiveRetryId(null);
-                        } else {
-                          setActiveRetryId(entry.questionId);
-                          setSelectedChoice('');
-                        }
-                      }}
-                      className="text-sm font-semibold text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] leading-relaxed"
-                    >
-                      {isRetrying
-                        ? isBn
-                          ? 'বন্ধ করুন'
-                          : 'Close Retry'
-                        : isBn
-                          ? 'হিন্ট ছাড়া পুনরায় চেষ্টা →'
-                          : 'Retry Without Hints →'}
-                    </button>
+                  <div className="text-[var(--text-muted)] capitalize">
+                    {entry.topicSlug.replace(/-/g, ' ')}
                   </div>
                 </div>
+              ),
+              cause: (
+                <span className="text-xs">
+                  {isBn
+                    ? CAUSE_LABELS[entry.errorCategory].bn
+                    : CAUSE_LABELS[entry.errorCategory].en}
+                </span>
+              ),
+              status: (
+                <span
+                  className={`text-xs font-semibold ${
+                    isOpen ? 'text-[var(--brand)]' : 'text-[var(--brand-deep)]'
+                  }`}
+                >
+                  {isOpen ? (isBn ? 'খোলা' : 'Open') : isBn ? 'সমাধানকৃত' : 'Resolved'}
+                </span>
+              ),
+              action: (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isRetrying) {
+                      setActiveRetryId(null);
+                    } else {
+                      setActiveRetryId(entry.questionId);
+                      setSelectedChoice('');
+                    }
+                  }}
+                  className="text-sm font-semibold text-[var(--brand)] underline underline-offset-4 hover:text-[var(--brand-deep)] leading-relaxed"
+                >
+                  {isRetrying
+                    ? isBn
+                      ? 'বন্ধ করুন'
+                      : 'Close Retry'
+                    : isBn
+                      ? 'হিন্ট ছাড়া পুনরায় চেষ্টা →'
+                      : 'Retry Without Hints →'}
+                </button>
+              ),
+            },
+            expandedContent: isRetrying ? (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold text-[var(--brand-deep)]">
+                  {isBn
+                    ? 'সমাধানকৃত হিসেবে চিহ্নিত করতে হিন্ট ছাড়া সঠিক উত্তর বাছাই করুন:'
+                    : 'Select the correct answer without hints to resolve this item:'}
+                </p>
 
-                {isRetrying ? (
-                  <div className="mt-4 border-t border-[var(--hairline)] pt-4 bg-[var(--surface-paper)] p-5 space-y-4">
-                    <p className="text-xs font-semibold text-[var(--brand-deep)]">
-                      {isBn
-                        ? 'সমাধানকৃত হিসেবে চিহ্নিত করতে হিন্ট ছাড়া সঠিক উত্তর বাছাই করুন:'
-                        : 'Select the correct answer without hints to resolve this item:'}
-                    </p>
-
-                    <div className="space-y-2">
-                      {(entry.options ?? []).map((opt) => {
-                        const selected = selectedChoice === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            onClick={() => setSelectedChoice(opt.id)}
-                            className={
-                              selected
-                                ? 'w-full text-left flex items-start gap-3 rounded-[4px] border border-[var(--brand)] bg-[var(--bg-tint)] px-4 py-2.5 text-sm font-semibold text-[var(--brand-deep)] leading-relaxed'
-                                : 'w-full text-left flex items-start gap-3 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--brand-deep)] hover:border-[var(--brand)] leading-relaxed'
-                            }
-                          >
-                            <span className="font-mono font-semibold shrink-0">{opt.id}.</span>
-                            <span>{formatMathText(opt.text)}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-4">
+                <div className="space-y-2">
+                  {(entry.options ?? []).map((opt) => {
+                    const selected = selectedChoice === opt.id;
+                    return (
                       <button
+                        key={opt.id}
                         type="button"
-                        onClick={() => {
-                          void handleSubmitRetry(entry);
-                        }}
-                        className="bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)] transition-colors"
+                        onClick={() => setSelectedChoice(opt.id)}
+                        className={
+                          selected
+                            ? 'w-full text-left flex items-start gap-3 rounded-[4px] border border-[var(--brand)] bg-[var(--bg-tint)] px-4 py-2.5 text-sm font-semibold text-[var(--brand-deep)] leading-relaxed'
+                            : 'w-full text-left flex items-start gap-3 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-4 py-2.5 text-sm text-[var(--brand-deep)] hover:border-[var(--brand)] leading-relaxed'
+                        }
                       >
-                        {isBn ? 'হিন্ট-মুক্ত উত্তর জমা দিন' : 'Submit Hint-Free Retry'}
+                        <span className="font-mono font-semibold shrink-0">{opt.id}.</span>
+                        <span>{formatMathText(opt.text)}</span>
                       </button>
-                    </div>
+                    );
+                  })}
+                </div>
 
-                    {fb ? (
-                      <div className="border-t border-[var(--hairline)] pt-3 space-y-1.5">
-                        <p className="text-sm font-semibold text-[var(--brand-deep)]">{fb.msg}</p>
-                        {fb.ok && entry.explanationMd ? (
-                          <p className="text-xs text-[var(--text)] whitespace-pre-line leading-relaxed">
-                            {formatMathText(entry.explanationMd)}
-                          </p>
-                        ) : null}
-                      </div>
+                <div className="flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void handleSubmitRetry(entry);
+                    }}
+                    className="bg-[var(--brand)] text-white px-4 py-2 text-xs font-semibold rounded-[4px] hover:bg-[var(--link)] transition-colors"
+                  >
+                    {isBn ? 'হিন্ট-মুক্ত উত্তর জমা দিন' : 'Submit Hint-Free Retry'}
+                  </button>
+                </div>
+
+                {fb ? (
+                  <div className="border-t border-[var(--hairline)] pt-3 space-y-1.5">
+                    <p className="text-sm font-semibold text-[var(--brand-deep)]">{fb.msg}</p>
+                    {fb.ok && entry.explanationMd ? (
+                      <p className="text-xs text-[var(--text)] whitespace-pre-line leading-relaxed">
+                        {formatMathText(entry.explanationMd)}
+                      </p>
                     ) : null}
                   </div>
                 ) : null}
               </div>
-            );
-          })}
-        </WorkspaceLedger>
-      )}
+            ) : undefined,
+          };
+        })}
+      />
     </WorkspaceContainer>
   );
 }

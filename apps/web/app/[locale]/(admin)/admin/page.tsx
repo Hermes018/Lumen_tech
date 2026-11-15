@@ -8,9 +8,8 @@ import { brand } from '@lumen/config';
 import { Download, Eye, EyeOff, Plus, RotateCcw, Search, ShieldCheck } from 'lucide-react';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
   WorkspaceTabs,
@@ -703,57 +702,61 @@ function AdminConsoleContent() {
               </div>
             ) : null}
 
-            <WorkspaceLedger>
-              {planList.map((plan) => {
+            <WorkspaceDataTable
+              caption={isBn ? 'প্যাকেজ ক্যাটালগ ও মূল্য লেজার' : 'Package Catalog & Dual-Currency Price Matrix'}
+              columns={[
+                { key: 'package', header: isBn ? 'প্যাকেজ' : 'Package' },
+                { key: 'bdt', header: isBn ? 'টাকা (BDT)' : 'Base BDT', align: 'right' },
+                { key: 'usd', header: isBn ? 'ডলার (USD)' : 'Base USD', align: 'right' },
+                { key: 'split', header: isBn ? 'স্প্লিট-পে' : 'Split-Pay' },
+                { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+                { key: 'action', header: isBn ? 'সম্পাদনা' : 'Action', align: 'right' },
+              ]}
+              rows={planList.map((plan) => {
                 const draft = planDrafts[plan.planId];
                 const isEditing = editingSlug === plan.planId;
-                return (
-                  <div key={plan.planId}>
-                    <WorkspaceLedgerRow
-                      left={
-                        <div className="space-y-0.5">
-                          <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                            {isBn ? plan.nameBn : plan.nameEn}
-                          </div>
-                          <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                            {plan.planId} · {plan.fullMocks} {isBn ? 'মক' : 'mocks'} · {plan.aiCredits}{' '}
-                            {isBn ? 'এআই ক্রেডিট' : 'AI evals'}
-                          </div>
-                        </div>
-                      }
-                      right={
-                        <>
-                          <span className="text-sm font-semibold text-[var(--brand-deep)]">
-                            ৳{plan.baseBdt.toLocaleString()}
-                          </span>
-                          <span className="text-sm text-[var(--text)]">${plan.baseUsd}</span>
-                          <span className="text-xs text-[var(--text-muted)]">
-                            {plan.allowSplit ? (isBn ? 'স্প্লিট-পে' : 'Split-Pay') : isBn ? 'পূর্ণ' : 'Full Only'}
-                          </span>
-                          <span className="text-xs font-medium text-[var(--brand-deep)]">
-                            {plan.active ? (isBn ? 'সক্রিয়' : 'Active') : isBn ? 'স্থগিত' : 'Paused'}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setEditingSlug((prev) => (prev === plan.planId ? null : plan.planId))
-                            }
-                            className="text-sm font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
-                          >
-                            {isEditing
-                              ? isBn
-                                ? 'বন্ধ করুন'
-                                : 'Close Editor'
-                              : isBn
-                                ? 'সম্পাদনা করুন →'
-                                : 'Edit Row →'}
-                          </button>
-                        </>
-                      }
-                    />
-
-                    {isEditing && draft ? (
-                      <div className="border-t border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-5 space-y-4">
+                return {
+                  id: plan.planId,
+                  rowHeader: isBn ? plan.nameBn : plan.nameEn,
+                  rowSubheader: `${plan.planId} · ${plan.fullMocks} ${isBn ? 'মক' : 'mocks'} · ${plan.aiCredits} ${isBn ? 'এআই ক্রেডিট' : 'AI evals'}`,
+                  cells: {
+                    bdt: (
+                      <span className="font-semibold text-[var(--brand-deep)]">
+                        ৳{plan.baseBdt.toLocaleString()}
+                      </span>
+                    ),
+                    usd: `$${plan.baseUsd}`,
+                    split: (
+                      <span className="text-xs text-[var(--text-muted)]">
+                        {plan.allowSplit ? (isBn ? 'স্প্লিট-পে' : 'Split-Pay') : isBn ? 'পূর্ণ' : 'Full Only'}
+                      </span>
+                    ),
+                    status: (
+                      <span className="text-xs font-medium text-[var(--brand-deep)]">
+                        {plan.active ? (isBn ? 'সক্রিয়' : 'Active') : isBn ? 'স্থগিত' : 'Paused'}
+                      </span>
+                    ),
+                    action: (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setEditingSlug((prev) => (prev === plan.planId ? null : plan.planId))
+                        }
+                        className="text-sm font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
+                      >
+                        {isEditing
+                          ? isBn
+                            ? 'বন্ধ করুন'
+                            : 'Close Editor'
+                          : isBn
+                            ? 'সম্পাদনা করুন →'
+                            : 'Edit Row →'}
+                      </button>
+                    ),
+                  },
+                  expandedContent:
+                    isEditing && draft ? (
+                      <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                           <label className="block space-y-1">
                             <span className="text-[var(--text-muted)]">Name (EN)</span>
@@ -896,11 +899,10 @@ function AdminConsoleContent() {
                           </div>
                         </div>
                       </div>
-                    ) : null}
-                  </div>
-                );
+                    ) : undefined,
+                };
               })}
-            </WorkspaceLedger>
+            />
           </div>
         </section>
       ) : null}
@@ -1036,45 +1038,46 @@ function AdminConsoleContent() {
               </div>
             ) : null}
 
-            <WorkspaceLedger>
-              {promoList.map((promo) => (
-                <WorkspaceLedgerRow
-                  key={promo.code}
-                  left={
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {promo.code} · {promo.discountType === 'percent' ? `${promo.value}% Off` : `${promo.value} Fixed`}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                        {isBn ? promo.labelBn : promo.labelEn} · Uses: {promo.redemptionsCount}
-                        {promo.maxRedemptions ? `/${promo.maxRedemptions}` : ''}
-                        {promo.expiresAt ? ` · Exp: ${promo.expiresAt}` : ''}
-                      </div>
-                    </div>
-                  }
-                  right={
-                    <>
-                      <span className="text-xs font-medium text-[var(--brand-deep)]">
-                        {promo.active ? (isBn ? 'সক্রিয়' : 'Active') : isBn ? 'বিরতিতে' : 'Paused'}
-                      </span>
-                      <button
-                        type="button"
-                        disabled={saving}
-                        onClick={() =>
-                          void postAdminMutation(
-                            { action: 'TOGGLE_PROMO', code: promo.code, active: !promo.active },
-                            `Promo ${promo.code} ${!promo.active ? 'activated' : 'paused'}.`,
-                          )
-                        }
-                        className="text-sm font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
-                      >
-                        {promo.active ? (isBn ? 'বিরতি দিন' : 'Pause') : isBn ? 'সক্রিয় করুন' : 'Activate'}
-                      </button>
-                    </>
-                  }
-                />
-              ))}
-            </WorkspaceLedger>
+            <WorkspaceDataTable
+              caption={isBn ? 'প্রোমো ও স্কলারশিপ' : 'Promos & Scholarships'}
+              columns={[
+                { key: 'code', header: isBn ? 'প্রোমো কোড' : 'Promo Code' },
+                { key: 'discount', header: isBn ? 'ছাড়' : 'Discount' },
+                { key: 'usage', header: isBn ? 'ব্যবহার ও মেয়াদ' : 'Usage & Expiry', align: 'right' },
+                { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+                { key: 'action', header: isBn ? 'নিয়ন্ত্রণ' : 'Action', align: 'right' },
+              ]}
+              rows={promoList.map((promo) => ({
+                id: promo.code,
+                rowHeader: promo.code,
+                rowSubheader: isBn ? promo.labelBn : promo.labelEn,
+                cells: {
+                  discount:
+                    promo.discountType === 'percent' ? `${promo.value}% Off` : `${promo.value} Fixed`,
+                  usage: `${promo.redemptionsCount}${promo.maxRedemptions ? `/${promo.maxRedemptions}` : ''}${promo.expiresAt ? ` · ${promo.expiresAt}` : ''}`,
+                  status: (
+                    <span className="text-xs font-medium text-[var(--brand-deep)]">
+                      {promo.active ? (isBn ? 'সক্রিয়' : 'Active') : isBn ? 'বিরতিতে' : 'Paused'}
+                    </span>
+                  ),
+                  action: (
+                    <button
+                      type="button"
+                      disabled={saving}
+                      onClick={() =>
+                        void postAdminMutation(
+                          { action: 'TOGGLE_PROMO', code: promo.code, active: !promo.active },
+                          `Promo ${promo.code} ${!promo.active ? 'activated' : 'paused'}.`,
+                        )
+                      }
+                      className="text-sm font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
+                    >
+                      {promo.active ? (isBn ? 'বিরতি দিন' : 'Pause') : isBn ? 'সক্রিয় করুন' : 'Activate'}
+                    </button>
+                  ),
+                },
+              }))}
+            />
           </div>
 
           {/* Net Tuition Live Test Calculator */}
@@ -1165,129 +1168,133 @@ function AdminConsoleContent() {
             }
           />
 
-          <WorkspaceLedger>
-            {catalog.orders.map((order) => {
+          <WorkspaceDataTable
+            caption={isBn ? 'অর্ডার, স্প্লিট-পে ও মূসক ৬.৩' : 'Orders, Split-Pay & Mushak 6.3'}
+            columns={[
+              { key: 'order', header: isBn ? 'অর্ডার ও প্যাকেজ' : 'Order & Package' },
+              { key: 'method', header: isBn ? 'পেমেন্ট ও কিস্তি' : 'Method & Split' },
+              { key: 'amount', header: isBn ? 'পরিমাণ' : 'Amount', align: 'right' },
+              { key: 'status', header: isBn ? 'অবস্থা' : 'Status' },
+              { key: 'actions', header: isBn ? 'অ্যাকশন' : 'Actions', align: 'right' },
+            ]}
+            rows={catalog.orders.map((order) => {
               const isPreviewOpen = selectedMushakOrderId === order.id;
               const vatRate = catalog.feeRates.vatRateBdt;
               const baseExVat = Math.round(order.amount / (1 + vatRate));
               const vatAmt = order.amount - baseExVat;
-              return (
-                <div key={order.id}>
-                  <WorkspaceLedgerRow
-                    left={
-                      <div className="space-y-0.5">
-                        <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                          {order.id} · {order.planLabel}
-                        </div>
-                        <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                          {order.cohort} · {order.paymentMethod} · {order.splitMode} · {order.createdAt}
-                          {order.mushakChalanId ? ` · ${order.mushakChalanId}` : ''}
-                        </div>
-                      </div>
-                    }
-                    right={
-                      <>
-                        <span className="text-sm font-semibold text-[var(--brand-deep)]">
-                          {order.currency === 'USD'
-                            ? `$${order.amount.toFixed(2)}`
-                            : `৳${order.amount.toLocaleString()}`}
-                        </span>
-                        <span className="text-xs font-medium text-[var(--brand-deep)]">{order.splitStatus}</span>
-                        {order.splitStatus !== 'Paid in Full' && order.splitStatus !== 'Refunded' ? (
-                          <button
-                            type="button"
-                            disabled={saving}
-                            onClick={() =>
-                              void postAdminMutation(
-                                { action: 'ORDER_ACTION', orderId: order.id, operation: 'mark_paid' },
-                                `Order ${order.id} marked Paid in Full.`,
-                              )
-                            }
-                            className="text-xs font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
-                          >
-                            {isBn ? 'অফলাইন পেমেন্ট নিশ্চিত করুন' : 'Mark Offline Transfer Paid'}
-                          </button>
-                        ) : null}
-                        {order.currency === 'BDT' ? (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setSelectedMushakOrderId((prev) => (prev === order.id ? null : order.id))
-                            }
-                            className="text-xs font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
-                          >
-                            {isPreviewOpen
-                              ? isBn
-                                ? 'মূসক ৬.৩ লুকান'
-                                : 'Hide Mushak 6.3'
-                              : isBn
-                                ? 'মূসক ৬.৩ প্রিভিউ'
-                                : 'Preview Mushak 6.3 VAT Chalan'}
-                          </button>
-                        ) : null}
-                        {order.splitStatus !== 'Refunded' ? (
-                          <button
-                            type="button"
-                            disabled={saving}
-                            onClick={() =>
-                              void postAdminMutation(
-                                { action: 'ORDER_ACTION', orderId: order.id, operation: 'refund' },
-                                `7-Day policy refund issued for ${order.id}.`,
-                              )
-                            }
-                            className="text-xs font-medium underline underline-offset-4 text-[var(--brand)] hover:text-[var(--brand-deep)] leading-relaxed"
-                          >
-                            {isBn ? '৭-দিনের রিফান্ড ইস্যু করুন' : 'Issue 7-Day Refund'}
-                          </button>
-                        ) : null}
-                      </>
-                    }
-                  />
-
-                  {isPreviewOpen ? (
-                    <div className="border-t border-[var(--hairline)] bg-[var(--surface-paper)] px-4 py-4 space-y-3 text-xs">
-                      <div className="flex flex-wrap items-center justify-between gap-2 font-semibold text-[var(--brand-deep)]">
-                        <span>NBR Form Mushak-6.3 VAT Chalan Preview · {order.mushakChalanId ?? 'Draft'}</span>
-                        <span>
-                          Taxable: ৳{baseExVat.toLocaleString()} · 15% VAT: ৳{vatAmt.toLocaleString()} · Total: ৳
-                          {order.amount.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <input
-                          type="text"
-                          placeholder="Corporate NBR BIN (optional)"
-                          value={binInputMap[order.id] ?? order.corporateBin ?? ''}
-                          onChange={(e) =>
-                            setBinInputMap((prev) => ({ ...prev, [order.id]: e.target.value }))
-                          }
-                          className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-sm text-[var(--brand-deep)]"
-                        />
+              return {
+                id: order.id,
+                rowHeader: `${order.id} · ${order.planLabel}`,
+                rowSubheader: `${order.cohort} · ${order.createdAt}${order.mushakChalanId ? ` · ${order.mushakChalanId}` : ''}`,
+                cells: {
+                  method: `${order.paymentMethod} · ${order.splitMode}`,
+                  amount: (
+                    <span className="font-semibold text-[var(--brand-deep)]">
+                      {order.currency === 'USD'
+                        ? `$${order.amount.toFixed(2)}`
+                        : `৳${order.amount.toLocaleString()}`}
+                    </span>
+                  ),
+                  status: (
+                    <span className="text-xs font-medium text-[var(--brand-deep)]">
+                      {order.splitStatus}
+                    </span>
+                  ),
+                  actions: (
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                      {order.splitStatus !== 'Paid in Full' && order.splitStatus !== 'Refunded' ? (
                         <button
                           type="button"
                           disabled={saving}
                           onClick={() =>
                             void postAdminMutation(
-                              {
-                                action: 'ORDER_ACTION',
-                                orderId: order.id,
-                                operation: 'issue_mushak',
-                                corporateBin: binInputMap[order.id] ?? order.corporateBin ?? undefined,
-                              },
-                              `Mushak 6.3 Chalan issued for ${order.id}.`,
+                              { action: 'ORDER_ACTION', orderId: order.id, operation: 'mark_paid' },
+                              `Order ${order.id} marked Paid in Full.`,
                             )
                           }
-                          className="rounded-[4px] bg-[var(--brand)] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[var(--link)]"
+                          className="text-xs font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
                         >
-                          {isBn ? 'চালান ইস্যু / আপডেট করুন' : 'Issue / Sync Mushak 6.3 Chalan'}
+                          {isBn ? 'অফলাইন পেমেন্ট নিশ্চিত করুন' : 'Mark Offline Transfer Paid'}
                         </button>
-                      </div>
+                      ) : null}
+                      {order.currency === 'BDT' ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSelectedMushakOrderId((prev) => (prev === order.id ? null : order.id))
+                          }
+                          className="text-xs font-medium underline underline-offset-4 text-[var(--brand-deep)] hover:text-[var(--brand)] leading-relaxed"
+                        >
+                          {isPreviewOpen
+                            ? isBn
+                              ? 'মূসক ৬.৩ লুকান'
+                              : 'Hide Mushak 6.3'
+                            : isBn
+                              ? 'মূসক ৬.৩ প্রিভিউ'
+                              : 'Preview Mushak 6.3 VAT Chalan'}
+                        </button>
+                      ) : null}
+                      {order.splitStatus !== 'Refunded' ? (
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={() =>
+                            void postAdminMutation(
+                              { action: 'ORDER_ACTION', orderId: order.id, operation: 'refund' },
+                              `7-Day policy refund issued for ${order.id}.`,
+                            )
+                          }
+                          className="text-xs font-medium underline underline-offset-4 text-[var(--brand)] hover:text-[var(--brand-deep)] leading-relaxed"
+                        >
+                          {isBn ? '৭-দিনের রিফান্ড ইস্যু করুন' : 'Issue 7-Day Refund'}
+                        </button>
+                      ) : null}
                     </div>
-                  ) : null}
-                </div>
-              );
+                  ),
+                },
+                expandedContent: isPreviewOpen ? (
+                  <div className="space-y-3 text-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-2 font-semibold text-[var(--brand-deep)]">
+                      <span>NBR Form Mushak-6.3 VAT Chalan Preview · {order.mushakChalanId ?? 'Draft'}</span>
+                      <span>
+                        Taxable: ৳{baseExVat.toLocaleString()} · 15% VAT: ৳{vatAmt.toLocaleString()} · Total: ৳
+                        {order.amount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <input
+                        type="text"
+                        placeholder="Corporate NBR BIN (optional)"
+                        value={binInputMap[order.id] ?? order.corporateBin ?? ''}
+                        onChange={(e) =>
+                          setBinInputMap((prev) => ({ ...prev, [order.id]: e.target.value }))
+                        }
+                        className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-sm text-[var(--brand-deep)]"
+                      />
+                      <button
+                        type="button"
+                        disabled={saving}
+                        onClick={() =>
+                          void postAdminMutation(
+                            {
+                              action: 'ORDER_ACTION',
+                              orderId: order.id,
+                              operation: 'issue_mushak',
+                              corporateBin: binInputMap[order.id] ?? order.corporateBin ?? undefined,
+                            },
+                            `Mushak 6.3 Chalan issued for ${order.id}.`,
+                          )
+                        }
+                        className="rounded-[4px] bg-[var(--brand)] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[var(--link)]"
+                      >
+                        {isBn ? 'চালান ইস্যু / আপডেট করুন' : 'Issue / Sync Mushak 6.3 Chalan'}
+                      </button>
+                    </div>
+                  </div>
+                ) : undefined,
+              };
             })}
-          </WorkspaceLedger>
+          />
         </section>
       ) : null}
 
@@ -1364,33 +1371,45 @@ function AdminConsoleContent() {
                   : 'Student names and emails are stripped for blind grading privacy; submissions appear solely by anonymized hash.'
               }
             />
-            <WorkspaceLedger>
-              {catalog.moderationQueue.map((item) => {
+            <WorkspaceDataTable
+              caption={isBn ? 'ব্লাইন্ড রাইটিং ও স্পিকিং মডারেশন কিউ' : 'Blind Essay & Speaking Moderation Queue'}
+              columns={[
+                { key: 'submission', header: isBn ? 'সাবমিশন হ্যাশ' : 'Submission Hash' },
+                { key: 'excerpt', header: isBn ? 'উদ্ধৃতি ও ক্যালিব্রেশন নোট' : 'Excerpt & Calibration Note' },
+                { key: 'estimate', header: isBn ? 'স্কোর ও অবস্থা' : 'AI Band & Status' },
+                { key: 'actions', header: isBn ? 'সিদ্ধান্ত' : 'Decision', align: 'right' },
+              ]}
+              rows={catalog.moderationQueue.map((item) => {
                 const blindHash = toBlindSubmissionHash(item.id);
-                return (
-                  <div key={item.id} className="py-5 px-2 space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        <span>{blindHash}</span> · {item.type} · {item.task}
+                return {
+                  id: item.id,
+                  rowHeader: `${blindHash} · ${item.type}`,
+                  rowSubheader: `${item.task} · ${item.submittedAt}`,
+                  cells: {
+                    excerpt: (
+                      <div className="space-y-2 min-w-[240px]">
+                        <p className="text-xs text-[var(--text)] leading-relaxed max-w-[56ch]">
+                          &ldquo;{item.excerpt}&rdquo;
+                        </p>
+                        <input
+                          type="text"
+                          placeholder={isBn ? 'মডারেটর মন্তব্য যোগ করুন...' : 'Blind grader calibration note...'}
+                          value={moderationNotes[item.id] ?? item.feedbackNote}
+                          onChange={(e) =>
+                            setModerationNotes((prev) => ({ ...prev, [item.id]: e.target.value }))
+                          }
+                          className="w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs text-[var(--brand-deep)]"
+                        />
                       </div>
-                      <div className="text-xs font-medium text-[var(--text-muted)]">
-                        {item.aiBandOrScore} · {item.status} · {item.submittedAt}
+                    ),
+                    estimate: (
+                      <div className="space-y-0.5 text-xs">
+                        <div className="font-semibold text-[var(--brand-deep)]">{item.aiBandOrScore}</div>
+                        <div className="text-[var(--text-muted)]">{item.status}</div>
                       </div>
-                    </div>
-                    <p className="text-sm text-[var(--text)] leading-relaxed max-w-[75ch]">
-                      &ldquo;{item.excerpt}&rdquo;
-                    </p>
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <input
-                        type="text"
-                        placeholder={isBn ? 'মডারেটর মন্তব্য যোগ করুন...' : 'Blind grader calibration note...'}
-                        value={moderationNotes[item.id] ?? item.feedbackNote}
-                        onChange={(e) =>
-                          setModerationNotes((prev) => ({ ...prev, [item.id]: e.target.value }))
-                        }
-                        className="flex-1 min-w-[220px] rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3 py-2 text-sm text-[var(--brand-deep)]"
-                      />
-                      <div className="flex flex-wrap items-center gap-4">
+                    ),
+                    actions: (
+                      <div className="flex flex-wrap items-center justify-end gap-3">
                         <button
                           type="button"
                           disabled={saving}
@@ -1406,7 +1425,7 @@ function AdminConsoleContent() {
                               `Blind submission ${blindHash} approved.`,
                             )
                           }
-                          className="rounded-[4px] bg-[var(--brand-deep)] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[var(--brand)]"
+                          className="rounded-[4px] bg-[var(--brand-deep)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--brand)]"
                         >
                           {isBn ? 'অনুমোদন' : 'Approve'}
                         </button>
@@ -1449,11 +1468,11 @@ function AdminConsoleContent() {
                           {isBn ? 'অপসারণ' : 'Remove'}
                         </button>
                       </div>
-                    </div>
-                  </div>
-                );
+                    ),
+                  },
+                };
               })}
-            </WorkspaceLedger>
+            />
           </div>
 
           {/* Vocabulary & FAQ Upkeep */}
@@ -1461,28 +1480,24 @@ function AdminConsoleContent() {
             <WorkspaceSectionTitle
               title={isBn ? 'ভোকাবুলারি ও এফএকিউ সিএমএস লেজার' : 'Vocabulary & FAQ Upkeep Ledger'}
             />
-            <WorkspaceLedger>
-              {catalog.cmsItems.map((entry) => (
-                <WorkspaceLedgerRow
-                  key={entry.id}
-                  left={
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {isBn ? entry.titleBn : entry.titleEn}
-                      </div>
-                      <div className="text-xs text-[var(--text)] leading-relaxed">
-                        {isBn ? entry.bodyBn : entry.bodyEn}
-                      </div>
-                    </div>
-                  }
-                  right={
-                    <span className="text-xs text-[var(--text-muted)]">
-                      {entry.kind} · {entry.id}
-                    </span>
-                  }
-                />
-              ))}
-            </WorkspaceLedger>
+            <WorkspaceDataTable
+              caption={isBn ? 'ভোকাবুলারি ও এফএকিউ সিএমএস লেজার' : 'Vocabulary & FAQ Upkeep Ledger'}
+              columns={[
+                { key: 'entry', header: isBn ? 'শিরোনাম' : 'Entry' },
+                { key: 'kind', header: isBn ? 'ধরন' : 'Kind' },
+                { key: 'body', header: isBn ? 'সংজ্ঞা / উত্তর' : 'Definition / Answer' },
+                { key: 'id', header: 'ID', align: 'right' },
+              ]}
+              rows={catalog.cmsItems.map((entry) => ({
+                id: entry.id,
+                rowHeader: isBn ? entry.titleBn : entry.titleEn,
+                cells: {
+                  kind: <span className="text-xs font-medium text-[var(--brand-deep)]">{entry.kind}</span>,
+                  body: <span className="text-xs">{isBn ? entry.bodyBn : entry.bodyEn}</span>,
+                  id: <span className="font-mono text-xs text-[var(--text-muted)]">{entry.id}</span>,
+                },
+              }))}
+            />
 
             <div className="mt-4 border-b border-[var(--hairline)] pb-5 grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
               <select
@@ -1572,55 +1587,66 @@ function AdminConsoleContent() {
             }
           />
 
-          <WorkspaceLedger>
-            {filteredScholars.map((s) => {
+          <WorkspaceDataTable
+            caption={isBn ? 'স্কলার ডিরেক্টরি — PII মাস্কড' : 'Scholar Directory — PII Masked'}
+            columns={[
+              { key: 'scholar', header: isBn ? 'শিক্ষার্থী' : 'Scholar' },
+              { key: 'contact', header: isBn ? 'যোগাযোগ (মাস্কড)' : 'Contact (Masked)' },
+              { key: 'cohort', header: isBn ? 'কোহর্ট' : 'Cohort' },
+              { key: 'credits', header: isBn ? 'এআই ক্রেডিট ও মেয়াদ' : 'Credits & Expiry', align: 'right' },
+              { key: 'actions', header: isBn ? 'গভর্নেন্স অ্যাকশন' : 'Governance', align: 'right' },
+            ]}
+            rows={filteredScholars.map((s) => {
               const isUnmasked = Boolean(unmaskedScholarIds[s.id]);
               const scholarPhone = SCHOLAR_CONTACT_PHONES[s.id] ?? '+8801711000000';
               const displayEmail = isUnmasked ? s.email : maskEmailForAdmin(s.email);
               const displayPhone = isUnmasked ? scholarPhone : maskPhoneForAdmin(scholarPhone);
 
-              return (
-                <WorkspaceLedgerRow
-                  key={s.id}
-                  left={
-                    <div className="space-y-1">
-                      <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {s.name} · {s.id}
-                      </div>
-                      <div className="text-xs text-[var(--text)] leading-relaxed">
-                        {displayEmail} · {displayPhone}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                        {s.cohort} · {s.aiCreditsRemaining} AI Evals · Exp {s.expiresAt} · {s.diagnosticStatus} (
-                        {s.bandEstimate})
-                      </div>
+              return {
+                id: s.id,
+                rowHeader: `${s.name} · ${s.id}`,
+                rowSubheader: `${s.diagnosticStatus} (${s.bandEstimate})`,
+                cells: {
+                  contact: (
+                    <div className="text-xs space-y-0.5">
+                      <div>{displayEmail}</div>
+                      <div className="text-[var(--text-muted)]">{displayPhone}</div>
                     </div>
-                  }
-                  right={
-                    <>
-                      <select
-                        aria-label={`Cohort for ${s.id}`}
-                        value={s.cohort}
-                        onChange={(e) =>
-                          void postAdminMutation(
-                            {
-                              action: 'SCHOLAR_ACTION',
-                              scholarId: s.id,
-                              operation: 'switch_cohort',
-                              cohort: e.target.value,
-                            },
-                            `Moved ${s.id} to ${e.target.value}.`,
-                          )
-                        }
-                        className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-2.5 py-1.5 text-xs text-[var(--brand-deep)]"
-                      >
-                        {COHORT_OPTIONS.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-
+                  ),
+                  cohort: (
+                    <select
+                      aria-label={`Cohort for ${s.id}`}
+                      value={s.cohort}
+                      onChange={(e) =>
+                        void postAdminMutation(
+                          {
+                            action: 'SCHOLAR_ACTION',
+                            scholarId: s.id,
+                            operation: 'switch_cohort',
+                            cohort: e.target.value,
+                          },
+                          `Moved ${s.id} to ${e.target.value}.`,
+                        )
+                      }
+                      className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-2.5 py-1.5 text-xs text-[var(--brand-deep)]"
+                    >
+                      {COHORT_OPTIONS.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  ),
+                  credits: (
+                    <div className="text-xs space-y-0.5">
+                      <div className="font-semibold text-[var(--brand-deep)]">
+                        {s.aiCreditsRemaining} AI Evals
+                      </div>
+                      <div className="text-[var(--text-muted)]">Exp {s.expiresAt}</div>
+                    </div>
+                  ),
+                  actions: (
+                    <div className="flex flex-wrap items-center justify-end gap-3">
                       <button
                         type="button"
                         onClick={() => handleToggleScholarMask(s.id, s.email)}
@@ -1688,12 +1714,12 @@ function AdminConsoleContent() {
                       >
                         {isBn ? 'ডায়াগনস্টিক রিসেট' : 'Reset Diagnostic'}
                       </button>
-                    </>
-                  }
-                />
-              );
+                    </div>
+                  ),
+                },
+              };
             })}
-          </WorkspaceLedger>
+          />
         </section>
       ) : null}
 
@@ -1708,48 +1734,50 @@ function AdminConsoleContent() {
                   : 'Operational switches governing checkout rails, translation rate guards, and rubric calibration.'
               }
             />
-            <WorkspaceLedger>
-              {(
-                [
-                  {
-                    key: 'splitPayEnabled',
-                    label: 'splitPayEnabled · 2-Part / 3-Part Installments',
-                    desc: 'Enables fractional clearing-fee installment schedules in /checkout.',
-                  },
-                  {
-                    key: 'guestCheckoutEnabled',
-                    label: 'guestCheckoutEnabled · Guest Enrollment',
-                    desc: 'Allows prospective scholars to complete tuition settlement prior to account activation.',
-                  },
-                  {
-                    key: 'translateBudgetGuard',
-                    label: 'translateBudgetGuard · /api/translate Budget Guard',
-                    desc: 'Caps LLM translation volume per minute to prevent quota overrun.',
-                  },
-                  {
-                    key: 'maintenanceBanner',
-                    label: 'maintenanceBanner · Exam Maintenance Kill-Switch',
-                    desc: 'Displays scheduled maintenance warning prior to new timed mock attempts.',
-                  },
-                ] as const
-              ).map((item) => {
-                const active = catalog.featureFlags[item.key];
-                return (
-                  <WorkspaceLedgerRow
-                    key={item.key}
-                    left={
-                      <div className="space-y-0.5">
-                        <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                          {item.label}
-                        </div>
-                        <div className="text-xs text-[var(--text-muted)] leading-relaxed">{item.desc}</div>
-                      </div>
-                    }
-                    right={
-                      <>
+            <WorkspaceDataTable
+              caption={isBn ? 'সিস্টেম ফিচার ফ্ল্যাগ ও কিল-সুইচ' : 'System Feature Flags & Kill-Switches'}
+              columns={[
+                { key: 'flag', header: isBn ? 'ফিচার ফ্ল্যাগ' : 'Feature Flag' },
+                { key: 'state', header: isBn ? 'অবস্থা' : 'State' },
+                { key: 'control', header: isBn ? 'নিয়ন্ত্রণ' : 'Control', align: 'right' },
+              ]}
+              rows={[
+                ...(
+                  [
+                    {
+                      key: 'splitPayEnabled',
+                      label: 'splitPayEnabled · 2-Part / 3-Part Installments',
+                      desc: 'Enables fractional clearing-fee installment schedules in /checkout.',
+                    },
+                    {
+                      key: 'guestCheckoutEnabled',
+                      label: 'guestCheckoutEnabled · Guest Enrollment',
+                      desc: 'Allows prospective scholars to complete tuition settlement prior to account activation.',
+                    },
+                    {
+                      key: 'translateBudgetGuard',
+                      label: 'translateBudgetGuard · /api/translate Budget Guard',
+                      desc: 'Caps LLM translation volume per minute to prevent quota overrun.',
+                    },
+                    {
+                      key: 'maintenanceBanner',
+                      label: 'maintenanceBanner · Exam Maintenance Kill-Switch',
+                      desc: 'Displays scheduled maintenance warning prior to new timed mock attempts.',
+                    },
+                  ] as const
+                ).map((item) => {
+                  const active = catalog.featureFlags[item.key];
+                  return {
+                    id: item.key,
+                    rowHeader: item.label,
+                    rowSubheader: item.desc,
+                    cells: {
+                      state: (
                         <span className="text-xs font-medium text-[var(--brand-deep)]">
                           {active ? (isBn ? 'সক্রিয়' : 'Enabled') : isBn ? 'নিষ্ক্রিয়' : 'Disabled'}
                         </span>
+                      ),
+                      control: (
                         <button
                           type="button"
                           disabled={saving}
@@ -1759,63 +1787,62 @@ function AdminConsoleContent() {
                               `Flag "${item.key}" toggled to ${String(!active)}.`,
                             )
                           }
-                          className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-deep)] hover:border-[var(--brand)]"
+                          className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-deep)] hover:border-[var(--brand)]"
                         >
                           {active ? (isBn ? 'বন্ধ করুন' : 'Disable') : isBn ? 'চালু করুন' : 'Enable'}
                         </button>
-                      </>
-                    }
-                  />
-                );
-              })}
-
-              <WorkspaceLedgerRow
-                left={
-                  <div className="space-y-0.5">
-                    <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {isBn
-                        ? 'গ্লোবাল এআই রাইটিং ও স্পিকিং রুব্রিক কঠোরতা'
-                        : 'Global AI Writing & Speaking Rubric Strictness'}
-                    </div>
-                    <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {isBn
-                        ? 'স্বয়ংক্রিয় রুব্রিক স্কোরিং ও সিনিয়র মানব গ্রেডারদের মধ্যে QWK সমন্বয়।'
-                        : 'Calibrates QWK alignment between automated rubric scoring and senior human graders.'}
-                    </div>
-                  </div>
-                }
-                right={
-                  <div className="flex flex-wrap gap-2">
-                    {(['lenient', 'standard', 'strict'] as RuntimeFeatureFlags['aiStrictnessLevel'][]).map(
-                      (lvl) => {
-                        const isSelected = catalog.featureFlags.aiStrictnessLevel === lvl;
-                        const displayLabel = lvl.charAt(0).toUpperCase() + lvl.slice(1);
-                        return (
-                          <button
-                            key={lvl}
-                            type="button"
-                            disabled={saving}
-                            onClick={() =>
-                              void postAdminMutation(
-                                { action: 'TOGGLE_FLAG', flag: 'aiStrictnessLevel', value: lvl },
-                                `Global AI strictness set to "${lvl}".`,
-                              )
-                            }
-                            className={
-                              isSelected
-                                ? 'rounded-[4px] bg-[var(--brand-deep)] px-3 py-1.5 text-xs font-semibold text-white'
-                                : 'rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]'
-                            }
-                          >
-                            {displayLabel}
-                          </button>
-                        );
-                      },
-                    )}
-                  </div>
-                }
-              />
-            </WorkspaceLedger>
+                      ),
+                    },
+                  };
+                }),
+                {
+                  id: 'aiStrictnessLevel',
+                  rowHeader: isBn
+                    ? 'গ্লোবাল এআই রাইটিং ও স্পিকিং রুব্রিক কঠোরতা'
+                    : 'Global AI Writing & Speaking Rubric Strictness',
+                  rowSubheader: isBn
+                    ? 'স্বয়ংক্রিয় রুব্রিক স্কোরিং ও সিনিয়র মানব গ্রেডারদের মধ্যে QWK সমন্বয়।'
+                    : 'Calibrates QWK alignment between automated rubric scoring and senior human graders.',
+                  cells: {
+                    state: (
+                      <span className="text-xs font-medium text-[var(--brand-deep)]">
+                        {catalog.featureFlags.aiStrictnessLevel}
+                      </span>
+                    ),
+                    control: (
+                      <div className="flex flex-wrap justify-end gap-2">
+                        {(['lenient', 'standard', 'strict'] as RuntimeFeatureFlags['aiStrictnessLevel'][]).map(
+                          (lvl) => {
+                            const isSelected = catalog.featureFlags.aiStrictnessLevel === lvl;
+                            const displayLabel = lvl.charAt(0).toUpperCase() + lvl.slice(1);
+                            return (
+                              <button
+                                key={lvl}
+                                type="button"
+                                disabled={saving}
+                                onClick={() =>
+                                  void postAdminMutation(
+                                    { action: 'TOGGLE_FLAG', flag: 'aiStrictnessLevel', value: lvl },
+                                    `Global AI strictness set to "${lvl}".`,
+                                  )
+                                }
+                                className={
+                                  isSelected
+                                    ? 'rounded-[4px] bg-[var(--brand-deep)] px-3 py-1.5 text-xs font-semibold text-white'
+                                    : 'rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs font-medium text-[var(--brand-deep)] hover:border-[var(--brand)]'
+                                }
+                              >
+                                {displayLabel}
+                              </button>
+                            );
+                          },
+                        )}
+                      </div>
+                    ),
+                  },
+                },
+              ]}
+            />
           </div>
 
           <div>
@@ -1827,22 +1854,24 @@ function AdminConsoleContent() {
                   : 'Item difficulty (p-value), discrimination index (a), and distractor trap rate ledger.'
               }
             />
-            <WorkspaceLedger>
-              {catalog.psychometrics.map((item) => (
-                <WorkspaceLedgerRow
-                  key={item.id}
-                  left={
-                    <div className="space-y-0.5">
-                      <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {item.itemCode} · {item.domain}
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                        p={item.pValue.toFixed(2)} ({item.bParam}) · a={item.discriminationIndex.toFixed(2)} · Trap{' '}
-                        {item.trapRate}
-                      </div>
-                    </div>
-                  }
-                  right={
+            <WorkspaceDataTable
+              caption={isBn ? '২পিএল আইআরটি আইটেম সাইকোমেট্রিক্স' : '2PL IRT Item Psychometrics & Calibration'}
+              columns={[
+                { key: 'item', header: isBn ? 'আইটেম ও ডোমেইন' : 'Item & Domain' },
+                { key: 'pvalue', header: 'p-value', align: 'right' },
+                { key: 'disc', header: 'Discrimination (a)', align: 'right' },
+                { key: 'trap', header: 'Trap Rate', align: 'right' },
+                { key: 'calibration', header: isBn ? 'ক্যালিব্রেশন' : 'Calibration', align: 'right' },
+              ]}
+              rows={catalog.psychometrics.map((item) => ({
+                id: item.id,
+                rowHeader: `${item.itemCode} · ${item.domain}`,
+                rowSubheader: item.bParam,
+                cells: {
+                  pvalue: item.pValue.toFixed(2),
+                  disc: item.discriminationIndex.toFixed(2),
+                  trap: item.trapRate,
+                  calibration: (
                     <select
                       aria-label={`Calibration for ${item.itemCode}`}
                       value={item.aiStrictness}
@@ -1856,16 +1885,16 @@ function AdminConsoleContent() {
                           `Item ${item.itemCode} strictness updated to ${e.target.value}.`,
                         )
                       }
-                      className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3 py-1.5 text-xs text-[var(--brand-deep)]"
+                      className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-1.5 text-xs text-[var(--brand-deep)]"
                     >
                       <option value="Standard">Standard</option>
                       <option value="Calibrated">Calibrated</option>
                       <option value="Strict">Strict</option>
                     </select>
-                  }
-                />
-              ))}
-            </WorkspaceLedger>
+                  ),
+                },
+              }))}
+            />
           </div>
         </section>
       ) : null}
@@ -1903,30 +1932,34 @@ function AdminConsoleContent() {
             }
           />
 
-          <WorkspaceLedger>
-            {combinedAuditLogs.map((entry) => (
-              <WorkspaceLedgerRow
-                key={entry.id}
-                left={
-                  <div className="space-y-0.5">
-                    <div className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                      {entry.action} — {entry.subsystem}
-                    </div>
-                    <div className="text-xs text-[var(--text)] leading-relaxed">{entry.detail}</div>
-                    <div className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {entry.id} · {entry.timestamp} · {entry.actor}
-                    </div>
-                  </div>
-                }
-                right={
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--brand-deep)]">
+          <WorkspaceDataTable
+            caption={isBn ? 'অপরিবর্তনীয় নিরাপত্তা অডিট লগ' : 'Security Audit Ledger'}
+            columns={[
+              { key: 'event', header: isBn ? 'ইভেন্ট ও সাবসিস্টেম' : 'Event & Subsystem' },
+              { key: 'actor', header: isBn ? 'পরিচালক' : 'Actor' },
+              { key: 'timestamp', header: isBn ? 'সময়' : 'Timestamp' },
+              { key: 'status', header: isBn ? 'যাচাই' : 'Status', align: 'right' },
+            ]}
+            rows={combinedAuditLogs.map((entry) => ({
+              id: entry.id,
+              rowHeader: `${entry.action} — ${entry.subsystem}`,
+              rowSubheader: entry.detail,
+              cells: {
+                actor: <span className="text-xs">{entry.actor}</span>,
+                timestamp: (
+                  <span className="font-mono text-xs text-[var(--text-muted)]">
+                    {entry.id} · {entry.timestamp}
+                  </span>
+                ),
+                status: (
+                  <span className="inline-flex items-center justify-end gap-1.5 text-xs font-medium text-[var(--brand-deep)]">
                     <ShieldCheck className="h-3.5 w-3.5 text-[var(--brand)]" aria-hidden="true" />
                     <span>{entry.status}</span>
                   </span>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+                ),
+              },
+            }))}
+          />
         </section>
       ) : null}
     </WorkspaceContainer>

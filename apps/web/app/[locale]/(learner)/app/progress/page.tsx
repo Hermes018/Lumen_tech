@@ -10,9 +10,8 @@ import { getLearnerDashboardData, type LearnerDashboardData } from '@/app/action
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import {
   WorkspaceContainer,
+  WorkspaceDataTable,
   WorkspaceHeader,
-  WorkspaceLedger,
-  WorkspaceLedgerRow,
   WorkspaceProgressBar,
   WorkspaceSectionTitle,
   WorkspaceStatRow,
@@ -322,8 +321,8 @@ export default async function LearnerProgressPage() {
         </div>
       </section>
 
-      {/* 2-Column Topic Mastery Hairline Ledgers */}
-      <section className="grid gap-10 lg:grid-cols-2">
+      {/* Quantitative, Verbal & IELTS Skill Mastery Data Tables */}
+      <section className="space-y-10">
         <div>
           <WorkspaceSectionTitle
             title={isBn ? 'কোয়ান্টিটেটিভ ও ভার্বাল দক্ষতা' : 'Quantitative & Verbal Mastery'}
@@ -342,35 +341,50 @@ export default async function LearnerProgressPage() {
             }
           />
 
-          <WorkspaceLedger>
-            {data.skills.map((skill) => (
-              <WorkspaceLedgerRow
-                key={skill.skillSlug}
-                left={
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {skill.name}
-                      </span>
-                      <span className="text-xs text-[var(--text-muted)] shrink-0">
-                        {getStageLabel(skill.stage, isBn)} · {skill.accuracy}%
-                      </span>
-                    </div>
-                    <WorkspaceProgressBar
-                      value={skill.accuracy}
-                      max={100}
-                      tone={skill.subject === 'quant' ? 'crimson' : 'espresso'}
-                      label={skill.name}
-                    />
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {skill.correctCount} / {skill.attemptsCount}{' '}
-                      {isBn ? 'সঠিক উত্তর' : 'items correct'}
-                    </p>
-                  </div>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+          <WorkspaceDataTable
+            caption={isBn ? 'কোয়ান্টিটেটিভ ও ভার্বাল দক্ষতা' : 'Quantitative & Verbal Mastery'}
+            columns={[
+              { key: 'topic', header: isBn ? 'বিষয়' : 'Topic' },
+              { key: 'subject', header: isBn ? 'সেকশন' : 'Section' },
+              { key: 'stage', header: isBn ? 'স্তর' : 'Stage' },
+              { key: 'progress', header: isBn ? 'দক্ষতা সূচক' : 'Mastery', widthClass: 'min-w-[160px]' },
+              { key: 'accuracy', header: isBn ? 'নির্ভুলতা' : 'Accuracy', align: 'right' },
+            ]}
+            rows={data.skills.map((skill) => ({
+              id: skill.skillSlug,
+              rowHeader: skill.name,
+              rowSubheader: `${skill.correctCount} / ${skill.attemptsCount} ${isBn ? 'সঠিক উত্তর' : 'items correct'}`,
+              cells: {
+                subject: (
+                  <span className="text-xs font-medium text-[var(--brand-deep)]">
+                    {skill.subject === 'quant'
+                      ? isBn
+                        ? 'কোয়ান্টিটেটিভ'
+                        : 'Quantitative'
+                      : isBn
+                        ? 'ভার্বাল'
+                        : 'Verbal'}
+                  </span>
+                ),
+                stage: (
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {getStageLabel(skill.stage, isBn)}
+                  </span>
+                ),
+                progress: (
+                  <WorkspaceProgressBar
+                    value={skill.accuracy}
+                    max={100}
+                    tone={skill.subject === 'quant' ? 'crimson' : 'espresso'}
+                    label={skill.name}
+                  />
+                ),
+                accuracy: (
+                  <span className="font-semibold text-[var(--brand-deep)]">{skill.accuracy}%</span>
+                ),
+              },
+            }))}
+          />
         </div>
 
         <div>
@@ -391,34 +405,34 @@ export default async function LearnerProgressPage() {
             }
           />
 
-          <WorkspaceLedger>
-            {IELTS_SKILL_BREAKDOWN.map((item) => (
-              <WorkspaceLedgerRow
-                key={item.id}
-                left={
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-sm font-semibold text-[var(--brand-deep)] leading-relaxed">
-                        {isBn ? item.nameBn : item.nameEn}
-                      </span>
-                      <span className="text-xs font-semibold text-[var(--brand)] shrink-0">
-                        Band {item.band.toFixed(1)} / 9.0
-                      </span>
-                    </div>
-                    <WorkspaceProgressBar
-                      value={item.band}
-                      max={9}
-                      tone="espresso"
-                      label={isBn ? item.nameBn : item.nameEn}
-                    />
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
-                      {isBn ? item.detailBn : item.detailEn}
-                    </p>
-                  </div>
-                }
-              />
-            ))}
-          </WorkspaceLedger>
+          <WorkspaceDataTable
+            caption={isBn ? 'আইইএলটিএস ৪-স্কিল বিশ্লেষণ' : 'IELTS 4-Skill Breakdown'}
+            columns={[
+              { key: 'skill', header: isBn ? 'দক্ষতা' : 'Skill' },
+              { key: 'progress', header: isBn ? 'ব্যান্ড অগ্রগতি' : 'Band Progress', widthClass: 'min-w-[180px]' },
+              { key: 'band', header: isBn ? 'অনুমিত ব্যান্ড' : 'Estimated Band', align: 'right' },
+            ]}
+            rows={IELTS_SKILL_BREAKDOWN.map((item) => ({
+              id: item.id,
+              rowHeader: isBn ? item.nameBn : item.nameEn,
+              rowSubheader: isBn ? item.detailBn : item.detailEn,
+              cells: {
+                progress: (
+                  <WorkspaceProgressBar
+                    value={item.band}
+                    max={9}
+                    tone="espresso"
+                    label={isBn ? item.nameBn : item.nameEn}
+                  />
+                ),
+                band: (
+                  <span className="font-semibold text-[var(--brand)]">
+                    Band {item.band.toFixed(1)} / 9.0
+                  </span>
+                ),
+              },
+            }))}
+          />
         </div>
       </section>
     </WorkspaceContainer>
