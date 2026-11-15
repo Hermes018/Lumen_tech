@@ -1,61 +1,28 @@
-/** @purpose Localized (en/bn) sitemap generator for all public marketing, course, landing, and legal routes (SEO policy, docs/08) */
-
+/**
+ * @purpose Next.js sitemap generator covering all public marketing routes in en and bn.
+ */
 import type { MetadataRoute } from 'next';
-import { SITE_URL } from '@/src/lib/seo';
+import { PUBLIC_MARKETING_ROUTES, buildLocalizedUrl } from '@/src/lib/seo';
 
-interface RouteDefinition {
-  path: string;
-  changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
-  priority: number;
-}
+const SITEMAP_ROUTES = [
+  ...PUBLIC_MARKETING_ROUTES,
+  '/tools/gre-score-calculator',
+  '/tools/ielts-band-calculator',
+] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = SITE_URL;
-
-  const publicRoutes: RouteDefinition[] = [
-    // Marketing Core
-    { path: '', changeFrequency: 'daily', priority: 1.0 },
-    { path: '/gre', changeFrequency: 'daily', priority: 0.9 },
-    { path: '/ielts', changeFrequency: 'daily', priority: 0.9 },
-    { path: '/pricing', changeFrequency: 'weekly', priority: 0.8 },
-    { path: '/courses', changeFrequency: 'daily', priority: 0.9 },
-    { path: '/support', changeFrequency: 'weekly', priority: 0.7 },
-    { path: '/help', changeFrequency: 'weekly', priority: 0.7 },
-    { path: '/for-institutions', changeFrequency: 'weekly', priority: 0.7 },
-
-    // Interactive Tools & Free Previews
-    { path: '/tools/gre-score-calculator', changeFrequency: 'monthly', priority: 0.7 },
-    { path: '/tools/ielts-band-calculator', changeFrequency: 'monthly', priority: 0.7 },
-    { path: '/exam/diagnostic', changeFrequency: 'weekly', priority: 0.8 },
-    { path: '/exam/ielts-preview', changeFrequency: 'weekly', priority: 0.8 },
-
-    // Courses & Offerings
-    { path: '/courses/gre-complete', changeFrequency: 'weekly', priority: 0.8 },
-    { path: '/courses/ielts-academic', changeFrequency: 'weekly', priority: 0.8 },
-    { path: '/courses/ielts-general', changeFrequency: 'weekly', priority: 0.8 },
-
-    // Auth Public Shells
-    { path: '/sign-in', changeFrequency: 'monthly', priority: 0.5 },
-    { path: '/sign-up', changeFrequency: 'monthly', priority: 0.6 },
-
-    // Legal & Trust
-    { path: '/legal/terms', changeFrequency: 'monthly', priority: 0.5 },
-    { path: '/legal/privacy', changeFrequency: 'monthly', priority: 0.5 },
-    { path: '/legal/refund-policy', changeFrequency: 'monthly', priority: 0.5 },
-  ];
-
+  const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  for (const route of publicRoutes) {
-    const enUrl = `${baseUrl}${route.path}`;
-    const bnUrl = `${baseUrl}/bn${route.path}`;
+  for (const route of SITEMAP_ROUTES) {
+    const enUrl = buildLocalizedUrl('en', route);
+    const bnUrl = buildLocalizedUrl('bn', route);
 
-    // English entry (root)
     entries.push({
       url: enUrl,
-      lastModified: new Date(),
-      changeFrequency: route.changeFrequency,
-      priority: route.priority,
+      lastModified: now,
+      changeFrequency: route === '/' ? 'weekly' : 'monthly',
+      priority: route === '/' ? 1.0 : 0.8,
       alternates: {
         languages: {
           en: enUrl,
@@ -64,12 +31,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       },
     });
 
-    // Bangla entry (/bn prefix)
     entries.push({
       url: bnUrl,
-      lastModified: new Date(),
-      changeFrequency: route.changeFrequency,
-      priority: Math.max(0.1, route.priority - 0.05),
+      lastModified: now,
+      changeFrequency: route === '/' ? 'weekly' : 'monthly',
+      priority: route === '/' ? 0.9 : 0.7,
       alternates: {
         languages: {
           en: enUrl,
