@@ -1,5 +1,7 @@
 /** @purpose Institutional help & FAQ page (/help) composed exclusively from closed UI primitives and bilingual marketing content */
+import type { Metadata } from 'next';
 import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CtaBand,
@@ -10,11 +12,23 @@ import {
 } from '@/src/components/ui/primitives';
 import { MARKETING_CONTENT, type MarketingLocale } from '@/src/content/marketing';
 
-export const metadata = {
-  title: `Help & Support | সহায়তা কেন্দ্র | ${brand.name}`,
-  description:
-    'Answers on bKash and Nagad payments, Mushak 6.3 VAT receipts, mock test timing, and technical support.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/help',
+    titleEn: `Help & Support | ${brand.name}`,
+    titleBn: `সহায়তা কেন্দ্র | ${brand.nameBn}`,
+    descriptionEn:
+      'Answers on bKash and Nagad payments, Mushak 6.3 VAT receipts, mock test timing, and technical support.',
+    descriptionBn:
+      'বিকাশ ও নগদ পেমেন্ট, মূসক ৬.৩ ভ্যাট রশিদ, মক টেস্টের সময়সূচি এবং কারিগরি সহায়তা সম্পর্কিত উত্তর।',
+  });
+}
 
 export default async function HelpPage({
   params,

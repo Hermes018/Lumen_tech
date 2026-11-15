@@ -1,10 +1,9 @@
 /** @purpose Standard robots.txt configuration with sitemap pointer and private route guards (SEO policy, docs/08) */
 
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '@/src/lib/seo';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lumen.academy';
-
   return {
     rules: [
       {
@@ -50,10 +49,11 @@ export default function robots(): MetadataRoute.Robots {
           '/bn/counsellor',
           '/checkout',
           '/bn/checkout',
-          '/api',
+          '/api/',
+          '/dev/',
         ],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

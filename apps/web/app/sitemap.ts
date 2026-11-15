@@ -1,6 +1,7 @@
 /** @purpose Localized (en/bn) sitemap generator for all public marketing, course, landing, and legal routes (SEO policy, docs/08) */
 
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '@/src/lib/seo';
 
 interface RouteDefinition {
   path: string;
@@ -9,7 +10,7 @@ interface RouteDefinition {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://lumen.academy').replace(/\/$/, '');
+  const baseUrl = SITE_URL;
 
   const publicRoutes: RouteDefinition[] = [
     // Marketing Core
@@ -20,6 +21,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/courses', changeFrequency: 'daily', priority: 0.9 },
     { path: '/support', changeFrequency: 'weekly', priority: 0.7 },
     { path: '/help', changeFrequency: 'weekly', priority: 0.7 },
+    { path: '/for-institutions', changeFrequency: 'weekly', priority: 0.7 },
+
+    // Interactive Tools & Free Previews
+    { path: '/tools/gre-score-calculator', changeFrequency: 'monthly', priority: 0.7 },
+    { path: '/tools/ielts-band-calculator', changeFrequency: 'monthly', priority: 0.7 },
+    { path: '/exam/diagnostic', changeFrequency: 'weekly', priority: 0.8 },
+    { path: '/exam/ielts-preview', changeFrequency: 'weekly', priority: 0.8 },
 
     // Courses & Offerings
     { path: '/courses/gre-complete', changeFrequency: 'weekly', priority: 0.8 },

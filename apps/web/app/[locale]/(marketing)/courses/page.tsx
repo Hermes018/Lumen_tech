@@ -1,5 +1,7 @@
 /** @purpose Institutional courses directory (/courses) composed exclusively from closed UI primitives and bilingual marketing content */
+import type { Metadata } from 'next';
 import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CtaBand,
@@ -17,11 +19,23 @@ import {
   type MarketingLocale,
 } from '@/src/content/marketing';
 
-export const metadata = {
-  title: `Courses & Curriculum | কোর্স ও পাঠ্যক্রম | ${brand.name}`,
-  description:
-    'Explore structured GRE and IELTS preparation programs with section-adaptive mock tests, FSRS-4.5 vocabulary systems, and transparent VAT-inclusive pricing.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/courses',
+    titleEn: `Courses & Curriculum | ${brand.name}`,
+    titleBn: `কোর্স ও পাঠ্যক্রম | ${brand.nameBn}`,
+    descriptionEn:
+      'Explore structured GRE and IELTS preparation programs with section-adaptive mock tests, FSRS-4.5 vocabulary systems, and transparent VAT-inclusive pricing.',
+    descriptionBn:
+      'সেকশন-অ্যাডাপ্টিভ মক টেস্ট, এফএসআরএস-৪.৫ ভোকাবুলারি এবং স্বচ্ছ ভ্যাট-সহ মূল্যে কাঠামোবদ্ধ জিআরই ও আইইএলটিএস প্রস্তুতি কোর্সসমূহ দেখুন।',
+  });
+}
 
 function toMediaColumnItem(course: CourseItem): MediaColumnsItem {
   return {

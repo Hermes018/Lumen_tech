@@ -1,5 +1,8 @@
 /** @purpose Institutional Swiss-grid homepage composed exclusively from closed UI primitives and bilingual marketing content */
+import type { Metadata } from 'next';
 import { getLocale } from 'next-intl/server';
+import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   CtaBand,
   HeroBand,
@@ -11,6 +14,24 @@ import {
   SubBar,
 } from '@/src/components/ui/primitives';
 import { MARKETING_CONTENT, type MarketingLocale } from '@/src/content/marketing';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/',
+    titleEn: `${brand.name} — ${brand.tagline}`,
+    titleBn: `${brand.nameBn} — ${brand.taglineBn}`,
+    descriptionEn:
+      'Bangladesh-first GRE and IELTS preparation with section-adaptive mock tests, FSRS-4.5 vocabulary mastery, and bKash/Nagad VAT-inclusive pricing.',
+    descriptionBn:
+      'সেকশন-অ্যাডাপ্টিভ মক টেস্ট, এফএসআরএস-৪.৫ ভোকাবুলারি এবং বিকাশ/নগদ ভ্যাট-সহ মূল্যে বাংলাদেশ-প্রথম জিআরই ও আইইএলটিএস প্রস্তুতি।',
+  });
+}
 
 export default async function MarketingPage({
   params,

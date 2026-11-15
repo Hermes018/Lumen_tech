@@ -1,5 +1,7 @@
 /** @purpose Institutional GRE preparation page (/gre) composed exclusively from closed UI primitives and bilingual marketing content */
+import type { Metadata } from 'next';
 import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CtaBand,
@@ -12,11 +14,23 @@ import {
 import { MARKETING_CONTENT, type MarketingLocale } from '@/src/content/marketing';
 import { LiveGreWidget } from './live-gre-widget';
 
-export const metadata = {
-  title: `GRE Preparation | জিআরই প্রস্তুতি | ${brand.name}`,
-  description:
-    'Computer-adaptive GRE preparation with timed Quantitative and Verbal sections, analytical writing feedback, and FSRS-4.5 vocabulary mastery.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/gre',
+    titleEn: `GRE Preparation | ${brand.name}`,
+    titleBn: `জিআরই প্রস্তুতি | ${brand.nameBn}`,
+    descriptionEn:
+      'Computer-adaptive GRE preparation with timed Quantitative and Verbal sections, analytical writing feedback, and FSRS-4.5 vocabulary mastery.',
+    descriptionBn:
+      'সময়-নির্ধারিত কোয়ান্টিটেটিভ ও ভার্বাল সেকশন, অ্যানালিটিক্যাল রাইটিং ফিডব্যাক এবং এফএসআরএস-৪.৫ ভোকাবুলারিসহ কম্পিউটার-অ্যাডাপ্টিভ জিআরই প্রস্তুতি।',
+  });
+}
 
 export default async function GrePage({
   params,

@@ -255,4 +255,35 @@ describe('MARKETING_CONTENT Bilingual Store (Batch P2)', () => {
 
     expect(broken).toEqual([]);
   });
+
+  it('verifies SEO helper, sitemap.ts, and robots.ts exist with en/bn hreflang alternates', () => {
+    const webRoot = path.resolve(__dirname, '../../../../apps/web');
+    const seoPath = path.join(webRoot, 'src/lib/seo.ts');
+    const sitemapPath = path.join(webRoot, 'app/sitemap.ts');
+    const robotsPath = path.join(webRoot, 'app/robots.ts');
+
+    expect(fs.existsSync(seoPath)).toBe(true);
+    expect(fs.existsSync(sitemapPath)).toBe(true);
+    expect(fs.existsSync(robotsPath)).toBe(true);
+
+    const seoSrc = fs.readFileSync(seoPath, 'utf8');
+    const sitemapSrc = fs.readFileSync(sitemapPath, 'utf8');
+    const robotsSrc = fs.readFileSync(robotsPath, 'utf8');
+
+    expect(seoSrc).toContain('buildLocalizedMetadata');
+    expect(seoSrc).toContain('languages:');
+    expect(seoSrc).toContain('en:');
+    expect(seoSrc).toContain('bn:');
+    expect(seoSrc).toContain("'x-default':");
+
+    expect(sitemapSrc).toContain('languages:');
+    expect(sitemapSrc).toContain('en:');
+    expect(sitemapSrc).toContain('bn:');
+    expect(sitemapSrc).toContain('/tools/gre-score-calculator');
+    expect(sitemapSrc).toContain('/tools/ielts-band-calculator');
+
+    expect(robotsSrc).toContain('sitemap.xml');
+    expect(robotsSrc).toContain("'/api/'");
+    expect(robotsSrc).toContain("'/dev/'");
+  });
 });

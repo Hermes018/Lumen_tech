@@ -1,5 +1,7 @@
 /** @purpose Institutional IELTS preparation page (/ielts) composed exclusively from closed UI primitives and bilingual marketing content */
+import type { Metadata } from 'next';
 import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CtaBand,
@@ -11,11 +13,23 @@ import {
 } from '@/src/components/ui/primitives';
 import { MARKETING_CONTENT, type MarketingLocale } from '@/src/content/marketing';
 
-export const metadata = {
-  title: `IELTS Preparation | আইইএলটিএস প্রস্তুতি | ${brand.name}`,
-  description:
-    'Computer-delivered IELTS Academic and General Training preparation with Listening, Reading, Writing, and Speaking simulators.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/ielts',
+    titleEn: `IELTS Preparation | ${brand.name}`,
+    titleBn: `আইইএলটিএস প্রস্তুতি | ${brand.nameBn}`,
+    descriptionEn:
+      'Computer-delivered IELTS Academic and General Training preparation with Listening, Reading, Writing, and Speaking simulators.',
+    descriptionBn:
+      'লিসেনিং, রিডিং, রাইটিং ও স্পিকিং সিমুলেটরসহ কম্পিউটার-ভিত্তিক আইইএলটিএস একাডেমিক ও জেনারেল ট্রেনিং প্রস্তুতি।',
+  });
+}
 
 export default async function IeltsPage({
   params,

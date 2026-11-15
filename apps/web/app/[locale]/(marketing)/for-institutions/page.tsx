@@ -1,6 +1,8 @@
 /** @purpose Institutional partnerships, bulk seat licensing, and campus cohort analytics page using closed primitives */
+import type { Metadata } from 'next';
 import React from 'react';
 import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   HeroBand,
@@ -12,10 +14,21 @@ import {
 } from '@/src/components/ui/primitives';
 import { InstitutionalInquiryForm } from './institutional-inquiry-form';
 
-export const metadata = {
-  title: `For Universities & Institutions | ${brand.name}`,
-  description: `Partner with ${brand.name} for bulk seat licensing, standardized GRE/IELTS diagnostics, and campus cohort analytics in Bangladesh.`,
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/for-institutions',
+    titleEn: `For Universities & Institutions | ${brand.name}`,
+    titleBn: `বিশ্ববিদ্যালয় ও প্রতিষ্ঠানের জন্য | ${brand.nameBn}`,
+    descriptionEn: `Partner with ${brand.name} for bulk seat licensing, standardized GRE/IELTS diagnostics, and campus cohort analytics in Bangladesh.`,
+    descriptionBn: `বাংলাদেশে বাল্ক সিট লাইসেন্সিং, স্ট্যান্ডার্ডাইজড জিআরই/আইইএলটিএস ডায়াগনস্টিক এবং ক্যাম্পাস কোহর্ট অ্যানালিটিক্সের জন্য ${brand.nameBn}-র সাথে যুক্ত হোন।`,
+  });
+}
 
 export default async function ForInstitutionsPage({
   params,

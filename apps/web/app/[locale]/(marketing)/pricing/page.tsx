@@ -1,5 +1,7 @@
 /** @purpose Institutional pricing page (/pricing) composed exclusively from closed UI primitives and bilingual marketing content */
+import type { Metadata } from 'next';
 import { brand } from '@lumen/config';
+import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CalloutNotice,
@@ -12,11 +14,23 @@ import {
 } from '@/src/components/ui/primitives';
 import { MARKETING_CONTENT, type MarketingLocale } from '@/src/content/marketing';
 
-export const metadata = {
-  title: `Pricing & Plans | মূল্য ও প্ল্যান | ${brand.name}`,
-  description:
-    'Transparent VAT-inclusive BDT and USD pricing for GRE and IELTS self-paced courses, live cohorts, and mock test passes.',
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return buildLocalizedMetadata({
+    locale,
+    pathname: '/pricing',
+    titleEn: `Pricing & Plans | ${brand.name}`,
+    titleBn: `মূল্য ও প্ল্যান | ${brand.nameBn}`,
+    descriptionEn:
+      'Transparent VAT-inclusive BDT and USD pricing for GRE and IELTS self-paced courses, live cohorts, and mock test passes.',
+    descriptionBn:
+      'জিআরই ও আইইএলটিএস সেলফ-পেসড কোর্স, লাইভ কোহর্ট ও মক টেস্ট পাসের স্বচ্ছ ভ্যাট-সহ বিডিটি ও ইউএসডি মূল্য তালিকা।',
+  });
+}
 
 export default async function PricingPage({
   params,
