@@ -166,7 +166,12 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               }`}
             >
               <span>{data.triggers.exams}</span>
-              <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+                  activeMenu === 'exams' ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
             </button>
 
             <button
@@ -181,7 +186,12 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               }`}
             >
               <span>{data.triggers.courses}</span>
-              <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+                  activeMenu === 'courses' ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
             </button>
 
             <button
@@ -196,7 +206,12 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               }`}
             >
               <span>{data.triggers.practice}</span>
-              <ChevronDown className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 transition-transform duration-200 ${
+                  activeMenu === 'practice' ? 'rotate-180' : ''
+                }`}
+                aria-hidden="true"
+              />
             </button>
 
             <LocaleLink
@@ -241,7 +256,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
         {activeMenu !== null ? (
           <div
             onMouseEnter={clearHoverTimer}
-            className="hidden lg:block absolute left-0 right-0 top-full bg-[var(--surface-paper)] text-[var(--brand-ink)] border-t border-[var(--hairline)] shadow-[var(--shadow-hard)]"
+            className="hidden lg:block absolute left-0 right-0 top-full bg-[var(--surface-paper)] text-[var(--brand-ink)] border-t border-[var(--hairline)] shadow-[var(--shadow-hard)] lumen-anim-dropdown"
           >
             {activeMenu === 'exams' && selectedGreCategory ? (
               <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -262,7 +277,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
                           aria-selected={isActive}
                           onMouseEnter={() => setActiveGreTab(cat.id)}
                           onClick={() => setActiveGreTab(cat.id)}
-                          className={`w-full text-left px-4 py-3 text-sm font-bold flex items-center justify-between rounded-[4px] transition-colors cursor-pointer ${
+                          className={`w-full text-left px-4 py-3 text-sm font-bold flex items-center justify-between rounded-[4px] transition-colors duration-150 cursor-pointer ${
                             isActive
                               ? 'bg-[var(--bg-tint)] text-[var(--brand)] border-l-4 border-[var(--brand)]'
                               : 'text-[var(--text)] hover:bg-[var(--bg-tint)]/50'
@@ -424,7 +439,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
 
       {/* Mobile Accordion Drawer (< 1024px, Zero Photos) */}
       {mobileOpen ? (
-        <div className="lg:hidden bg-[var(--surface-paper)] text-[var(--brand-ink)] border-b border-[var(--hairline)] shadow-[var(--shadow-hard)]">
+        <div className="lg:hidden bg-[var(--surface-paper)] text-[var(--brand-ink)] border-b border-[var(--hairline)] shadow-[var(--shadow-hard)] lumen-anim-dropdown">
           <div className="px-4 py-4 space-y-4">
             {/* LocaleSwitcher at top */}
             <div className="flex items-center justify-between pb-3 border-b border-[var(--hairline)]">
@@ -448,7 +463,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               >
                 <span>{data.triggers.exams}</span>
                 <ChevronDown
-                  className={`h-5 w-5 transition-transform ${
+                  className={`h-5 w-5 transition-transform duration-200 ${
                     mobileAccordion === 'exams' ? 'rotate-180' : ''
                   }`}
                   aria-hidden="true"
@@ -493,7 +508,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               >
                 <span>{data.triggers.courses}</span>
                 <ChevronDown
-                  className={`h-5 w-5 transition-transform ${
+                  className={`h-5 w-5 transition-transform duration-200 ${
                     mobileAccordion === 'courses' ? 'rotate-180' : ''
                   }`}
                   aria-hidden="true"
@@ -529,7 +544,7 @@ export function InstitutionalHeader({ locale }: InstitutionalHeaderProps) {
               >
                 <span>{data.triggers.practice}</span>
                 <ChevronDown
-                  className={`h-5 w-5 transition-transform ${
+                  className={`h-5 w-5 transition-transform duration-200 ${
                     mobileAccordion === 'practice' ? 'rotate-180' : ''
                   }`}
                   aria-hidden="true"

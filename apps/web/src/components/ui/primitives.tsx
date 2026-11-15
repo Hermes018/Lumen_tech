@@ -132,7 +132,7 @@ export function Button({ href, locale, variant = 'filled', children }: ButtonPro
     <LocaleLink
       locale={locale}
       href={href}
-      className={`rounded-[4px] font-semibold min-h-[44px] inline-flex items-center transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] ${BUTTON_VARIANT_CLASSES[variant]}`}
+      className={`lumen-interactive-btn rounded-[4px] font-semibold min-h-[44px] inline-flex items-center transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)] ${BUTTON_VARIANT_CLASSES[variant]}`}
     >
       {children}
     </LocaleLink>
@@ -151,6 +151,7 @@ export function PlaceholderImage({ slot, aspect = '16:10', locale = 'en' }: Plac
   const entry = MEDIA_SLOTS[slot];
   const aspectClass = aspect === '4:3' ? 'aspect-[4/3]' : 'aspect-[16/10]';
   const alt = locale === 'bn' ? entry.altBn : entry.altEn;
+  const priority = slot.startsWith('hero-');
 
   return (
     <div
@@ -189,7 +190,9 @@ export function PlaceholderImage({ slot, aspect = '16:10', locale = 'en' }: Plac
         src={entry.src}
         alt={alt}
         className="relative z-10 h-full w-full object-cover block"
-        loading="lazy"
+        loading={priority ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchPriority={priority ? 'high' : undefined}
       />
     </div>
   );
@@ -693,7 +696,7 @@ export interface DisclosureProps {
 
 export function Disclosure({ summary, children }: DisclosureProps) {
   return (
-    <details className="group border-b border-[var(--hairline)] py-4">
+    <details className="lumen-disclosure group border-b border-[var(--hairline)] py-4">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-[var(--brand-ink)] min-h-[44px]">
         <span>{summary}</span>
         <span aria-hidden="true" className="text-xl font-bold text-[var(--brand)] shrink-0">
@@ -831,10 +834,11 @@ export function Tabs({ title, intro, tabs }: TabsProps) {
 
         {activeTab ? (
           <div
+            key={safeIndex}
             role="tabpanel"
             id={`${baseId}-panel-${activeTab.id}`}
             aria-labelledby={`${baseId}-tab-${activeTab.id}`}
-            className="pt-6"
+            className="pt-6 lumen-anim-panel"
           >
             {activeTab.content}
           </div>
