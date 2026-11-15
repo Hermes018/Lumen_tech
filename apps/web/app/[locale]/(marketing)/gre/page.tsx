@@ -5,11 +5,13 @@ import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CtaBand,
+  EditorialQuote,
   FaqDisclosureList,
   HeroBand,
   MediaColumns,
   Section,
   SideHeadingBlocks,
+  SplitFeature,
   StatRow,
   Tabs,
   TabSectionPanel,
@@ -107,6 +109,27 @@ export default async function GrePage({
           items={content.sections.items}
         />
       </Section>
+      <Section tone="white">
+        <EditorialQuote
+          quote={content.editorialQuote.quote}
+          attribution={content.editorialQuote.attribution}
+          tone={content.editorialQuote.tone}
+        />
+      </Section>
+      {content.splitFeatures.map((feature, idx) => (
+        <Section key={feature.title} tone={idx % 2 === 0 ? 'tint' : 'white'}>
+          <SplitFeature
+            photoSlot={feature.photoSlot}
+            photoSide={feature.photoSide}
+            backdrop={feature.backdrop}
+            title={feature.title}
+            body={feature.body}
+            ctaLabel={feature.ctaLabel}
+            ctaHref={feature.ctaHref}
+            locale={locale}
+          />
+        </Section>
+      ))}
       <Section tone="tint">
         <FaqDisclosureList title={content.roadmapTitle} items={content.roadmap} />
       </Section>

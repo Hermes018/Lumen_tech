@@ -166,10 +166,11 @@ export default async function DevUiGalleryPage({
         <SplitFeature
           photoSlot="split-diagnostic"
           photoSide="left"
+          backdrop="orange"
           title="Benchmark Your Starting Score"
           body="Take a free 20-minute computer-based diagnostic before enrolling so your study plan targets the exact skills that raise your score."
           ctaLabel="Take Free Diagnostic"
-          ctaHref="/diagnostic"
+          ctaHref="/exam/diagnostic"
           locale={locale}
         />
       </Section>

@@ -5,6 +5,24 @@ import type { MediaSlotId } from './media';
 export type MarketingLocale = 'en' | 'bn';
 export type MarketingIcon = 'calendar' | 'currency' | 'location' | 'shield' | 'clock' | 'check';
 export type MarketingAccent = 'brand' | 'crimson' | 'terracotta' | 'accent';
+export type SplitBackdropTone = 'orange' | 'crimson' | 'espresso' | 'cobalt' | 'amber';
+export type EditorialQuoteTone = 'crimson' | 'orange' | 'cobalt';
+
+export interface SplitFeatureItem {
+  photoSlot: MediaSlotId;
+  photoSide: 'left' | 'right';
+  backdrop: SplitBackdropTone;
+  title: string;
+  body: string;
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+export interface EditorialQuoteItem {
+  quote: string;
+  attribution: string;
+  tone?: EditorialQuoteTone;
+}
 
 export interface LinkItem {
   label: string;
@@ -156,6 +174,8 @@ export interface MarketingLocaleData {
       intro: string;
       items: MediaColumnItem[];
     };
+    editorialQuote: EditorialQuoteItem;
+    splitFeatures: SplitFeatureItem[];
     roadmapTitle: string;
     roadmap: FaqItem[];
     ctaBand: {
@@ -189,6 +209,8 @@ export interface MarketingLocaleData {
       intro: string;
       items: MediaColumnItem[];
     };
+    editorialQuote: EditorialQuoteItem;
+    splitFeatures: SplitFeatureItem[];
     roadmapTitle: string;
     roadmap: FaqItem[];
     ctaBand: {
@@ -582,6 +604,32 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           },
         ],
       },
+      editorialQuote: {
+        quote:
+          'Section-level difficulty adapts between Part 1 and Part 2 based on raw accuracy—mastering the transition threshold unlocks 165+ Quant and Verbal scores.',
+        attribution: 'Lumen GRE Faculty · Official ETS Section-Adaptive Rubric',
+        tone: 'cobalt',
+      },
+      splitFeatures: [
+        {
+          photoSlot: 'track-gre',
+          photoSide: 'left',
+          backdrop: 'orange',
+          title: 'Section-Adaptive Quant & Verbal Mastery',
+          body: 'Train inside an ETS-faithful testing interface with mark-and-review flags, on-screen calculator rules, and timed 21-minute and 26-minute sections.',
+          ctaLabel: 'Explore GRE Prep',
+          ctaHref: '/pricing',
+        },
+        {
+          photoSlot: 'split-diagnostic',
+          photoSide: 'right',
+          backdrop: 'cobalt',
+          title: 'Progressive 3-Tier Hint Guidance',
+          body: 'Unlock conceptual nudges before revealing full solutions so you build independent problem-solving reflexes across Quantitative Comparison and Text Completion.',
+          ctaLabel: 'Take Free Diagnostic',
+          ctaHref: '/exam/diagnostic',
+        },
+      ],
       roadmapTitle: '8-Week GRE Preparation Roadmap & FAQ',
       roadmap: [
         {
@@ -746,6 +794,32 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           },
         ],
       },
+      editorialQuote: {
+        quote:
+          'Band 7.5+ Writing requires clear task response, cohesive paragraphing, and precise academic collocations—not memorized templates.',
+        attribution: 'Lumen IELTS Faculty · Official 4-Criterion Band Descriptors',
+        tone: 'crimson',
+      },
+      splitFeatures: [
+        {
+          photoSlot: 'track-ielts-ac',
+          photoSide: 'left',
+          backdrop: 'orange',
+          title: 'Four-Skill Computer-Delivered Precision',
+          body: 'Practice split-pane Academic Reading, single-play Listening audio, and timed Task 1 and Task 2 Writing in an authentic computer-delivered workspace.',
+          ctaLabel: 'Explore IELTS Plans',
+          ctaHref: '/pricing',
+        },
+        {
+          photoSlot: 'track-ielts-gt',
+          photoSide: 'right',
+          backdrop: 'crimson',
+          title: 'Line-by-Line Band 7.5+ Rubric Feedback',
+          body: 'Receive structured criterion-by-criterion evaluations across Task Achievement, Coherence, Lexical Resource, and Grammatical Range on every Writing and Speaking attempt.',
+          ctaLabel: 'Take Free Diagnostic',
+          ctaHref: '/exam/diagnostic',
+        },
+      ],
       roadmapTitle: '6-Week Band 7.5+ Preparation Plan & Common Questions',
       roadmap: [
         {
@@ -1464,6 +1538,32 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           },
         ],
       },
+      editorialQuote: {
+        quote:
+          'সেকশন-ভিত্তিক কঠিনতার মান পার্ট ১-এর নির্ভুলতার ওপর নির্ভর করে—এই রূপান্তর ধাপ আয়ত্ত করলেই ১৬৫+ স্কোর সম্ভব।',
+        attribution: 'লুমেন জিআরই অনুষদ · অফিশিয়াল ইটিএস রুব্রিক',
+        tone: 'cobalt',
+      },
+      splitFeatures: [
+        {
+          photoSlot: 'track-gre',
+          photoSide: 'left',
+          backdrop: 'orange',
+          title: 'সেকশন-অ্যাডাপ্টিভ কোয়ান্ট ও ভার্বাল প্রস্তুতি',
+          body: 'মার্ক-অ্যান্ড-রিভিউ ফ্ল্যাগ, অন-স্ক্রিন ক্যালকুলেটর এবং নির্ধারিত ২১ ও ২৬ মিনিটের সেকশনসহ প্রকৃত পরীক্ষার মতো ইন্টারফেসে অনুশীলন করুন।',
+          ctaLabel: 'জিআরই প্ল্যান দেখুন',
+          ctaHref: '/pricing',
+        },
+        {
+          photoSlot: 'split-diagnostic',
+          photoSide: 'right',
+          backdrop: 'cobalt',
+          title: 'ধাপে ধাপে ৩-স্তরের হিন্ট সহায়তা',
+          body: 'সম্পূর্ণ সমাধান দেখার আগে ধারণামূলক ইঙ্গিত ব্যবহার করে কোয়ান্টিটেটিভ কম্পারিজন ও টেক্সট কমপ্লিশনে নিজস্ব দক্ষতা গড়ে তুলুন।',
+          ctaLabel: 'ফ্রি ডায়াগনস্টিক দিন',
+          ctaHref: '/exam/diagnostic',
+        },
+      ],
       roadmapTitle: '৮-সপ্তাহের জিআরই প্রস্তুতি রোডম্যাপ ও প্রশ্নোত্তর',
       roadmap: [
         {
@@ -1627,6 +1727,32 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           },
         ],
       },
+      editorialQuote: {
+        quote:
+          'ব্যান্ড ৭.৫+ রাইটিংয়ের জন্য মুখস্থ টেমপ্লেট নয়, বরং স্পষ্ট টাস্ক রেসপন্স, সুসংগঠিত অনুচ্ছেদ এবং যথাযথ একাডেমিক শব্দচয়ন প্রয়োজন।',
+        attribution: 'লুমেন আইইএলটিএস অনুষদ · অফিশিয়াল ব্যান্ড ডেসক্রিপ্টর',
+        tone: 'crimson',
+      },
+      splitFeatures: [
+        {
+          photoSlot: 'track-ielts-ac',
+          photoSide: 'left',
+          backdrop: 'orange',
+          title: 'চার-দক্ষতার কম্পিউটার-ভিত্তিক অনুশীলন',
+          body: 'স্প্লিট-পেইন একাডেমিক রিডিং, একবার শোনা যায় এমন লিসেনিং অডিও এবং সময়-নির্ধারিত রাইটিং টাস্ক ১ ও ২ অনুশীলন করুন।',
+          ctaLabel: 'আইইএলটিএস প্ল্যান দেখুন',
+          ctaHref: '/pricing',
+        },
+        {
+          photoSlot: 'track-ielts-gt',
+          photoSide: 'right',
+          backdrop: 'crimson',
+          title: 'ব্যান্ড ৭.৫+ রুব্রিক ভিত্তিক মূল্যায়ন',
+          body: 'প্রতিটি রাইটিং ও স্পিকিং অনুশীলনে টাস্ক অ্যাচিভমেন্ট, কোহেরেন্স, লেক্সিক্যাল রিসোর্স এবং গ্রামার অনুযায়ী বিস্তারিত ফিডব্যাক পান।',
+          ctaLabel: 'ফ্রি ডায়াগনস্টিক দিন',
+          ctaHref: '/exam/diagnostic',
+        },
+      ],
       roadmapTitle: '৬-সপ্তাহের ব্যান্ড ৭.৫+ প্রস্তুতি পরিকল্পনা ও সাধারণ প্রশ্ন',
       roadmap: [
         {

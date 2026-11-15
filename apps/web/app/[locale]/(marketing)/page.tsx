@@ -91,6 +91,7 @@ export default async function MarketingPage({
       <Section tone="white">
         <SplitFeature
           photoSlot={c.diagnosticFeature.photoSlot}
+          backdrop="orange"
           title={c.diagnosticFeature.title}
           body={c.diagnosticFeature.body}
           ctaLabel={c.diagnosticFeature.ctaLabel}

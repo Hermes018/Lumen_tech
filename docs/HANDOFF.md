@@ -5,19 +5,19 @@
 
 ## Baton
 
-- From: gemini   To: founder review   Date/time (UTC): 2026-11-15 06:45:00
-- Reason: UI/UX Overhaul Batch P22 (final release gate, P15 -> P22 complete) committed to `main`.
+- From: gemini   To: founder review   Date/time (UTC): 2026-11-15 07:49:00
+- Reason: UI/UX Overhaul Batch P26 (final visual & release gate, P23 -> P26) committed to `main`.
 - Branch: main
 - Session log / sign-off path: docs/logs/reviews/m2-9-institutional-ui-signoff.md
 - Pushed to origin? No (Founder pushes directly from Konsole per strict rule)
 - Working tree clean? yes
-- Task: UI/UX Overhaul Batch P22 (Local Self-Hosted WebP Photography, Clean Git Worktree & Production Build Sign-Off) - status: complete
-- Design Lint: `design:lint PASSED` (i18n guard: 4 clean; suppression scan: 12 clean; primitive-only pages: 8 [strict-pages]; surface-guard: 21 clean; link-guard: 231 hrefs -> 17 routes verified; asset-guard: 15 local WebP assets verified)
-- Design Shots: `design:shots passed.` (7 marketing routes + 21 workbench/learner surfaces `rounded-full/2xl/3xl=0`; live Playwright pass skipped offline)
-- Tests passing: `@lumen/core` Vitest `30 passed (30)`, `327 passed (327)` (including `ui-primitives-caps.test.ts` local WebP asset check)
+- Task: UI/UX Overhaul Batch P26 (Architectural Offset-Backdrop Photography `SplitFeature` & `EditorialQuote` on `/gre`, `/ielts`, `/`) - status: complete
+- Design Lint: `design:lint PASSED` (i18n guard: 4 files clean; suppression scan: 12 files clean; primitive-only pages checked: 8 [strict-pages]; surface-guard: 21 files clean; link-guard: 241 hrefs -> 17 routes verified; asset-guard: 15 local WebP assets verified)
+- Design Shots: `design:shots passed.` (`className=0` on all 7 strict marketing routes; `boxed=1/6` on `/`, `/gre`, `/ielts`, `3/6` on `/dev/ui`; 21 workbench/learner surfaces `rounded-full/2xl/3xl=0`; live Playwright pass skipped offline)
+- Tests passing: `@lumen/core` Vitest `30 passed (30)`, `331 passed (331)`
 - TypeScript Typecheck: `@lumen/web` 0 errors (`tsc --noEmit --incremental`)
-- Production Build: `pnpm --filter @lumen/web build` passed (`93/93` static pages generated)
-- Needs two-key review: None (UI/UX, media assets, & audit tooling only).
+- Production Build: `pnpm --filter @lumen/web build` passed (`94/94` static pages generated)
+- Needs two-key review: None (UI/UX primitives, tokens, & bilingual marketing copy only).
 
 ## Done (Batches P10 -> P14)
 

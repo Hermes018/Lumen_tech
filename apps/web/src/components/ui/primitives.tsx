@@ -566,9 +566,12 @@ export function MediaColumns({ title, intro, columns, locale, items }: MediaColu
 }
 
 /* 11. SplitFeature */
+export type SplitBackdrop = 'orange' | 'crimson' | 'espresso' | 'cobalt' | 'amber';
+
 export interface SplitFeatureProps {
   photoSlot: MediaSlotId;
   photoSide?: 'left' | 'right';
+  backdrop?: SplitBackdrop;
   title: string;
   body: string;
   ctaLabel: string;
@@ -576,9 +579,18 @@ export interface SplitFeatureProps {
   locale: string;
 }
 
+const SPLIT_BACKDROP_CLASSES: Record<SplitBackdrop, string> = {
+  orange: 'bg-[var(--accent-orange)]',
+  crimson: 'bg-[var(--brand)]',
+  espresso: 'bg-[var(--brand-deep)]',
+  cobalt: 'bg-[var(--accent-blue)]',
+  amber: 'bg-[var(--warning)]',
+};
+
 export function SplitFeature({
   photoSlot,
   photoSide = 'left',
+  backdrop,
   title,
   body,
   ctaLabel,
@@ -587,18 +599,32 @@ export function SplitFeature({
 }: SplitFeatureProps) {
   const imageOrder = photoSide === 'right' ? 'lg:order-2' : 'lg:order-1';
   const textOrder = photoSide === 'right' ? 'lg:order-1' : 'lg:order-2';
+  const resolvedBackdrop: SplitBackdrop = backdrop ?? (photoSide === 'left' ? 'orange' : 'crimson');
+  const containerPad = photoSide === 'right' ? 'pr-6 md:pr-12' : 'pl-6 md:pl-12';
+  const slabSide = photoSide === 'right' ? 'right-0' : 'left-0';
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
       <div className={`lg:col-span-6 ${imageOrder}`}>
-        <PlaceholderImage slot={photoSlot} aspect="16:10" locale={locale} />
+        <div className={`relative py-6 md:py-10 ${containerPad}`}>
+          <div
+            aria-hidden="true"
+            className={`absolute top-0 bottom-0 ${slabSide} w-[58%] z-0 rounded-none ${SPLIT_BACKDROP_CLASSES[resolvedBackdrop]}`}
+          />
+          <div className="relative z-10">
+            <PlaceholderImage slot={photoSlot} aspect="4:3" locale={locale} />
+          </div>
+        </div>
       </div>
       <div className={`lg:col-span-6 space-y-5 ${textOrder}`}>
         <Heading level={2}>{title}</Heading>
-        <p className="lumen-body">{body}</p>
+        <p className="lumen-body max-w-[48ch]">{body}</p>
         <div className="pt-1">
           <Button href={ctaHref} locale={locale} variant="filled">
             {ctaLabel}
+            <span aria-hidden="true" className="ml-2">
+              →
+            </span>
           </Button>
         </div>
       </div>
@@ -1188,5 +1214,35 @@ export function FaqDisclosureList({ title, items }: FaqDisclosureListProps) {
         ))}
       </div>
     </div>
+  );
+}
+
+/* 20. EditorialQuote */
+export interface EditorialQuoteProps {
+  quote: string;
+  attribution: string;
+  tone?: 'crimson' | 'orange' | 'cobalt';
+}
+
+const EDITORIAL_QUOTE_TONE_CLASSES: Record<NonNullable<EditorialQuoteProps['tone']>, string> = {
+  crimson: 'bg-[var(--brand)]',
+  orange: 'bg-[var(--accent-orange)]',
+  cobalt: 'bg-[var(--accent-blue)]',
+};
+
+export function EditorialQuote({ quote, attribution, tone = 'crimson' }: EditorialQuoteProps) {
+  return (
+    <figure className="max-w-[760px] mx-auto flex items-stretch gap-6">
+      <div
+        aria-hidden="true"
+        className={`w-[3px] shrink-0 ${EDITORIAL_QUOTE_TONE_CLASSES[tone]}`}
+      />
+      <div className="space-y-3 py-1">
+        <blockquote className="text-xl md:text-2xl font-bold leading-snug text-[var(--brand-deep)]">
+          {quote}
+        </blockquote>
+        <figcaption className="text-sm text-[var(--text-muted)]">{attribution}</figcaption>
+      </div>
+    </figure>
   );
 }
