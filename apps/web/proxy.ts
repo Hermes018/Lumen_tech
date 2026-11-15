@@ -1,13 +1,13 @@
-/** @purpose Next 16 proxy: next-intl routing + strict Scholar/Admin role isolation + optimistic session guard + PDPO gate (D2, D4, P1-43, P1-44, P27). */
+/** @purpose Next 16 proxy: next-intl routing + strict 5-role isolation + optimistic session guard + PDPO gate (D2, D4, P1-43, P1-44, P27, P33). */
 import { NextResponse, type NextRequest } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
 import { verifyPdpoCookie } from '@lumen/core';
 import { routing } from './src/i18n/routing';
-import { ROLE_COOKIE_NAME } from './src/lib/role-guard';
+import { ROLE_COOKIE_NAME, parseWorkspaceRole, resolveRoleRedirect } from './src/lib/role-guard';
 
 const intl = createMiddleware(routing);
 
-// `/app/*` and `/admin` load directly with a deterministic Sandbox Scholar/Admin fallback profile when unauthenticated (BATCH P23 / P27), while enforcing strict `lumen_role` isolation.
+// `/app/*`, `/evaluator`, `/instructor`, `/auditor`, and `/admin` load directly with a deterministic Sandbox fallback profile when unauthenticated (BATCH P23 / P27 / P33), while enforcing strict 5-role `lumen_role` isolation.
 const PROTECTED_PREFIXES = [
   '/exam',
   '/studio',
@@ -38,20 +38,12 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 3. Strict Scholar vs. Admin Role Isolation (BATCH P27)
-  const lumenRole = request.cookies.get(ROLE_COOKIE_NAME)?.value;
-
-  if (/^\/(en|bn)?\/?app\/admin(\/|$)/.test(pathname)) {
-    const target = lumenRole === 'scholar' ? `${redirectPrefix}/app` : `${redirectPrefix}/admin`;
-    return NextResponse.redirect(new URL(target, request.url));
-  }
-
-  if (/^\/(en|bn)?\/?admin(\/|$)/.test(pathname) && lumenRole === 'scholar') {
-    return NextResponse.redirect(new URL(`${redirectPrefix}/app`, request.url));
-  }
-
-  if (/^\/(en|bn)?\/?app(\/|$)/.test(pathname) && lumenRole === 'admin') {
-    return NextResponse.redirect(new URL(`${redirectPrefix}/admin`, request.url));
+  // 3. Strict 5-Role Isolation across /app, /evaluator, /instructor, /auditor, /admin (BATCH P33)
+  const rawRole = request.cookies.get(ROLE_COOKIE_NAME)?.value;
+  const workspaceRole = parseWorkspaceRole(rawRole);
+  const roleRedirect = resolveRoleRedirect(workspaceRole, pathname);
+  if (roleRedirect) {
+    return NextResponse.redirect(new URL(roleRedirect, request.url));
   }
 
   const isProtected =

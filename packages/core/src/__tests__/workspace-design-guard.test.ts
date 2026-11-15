@@ -5,10 +5,26 @@ import { describe, expect, it } from 'vitest';
 import { formatMathText } from '../../../../apps/web/src/lib/format-math';
 import {
   ROLE_COOKIE_NAME,
+  ROLE_HOME_PATHS,
+  ROLE_PERMISSION_MATRIX,
+  canRolePerformAction,
   maskEmailForAdmin,
   maskPhoneForAdmin,
   parseWorkspaceRole,
+  resolveRoleRedirect,
 } from '../../../../apps/web/src/lib/role-guard';
+import { enforceRoleActionPermission } from '../../../../apps/web/src/lib/security/policy';
+import {
+  adjudicateRuntimeAuditorIrr,
+  certifyRuntimeAuditorItem,
+  getRuntimeCatalog,
+  resetRuntimeCatalogToDefaults,
+  resolveRuntimeInstructorDoubt,
+  submitRuntimeEvaluatorGrade,
+  submitRuntimeInstructorItem,
+  updateRuntimeInstructorCohort,
+  verifyRuntimeAuditChain,
+} from '../../../../apps/web/src/lib/security/payment-guard';
 
 const REPO_ROOT = path.resolve(__dirname, '../../../..');
 
@@ -106,18 +122,20 @@ describe('Workspace design & role isolation guards (P27)', () => {
     expect(content).not.toMatch(/\b(?:bg|text|border)-(?:blue|emerald|yellow)-/);
   });
 
-  it('verifies proxy.ts and AuthForm.tsx enforce strict Scholar vs. Admin role isolation', () => {
+  it('verifies proxy.ts and AuthForm.tsx enforce strict 5-role isolation', () => {
     const proxyContent = fs.readFileSync(path.join(REPO_ROOT, 'apps/web/proxy.ts'), 'utf8');
     expect(proxyContent).toContain('ROLE_COOKIE_NAME');
-    expect(proxyContent).toContain("lumenRole === 'scholar'");
-    expect(proxyContent).toContain("lumenRole === 'admin'");
-    expect(proxyContent).toContain('app\\/admin');
+    expect(proxyContent).toContain('parseWorkspaceRole');
+    expect(proxyContent).toContain('resolveRoleRedirect');
 
     const authFormContent = fs.readFileSync(
       path.join(REPO_ROOT, 'apps/web/app/[locale]/(auth)/_components/AuthForm.tsx'),
       'utf8',
     );
     expect(authFormContent).toContain("setWorkspaceRoleCookie('scholar')");
+    expect(authFormContent).toContain("setWorkspaceRoleCookie('evaluator')");
+    expect(authFormContent).toContain("setWorkspaceRoleCookie('instructor')");
+    expect(authFormContent).toContain("setWorkspaceRoleCookie('auditor')");
     expect(authFormContent).toContain("setWorkspaceRoleCookie('admin')");
   });
 });
@@ -310,5 +328,211 @@ describe('P30 Role-Isolated Institutional Admin Console (/admin) Guards', () => 
     expect(legacyAdmin).toContain("role === 'scholar'");
     expect(legacyAdmin).toContain('/admin');
     expect(legacyAdmin).toContain('/app');
+  });
+});
+
+describe('P33 5-Role Enterprise RBAC & Workforce Portals (/evaluator, /instructor, /auditor)', () => {
+  it('supports all 5 roles in parseWorkspaceRole, ROLE_HOME_PATHS, and ROLE_PERMISSION_MATRIX', () => {
+    expect(parseWorkspaceRole('scholar')).toBe('scholar');
+    expect(parseWorkspaceRole('evaluator')).toBe('evaluator');
+    expect(parseWorkspaceRole('instructor')).toBe('instructor');
+    expect(parseWorkspaceRole('auditor')).toBe('auditor');
+    expect(parseWorkspaceRole('admin')).toBe('admin');
+    expect(parseWorkspaceRole('superadmin')).toBeNull();
+
+    expect(ROLE_HOME_PATHS).toEqual({
+      scholar: '/app',
+      evaluator: '/evaluator',
+      instructor: '/instructor',
+      auditor: '/auditor',
+      admin: '/admin',
+    });
+
+    expect(ROLE_PERMISSION_MATRIX.scholar).toEqual(['SCHOLAR_REQUEST_REFUND']);
+    expect(ROLE_PERMISSION_MATRIX.evaluator).toEqual(['EVALUATOR_SUBMIT_GRADE', 'CMS_UPDATE']);
+    expect(ROLE_PERMISSION_MATRIX.instructor).toEqual([
+      'INSTRUCTOR_SUBMIT_ITEM',
+      'INSTRUCTOR_RESOLVE_DOUBT',
+      'INSTRUCTOR_UPDATE_COHORT',
+    ]);
+    expect(ROLE_PERMISSION_MATRIX.auditor).toEqual([
+      'AUDITOR_ADJUDICATE_IRR',
+      'AUDITOR_CERTIFY_ITEM',
+      'AUDITOR_VERIFY_CHAIN',
+    ]);
+  });
+
+  it('enforces action-level RBAC allow/deny rules across all 5 roles', () => {
+    expect(canRolePerformAction('scholar', 'SCHOLAR_REQUEST_REFUND')).toBe(true);
+    expect(canRolePerformAction('scholar', 'EVALUATOR_SUBMIT_GRADE')).toBe(false);
+    expect(canRolePerformAction('scholar', 'UPDATE_PLAN')).toBe(false);
+
+    expect(canRolePerformAction('evaluator', 'EVALUATOR_SUBMIT_GRADE')).toBe(true);
+    expect(canRolePerformAction('evaluator', 'CMS_UPDATE')).toBe(true);
+    expect(canRolePerformAction('evaluator', 'AUDITOR_CERTIFY_ITEM')).toBe(false);
+
+    expect(canRolePerformAction('instructor', 'INSTRUCTOR_SUBMIT_ITEM')).toBe(true);
+    expect(canRolePerformAction('instructor', 'INSTRUCTOR_RESOLVE_DOUBT')).toBe(true);
+    expect(canRolePerformAction('instructor', 'INSTRUCTOR_UPDATE_COHORT')).toBe(true);
+    expect(canRolePerformAction('instructor', 'ORDER_ACTION')).toBe(false);
+
+    expect(canRolePerformAction('auditor', 'AUDITOR_ADJUDICATE_IRR')).toBe(true);
+    expect(canRolePerformAction('auditor', 'AUDITOR_CERTIFY_ITEM')).toBe(true);
+    expect(canRolePerformAction('auditor', 'AUDITOR_VERIFY_CHAIN')).toBe(true);
+    expect(canRolePerformAction('auditor', 'UPDATE_PLAN')).toBe(false);
+
+    expect(canRolePerformAction('admin', 'UPDATE_PLAN')).toBe(true);
+    expect(canRolePerformAction('admin', 'EVALUATOR_SUBMIT_GRADE')).toBe(true);
+    expect(canRolePerformAction('admin', 'INSTRUCTOR_SUBMIT_ITEM')).toBe(true);
+    expect(canRolePerformAction('admin', 'AUDITOR_ADJUDICATE_IRR')).toBe(true);
+
+    expect(enforceRoleActionPermission('evaluator', 'UPDATE_PLAN')).toEqual({
+      allowed: false,
+      role: 'evaluator',
+      action: 'UPDATE_PLAN',
+      error: 'RBAC_FORBIDDEN_ROLE_ACTION',
+    });
+    expect(enforceRoleActionPermission('auditor', 'AUDITOR_CERTIFY_ITEM').allowed).toBe(true);
+  });
+
+  it('enforces route-level 5-role isolation via resolveRoleRedirect with /bn preservation and null crawler bypass', () => {
+    expect(resolveRoleRedirect('scholar', '/evaluator')).toBe('/app');
+    expect(resolveRoleRedirect('scholar', '/bn/instructor')).toBe('/bn/app');
+    expect(resolveRoleRedirect('evaluator', '/app')).toBe('/evaluator');
+    expect(resolveRoleRedirect('evaluator', '/bn/admin')).toBe('/bn/evaluator');
+    expect(resolveRoleRedirect('instructor', '/auditor')).toBe('/instructor');
+    expect(resolveRoleRedirect('auditor', '/app')).toBe('/auditor');
+    expect(resolveRoleRedirect('admin', '/evaluator')).toBe('/admin');
+
+    expect(resolveRoleRedirect('evaluator', '/evaluator')).toBeNull();
+    expect(resolveRoleRedirect('instructor', '/bn/instructor')).toBeNull();
+    expect(resolveRoleRedirect('auditor', '/auditor')).toBeNull();
+
+    // Stateless CI crawler (null role) renders each native shell except /app/admin -> /admin
+    expect(resolveRoleRedirect(null, '/evaluator')).toBeNull();
+    expect(resolveRoleRedirect(null, '/instructor')).toBeNull();
+    expect(resolveRoleRedirect(null, '/auditor')).toBeNull();
+    expect(resolveRoleRedirect(null, '/app/admin')).toBe('/admin');
+    expect(resolveRoleRedirect(null, '/bn/app/admin')).toBe('/bn/admin');
+  });
+
+  it('verifies /api/admin/catalog enforces 5-role RBAC and returns RBAC_FORBIDDEN_ROLE_ACTION on unauthorized calls', () => {
+    const routeContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/api/admin/catalog/route.ts'),
+      'utf8',
+    );
+    expect(routeContent).toContain('enforceRoleActionPermission');
+    expect(routeContent).toContain('RBAC_FORBIDDEN_ROLE_ACTION');
+    expect(routeContent).toContain('x-lumen-role');
+    expect(routeContent).toContain('EVALUATOR_SUBMIT_GRADE');
+    expect(routeContent).toContain('INSTRUCTOR_SUBMIT_ITEM');
+    expect(routeContent).toContain('AUDITOR_ADJUDICATE_IRR');
+    expect(routeContent).toContain('AUDITOR_CERTIFY_ITEM');
+  });
+
+  it('persists Evaluator, Instructor, and Auditor mutations into runtime catalog and auditLogs', () => {
+    resetRuntimeCatalogToDefaults('Test Runner');
+    const afterGrade = submitRuntimeEvaluatorGrade(
+      {
+        submissionId: 'SUB-8492',
+        overallBand: 8.0,
+        feedback: 'Cohesive policy argument with precise lexical range.',
+      },
+      'Evaluator Test',
+    );
+    const gradedSub = afterGrade.evaluatorSubmissions.find((s) => s.id === 'SUB-8492');
+    expect(gradedSub?.humanBand).toBe(8.0);
+    expect(gradedSub?.status).toBe('Drift Flagged');
+    expect(afterGrade.auditLogs[0]?.action).toBe('EVALUATOR_SUBMIT_GRADE');
+
+    const afterItem = submitRuntimeInstructorItem(
+      {
+        itemId: 'ITEM-GRE-999',
+        domain: 'GRE Quant Comparison',
+        stem: 'Given $x^2 = 9$, compare $x$ and $3$.',
+        hintTier1: 'Consider negative roots.',
+        hintTier2: 'Test x = -3 and x = 3.',
+        hintTier3: 'Quantity D: relationship cannot be determined.',
+      },
+      'Instructor Test',
+    );
+    expect(afterItem.instructorItems.some((i) => i.id === 'ITEM-GRE-999')).toBe(true);
+    expect(afterItem.auditLogs[0]?.action).toBe('INSTRUCTOR_SUBMIT_ITEM');
+
+    const afterDoubt = resolveRuntimeInstructorDoubt('DOUBT-101', 'Test x = -4 as a counter-example.');
+    expect(afterDoubt.instructorDoubts.find((d) => d.id === 'DOUBT-101')?.status).toBe('Resolved');
+
+    const afterCohort = updateRuntimeInstructorCohort('COH-GRE-14', {
+      assignedDrill: 'DRILL-QC-NEG-EXP',
+    });
+    expect(afterCohort.instructorCohorts.find((c) => c.id === 'COH-GRE-14')?.assignedDrill).toBe(
+      'DRILL-QC-NEG-EXP',
+    );
+
+    const afterIrr = adjudicateRuntimeAuditorIrr('SUB-8492', 7.5, 'Third-marker balanced score.');
+    expect(afterIrr.evaluatorSubmissions.find((s) => s.id === 'SUB-8492')?.status).toBe('Adjudicated');
+
+    const afterCert = certifyRuntimeAuditorItem('ITEM-GRE-999', 'certify', 'Verified p-value.');
+    expect(afterCert.instructorItems.find((i) => i.id === 'ITEM-GRE-999')?.qaStatus).toBe(
+      'Certified & Published',
+    );
+
+    const afterChain = verifyRuntimeAuditChain('Auditor Test');
+    expect(afterChain.chainVerifiedAtIso).not.toBeNull();
+    expect(afterChain.auditLogs[0]?.action).toBe('AUDITOR_VERIFY_CHAIN');
+    expect(getRuntimeCatalog().auditLogs.length).toBeGreaterThan(4);
+    resetRuntimeCatalogToDefaults('Test Runner');
+  });
+
+  it('verifies all 6 P33 portal layouts and pages pass [workspace-guard], compose WorkspaceDataTable, and enforce Evaluator Zero-PII', () => {
+    const P33_FILES = [
+      'apps/web/app/[locale]/(evaluator)/layout.tsx',
+      'apps/web/app/[locale]/(evaluator)/evaluator/page.tsx',
+      'apps/web/app/[locale]/(instructor)/layout.tsx',
+      'apps/web/app/[locale]/(instructor)/instructor/page.tsx',
+      'apps/web/app/[locale]/(auditor)/layout.tsx',
+      'apps/web/app/[locale]/(auditor)/auditor/page.tsx',
+    ];
+
+    for (const rel of P33_FILES) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content).toContain('@/src/components/ui/WorkspacePrimitives');
+      expect(content).not.toMatch(/\brounded-(?:full|md|lg|xl|2xl|3xl)\b/);
+      expect(content).not.toMatch(/\bshadow-/);
+      expect(content).not.toMatch(
+        /\b(?:bg|text|border)-(?:blue|green|emerald|yellow|amber|purple|indigo|slate|zinc)-/,
+      );
+      expect(content).not.toMatch(/\buppercase\b/);
+      expect(content).not.toMatch(/text-\[(?:9|10|11)px\]/);
+      expect(content).not.toMatch(/total XP earned/i);
+      expect(content).not.toMatch(/>[^<{]*\$[^$\n]*[\^_\\][^<$]*\$\s*</);
+    }
+
+    const evaluatorPage = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(evaluator)/evaluator/page.tsx'),
+      'utf8',
+    );
+    expect(evaluatorPage).toContain('<WorkspaceDataTable');
+    expect(evaluatorPage).toContain('SUB-8492');
+    expect(evaluatorPage).toContain('EVALUATOR_SUBMIT_GRADE');
+    expect(evaluatorPage).not.toContain('ayman@lumen.academy');
+    expect(evaluatorPage).not.toContain('+8801711223344');
+
+    const instructorPage = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(instructor)/instructor/page.tsx'),
+      'utf8',
+    );
+    expect(instructorPage).toContain('<WorkspaceDataTable');
+    expect(instructorPage).toContain('formatMathText(');
+    expect(instructorPage).toContain('INSTRUCTOR_SUBMIT_ITEM');
+
+    const auditorPage = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(auditor)/auditor/page.tsx'),
+      'utf8',
+    );
+    expect(auditorPage).toContain('<WorkspaceDataTable');
+    expect(auditorPage).toContain('AUDITOR_ADJUDICATE_IRR');
+    expect(auditorPage).toContain('AUDITOR_CERTIFY_ITEM');
+    expect(auditorPage).toContain('AUDITOR_VERIFY_CHAIN');
   });
 });

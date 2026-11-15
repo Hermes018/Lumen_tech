@@ -30,6 +30,12 @@ const WORKBENCH_SURFACES = [
   { label: "TypingPracticeEngine", file: "apps/web/src/components/typing/TypingPracticeEngine.tsx" },
   { label: "WorkspacePrimitives", file: "apps/web/src/components/ui/WorkspacePrimitives.tsx" },
   { label: "(learner)/layout", file: "apps/web/app/[locale]/(learner)/layout.tsx" },
+  { label: "(evaluator)/layout", file: "apps/web/app/[locale]/(evaluator)/layout.tsx" },
+  { label: "/evaluator", file: "apps/web/app/[locale]/(evaluator)/evaluator/page.tsx" },
+  { label: "(instructor)/layout", file: "apps/web/app/[locale]/(instructor)/layout.tsx" },
+  { label: "/instructor", file: "apps/web/app/[locale]/(instructor)/instructor/page.tsx" },
+  { label: "(auditor)/layout", file: "apps/web/app/[locale]/(auditor)/layout.tsx" },
+  { label: "/auditor", file: "apps/web/app/[locale]/(auditor)/auditor/page.tsx" },
   { label: "(admin)/layout", file: "apps/web/app/[locale]/(admin)/layout.tsx" },
   { label: "/admin", file: "apps/web/app/[locale]/(admin)/admin/page.tsx" },
   { label: "/app", file: "apps/web/app/[locale]/(learner)/app/page.tsx" },
@@ -71,6 +77,9 @@ const LIVE_EXTRA_ROUTES = [
   "/app/plan",
   "/app/billing",
   "/app/settings",
+  "/evaluator",
+  "/instructor",
+  "/auditor",
   "/admin",
 ];
 
@@ -244,6 +253,9 @@ if (serverUp || forceLive) {
       "/en/app/ielts",
       "/en/app/billing",
       "/en/app/settings",
+      "/en/evaluator",
+      "/en/instructor",
+      "/en/auditor",
       "/en/admin",
     ];
 

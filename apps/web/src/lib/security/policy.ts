@@ -1,10 +1,16 @@
-/** @purpose Central security policy registry, role definitions, and sliding-window rate limiter */
+/** @purpose Central security policy registry, 5-role RBAC enforcement, and sliding-window rate limiter */
+
+import { canRolePerformAction, type WorkspaceRole } from '../role-guard';
 
 export const SECURITY_POLICY = {
   allowedRedirectPrefixes: [
     '/en',
     '/bn',
     '/app',
+    '/evaluator',
+    '/instructor',
+    '/auditor',
+    '/admin',
     '/checkout',
     '/exam',
     '/courses',
@@ -20,10 +26,32 @@ export const SECURITY_POLICY = {
   },
   webhookReplayWindowSeconds: 300,
   maxPayloadBytes: 16384,
-  roles: ['guest', 'learner', 'instructor', 'admin'] as const,
+  roles: ['guest', 'learner', 'scholar', 'evaluator', 'instructor', 'auditor', 'admin'] as const,
 } as const;
 
 export type SecurityRole = (typeof SECURITY_POLICY.roles)[number];
+
+export interface RoleActionPermissionResult {
+  allowed: boolean;
+  role: WorkspaceRole;
+  action: string;
+  error?: 'RBAC_FORBIDDEN_ROLE_ACTION';
+}
+
+export function enforceRoleActionPermission(
+  role: WorkspaceRole,
+  action: string,
+): RoleActionPermissionResult {
+  if (canRolePerformAction(role, action)) {
+    return { allowed: true, role, action };
+  }
+  return {
+    allowed: false,
+    role,
+    action,
+    error: 'RBAC_FORBIDDEN_ROLE_ACTION',
+  };
+}
 
 export interface RateLimitResult {
   allowed: boolean;

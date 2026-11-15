@@ -1,22 +1,34 @@
-/** @purpose Enterprise Admin ERP & Catalog runtime API (GET/POST) protected by same-origin CSRF, sliding-window rate limits, and strict Zod schemas */
+/** @purpose Enterprise 5-Role RBAC & Catalog runtime API (GET/POST) protected by same-origin CSRF, sliding-window rate limits, role permission matrix, and strict Zod schemas */
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from '@lumen/config';
-import { checkRateLimit, SECURITY_POLICY } from '@/src/lib/security/policy';
+import { ROLE_COOKIE_NAME, parseWorkspaceRole, type WorkspaceRole } from '@/src/lib/role-guard';
+import {
+  checkRateLimit,
+  enforceRoleActionPermission,
+  SECURITY_POLICY,
+} from '@/src/lib/security/policy';
 import {
   addRuntimePlan,
+  adjudicateRuntimeAuditorIrr,
   applyRuntimeCmsUpdate,
   applyRuntimeOrderAction,
   applyRuntimeScholarAction,
+  certifyRuntimeAuditorItem,
   getRuntimeCatalog,
   PaymentSecurityError,
   resetRuntimeCatalogToDefaults,
+  resolveRuntimeInstructorDoubt,
+  submitRuntimeEvaluatorGrade,
+  submitRuntimeInstructorItem,
   toggleRuntimeFeatureFlag,
   toggleRuntimePromoCode,
   updateRuntimeFeeRates,
+  updateRuntimeInstructorCohort,
   updateRuntimePlan,
   updateRuntimePsychometricStrictness,
   upsertRuntimePromoCode,
+  verifyRuntimeAuditChain,
 } from '@/src/lib/security/payment-guard';
 import { verifySameOriginCsrf } from '@/src/lib/security/redirect-guard';
 
@@ -146,6 +158,66 @@ const resetDefaultsSchema = z.object({
   action: z.literal('RESET_DEFAULTS'),
 });
 
+const evaluatorSubmitGradeSchema = z.object({
+  action: z.literal('EVALUATOR_SUBMIT_GRADE'),
+  submissionId: z.string().min(2).max(60),
+  overallBand: z.number().min(0).max(9).finite(),
+  criteria: z
+    .object({
+      taskResponse: z.number().min(0).max(9).finite(),
+      coherenceCohesion: z.number().min(0).max(9).finite(),
+      lexicalResource: z.number().min(0).max(9).finite(),
+      grammaticalRange: z.number().min(0).max(9).finite(),
+    })
+    .optional(),
+  tags: z.array(z.string().min(1).max(60)).max(12).optional(),
+  feedback: z.string().max(1500).optional(),
+});
+
+const instructorSubmitItemSchema = z.object({
+  action: z.literal('INSTRUCTOR_SUBMIT_ITEM'),
+  itemId: z.string().min(2).max(60),
+  domain: z.string().min(2).max(80),
+  stem: z.string().min(3).max(2000),
+  hintTier1: z.string().min(1).max(600),
+  hintTier2: z.string().min(1).max(600),
+  hintTier3: z.string().min(1).max(800),
+  difficultyPValue: z.number().min(0).max(1).finite().optional(),
+  discriminationRpb: z.number().min(-1).max(1).finite().optional(),
+});
+
+const instructorResolveDoubtSchema = z.object({
+  action: z.literal('INSTRUCTOR_RESOLVE_DOUBT'),
+  doubtId: z.string().min(2).max(60),
+  facultyReply: z.string().min(2).max(1500),
+});
+
+const instructorUpdateCohortSchema = z.object({
+  action: z.literal('INSTRUCTOR_UPDATE_COHORT'),
+  cohortId: z.string().min(2).max(60),
+  syllabusNote: z.string().max(800).optional(),
+  homeworkNote: z.string().max(800).optional(),
+  assignedDrill: z.string().max(160).optional(),
+});
+
+const auditorAdjudicateIrrSchema = z.object({
+  action: z.literal('AUDITOR_ADJUDICATE_IRR'),
+  submissionId: z.string().min(2).max(60),
+  adjudicatedBand: z.number().min(0).max(9).finite(),
+  adjudicationNote: z.string().min(2).max(1000),
+});
+
+const auditorCertifyItemSchema = z.object({
+  action: z.literal('AUDITOR_CERTIFY_ITEM'),
+  itemId: z.string().min(2).max(60),
+  decision: z.enum(['certify', 'return_revision']),
+  auditorNote: z.string().max(600).optional(),
+});
+
+const auditorVerifyChainSchema = z.object({
+  action: z.literal('AUDITOR_VERIFY_CHAIN'),
+});
+
 const adminCatalogActionSchema = z.union([
   updatePlanSchema,
   addPlanSchema,
@@ -158,7 +230,29 @@ const adminCatalogActionSchema = z.union([
   toggleFlagSchema,
   psychometricUpdateSchema,
   resetDefaultsSchema,
+  evaluatorSubmitGradeSchema,
+  instructorSubmitItemSchema,
+  instructorResolveDoubtSchema,
+  instructorUpdateCohortSchema,
+  auditorAdjudicateIrrSchema,
+  auditorCertifyItemSchema,
+  auditorVerifyChainSchema,
 ]);
+
+function resolveActorLabel(role: WorkspaceRole): string {
+  switch (role) {
+    case 'evaluator':
+      return 'Certified Evaluator (Blind Desk)';
+    case 'instructor':
+      return 'Faculty Instructor Studio';
+    case 'auditor':
+      return 'Psychometric & QA Auditor';
+    case 'scholar':
+      return 'Scholar Self-Service';
+    case 'admin':
+      return 'Ayman Rahman (Admin)';
+  }
+}
 
 function resolveClientIp(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
@@ -227,7 +321,38 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = parsed.data;
-  const actor = 'Ayman Rahman (Admin)';
+
+  const rawRoleHeader = request.headers.get('x-lumen-role');
+  const rawRoleCookie = request.cookies.get(ROLE_COOKIE_NAME)?.value;
+  const rawRole = rawRoleHeader ?? rawRoleCookie;
+
+  let callerRole: WorkspaceRole = 'admin';
+  if (rawRole !== undefined && rawRole !== '') {
+    const parsedRole = parseWorkspaceRole(rawRole);
+    if (!parsedRole) {
+      return NextResponse.json(
+        {
+          error: 'RBAC_FORBIDDEN_ROLE_ACTION',
+          message: `Unrecognized workspace role "${rawRole}"`,
+        },
+        { status: 403 },
+      );
+    }
+    callerRole = parsedRole;
+  }
+
+  const rbacCheck = enforceRoleActionPermission(callerRole, payload.action);
+  if (!rbacCheck.allowed) {
+    return NextResponse.json(
+      {
+        error: 'RBAC_FORBIDDEN_ROLE_ACTION',
+        message: `Role "${callerRole}" is not permitted to perform "${payload.action}"`,
+      },
+      { status: 403 },
+    );
+  }
+
+  const actor = resolveActorLabel(callerRole);
 
   try {
     let catalog;
@@ -358,6 +483,73 @@ export async function POST(request: NextRequest) {
       }
       case 'RESET_DEFAULTS': {
         catalog = resetRuntimeCatalogToDefaults(actor);
+        break;
+      }
+      case 'EVALUATOR_SUBMIT_GRADE': {
+        catalog = submitRuntimeEvaluatorGrade(
+          {
+            submissionId: payload.submissionId,
+            overallBand: payload.overallBand,
+            criteria: payload.criteria,
+            tags: payload.tags,
+            feedback: payload.feedback,
+          },
+          actor,
+        );
+        break;
+      }
+      case 'INSTRUCTOR_SUBMIT_ITEM': {
+        catalog = submitRuntimeInstructorItem(
+          {
+            itemId: payload.itemId,
+            domain: payload.domain,
+            stem: payload.stem,
+            hintTier1: payload.hintTier1,
+            hintTier2: payload.hintTier2,
+            hintTier3: payload.hintTier3,
+            difficultyPValue: payload.difficultyPValue,
+            discriminationRpb: payload.discriminationRpb,
+          },
+          actor,
+        );
+        break;
+      }
+      case 'INSTRUCTOR_RESOLVE_DOUBT': {
+        catalog = resolveRuntimeInstructorDoubt(payload.doubtId, payload.facultyReply, actor);
+        break;
+      }
+      case 'INSTRUCTOR_UPDATE_COHORT': {
+        catalog = updateRuntimeInstructorCohort(
+          payload.cohortId,
+          {
+            syllabusNote: payload.syllabusNote,
+            homeworkNote: payload.homeworkNote,
+            assignedDrill: payload.assignedDrill,
+          },
+          actor,
+        );
+        break;
+      }
+      case 'AUDITOR_ADJUDICATE_IRR': {
+        catalog = adjudicateRuntimeAuditorIrr(
+          payload.submissionId,
+          payload.adjudicatedBand,
+          payload.adjudicationNote,
+          actor,
+        );
+        break;
+      }
+      case 'AUDITOR_CERTIFY_ITEM': {
+        catalog = certifyRuntimeAuditorItem(
+          payload.itemId,
+          payload.decision,
+          payload.auditorNote,
+          actor,
+        );
+        break;
+      }
+      case 'AUDITOR_VERIFY_CHAIN': {
+        catalog = verifyRuntimeAuditChain(actor);
         break;
       }
     }

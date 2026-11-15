@@ -663,8 +663,8 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
             <div className="border-t border-[var(--hairline)] pt-5 mt-5 space-y-3">
               <div className="text-xs font-semibold text-[var(--brand-ink)]">
                 {isBn
-                  ? 'তাৎক্ষণিক ডেমো প্রিভিউ (ওটিপি ছাড়াই)'
-                  : 'Instant Sandbox Preview (No OTP Required)'}
+                  ? 'তাৎক্ষণিক ৫-ভূমিকা ডেমো প্রিভিউ (ওটিপি ছাড়াই)'
+                  : 'Instant 5-Role Sandbox Preview (No OTP Required)'}
               </div>
               <div className="grid grid-cols-1 gap-2">
                 <button
@@ -678,6 +678,66 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                   <span>{isBn ? 'স্কলার ওয়ার্কস্পেস (/app)' : 'Scholar Workspace (/app)'}</span>
                   <span className="font-mono text-[var(--brand)]">→</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkspaceRoleCookie('evaluator');
+                    router.push(`${basePrefix}/evaluator`);
+                  }}
+                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>
+                    {isBn
+                      ? 'সার্টিফাইড ইভ্যালুয়েটর ডেস্ক (/evaluator)'
+                      : 'Certified Evaluator Desk (/evaluator)'}
+                  </span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkspaceRoleCookie('instructor');
+                    router.push(`${basePrefix}/instructor`);
+                  }}
+                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>
+                    {isBn
+                      ? 'ফ্যাকাল্টি ইন্সট্রাক্টর স্টুডিও (/instructor)'
+                      : 'Faculty Instructor Studio (/instructor)'}
+                  </span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkspaceRoleCookie('auditor');
+                    router.push(`${basePrefix}/auditor`);
+                  }}
+                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>
+                    {isBn
+                      ? 'সাইকোমেট্রিক ও কিউএ অডিটর (/auditor)'
+                      : 'Psychometric & QA Auditor (/auditor)'}
+                  </span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setWorkspaceRoleCookie('admin');
+                    router.push(`${basePrefix}/admin`);
+                  }}
+                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
+                >
+                  <span>
+                    {isBn
+                      ? 'প্রাতিষ্ঠানিক অ্যাডমিন ইআরপি (/admin)'
+                      : 'Institutional Admin ERP (/admin)'}
+                  </span>
+                  <span className="font-mono text-[var(--brand)]">→</span>
+                </button>
                 <Link
                   href="/checkout?plan=gre-complete"
                   className="flex items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
@@ -689,21 +749,6 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                   </span>
                   <span className="font-mono text-[var(--brand)]">→</span>
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setWorkspaceRoleCookie('admin');
-                    router.push(`${basePrefix}/admin`);
-                  }}
-                  className="flex w-full items-center justify-between rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3.5 py-2.5 text-left text-xs font-semibold text-[var(--brand-ink)] hover:border-[var(--brand)] hover:bg-[var(--bg-warm)] transition-colors"
-                >
-                  <span>
-                    {isBn
-                      ? 'অ্যাডমিন কনসোল (/admin)'
-                      : 'Institutional Admin Console (/admin)'}
-                  </span>
-                  <span className="font-mono text-[var(--brand)]">→</span>
-                </button>
               </div>
             </div>
 

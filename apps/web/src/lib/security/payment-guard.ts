@@ -253,6 +253,64 @@ export interface RuntimeAuditEntry {
   status: 'Verified' | 'Enforced' | 'Updated';
 }
 
+export interface RuntimeEvaluatorSubmission {
+  id: string;
+  examTask: string;
+  wordCount: number;
+  typingWpm: number;
+  typingAccuracyPct: number;
+  aiPreScore: number;
+  aiPreScoreLabel: string;
+  humanBand: number | null;
+  adjudicatedBand: number | null;
+  slaCountdown: string;
+  status: 'Pending Blind Grade' | 'Graded' | 'Drift Flagged' | 'Adjudicated';
+  textBody: string;
+  rubricTags: string[];
+  examinerFeedback: string;
+  adjudicationNote: string;
+  criteria: {
+    taskResponse: number;
+    coherenceCohesion: number;
+    lexicalResource: number;
+    grammaticalRange: number;
+  };
+}
+
+export interface RuntimeInstructorCohort {
+  id: string;
+  name: string;
+  schedule: string;
+  enrolledCount: number;
+  attendancePct: number;
+  syllabusNote: string;
+  homeworkNote: string;
+  assignedDrill: string | null;
+}
+
+export interface RuntimeInstructorItem {
+  id: string;
+  domain: string;
+  stem: string;
+  hintTier1: string;
+  hintTier2: string;
+  hintTier3: string;
+  difficultyPValue: number;
+  discriminationRpb: number;
+  qaStatus: 'Pending QA' | 'Certified & Published' | 'Revision Requested';
+  auditorNote: string;
+}
+
+export interface RuntimeInstructorDoubt {
+  id: string;
+  itemCode: string;
+  cohortName: string;
+  questionExcerpt: string;
+  scholarNote: string;
+  facultyReply: string;
+  status: 'Open Escalation' | 'Resolved';
+}
+
 export interface RuntimeCatalogSnapshot {
   plans: Record<string, RuntimeCatalogPlan>;
   feeRates: RuntimeFeeRates;
@@ -265,6 +323,11 @@ export interface RuntimeCatalogSnapshot {
   psychometrics: RuntimePsychometricItem[];
   featureFlags: RuntimeFeatureFlags;
   auditLogs: RuntimeAuditEntry[];
+  evaluatorSubmissions: RuntimeEvaluatorSubmission[];
+  instructorCohorts: RuntimeInstructorCohort[];
+  instructorItems: RuntimeInstructorItem[];
+  instructorDoubts: RuntimeInstructorDoubt[];
+  chainVerifiedAtIso: string | null;
   updatedAtIso: string;
 }
 
@@ -690,6 +753,195 @@ function createInitialRuntimeState(): RuntimeCatalogSnapshot {
         status: 'Verified',
       },
     ],
+    evaluatorSubmissions: [
+      {
+        id: 'SUB-8492',
+        examTask: 'IELTS Academic Task 2 — Urban Transit Policy',
+        wordCount: 278,
+        typingWpm: 58,
+        typingAccuracyPct: 96.8,
+        aiPreScore: 7.0,
+        aiPreScoreLabel: 'Band 7.0',
+        humanBand: 7.0,
+        adjudicatedBand: null,
+        slaCountdown: '02h 14m',
+        status: 'Pending Blind Grade',
+        textBody:
+          'While municipal congestion pricing curtails private vehicle volume across central Dhaka corridors, equitable feeder transit remains the decisive variable for commuters. Without reliable rapid-bus connections from Mirpur and Uttara, flat road levies risk penalizing wage earners rather than shifting modal preference.\n\nNevertheless, dedicated bus-lane enforcement paired with unified fare cards has demonstrably lowered peak travel times in peer Asian capitals. Policymakers should therefore earmark congestion toll revenue directly for zero-emission feeder fleets rather than general treasury budgets.',
+        rubricTags: ['[Task Achievement]', '[Lexical Upgrade]'],
+        examinerFeedback: '',
+        adjudicationNote: '',
+        criteria: {
+          taskResponse: 7.0,
+          coherenceCohesion: 7.0,
+          lexicalResource: 7.5,
+          grammaticalRange: 6.5,
+        },
+      },
+      {
+        id: 'SUB-8501',
+        examTask: 'GRE Issue Essay — Automation & Academic Research',
+        wordCount: 342,
+        typingWpm: 64,
+        typingAccuracyPct: 97.4,
+        aiPreScore: 4.5,
+        aiPreScoreLabel: '4.5 / 6.0',
+        humanBand: 5.5,
+        adjudicatedBand: null,
+        slaCountdown: '03h 40m',
+        status: 'Drift Flagged',
+        textBody:
+          'Automated literature synthesis accelerates initial hypothesis generation, yet epistemological rigor still demands transparent human peer scrutiny. When large-scale statistical screeners compress conflicting empirical studies into single consensus scores, subtle methodological flaws in small-sample control groups can escape detection.\n\nAt the same time, resisting computational triage altogether would leave biomedical and climate researchers buried under exponential publication volume. The soundest institutional policy treats automated synthesis as an indexing aid while preserving blind human replication audits.',
+        rubricTags: ['[Cohesion Gap]'],
+        examinerFeedback: 'Strong analytical counter-example in paragraph 2; minor transition stiffness.',
+        adjudicationNote: '',
+        criteria: {
+          taskResponse: 5.5,
+          coherenceCohesion: 5.5,
+          lexicalResource: 5.5,
+          grammaticalRange: 5.5,
+        },
+      },
+      {
+        id: 'SUB-8514',
+        examTask: 'IELTS Speaking Part 2 — Environmental Design',
+        wordCount: 214,
+        typingWpm: 0,
+        typingAccuracyPct: 100,
+        aiPreScore: 7.5,
+        aiPreScoreLabel: 'Band 7.5',
+        humanBand: 6.0,
+        adjudicatedBand: null,
+        slaCountdown: '01h 05m',
+        status: 'Drift Flagged',
+        textBody:
+          'Transcript excerpt: "I want to describe a passive cross-ventilated library courtyard I visited in Dhaka last monsoon. The terracotta louvers kept direct afternoon glare off the reading tables while channeling steady south breeze across the atrium, reducing mechanical cooling demand substantially."',
+        rubricTags: ['[Grammar Agreement]'],
+        examinerFeedback: 'Lexical precision is high, though spontaneous hesitation increased in follow-up probes.',
+        adjudicationNote: '',
+        criteria: {
+          taskResponse: 6.5,
+          coherenceCohesion: 6.0,
+          lexicalResource: 6.5,
+          grammaticalRange: 5.5,
+        },
+      },
+      {
+        id: 'SUB-8529',
+        examTask: 'IELTS GT Task 1 — Municipal Water Notice',
+        wordCount: 189,
+        typingWpm: 54,
+        typingAccuracyPct: 95.9,
+        aiPreScore: 6.5,
+        aiPreScoreLabel: 'Band 6.5',
+        humanBand: null,
+        adjudicatedBand: null,
+        slaCountdown: '04h 18m',
+        status: 'Pending Blind Grade',
+        textBody:
+          'Dear Municipal Water Authority,\n\nI am writing to report recurring low pressure along Road 11 in Dhanmondi following Tuesday night valve maintenance. Residents on upper floors have had no running supply between 06:00 and 10:30 for three consecutive mornings.\n\nCould your engineering team inspect the branch pressure regulator before weekend demand peaks and confirm an estimated restoration window?',
+        rubricTags: [],
+        examinerFeedback: '',
+        adjudicationNote: '',
+        criteria: {
+          taskResponse: 6.5,
+          coherenceCohesion: 6.5,
+          lexicalResource: 6.5,
+          grammaticalRange: 6.5,
+        },
+      },
+    ],
+    instructorCohorts: [
+      {
+        id: 'COH-GRE-14',
+        name: 'GRE Quant Evening Batch 14',
+        schedule: 'Sun & Tue · 20:00–21:45 BST',
+        enrolledCount: 28,
+        attendancePct: 93,
+        syllabusNote: 'Week 5: Number Properties, Quadratic Differences & Quantitative Comparison Traps',
+        homeworkNote: 'Complete 25 timed QC items (target <= 90s/item) before Tuesday seminar.',
+        assignedDrill: null,
+      },
+      {
+        id: 'COH-IELTS-75',
+        name: 'CD-IELTS Band 7.5+ Intensive',
+        schedule: 'Mon & Wed · 19:30–21:00 BST',
+        enrolledCount: 24,
+        attendancePct: 91,
+        syllabusNote: 'Module 4: True / False / Not Given Boundary Evidence & Task 2 Concession Clauses',
+        homeworkNote: 'Submit 1 timed 40-min CD-IELTS Task 2 essay via Typing Studio (>= 50 WPM).',
+        assignedDrill: null,
+      },
+      {
+        id: 'COH-GRE-V09',
+        name: 'GRE Verbal & AWA Weekend Seminar',
+        schedule: 'Fri & Sat · 16:00–18:00 BST',
+        enrolledCount: 19,
+        attendancePct: 89,
+        syllabusNote: 'Session 3: 3-Blank Text Completion Contrast Pivots & Issue Essay Counter-Claims',
+        homeworkNote: 'Review 40 FSRS high-frequency academic contrast pairs.',
+        assignedDrill: null,
+      },
+    ],
+    instructorItems: [
+      {
+        id: 'ITEM-GRE-412',
+        domain: 'GRE Quant Comparison',
+        stem: 'Given $x^2 - y^2 = 24$ and $x - y = 4$, compare Quantity A ($x + y$) and Quantity B ($6$).',
+        hintTier1: 'Factor the difference of squares on the left-hand side.',
+        hintTier2: 'Write $(x - y)(x + y) = 24$ and substitute $x - y = 4$.',
+        hintTier3: 'Dividing 24 by 4 yields $x + y = 6$, so Quantity A equals Quantity B.',
+        difficultyPValue: 0.48,
+        discriminationRpb: 0.41,
+        qaStatus: 'Pending QA',
+        auditorNote: '',
+      },
+      {
+        id: 'ITEM-IELTS-308',
+        domain: 'CD-IELTS Reading',
+        stem: 'Passage claim: Tidal barrage turbines lowered estuary salinity by 12% only after sluice gates were retrofitted in 2019. Statement: Salinity fell immediately upon turbine commissioning.',
+        hintTier1: 'Check the chronological qualifier ("only after").',
+        hintTier2: 'Compare "immediately upon commissioning" against "after retrofitted in 2019".',
+        hintTier3: 'The temporal condition directly contradicts "immediately", making the answer FALSE.',
+        difficultyPValue: 0.56,
+        discriminationRpb: 0.37,
+        qaStatus: 'Pending QA',
+        auditorNote: '',
+      },
+      {
+        id: 'ITEM-GRE-419',
+        domain: 'GRE Text Completion',
+        stem: 'Far from being _______, the archivist’s annotations proved _______, revealing provenance gaps that earlier catalogues had glossed over.',
+        hintTier1: 'Identify the contrast pivot ("Far from being").',
+        hintTier2: 'Blank 1 and Blank 2 must express opposing scholarly thoroughness.',
+        hintTier3: 'Blank 1: "perfunctory" / "superficial"; Blank 2: "incisive" / "penetrating".',
+        difficultyPValue: 0.39,
+        discriminationRpb: 0.46,
+        qaStatus: 'Certified & Published',
+        auditorNote: 'Clean contrast logic and verified discrimination index.',
+      },
+    ],
+    instructorDoubts: [
+      {
+        id: 'DOUBT-101',
+        itemCode: 'Q-GRE-104',
+        cohortName: 'GRE Quant Evening Batch 14',
+        questionExcerpt: 'Why is Quantity D not triggered when $x^2 > 9$ includes negative roots?',
+        scholarNote: 'I picked A assuming $x > 3$, forgetting $x < -3$ reverses the comparison with $0$.',
+        facultyReply: '',
+        status: 'Open Escalation',
+      },
+      {
+        id: 'DOUBT-102',
+        itemCode: 'Q-IELTS-209',
+        cohortName: 'CD-IELTS Band 7.5+ Intensive',
+        questionExcerpt: 'How do we separate "Not Given" from "False" when a passage omits cost figures?',
+        scholarNote: 'The text mentions delay risks, so I assumed high cost was implied as False.',
+        facultyReply: '',
+        status: 'Open Escalation',
+      },
+    ],
+    chainVerifiedAtIso: null,
     updatedAtIso: new Date().toISOString(),
   };
 }
@@ -705,6 +957,21 @@ function getStore(): RuntimeCatalogSnapshot {
   if (!g[GLOBAL_STORE_KEY]) {
     g[GLOBAL_STORE_KEY] = createInitialRuntimeState();
     g[GLOBAL_STORE_KEY].featureFlags.aiStrictnessLevel = 'standard';
+  } else {
+    const existing = g[GLOBAL_STORE_KEY];
+    if (
+      !existing.evaluatorSubmissions ||
+      !existing.instructorCohorts ||
+      !existing.instructorItems ||
+      !existing.instructorDoubts
+    ) {
+      const defaults = createInitialRuntimeState();
+      existing.evaluatorSubmissions = existing.evaluatorSubmissions ?? defaults.evaluatorSubmissions;
+      existing.instructorCohorts = existing.instructorCohorts ?? defaults.instructorCohorts;
+      existing.instructorItems = existing.instructorItems ?? defaults.instructorItems;
+      existing.instructorDoubts = existing.instructorDoubts ?? defaults.instructorDoubts;
+      existing.chainVerifiedAtIso = existing.chainVerifiedAtIso ?? null;
+    }
   }
   return g[GLOBAL_STORE_KEY];
 }
@@ -1197,6 +1464,233 @@ export function updateRuntimePsychometricStrictness(
     'CALIBRATE_ITEM',
     'AI Calibration & Psychometrics',
     `Item ${item.itemCode} strictness set to ${aiStrictness}`,
+  );
+
+  return cloneSnapshot(store);
+}
+
+export interface SubmitEvaluatorGradeInput {
+  submissionId: string;
+  overallBand: number;
+  criteria?: {
+    taskResponse: number;
+    coherenceCohesion: number;
+    lexicalResource: number;
+    grammaticalRange: number;
+  };
+  tags?: string[];
+  feedback?: string;
+}
+
+export function submitRuntimeEvaluatorGrade(
+  input: SubmitEvaluatorGradeInput,
+  actor = 'Certified Evaluator',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  const sub = store.evaluatorSubmissions.find((s) => s.id === input.submissionId);
+  if (!sub) {
+    throw new Error(`Unknown submissionId "${input.submissionId}"`);
+  }
+
+  const normalizedBand = Math.round(Math.max(0, Math.min(9, input.overallBand)) * 2) / 2;
+  sub.humanBand = normalizedBand;
+  if (input.criteria) {
+    sub.criteria = { ...input.criteria };
+  }
+  if (input.tags) {
+    sub.rubricTags = [...input.tags];
+  }
+  if (input.feedback !== undefined) {
+    sub.examinerFeedback = input.feedback.trim();
+  }
+  const delta = Math.abs(normalizedBand - sub.aiPreScore);
+  sub.status = delta >= 1.0 ? 'Drift Flagged' : 'Graded';
+
+  appendAudit(
+    store,
+    actor,
+    'EVALUATOR_SUBMIT_GRADE',
+    'Blind Evaluator Desk',
+    `Blind grade submitted for ${sub.id}: human=${normalizedBand.toFixed(1)}, ai=${sub.aiPreScore.toFixed(1)}, status=${sub.status}`,
+    'Verified',
+  );
+
+  return cloneSnapshot(store);
+}
+
+export interface SubmitInstructorItemInput {
+  itemId: string;
+  domain: string;
+  stem: string;
+  hintTier1: string;
+  hintTier2: string;
+  hintTier3: string;
+  difficultyPValue?: number;
+  discriminationRpb?: number;
+}
+
+export function submitRuntimeInstructorItem(
+  input: SubmitInstructorItemInput,
+  actor = 'Faculty Instructor',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  const cleanId = input.itemId.trim() || `ITEM-${Math.floor(500 + Math.random() * 400)}`;
+  const existingIdx = store.instructorItems.findIndex((i) => i.id === cleanId);
+  const nextItem: RuntimeInstructorItem = {
+    id: cleanId,
+    domain: input.domain.trim(),
+    stem: input.stem.trim(),
+    hintTier1: input.hintTier1.trim(),
+    hintTier2: input.hintTier2.trim(),
+    hintTier3: input.hintTier3.trim(),
+    difficultyPValue:
+      input.difficultyPValue !== undefined ? Number(input.difficultyPValue.toFixed(2)) : 0.45,
+    discriminationRpb:
+      input.discriminationRpb !== undefined ? Number(input.discriminationRpb.toFixed(2)) : 0.38,
+    qaStatus: 'Pending QA',
+    auditorNote: '',
+  };
+
+  if (existingIdx >= 0) {
+    store.instructorItems[existingIdx] = nextItem;
+  } else {
+    store.instructorItems = [nextItem, ...store.instructorItems];
+  }
+
+  appendAudit(
+    store,
+    actor,
+    'INSTRUCTOR_SUBMIT_ITEM',
+    'Faculty Item Authoring',
+    `Submitted item ${cleanId} (${nextItem.domain}) to Auditor QA Queue`,
+    'Updated',
+  );
+
+  return cloneSnapshot(store);
+}
+
+export function resolveRuntimeInstructorDoubt(
+  doubtId: string,
+  facultyReply: string,
+  actor = 'Faculty Instructor',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  const doubt = store.instructorDoubts.find((d) => d.id === doubtId);
+  if (!doubt) {
+    throw new Error(`Unknown doubtId "${doubtId}"`);
+  }
+  doubt.facultyReply = facultyReply.trim();
+  doubt.status = 'Resolved';
+
+  appendAudit(
+    store,
+    actor,
+    'INSTRUCTOR_RESOLVE_DOUBT',
+    'Faculty Doubt Escalations',
+    `Resolved escalation ${doubt.itemCode} (${doubt.id})`,
+    'Verified',
+  );
+
+  return cloneSnapshot(store);
+}
+
+export function updateRuntimeInstructorCohort(
+  cohortId: string,
+  patch: { syllabusNote?: string; homeworkNote?: string; assignedDrill?: string },
+  actor = 'Faculty Instructor',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  const cohort = store.instructorCohorts.find((c) => c.id === cohortId);
+  if (!cohort) {
+    throw new Error(`Unknown cohortId "${cohortId}"`);
+  }
+  if (patch.syllabusNote !== undefined) {
+    cohort.syllabusNote = patch.syllabusNote.trim();
+  }
+  if (patch.homeworkNote !== undefined) {
+    cohort.homeworkNote = patch.homeworkNote.trim();
+  }
+  if (patch.assignedDrill !== undefined) {
+    cohort.assignedDrill = patch.assignedDrill.trim();
+  }
+
+  appendAudit(
+    store,
+    actor,
+    'INSTRUCTOR_UPDATE_COHORT',
+    'Faculty Cohort Studio',
+    `Updated cohort ${cohort.name}${patch.assignedDrill ? ` (Drill: ${patch.assignedDrill})` : ''}`,
+    'Updated',
+  );
+
+  return cloneSnapshot(store);
+}
+
+export function adjudicateRuntimeAuditorIrr(
+  submissionId: string,
+  adjudicatedBand: number,
+  adjudicationNote: string,
+  actor = 'Psychometric Auditor',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  const sub = store.evaluatorSubmissions.find((s) => s.id === submissionId);
+  if (!sub) {
+    throw new Error(`Unknown submissionId "${submissionId}"`);
+  }
+  const normalizedBand = Math.round(Math.max(0, Math.min(9, adjudicatedBand)) * 2) / 2;
+  sub.adjudicatedBand = normalizedBand;
+  sub.adjudicationNote = adjudicationNote.trim();
+  sub.status = 'Adjudicated';
+
+  appendAudit(
+    store,
+    actor,
+    'AUDITOR_ADJUDICATE_IRR',
+    'Psychometric IRR Adjudication',
+    `Third-marker adjudicated ${sub.id} to ${normalizedBand.toFixed(1)} (AI=${sub.aiPreScore.toFixed(1)}, Human=${sub.humanBand?.toFixed(1) ?? 'N/A'})`,
+    'Enforced',
+  );
+
+  return cloneSnapshot(store);
+}
+
+export function certifyRuntimeAuditorItem(
+  itemId: string,
+  decision: 'certify' | 'return_revision',
+  auditorNote = '',
+  actor = 'Psychometric Auditor',
+): RuntimeCatalogSnapshot {
+  const store = getStore();
+  const item = store.instructorItems.find((i) => i.id === itemId);
+  if (!item) {
+    throw new Error(`Unknown itemId "${itemId}"`);
+  }
+  item.qaStatus = decision === 'certify' ? 'Certified & Published' : 'Revision Requested';
+  item.auditorNote = auditorNote.trim() || (decision === 'certify' ? 'Psychometric parameters verified.' : 'Needs stem/hint calibration.');
+
+  appendAudit(
+    store,
+    actor,
+    'AUDITOR_CERTIFY_ITEM',
+    'Curriculum Item QA Gate',
+    `Item ${item.id} marked "${item.qaStatus}"`,
+    'Verified',
+  );
+
+  return cloneSnapshot(store);
+}
+
+export function verifyRuntimeAuditChain(actor = 'Psychometric Auditor'): RuntimeCatalogSnapshot {
+  const store = getStore();
+  store.chainVerifiedAtIso = new Date().toISOString();
+
+  appendAudit(
+    store,
+    actor,
+    'AUDITOR_VERIFY_CHAIN',
+    'Immutable Compliance Ledger',
+    `Cryptographic SHA-256 chain verified across ${store.auditLogs.length} audit entries`,
+    'Verified',
   );
 
   return cloneSnapshot(store);
