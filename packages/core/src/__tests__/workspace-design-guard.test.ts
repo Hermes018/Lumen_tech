@@ -1,7 +1,9 @@
 /** @purpose Unit tests for deterministic math formatter, Scholar vs. Admin PII masking & role isolation, and [workspace-guard] layout invariants (BATCH P27) */
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { MEDIA_MANIFEST } from '../../../../apps/web/src/content/media';
 import { formatMathText } from '../../../../apps/web/src/lib/format-math';
 import {
   ROLE_COOKIE_NAME,
@@ -534,5 +536,133 @@ describe('P33 5-Role Enterprise RBAC & Workforce Portals (/evaluator, /instructo
     expect(auditorPage).toContain('AUDITOR_ADJUDICATE_IRR');
     expect(auditorPage).toContain('AUDITOR_CERTIFY_ITEM');
     expect(auditorPage).toContain('AUDITOR_VERIFY_CHAIN');
+  });
+});
+
+describe('P34 Final Release Gate: 5-Role RBAC, WorkspaceDataTable, Evaluator Zero-PII & 24 Unique WebP Assets', () => {
+  it('enforces strict ROLE_PERMISSION_MATRIX and canRolePerformAction across all 5 roles', () => {
+    const roles = ['scholar', 'evaluator', 'instructor', 'auditor', 'admin'] as const;
+    expect(Object.keys(ROLE_PERMISSION_MATRIX).sort()).toEqual([...roles].sort());
+    expect(ROLE_PERMISSION_MATRIX.admin).toContain('UPDATE_PLAN');
+    expect(ROLE_PERMISSION_MATRIX.admin).toContain('PII_REVEAL');
+    expect(ROLE_PERMISSION_MATRIX.admin).toContain('EVALUATOR_SUBMIT_GRADE');
+    expect(ROLE_PERMISSION_MATRIX.admin).toContain('INSTRUCTOR_SUBMIT_ITEM');
+    expect(ROLE_PERMISSION_MATRIX.admin).toContain('AUDITOR_ADJUDICATE_IRR');
+
+    const privilegedActions = [
+      'UPDATE_PLAN',
+      'ORDER_ACTION',
+      'PII_REVEAL',
+      'EVALUATOR_SUBMIT_GRADE',
+      'INSTRUCTOR_SUBMIT_ITEM',
+      'AUDITOR_ADJUDICATE_IRR',
+      'AUDITOR_CERTIFY_ITEM',
+      'AUDITOR_VERIFY_CHAIN',
+    ];
+
+    for (const action of privilegedActions) {
+      expect(canRolePerformAction('scholar', action)).toBe(false);
+    }
+    expect(canRolePerformAction('scholar', 'SCHOLAR_REQUEST_REFUND')).toBe(true);
+
+    expect(canRolePerformAction('evaluator', 'INSTRUCTOR_SUBMIT_ITEM')).toBe(false);
+    expect(canRolePerformAction('evaluator', 'AUDITOR_VERIFY_CHAIN')).toBe(false);
+    expect(canRolePerformAction('evaluator', 'PII_REVEAL')).toBe(false);
+
+    expect(canRolePerformAction('instructor', 'EVALUATOR_SUBMIT_GRADE')).toBe(false);
+    expect(canRolePerformAction('instructor', 'AUDITOR_CERTIFY_ITEM')).toBe(false);
+    expect(canRolePerformAction('instructor', 'PII_REVEAL')).toBe(false);
+
+    expect(canRolePerformAction('auditor', 'EVALUATOR_SUBMIT_GRADE')).toBe(false);
+    expect(canRolePerformAction('auditor', 'INSTRUCTOR_RESOLVE_DOUBT')).toBe(false);
+    expect(canRolePerformAction('auditor', 'PII_REVEAL')).toBe(false);
+  });
+
+  it('isolates all 5 role portals cleanly via resolveRoleRedirect across English and Bangla routes', () => {
+    const roles = ['scholar', 'evaluator', 'instructor', 'auditor', 'admin'] as const;
+    for (const actorRole of roles) {
+      for (const targetRole of roles) {
+        const targetPath = ROLE_HOME_PATHS[targetRole];
+        const expected = actorRole === targetRole ? null : ROLE_HOME_PATHS[actorRole];
+        expect(resolveRoleRedirect(actorRole, targetPath)).toBe(expected);
+        expect(resolveRoleRedirect(actorRole, `/bn${targetPath}`)).toBe(
+          expected ? `/bn${expected}` : null,
+        );
+      }
+      expect(resolveRoleRedirect(actorRole, '/app/admin')).toBe(ROLE_HOME_PATHS[actorRole]);
+      expect(resolveRoleRedirect(actorRole, '/bn/app/admin')).toBe(
+        `/bn${ROLE_HOME_PATHS[actorRole]}`,
+      );
+    }
+  });
+
+  it('verifies <WorkspaceDataTable> is composed across /admin, /evaluator, /instructor, /auditor, and /app/*', () => {
+    const DATA_TABLE_FILES = [
+      'apps/web/app/[locale]/(admin)/admin/page.tsx',
+      'apps/web/app/[locale]/(evaluator)/evaluator/page.tsx',
+      'apps/web/app/[locale]/(instructor)/instructor/page.tsx',
+      'apps/web/app/[locale]/(auditor)/auditor/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/gre/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/ielts/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/plan/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/mistakes/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/progress/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/vocab/page.tsx',
+      'apps/web/app/[locale]/(learner)/app/billing/page.tsx',
+      'apps/web/src/components/typing/TypingPracticeEngine.tsx',
+    ];
+
+    for (const rel of DATA_TABLE_FILES) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content, `${rel} must use <WorkspaceDataTable>`).toContain('<WorkspaceDataTable');
+    }
+  });
+
+  it('verifies /evaluator layout and page contain zero student PII and enforce blind submission hashes', () => {
+    const evaluatorFiles = [
+      'apps/web/app/[locale]/(evaluator)/layout.tsx',
+      'apps/web/app/[locale]/(evaluator)/evaluator/page.tsx',
+    ];
+
+    for (const rel of evaluatorFiles) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content).not.toMatch(/\b[a-z0-9._%+-]+@lumen\.academy\b/i);
+      expect(content).not.toMatch(/\+8801\d{9}/);
+      expect(content).not.toContain('scholarEmail');
+      expect(content).not.toContain('scholarPhone');
+      expect(content).not.toContain('studentName');
+      expect(content).not.toContain('ADMIN_PII_REVEAL');
+      expect(content).not.toContain('maskEmailForAdmin');
+      expect(content).not.toContain('maskPhoneForAdmin');
+      expect(content).not.toContain('Unmask Contact');
+    }
+
+    const evaluatorPage = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/app/[locale]/(evaluator)/evaluator/page.tsx'),
+      'utf8',
+    );
+    expect(evaluatorPage).toContain('Zero-PII');
+    expect(evaluatorPage).toContain('SUB-8492');
+  });
+
+  it('verifies all 24 .webp assets in MEDIA_MANIFEST exist on disk with unique SHA-256 hashes', () => {
+    const entries = Object.entries(MEDIA_MANIFEST);
+    expect(entries.length).toBe(24);
+
+    const hashes = new Set<string>();
+    const webPublicRoot = path.join(REPO_ROOT, 'apps/web/public');
+
+    for (const [slot, entry] of entries) {
+      expect(entry.src).toBe(`/images/${slot}.webp`);
+      const filePath = path.join(webPublicRoot, entry.src);
+      expect(fs.existsSync(filePath), `Missing WebP asset for ${slot}`).toBe(true);
+      const buf = fs.readFileSync(filePath);
+      const maxBytes = slot.startsWith('hero-') || slot.startsWith('split-') ? 120 * 1024 : 60 * 1024;
+      expect(buf.byteLength).toBeLessThanOrEqual(maxBytes);
+      hashes.add(crypto.createHash('sha256').update(buf).digest('hex'));
+    }
+
+    expect(hashes.size).toBe(24);
   });
 });

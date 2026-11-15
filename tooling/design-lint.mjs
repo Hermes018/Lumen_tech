@@ -251,10 +251,19 @@ for (const rel of LINK_GUARD_FILES) {
   }
 }
 
-if (!routeExists('/admin')) {
-  errors.push('[link-guard] Missing required dedicated /admin route');
-} else {
-  verifiedRoutes.add('/admin');
+for (const requiredRoute of [
+  '/app/typing',
+  '/tools/ielts-typing-test',
+  '/evaluator',
+  '/instructor',
+  '/auditor',
+  '/admin',
+]) {
+  if (!routeExists(requiredRoute)) {
+    errors.push(`[link-guard] Missing required dedicated ${requiredRoute} route`);
+  } else {
+    verifiedRoutes.add(requiredRoute);
+  }
 }
 
 // 6. Local Self-Hosted Media Asset Guard
