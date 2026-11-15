@@ -49,6 +49,10 @@ const securityHeaders = [
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(self), geolocation=(), browsing-topics=()',
   },
+  {
+    key: 'X-Permitted-Cross-Domain-Policies',
+    value: 'none',
+  },
 ];
 
 const nextConfig: NextConfig = {

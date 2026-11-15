@@ -67,7 +67,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
     setSelectedProduct(initialProduct);
   }, [initialProduct]);
 
-  const splitPayEligible = selectedProduct.prices.BD >= 200000;
+  const splitPayEligible = selectedProduct.prices.BD >= 499000;
   const [schedule, setSchedule] = useState<ScheduleId>('full');
   React.useEffect(() => {
     if (!splitPayEligible && schedule !== 'full') {
@@ -91,6 +91,9 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
   const [demoReceipt, setDemoReceipt] = useState<{
     orderCode: string;
     activatedAt: string;
+    verificationBadge: string;
+    signatureDigest?: string;
+    verifiedTotalBdt?: number;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -119,6 +122,62 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
           ]
         : [];
 
+  const createIdempotencyKey = (): string => {
+    const rand = Math.random().toString(36).slice(2, 12).padEnd(10, '0');
+    return `lmn_${Date.now().toString(36)}_${rand}`;
+  };
+
+  const verifyCheckoutWithCanonicalLedger = async (
+    effectiveName: string,
+    effectiveEmail: string,
+  ): Promise<{
+    receiptId: string;
+    signature: string;
+    verificationBadge: string;
+    totalBdt: number;
+  }> => {
+    const splitParts: 1 | 2 | 3 =
+      schedule === 'split-2' ? 2 : schedule === 'split-3' ? 3 : 1;
+
+    const response = await fetch('/api/checkout/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        planId: selectedProduct.slug,
+        splitParts,
+        clientSubmittedTotalBdt: Math.round(totalMinor / 100),
+        paymentMethod,
+        idempotencyKey: createIdempotencyKey(),
+        timestampMs: Date.now(),
+        customerName: effectiveName,
+        customerEmail: effectiveEmail,
+        returnPath: '/app',
+      }),
+    });
+
+    const data = (await response.json()) as {
+      verified?: boolean;
+      receiptId?: string;
+      signature?: string;
+      verificationBadge?: string;
+      canonicalOrder?: { totalBdt: number };
+      error?: string;
+      message?: string;
+    };
+
+    if (!response.ok || !data.verified || !data.receiptId) {
+      throw new Error(data.message || data.error || 'Canonical price verification failed');
+    }
+
+    return {
+      receiptId: data.receiptId,
+      signature: data.signature ?? '',
+      verificationBadge:
+        data.verificationBadge ?? 'PCI-DSS SAQ-A & HMAC-SHA256 Price-Lock Verified',
+      totalBdt: data.canonicalOrder?.totalBdt ?? Math.round(totalMinor / 100),
+    };
+  };
+
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -131,13 +190,18 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
     startTransition(async () => {
       try {
         if (paymentMethod !== 'manual') {
+          const verified = await verifyCheckoutWithCanonicalLedger(effectiveName, effectiveEmail);
+
           if (isGuest) {
             setDemoReceipt({
-              orderCode: `LMN-${selectedProduct.slug.toUpperCase().slice(0, 4)}-6309`,
+              orderCode: verified.receiptId,
               activatedAt: new Date().toLocaleTimeString(isBn ? 'bn-BD' : 'en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
               }),
+              verificationBadge: verified.verificationBadge,
+              signatureDigest: verified.signature.slice(0, 16),
+              verifiedTotalBdt: verified.totalBdt,
             });
             return;
           }
@@ -205,12 +269,31 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
 
   const handleDemoActivation = () => {
     setErrorMsg(null);
-    setDemoReceipt({
-      orderCode: `LMN-${selectedProduct.slug.toUpperCase().slice(0, 4)}-6309`,
-      activatedAt: new Date().toLocaleTimeString(isBn ? 'bn-BD' : 'en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }),
+    const effectiveName = name.trim() || 'Guest Scholar';
+    const effectiveEmail = email.trim() || 'guest@lumen.demo';
+
+    startTransition(async () => {
+      try {
+        const verified = await verifyCheckoutWithCanonicalLedger(effectiveName, effectiveEmail);
+        setDemoReceipt({
+          orderCode: verified.receiptId,
+          activatedAt: new Date().toLocaleTimeString(isBn ? 'bn-BD' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          verificationBadge: verified.verificationBadge,
+          signatureDigest: verified.signature.slice(0, 16),
+          verifiedTotalBdt: verified.totalBdt,
+        });
+      } catch (err) {
+        setErrorMsg(
+          err instanceof Error
+            ? err.message
+            : isBn
+              ? 'ক্যানোনিকাল প্রাইস যাচাই ব্যর্থ হয়েছে'
+              : 'Canonical price verification failed',
+        );
+      }
     });
   };
 
@@ -398,7 +481,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                 </span>
                 {!splitPayEligible && (
                   <span className="text-xs text-[var(--text)]">
-                    {isBn ? '৳২,০০০+ প্ল্যানে ০% কিস্তি প্রযোজ্য' : '0% Split-Pay available on plans ≥ ৳2,000'}
+                    {isBn ? '৳৪,৯৯০+ প্ল্যানে ০% কিস্তি প্রযোজ্য' : '0% Split-Pay available on plans ≥ ৳4,990'}
                   </span>
                 )}
               </div>
@@ -793,6 +876,15 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               <div className="flex items-center justify-between font-bold text-emerald-900">
                 <span>{isBn ? 'ডেমো এনটাইটেলমেন্ট সক্রিয়' : 'Demo Entitlement Active'}</span>
                 <span className="font-mono">{demoReceipt.orderCode}</span>
+              </div>
+              <div className="flex items-center gap-1.5 rounded-[4px] border border-emerald-700/30 bg-[var(--surface-paper)] px-2.5 py-1.5 font-mono text-[11px] font-semibold text-emerald-900">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+                <span>{demoReceipt.verificationBadge}</span>
+                {demoReceipt.signatureDigest && (
+                  <span className="ml-auto text-[10px] text-[var(--text)]">
+                    sig:{demoReceipt.signatureDigest}
+                  </span>
+                )}
               </div>
               <p className="text-[var(--text)]">
                 {isBn
