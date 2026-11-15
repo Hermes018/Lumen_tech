@@ -87,7 +87,7 @@ export default async function GrePage({
       <Section tone="white">
         <StatRow stats={content.stats} />
       </Section>
-      <Section tone="white">
+      <Section tone="white" id="overview">
         <SideHeadingBlocks
           title={content.overview.title}
           intro={content.overview.intro}
@@ -97,10 +97,10 @@ export default async function GrePage({
           blocks={content.overview.blocks}
         />
       </Section>
-      <Section tone="tint">
-        <Tabs title={content.tabsTitle} tabs={tabs} />
+      <Section tone="tint" id="structure-scoring">
+        <Tabs id="sample" title={content.tabsTitle} tabs={tabs} />
       </Section>
-      <Section tone="white">
+      <Section tone="white" id="question-families">
         <MediaColumns
           title={content.sections.title}
           intro={content.sections.intro}
@@ -109,7 +109,7 @@ export default async function GrePage({
           items={content.sections.items}
         />
       </Section>
-      <Section tone="white">
+      <Section tone="white" id="awa-rubric">
         <EditorialQuote
           quote={content.editorialQuote.quote}
           attribution={content.editorialQuote.attribution}
@@ -117,7 +117,7 @@ export default async function GrePage({
         />
       </Section>
       {content.splitFeatures.map((feature, idx) => (
-        <Section key={feature.title} tone={idx % 2 === 0 ? 'tint' : 'white'}>
+        <Section key={feature.title} id={idx === 0 ? 'vocab' : undefined} tone={idx % 2 === 0 ? 'tint' : 'white'}>
           <SplitFeature
             photoSlot={feature.photoSlot}
             photoSide={feature.photoSide}

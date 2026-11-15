@@ -83,7 +83,7 @@ export default async function IeltsPage({
       <Section tone="white">
         <StatRow stats={content.stats} />
       </Section>
-      <Section tone="white">
+      <Section tone="white" id="overview">
         <SideHeadingBlocks
           title={content.overview.title}
           intro={content.overview.intro}
@@ -93,10 +93,10 @@ export default async function IeltsPage({
           blocks={content.overview.blocks}
         />
       </Section>
-      <Section tone="tint">
+      <Section tone="tint" id="academic-vs-gt">
         <Tabs title={content.tabsTitle} tabs={tabs} />
       </Section>
-      <Section tone="white">
+      <Section tone="white" id="paper-breakdown">
         <MediaColumns
           title={content.skills.title}
           intro={content.skills.intro}
@@ -113,7 +113,7 @@ export default async function IeltsPage({
         />
       </Section>
       {content.splitFeatures.map((feature, idx) => (
-        <Section key={feature.title} tone={idx % 2 === 0 ? 'tint' : 'white'}>
+        <Section key={feature.title} id={idx === 0 ? 'skill-workbenches' : undefined} tone={idx % 2 === 0 ? 'tint' : 'white'}>
           <SplitFeature
             photoSlot={feature.photoSlot}
             photoSide={feature.photoSide}

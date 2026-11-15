@@ -59,7 +59,7 @@ export default async function PricingPage({
         photoSlot={content.hero.photoSlot}
         locale={locale}
       />
-      <Section tone="white">
+      <Section tone="white" id="mock-passes">
         <CalloutNotice title={content.notice.title} body={content.notice.body} locale={locale} />
         <PricingSwitcherSection
           locale={locale}

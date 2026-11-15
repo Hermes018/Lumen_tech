@@ -75,7 +75,7 @@ const SECTION_TONE_CLASSES: Record<NonNullable<SectionProps['tone']>, string> = 
 
 export function Section({ tone = 'white', id, children }: SectionProps) {
   return (
-    <section id={id} className={`${SECTION_TONE_CLASSES[tone]} py-14 md:py-20 lg:py-28`}>
+    <section id={id} className={`${SECTION_TONE_CLASSES[tone]} scroll-mt-24 py-14 md:py-20 lg:py-28`}>
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">{children}</div>
     </section>
   );
@@ -476,6 +476,7 @@ export interface MediaColumnsItem {
 }
 
 export interface MediaColumnsProps {
+  id?: string;
   title: string;
   intro?: string;
   columns: 2 | 3 | 4;
@@ -496,9 +497,9 @@ const ACCENT_BAR_CLASSES: Record<string, string> = {
   accent: 'bg-[var(--accent)]',
 };
 
-export function MediaColumns({ title, intro, columns, locale, items }: MediaColumnsProps) {
+export function MediaColumns({ id, title, intro, columns, locale, items }: MediaColumnsProps) {
   return (
-    <div className="space-y-10">
+    <div id={id} className="scroll-mt-24 space-y-10">
       <div className="max-w-3xl space-y-3">
         <Heading level={2}>{title}</Heading>
         {intro ? <p className="lumen-body">{intro}</p> : null}
@@ -569,6 +570,7 @@ export function MediaColumns({ title, intro, columns, locale, items }: MediaColu
 export type SplitBackdrop = 'orange' | 'crimson' | 'espresso' | 'cobalt' | 'amber';
 
 export interface SplitFeatureProps {
+  id?: string;
   photoSlot: MediaSlotId;
   photoSide?: 'left' | 'right';
   backdrop?: SplitBackdrop;
@@ -588,6 +590,7 @@ const SPLIT_BACKDROP_CLASSES: Record<SplitBackdrop, string> = {
 };
 
 export function SplitFeature({
+  id,
   photoSlot,
   photoSide = 'left',
   backdrop,
@@ -604,7 +607,7 @@ export function SplitFeature({
   const slabSide = photoSide === 'right' ? 'right-0' : 'left-0';
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+    <div id={id} className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
       <div className={`lg:col-span-6 ${imageOrder}`}>
         <div className={`relative py-6 md:py-10 ${containerPad}`}>
           <div
@@ -636,6 +639,7 @@ export function SplitFeature({
 export type SideHeadingIcon = 'calendar' | 'currency' | 'location' | 'shield' | 'clock' | 'check';
 
 export interface SideHeadingBlocksProps {
+  id?: string;
   title: string;
   intro: string;
   ctaLabel?: string;
@@ -669,6 +673,7 @@ function renderSideIcon(icon: SideHeadingIcon) {
 }
 
 export function SideHeadingBlocks({
+  id,
   title,
   intro,
   ctaLabel,
@@ -677,7 +682,7 @@ export function SideHeadingBlocks({
   blocks,
 }: SideHeadingBlocksProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+    <div id={id} className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
       <div className="lg:col-span-4 space-y-4">
         <Heading level={2}>{title}</Heading>
         <p className="lumen-body text-sm">{intro}</p>
@@ -716,13 +721,14 @@ export function SideHeadingBlocks({
 
 /* 13. Disclosure */
 export interface DisclosureProps {
+  id?: string;
   summary: string;
   children: ReactNode;
 }
 
-export function Disclosure({ summary, children }: DisclosureProps) {
+export function Disclosure({ id, summary, children }: DisclosureProps) {
   return (
-    <details className="lumen-disclosure group border-b border-[var(--hairline)] py-4">
+    <details id={id} className="scroll-mt-24 lumen-disclosure group border-b border-[var(--hairline)] py-4">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-[var(--brand-ink)] min-h-[44px]">
         <span>{summary}</span>
         <span aria-hidden="true" className="text-xl font-bold text-[var(--brand)] shrink-0">
@@ -792,12 +798,13 @@ export function TabSectionPanel({
 }
 
 export interface TabsProps {
+  id?: string;
   title?: string;
   intro?: string;
   tabs: Array<{ id: string; label: string; content: ReactNode }>;
 }
 
-export function Tabs({ title, intro, tabs }: TabsProps) {
+export function Tabs({ id, title, intro, tabs }: TabsProps) {
   const baseId = useId();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -823,7 +830,7 @@ export function Tabs({ title, intro, tabs }: TabsProps) {
   }
 
   return (
-    <div className="space-y-8">
+    <div id={id} className="scroll-mt-24 space-y-8">
       {title ? (
         <div className="max-w-3xl space-y-3">
           <Heading level={2}>{title}</Heading>
@@ -832,7 +839,7 @@ export function Tabs({ title, intro, tabs }: TabsProps) {
       ) : null}
 
       <div>
-        <div role="tablist" className="flex flex-wrap border-b border-[var(--hairline)] gap-2">
+        <div role="tablist" className="flex flex-wrap border-b border-[var(--hairline)] gap-2 mb-10">
           {tabs.map((tab, idx) => {
             const selected = idx === safeIndex;
             return (
@@ -891,7 +898,7 @@ export function CalloutNotice({
   locale,
 }: CalloutNoticeProps) {
   return (
-    <div className="bg-[var(--bg-tint)] p-6 md:p-8 max-w-4xl space-y-2">
+    <div className="bg-[var(--bg-tint)] p-6 md:p-8 mb-8 md:mb-10 max-w-4xl space-y-2">
       <h3 className="lumen-h3">{title}</h3>
       <p className="lumen-body text-sm">{body}</p>
       {linkLabel && linkHref ? (
@@ -1025,11 +1032,10 @@ function PricingPlanGrid({
 }) {
   const isBn = locale === 'bn';
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10 pt-2">
       {plans.map((plan) => (
-        <div key={plan.id} className="flex flex-col justify-between">
+        <div key={plan.id} className="pt-6 border-t-2 border-[var(--brand)] flex flex-col justify-between">
           <div>
-            <div className="h-[3px] w-full bg-[var(--brand)] mb-4" aria-hidden="true" />
             <h3 className="text-xl font-bold text-[var(--brand-ink)]">{plan.title}</h3>
             <p className="mt-2">
               <span className="text-2xl font-bold text-[var(--brand)]">
@@ -1126,7 +1132,7 @@ export function PricingSwitcherSection({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hairline)] pb-4">
+      <div className="mt-6 mb-10 p-5 md:p-6 bg-[var(--bg-warm)] border border-[var(--hairline)] rounded-[4px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <p className="text-sm font-bold text-[var(--brand-ink)]">
             {isBn ? 'বিলিং অঞ্চল ও মুদ্রা নির্বাচন করুন' : 'Billing Region & Currency'}
@@ -1232,17 +1238,22 @@ const EDITORIAL_QUOTE_TONE_CLASSES: Record<NonNullable<EditorialQuoteProps['tone
 
 export function EditorialQuote({ quote, attribution, tone = 'crimson' }: EditorialQuoteProps) {
   return (
-    <figure className="max-w-[760px] mx-auto flex items-stretch gap-6">
-      <div
-        aria-hidden="true"
-        className={`w-[3px] shrink-0 ${EDITORIAL_QUOTE_TONE_CLASSES[tone]}`}
-      />
-      <div className="space-y-3 py-1">
+    <figure className="w-full border-y border-[var(--hairline)] py-8 md:py-10 my-2 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex items-stretch gap-5 max-w-[78ch]">
+        <div
+          aria-hidden="true"
+          className={`w-[4px] shrink-0 ${EDITORIAL_QUOTE_TONE_CLASSES[tone]}`}
+        />
         <blockquote className="text-xl md:text-2xl font-bold leading-snug text-[var(--brand-deep)]">
           {quote}
         </blockquote>
-        <figcaption className="text-sm text-[var(--text-muted)]">{attribution}</figcaption>
       </div>
+      <figcaption className="shrink-0 md:text-right border-t md:border-t-0 md:border-l border-[var(--hairline)] pt-4 md:pt-0 md:pl-8 flex flex-col justify-center">
+        <span className="text-sm font-semibold text-[var(--brand-deep)]">{attribution}</span>
+        <span className="text-xs text-[var(--text-muted)] mt-1">
+          Verified Exam Structure &amp; Scoring Standard
+        </span>
+      </figcaption>
     </figure>
   );
 }

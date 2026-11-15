@@ -775,3 +775,81 @@ describe('Phase 6 Release Gate: Audio Engine, Universal PDF/XLSX/CSV Exports & T
     expect(ROLE_PERMISSION_MATRIX.admin).toContain('RECORD_LEDGER_ENTRY');
   });
 });
+
+describe('P40 EditorialQuote Alignment, Unique Nav Links & Legal Hub De-Slop', () => {
+  it('verifies all 4 legal routes, index, and layout contain zero AI-slop classes or eyebrows', () => {
+    const legalFiles = [
+      'apps/web/app/[locale]/(marketing)/legal/layout.tsx',
+      'apps/web/app/[locale]/(marketing)/legal/_components/LegalChrome.tsx',
+      'apps/web/app/[locale]/(marketing)/legal/page.tsx',
+      'apps/web/app/[locale]/(marketing)/legal/terms/page.tsx',
+      'apps/web/app/[locale]/(marketing)/legal/privacy/page.tsx',
+      'apps/web/app/[locale]/(marketing)/legal/refund-policy/page.tsx',
+      'apps/web/app/[locale]/(marketing)/legal/grievance/page.tsx',
+    ];
+
+    for (const rel of legalFiles) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8');
+      expect(content, `${rel} must not use rounded-full/2xl/3xl`).not.toMatch(
+        /\brounded-(?:full|xl|2xl|3xl)\b/,
+      );
+      expect(content, `${rel} must not use bg-blue- or text-indigo-`).not.toMatch(
+        /\b(?:bg-blue-|text-indigo-|bg-indigo-|bg-amber-|bg-rose-|bg-slate-)\b/,
+      );
+      expect(content, `${rel} must not use COMPLIANCE & LEGAL TRUST CENTER eyebrow`).not.toMatch(
+        /COMPLIANCE & LEGAL TRUST CENTER/i,
+      );
+    }
+  });
+
+  it('verifies nav.ts contains zero duplicate href values within any mega-menu rail or panel', () => {
+    const navContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/src/content/nav.ts'),
+      'utf8',
+    );
+    const extractBlock = (src: string, startMarker: string, endMarker: string | null) => {
+      const start = src.indexOf(startMarker);
+      if (start === -1) return '';
+      const end = endMarker ? src.indexOf(endMarker, start + startMarker.length) : src.length;
+      return end === -1 ? src.slice(start) : src.slice(start, end);
+    };
+    const assertUniqueHrefs = (label: string, block: string) => {
+      const hrefs = Array.from(block.matchAll(/href:\s*'([^']+)'/g), (m) => m[1]);
+      expect(hrefs.length, `${label} must have links`).toBeGreaterThan(0);
+      expect(new Set(hrefs).size, `${label} has duplicate hrefs: ${hrefs.join(', ')}`).toBe(
+        hrefs.length,
+      );
+    };
+
+    for (const [loc, startKey, endKey] of [
+      ['en', '  en: {', '  bn: {'],
+      ['bn', '  bn: {', null],
+    ] as const) {
+      const locBlock = extractBlock(navContent, startKey, endKey);
+      const greIeltsBlock = extractBlock(locBlock, 'megaGreIelts:', 'megaCourses:');
+      for (const railId of ['gre-general', 'ielts-academic', 'ielts-gt', 'which-exam']) {
+        const railStart = greIeltsBlock.indexOf(`id: '${railId}'`);
+        const nextRail = greIeltsBlock.indexOf('id: ', railStart + 10);
+        const railSlice =
+          nextRail === -1 ? greIeltsBlock.slice(railStart) : greIeltsBlock.slice(railStart, nextRail);
+        assertUniqueHrefs(`${loc}.megaGreIelts.${railId}`, extractBlock(railSlice, 'links:', '],'));
+      }
+      const coursesBlock = extractBlock(locBlock, 'megaCourses:', 'megaPractice:');
+      assertUniqueHrefs(`${loc}.megaCourses`, extractBlock(coursesBlock, 'col2Links:', 'ribbonCta:'));
+      assertUniqueHrefs(`${loc}.megaPractice`, extractBlock(locBlock, 'megaPractice:', 'footer:'));
+      assertUniqueHrefs(`${loc}.footer`, extractBlock(locBlock, 'footer:', 'disclaimerP1:'));
+    }
+  });
+
+  it('verifies EditorialQuote in primitives.tsx does not use max-w-[760px] mx-auto', () => {
+    const primitivesContent = fs.readFileSync(
+      path.join(REPO_ROOT, 'apps/web/src/components/ui/primitives.tsx'),
+      'utf8',
+    );
+    const quoteIdx = primitivesContent.indexOf('export function EditorialQuote');
+    expect(quoteIdx).toBeGreaterThan(-1);
+    const quoteBlock = primitivesContent.slice(quoteIdx);
+    expect(quoteBlock).not.toContain('max-w-[760px] mx-auto');
+    expect(quoteBlock).toContain('border-y border-[var(--hairline)]');
+  });
+});

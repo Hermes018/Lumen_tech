@@ -54,6 +54,13 @@ const WORKBENCH_SURFACES = [
   { label: "/app/billing", file: "apps/web/app/[locale]/(learner)/app/billing/page.tsx" },
   { label: "/app/settings", file: "apps/web/app/[locale]/(learner)/app/settings/page.tsx" },
   { label: "/app/admin", file: "apps/web/app/[locale]/(learner)/app/admin/page.tsx" },
+  { label: "(legal)/layout", file: "apps/web/app/[locale]/(marketing)/legal/layout.tsx" },
+  { label: "LegalChrome", file: "apps/web/app/[locale]/(marketing)/legal/_components/LegalChrome.tsx" },
+  { label: "/legal", file: "apps/web/app/[locale]/(marketing)/legal/page.tsx" },
+  { label: "/legal/terms", file: "apps/web/app/[locale]/(marketing)/legal/terms/page.tsx" },
+  { label: "/legal/privacy", file: "apps/web/app/[locale]/(marketing)/legal/privacy/page.tsx" },
+  { label: "/legal/refund-policy", file: "apps/web/app/[locale]/(marketing)/legal/refund-policy/page.tsx" },
+  { label: "/legal/grievance", file: "apps/web/app/[locale]/(marketing)/legal/grievance/page.tsx" },
 ];
 
 const LIVE_EXTRA_ROUTES = [

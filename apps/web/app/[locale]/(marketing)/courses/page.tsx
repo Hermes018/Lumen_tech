@@ -120,7 +120,7 @@ export default async function CoursesPage({
         locale={locale}
       />
 
-      <Section tone="white">
+      <Section tone="white" id="catalog">
         <Tabs tabs={tabs} />
       </Section>
 

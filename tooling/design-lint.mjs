@@ -156,6 +156,13 @@ const SURFACE_GEOMETRY_FILES = [
   'apps/web/app/[locale]/(auditor)/auditor/page.tsx',
   'apps/web/app/[locale]/(admin)/layout.tsx',
   'apps/web/app/[locale]/(admin)/admin/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/layout.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/_components/LegalChrome.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/terms/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/privacy/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/refund-policy/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/grievance/page.tsx',
 ];
 const FORBIDDEN_ROUNDED_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },
@@ -265,6 +272,53 @@ for (const requiredRoute of [
     errors.push(`[link-guard] Missing required dedicated ${requiredRoute} route`);
   } else {
     verifiedRoutes.add(requiredRoute);
+  }
+}
+
+// 5b. Unique Navigation Links Guard ([unique-nav-links-guard])
+const navRel = 'apps/web/src/content/nav.ts';
+const navFull = path.join(ROOT, navRel);
+if (fs.existsSync(navFull)) {
+  const navSrc = fs.readFileSync(navFull, 'utf8');
+  const extractBlock = (src, startMarker, endMarker) => {
+    const start = src.indexOf(startMarker);
+    if (start === -1) return '';
+    const end = endMarker ? src.indexOf(endMarker, start + startMarker.length) : src.length;
+    return end === -1 ? src.slice(start) : src.slice(start, end);
+  };
+  const checkUniqueHrefs = (label, block) => {
+    const seen = new Set();
+    for (const m of block.matchAll(/href:\s*'([^']+)'/g)) {
+      const href = m[1];
+      if (seen.has(href)) {
+        errors.push(`[unique-nav-links-guard] Duplicate href "${href}" in ${label} (${navRel})`);
+      }
+      seen.add(href);
+    }
+  };
+  for (const [loc, startKey, endKey] of [
+    ['en', '  en: {', '  bn: {'],
+    ['bn', '  bn: {', null],
+  ]) {
+    const locBlock = extractBlock(navSrc, startKey, endKey);
+    const greIeltsBlock = extractBlock(locBlock, 'megaGreIelts:', 'megaCourses:');
+    for (const railId of ['gre-general', 'ielts-academic', 'ielts-gt', 'which-exam']) {
+      const railStart = greIeltsBlock.indexOf(`id: '${railId}'`);
+      if (railStart !== -1) {
+        const nextRail = greIeltsBlock.indexOf('id: ', railStart + 10);
+        const railSlice =
+          nextRail === -1 ? greIeltsBlock.slice(railStart) : greIeltsBlock.slice(railStart, nextRail);
+        const linksOnly = extractBlock(railSlice, 'links:', '],');
+        checkUniqueHrefs(`${loc}.megaGreIelts.${railId}`, linksOnly);
+      }
+    }
+    const coursesBlock = extractBlock(locBlock, 'megaCourses:', 'megaPractice:');
+    const coursesNavOnly = extractBlock(coursesBlock, 'col2Links:', 'ribbonCta:');
+    checkUniqueHrefs(`${loc}.megaCourses`, coursesNavOnly);
+    const practiceBlock = extractBlock(locBlock, 'megaPractice:', 'footer:');
+    checkUniqueHrefs(`${loc}.megaPractice`, practiceBlock);
+    const footerBlock = extractBlock(locBlock, 'footer:', 'disclaimerP1:');
+    checkUniqueHrefs(`${loc}.footer`, footerBlock);
   }
 }
 
@@ -430,6 +484,13 @@ const WORKSPACE_GUARD_FILES = [
   'apps/web/app/[locale]/(auditor)/auditor/page.tsx',
   'apps/web/app/[locale]/(admin)/layout.tsx',
   'apps/web/app/[locale]/(admin)/admin/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/layout.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/_components/LegalChrome.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/terms/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/privacy/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/refund-policy/page.tsx',
+  'apps/web/app/[locale]/(marketing)/legal/grievance/page.tsx',
 ];
 const WORKSPACE_FORBIDDEN_PATTERNS = [
   { name: 'rounded-full', regex: /\brounded-full\b/ },
@@ -449,6 +510,7 @@ const WORKSPACE_FORBIDDEN_PATTERNS = [
   { name: 'bg-amber-', regex: /\bbg-amber-/ },
   { name: 'bg-purple-', regex: /\bbg-purple-/ },
   { name: 'bg-indigo-', regex: /\bbg-indigo-/ },
+  { name: 'text-indigo-', regex: /\btext-indigo-/ },
   { name: 'bg-yellow-', regex: /\bbg-yellow-/ },
   { name: 'border-yellow-', regex: /\bborder-yellow-/ },
   { name: 'bg-slate-', regex: /\bbg-slate-/ },

@@ -57,7 +57,7 @@ export default async function HelpPage({
         photoSlot={content.hero.photoSlot}
         locale={locale}
       />
-      <Section tone="white">
+      <Section tone="white" id="exam-comparison">
         <SideHeadingBlocks
           title={content.topics.title}
           intro={content.topics.intro}
