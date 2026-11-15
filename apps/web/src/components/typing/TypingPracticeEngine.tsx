@@ -3,12 +3,15 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLocale } from 'next-intl';
-import { RotateCcw, Eye, Target, AlertCircle } from 'lucide-react';
+import { RotateCcw, Eye, EyeOff, Target, AlertCircle, Volume2 } from 'lucide-react';
 import {
+  LEXICAL_UPGRADE_PAIRS,
+  LISTENING_DICTATION_ITEMS,
   TYPING_CORPORA,
   buildTypingWords,
   calculateAccuracy,
   calculateConsistency,
+  calculateIeltsParagraphSplits,
   calculateNetWpm,
   calculateRawWpm,
   computeCorpusCharTotals,
@@ -22,6 +25,11 @@ import {
   WorkspaceStatRow,
 } from '@/src/components/ui/WorkspacePrimitives';
 
+export type CurriculumDrillMode =
+  | 'copy-flow'
+  | 'listening-dictation'
+  | 'lexical-upgrade'
+  | 'exam-pacing';
 export type TypingMode = 'time' | 'words' | 'exam-corpus';
 export type TimeOption = 15 | 30 | 60 | 120;
 export type WordCountOption = 25 | 50 | 150 | 250;
@@ -293,6 +301,13 @@ export function TypingPracticeEngine({
   const isBn = locale === 'bn';
 
   // Monkeytype #testConfig state
+  const [drillMode, setDrillMode] = useState<CurriculumDrillMode>('copy-flow');
+  const [dictationIdx, setDictationIdx] = useState<number>(0);
+  const [blindDictationMode, setBlindDictationMode] = useState<boolean>(true);
+  const [lexicalIdx, setLexicalIdx] = useState<number>(0);
+  const [pacingTask, setPacingTask] = useState<'task1' | 'task2' | 'gre-awa'>('task2');
+  const [isSpeakingAudio, setIsSpeakingAudio] = useState<boolean>(false);
+
   const [mode, setMode] = useState<TypingMode>('time');
   const [timeLimit, setTimeLimit] = useState<TimeOption>(30);
   const [wordLimit, setWordLimit] = useState<WordCountOption>(50);
@@ -343,6 +358,67 @@ export function TypingPracticeEngine({
   const tabTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const activeDictation =
+    LISTENING_DICTATION_ITEMS[dictationIdx % LISTENING_DICTATION_ITEMS.length] ??
+    LISTENING_DICTATION_ITEMS[0];
+  const activeLexical =
+    LEXICAL_UPGRADE_PAIRS[lexicalIdx % LEXICAL_UPGRADE_PAIRS.length] ??
+    LEXICAL_UPGRADE_PAIRS[0];
+  const pacingPlan = useMemo(
+    () => calculateIeltsParagraphSplits(pacingTask, liveNetWpm || 45),
+    [liveNetWpm, pacingTask],
+  );
+
+  const speakDictationCue = useCallback(
+    (text: string, accent: 'en-GB' | 'en-AU' | 'en-US') => {
+      try {
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = accent;
+          utterance.rate = 0.94;
+          const voices = window.speechSynthesis.getVoices();
+          const matched =
+            voices.find((v) => v.lang.toLowerCase() === accent.toLowerCase()) ??
+            voices.find((v) => v.lang.toLowerCase().startsWith(accent.slice(0, 2).toLowerCase()));
+          if (matched) utterance.voice = matched;
+          setIsSpeakingAudio(true);
+          utterance.onend = () => setIsSpeakingAudio(false);
+          utterance.onerror = () => setIsSpeakingAudio(false);
+          window.speechSynthesis.speak(utterance);
+          return;
+        }
+      } catch {
+        // Fallback to synthesized acoustic chime below
+      }
+
+      try {
+        if (typeof window !== 'undefined') {
+          const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+          if (AudioCtx) {
+            const ctx = new AudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+            osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.14);
+            gain.gain.setValueAtTime(0.04, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.36);
+            setIsSpeakingAudio(true);
+            setTimeout(() => setIsSpeakingAudio(false), 380);
+          }
+        }
+      } catch {
+        setIsSpeakingAudio(false);
+      }
+    },
+    [],
+  );
+
   const words = useMemo(() => {
     if (missedDrillWords && missedDrillWords.length > 0) {
       return buildTypingWords(corpusId, {
@@ -353,6 +429,33 @@ export function TypingPracticeEngine({
         seed,
       });
     }
+
+    if (drillMode === 'listening-dictation' && activeDictation) {
+      return activeDictation.targetWords.split(/\s+/).filter(Boolean);
+    }
+
+    if (drillMode === 'lexical-upgrade' && activeLexical) {
+      const tokens = activeLexical.band8Target.split(/\s+/).filter(Boolean);
+      return includePunctuation
+        ? tokens
+        : tokens.map((t) => t.replace(/^[,.;:!?()"'“”]+|[,.;:!?()"'“”]+$/g, '').toLowerCase()).filter(Boolean);
+    }
+
+    if (drillMode === 'exam-pacing') {
+      const pacingCorpus: TypingCorpusId =
+        pacingTask === 'task1'
+          ? 'ielts-task1-data'
+          : pacingTask === 'gre-awa'
+            ? 'gre-awa-issue'
+            : 'ielts-task2-band8';
+      return buildTypingWords(pacingCorpus, {
+        targetCount: pacingPlan.targetWordCount,
+        includePunctuation,
+        includeNumbers,
+        seed,
+      });
+    }
+
     const targetCount =
       mode === 'time' ? 140 : mode === 'words' ? wordLimit : 65;
     return buildTypingWords(corpusId, {
@@ -361,7 +464,20 @@ export function TypingPracticeEngine({
       includeNumbers,
       seed,
     });
-  }, [corpusId, includeNumbers, includePunctuation, missedDrillWords, mode, seed, wordLimit]);
+  }, [
+    activeDictation,
+    activeLexical,
+    corpusId,
+    drillMode,
+    includeNumbers,
+    includePunctuation,
+    missedDrillWords,
+    mode,
+    pacingPlan.targetWordCount,
+    pacingTask,
+    seed,
+    wordLimit,
+  ]);
 
   const activeCorpus = TYPING_CORPORA[corpusId];
 
@@ -841,10 +957,65 @@ export function TypingPracticeEngine({
       {/* Monkeytype #testConfig Bar (dims smoothly during active typing) */}
       <div
         id="testConfig"
-        className={`bg-[var(--bg-warm)] border border-[var(--hairline)] rounded-[4px] px-4 py-2.5 mb-6 flex flex-wrap items-center justify-between gap-4 transition-opacity duration-200 ${
+        className={`bg-[var(--bg-warm)] border border-[var(--hairline)] rounded-[4px] px-4 py-2.5 mb-6 space-y-2.5 transition-opacity duration-200 ${
           isTypingActive ? 'opacity-40 hover:opacity-100' : 'opacity-100'
         }`}
       >
+        {/* Curriculum Drill Selector (P35) */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--hairline)] pb-2.5">
+          <span className="text-xs font-semibold text-[var(--text-muted)] mr-1">
+            {isBn ? 'ড্রিল মোড:' : 'Drill Mode:'}
+          </span>
+          {(
+            [
+              {
+                id: 'copy-flow',
+                labelEn: 'Copy-Flow Speed (Monkeytype)',
+                labelBn: 'কপি-ফ্লো গতি (মাঙ্কিটাইপ)',
+              },
+              {
+                id: 'listening-dictation',
+                labelEn: 'Listening Audio Dictation (Blind Spelling)',
+                labelBn: 'লিসেনিং অডিও ডিক্টেশন (অন্ধ বানান)',
+              },
+              {
+                id: 'lexical-upgrade',
+                labelEn: 'Band 6.0 -> 8.5 Lexical Upgrade',
+                labelBn: 'ব্যান্ড ৬.০ -> ৮.৫ লেক্সিক্যাল আপগ্রেড',
+              },
+              {
+                id: 'exam-pacing',
+                labelEn: 'Exam Pacing Coach (Task 1 150w / Task 2 250w)',
+                labelBn: 'পরীক্ষার পেসিং কোচ (টাস্ক ১ / টাস্ক ২)',
+              },
+            ] as const
+          ).map((drill) => (
+            <button
+              key={drill.id}
+              type="button"
+              onClick={() => {
+                setDrillMode(drill.id);
+                if (drill.id === 'copy-flow') {
+                  setMode('time');
+                } else {
+                  setMode('words');
+                }
+                setLastResult(null);
+                setPreviewSample(false);
+                resetSessionState(false, null);
+              }}
+              className={
+                drillMode === drill.id
+                  ? 'px-2.5 py-1 text-xs font-semibold rounded-[4px] bg-[var(--brand-deep)] text-white'
+                  : 'px-2.5 py-1 text-xs font-medium rounded-[4px] bg-[var(--surface-paper)] border border-[var(--hairline)] text-[var(--brand-deep)] hover:border-[var(--brand)]'
+              }
+            >
+              {isBn ? drill.labelBn : drill.labelEn}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Group 1: Modifiers */}
         <div className="flex flex-wrap items-center gap-2">
           <button
@@ -1020,6 +1191,7 @@ export function TypingPracticeEngine({
               ))
             : null}
         </div>
+        </div>
       </div>
 
       {/* Active Typing Surface (shown when not viewing result, or always above result when testing) */}
@@ -1079,6 +1251,189 @@ export function TypingPracticeEngine({
               </div>
             </div>
           </div>
+
+          {/* Curriculum Drill Callout Strips (P35) */}
+          {drillMode === 'listening-dictation' && activeDictation ? (
+            <div className="border border-[var(--hairline)] border-l-[3px] border-l-[var(--brand)] bg-[var(--surface-paper)] rounded-[4px] p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-[4px] bg-[var(--bg-warm)] border border-[var(--hairline)] text-[var(--brand-deep)]">
+                    {activeDictation.part}
+                  </span>
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-[4px] bg-[var(--bg-warm)] border border-[var(--hairline)] text-[var(--brand)]">
+                    {activeDictation.accent}
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {dictationIdx + 1} / {LISTENING_DICTATION_ITEMS.length}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      speakDictationCue(activeDictation.audioCueText, activeDictation.accent)
+                    }
+                    className="inline-flex items-center gap-1.5 rounded-[4px] bg-[var(--brand)] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[var(--link)]"
+                  >
+                    <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>
+                      {isSpeakingAudio
+                        ? isBn
+                          ? 'অডিও চলছে...'
+                          : 'Speaking Cue...'
+                        : isBn
+                          ? 'অডিও প্যাসেজ / শব্দ শুনুন (en-GB / en-AU)'
+                          : 'Speak Passage / Word (en-GB / en-AU)'}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBlindDictationMode((b) => !b)}
+                    className={
+                      blindDictationMode
+                        ? 'inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--brand)] bg-[var(--bg-warm)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-deep)]'
+                        : 'inline-flex items-center gap-1.5 rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-3 py-1.5 text-xs font-medium text-[var(--text)]'
+                    }
+                  >
+                    <EyeOff className="h-3.5 w-3.5 text-[var(--brand)]" aria-hidden="true" />
+                    <span>
+                      {isBn
+                        ? 'অপঠিত শব্দ লুকান (ব্লাইন্ড ডিক্টেশন)'
+                        : 'Mask Unreached Words (Dictation Blind Mode)'}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDictationIdx((idx) => (idx + 1) % LISTENING_DICTATION_ITEMS.length);
+                      resetSessionState(false, null);
+                    }}
+                    className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-2.5 py-1.5 text-xs font-semibold text-[var(--brand-deep)] hover:border-[var(--brand)]"
+                  >
+                    {isBn ? 'পরবর্তী আইটেম →' : 'Next Cue →'}
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-xs text-[var(--text)]">
+                <span className="font-semibold text-[var(--brand-deep)]">
+                  {isBn ? 'বানান সতর্কতা: ' : 'Spelling Trap Note: '}
+                </span>
+                {isBn ? activeDictation.trapNoteBn : activeDictation.trapNote}
+              </p>
+            </div>
+          ) : null}
+
+          {drillMode === 'lexical-upgrade' && activeLexical ? (
+            <div className="border border-[var(--hairline)] border-l-[3px] border-l-[var(--brand)] bg-[var(--surface-paper)] rounded-[4px] p-4 space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-[4px] bg-[var(--bg-warm)] border border-[var(--hairline)] text-[var(--brand)]">
+                    {activeLexical.criterion}
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {lexicalIdx + 1} / {LEXICAL_UPGRADE_PAIRS.length}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLexicalIdx((idx) => (idx + 1) % LEXICAL_UPGRADE_PAIRS.length);
+                    resetSessionState(false, null);
+                  }}
+                  className="rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-deep)] hover:border-[var(--brand)]"
+                >
+                  {isBn ? 'পরবর্তী আপগ্রেড →' : 'Next Lexical Upgrade →'}
+                </button>
+              </div>
+              <div className="text-sm text-[var(--text)]">
+                <span className="font-semibold text-[var(--text-muted)]">
+                  {isBn ? 'ব্যান্ড ৬.০ ভিত্তি: ' : 'Band 6.0 Baseline Phrase: '}
+                </span>
+                <span className="line-through text-[var(--text-muted)]">
+                  &ldquo;{activeLexical.band6Phrase}&rdquo;
+                </span>
+                <span className="mx-2 font-bold text-[var(--brand)]">→</span>
+                <span className="font-semibold text-[var(--brand-deep)]">
+                  {isBn ? 'ব্যান্ড ৮.৫ লক্ষ্য (নিচে টাইপ করুন)' : 'Band 8.5 Target Collocation (type below)'}
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-muted)]">
+                {isBn ? activeLexical.contextNoteBn : activeLexical.contextNote}
+              </p>
+            </div>
+          ) : null}
+
+          {drillMode === 'exam-pacing' ? (
+            <div className="border border-[var(--hairline)] bg-[var(--surface-paper)] rounded-[4px] p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  {(
+                    [
+                      { id: 'task1', labelEn: 'Task 1 (20m / 150w)', labelBn: 'টাস্ক ১ (২০ মি. / ১৫০ শব্দ)' },
+                      { id: 'task2', labelEn: 'Task 2 (40m / 250w)', labelBn: 'টাস্ক ২ (৪০ মি. / ২৫০ শব্দ)' },
+                      { id: 'gre-awa', labelEn: 'GRE AWA (30m Sprint)', labelBn: 'জিআরই এডব্লিউএ (৩০ মি.)' },
+                    ] as const
+                  ).map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => {
+                        setPacingTask(t.id);
+                        resetSessionState(false, null);
+                      }}
+                      className={
+                        pacingTask === t.id
+                          ? 'px-2.5 py-1 text-xs font-semibold rounded-[4px] bg-[var(--brand-deep)] text-white'
+                          : 'px-2.5 py-1 text-xs font-medium rounded-[4px] border border-[var(--hairline)] bg-[var(--bg-warm)] text-[var(--brand-deep)]'
+                      }
+                    >
+                      {isBn ? t.labelBn : t.labelEn}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-xs font-mono text-[var(--text-muted)]">
+                  {isBn
+                    ? `আনুমানিক টাইপিং সময়: ${pacingPlan.estimatedTypingMinutes} মি. / ${pacingPlan.totalExamMinutes} মি.`
+                    : `Est. typing time: ${pacingPlan.estimatedTypingMinutes}m / ${pacingPlan.totalExamMinutes}m`}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                {pacingPlan.stages.map((stage, idx) => {
+                  const pct = words.length > 0 ? ((activeWordIdx + 1) / words.length) * 100 : 0;
+                  const thresholds = [0, 25, 60, 85];
+                  const threshold = thresholds[idx] ?? 0;
+                  const nextThreshold = thresholds[idx + 1] ?? 101;
+                  const isCurrent = pct >= threshold && pct < nextThreshold;
+                  const isDone = pct >= nextThreshold;
+                  return (
+                    <div
+                      key={stage.id}
+                      className={
+                        isCurrent
+                          ? 'border border-[var(--brand)] bg-[var(--bg-warm)] rounded-[4px] p-2.5'
+                          : isDone
+                            ? 'border border-[var(--brand-deep)] bg-[var(--surface-paper)] rounded-[4px] p-2.5 opacity-80'
+                            : 'border border-[var(--hairline)] bg-[var(--surface-paper)] rounded-[4px] p-2.5 opacity-60'
+                      }
+                    >
+                      <div className="flex items-center justify-between gap-2 text-xs font-bold text-[var(--brand-deep)]">
+                        <span>{isBn ? stage.labelBn : stage.labelEn}</span>
+                        <span className="font-mono text-[var(--brand)]">{stage.minutes}m</span>
+                      </div>
+                      <div className="text-xs text-[var(--text-muted)] mt-1">
+                        {stage.wordRangeEn} · {stage.focusEn}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
 
           {/* Monkeytype #wordsWrapper */}
           <div
@@ -1157,6 +1512,10 @@ export function TypingPracticeEngine({
                         : '';
                   const isCompleted = wIdx < activeWordIdx;
                   const diff = computeWordCharStates(targetWord, typed, isCompleted);
+                  const shouldMaskUnreached =
+                    drillMode === 'listening-dictation' &&
+                    blindDictationMode &&
+                    wIdx >= activeWordIdx;
 
                   return (
                     <span
@@ -1175,6 +1534,8 @@ export function TypingPracticeEngine({
                           cls =
                             'text-[var(--text-muted)] underline decoration-dotted decoration-[var(--brand)]';
                         }
+                        const displayChar =
+                          shouldMaskUnreached && cObj.state === 'untyped' ? '•' : cObj.char;
                         return (
                           <span
                             key={cIdx}
@@ -1182,7 +1543,7 @@ export function TypingPracticeEngine({
                             data-letter={cObj.char}
                             className={cls}
                           >
-                            {cObj.char}
+                            {displayChar}
                           </span>
                         );
                       })}

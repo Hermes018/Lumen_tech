@@ -45,8 +45,8 @@ export default async function PublicIeltsTypingTestPage({
           }
           subtitle={
             isBn
-              ? 'কম্পিউটার-ভিত্তিক আইইএলটিএস রাইটিং (৪০০ শব্দ) এবং লিসেনিং বানান নির্ভুলতার জন্য আপনার বাস্তব টাইপিং গতি যাচাই করুন।'
-              : 'Benchmark your real-time Net WPM, character-level accuracy, and 400-word CD-IELTS Writing readiness across exam-authentic passages.'
+              ? 'কম্পিউটার-ভিত্তিক আইইএলটিএস রাইটিং (৪০০ শব্দ), অডিও বানান ডিক্টেশন এবং ব্যান্ড ৮.৫ লেক্সিক্যাল আপগ্রেডের জন্য আপনার বাস্তব টাইপিং গতি যাচাই করুন।'
+              : 'Benchmark your real-time Net WPM, audio spelling dictation, Band 8.5 lexical upgrades, and 400-word CD-IELTS Writing readiness.'
           }
           metaText={
             isBn

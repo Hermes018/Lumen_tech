@@ -408,14 +408,93 @@ export interface BuildTypingWordsOptions {
   seed?: number;
 }
 
-const SAMPLE_STAT_NUMBERS = ['47.8%', '1995', '2025', '36/40', '14.2%', '250', '150', '7.5'] as const;
-const PUNCTUATION_SUFFIXES = [',', '.', ';', ':'] as const;
+const CONTEXTUAL_STAT_FIGURES = [
+  '47.8%',
+  '1995-2025',
+  '£48.50',
+  '14B',
+  '3.4M',
+  '187.5%',
+  '28.5%',
+  '36/40',
+] as const;
+
+const FUNCTION_WORDS = new Set([
+  'the',
+  'a',
+  'an',
+  'from',
+  'to',
+  'in',
+  'of',
+  'for',
+  'with',
+  'how',
+  'and',
+  'or',
+  'by',
+  'at',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'that',
+  'this',
+  'these',
+  'those',
+  'as',
+  'on',
+  'into',
+  'onto',
+  'upon',
+  'over',
+  'under',
+  'between',
+  'among',
+  'through',
+  'during',
+  'before',
+  'after',
+  'against',
+  'across',
+  'without',
+  'within',
+  'about',
+  'but',
+  'nor',
+  'yet',
+  'so',
+  'than',
+  'while',
+  'although',
+  'whereas',
+  'when',
+  'if',
+  'unless',
+  'whether',
+  'whose',
+  'which',
+  'who',
+  'whom',
+  'it',
+  'its',
+  'their',
+  'they',
+  'them',
+  'we',
+  'our',
+  'you',
+  'your',
+]);
 
 function stripPunctuation(word: string): string {
   return word.replace(/^[,.;:!?()"'“”]+|[,.;:!?()"'“”]+$/g, '');
 }
 
-/** Builds a deterministic or seeded word list for Monkeytype-style rendering. */
+/** Builds a deterministic or seeded word list with grammar-aware punctuation & contextual numbers. */
 export function buildTypingWords(
   corpusId: TypingCorpusId,
   options: BuildTypingWordsOptions,
@@ -446,26 +525,263 @@ export function buildTypingWords(
 
   const pool = baseWords.length > 0 ? baseWords : [...corpus.vocabulary];
   const result: string[] = [];
+  let numCursor = 0;
 
-  for (let idx = 0; idx < targetCount; idx += 1) {
-    let token = pool[idx % pool.length] ?? 'academic';
+  for (let idx = 0; idx < targetCount * 2 && result.length < targetCount; idx += 1) {
+    const rawToken = pool[idx % pool.length] ?? 'academic';
+    const bareLower = stripPunctuation(rawToken).toLowerCase();
+    const isFunctionWord = FUNCTION_WORDS.has(bareLower);
+
+    let token = rawToken;
     if (!includePunctuation) {
-      token = stripPunctuation(token).toLowerCase();
-      if (!token) token = 'academic';
-    } else if (!/[.,;:!?]$/.test(token) && idx > 0 && idx % 9 === 0) {
-      const punc = PUNCTUATION_SUFFIXES[(idx + seed) % PUNCTUATION_SUFFIXES.length] ?? ',';
-      token = `${token}${punc}`;
+      token = bareLower || 'academic';
+    } else if (isFunctionWord) {
+      // Never allow stray colons/semicolons/commas glued onto articles or prepositions
+      token = rawToken.replace(/[,;:]+$/g, '');
     }
 
-    if (includeNumbers && idx > 2 && idx % 11 === 0) {
-      const numToken = SAMPLE_STAT_NUMBERS[(idx + seed) % SAMPLE_STAT_NUMBERS.length] ?? '47.8%';
-      result.push(numToken);
-      if (result.length >= targetCount) break;
+    // Inject contextual statistical figures only at natural clause/sentence boundaries
+    const endsSentence = rawToken.endsWith('.');
+    const endsClause = rawToken.endsWith(',');
+    if (
+      includeNumbers &&
+      !isFunctionWord &&
+      (endsSentence || (endsClause && idx % 2 === 0)) &&
+      result.length + 1 < targetCount
+    ) {
+      const figure =
+        CONTEXTUAL_STAT_FIGURES[(numCursor + seed) % CONTEXTUAL_STAT_FIGURES.length] ?? '47.8%';
+      numCursor += 1;
+      const cleanBase = stripPunctuation(token) || token;
+      result.push(includePunctuation ? cleanBase : cleanBase.toLowerCase());
+      if (result.length < targetCount) {
+        const trailing = endsSentence ? '.' : ',';
+        result.push(includePunctuation ? `(${figure})${trailing}` : figure);
+      }
+      continue;
     }
 
     result.push(token);
-    if (result.length >= targetCount) break;
   }
 
   return result.slice(0, targetCount);
+}
+
+export interface LexicalUpgradePair {
+  readonly id: string;
+  readonly band6Phrase: string;
+  readonly band8Target: string;
+  readonly criterion: 'Lexical Resource' | 'Coherence & Cohesion' | 'Task Achievement';
+  readonly contextNote: string;
+  readonly contextNoteBn: string;
+}
+
+export const LEXICAL_UPGRADE_PAIRS: readonly LexicalUpgradePair[] = [
+  {
+    id: 'lex-surge',
+    band6Phrase: 'went up a lot between 2010 and 2025',
+    band8Target:
+      'experienced a pronounced surge between 2010 and 2025, outpacing regional projections.',
+    criterion: 'Lexical Resource',
+    contextNote: 'Replaces informal phrasal verbs with precise Task 1 trend collocations.',
+    contextNoteBn: 'অনানুষ্ঠানিক ক্রিয়াপদের পরিবর্তে টাস্ক ১-এর নিখুঁত ট্রেন্ড কোলোকেশন।',
+  },
+  {
+    id: 'lex-cohesion',
+    band6Phrase: 'but on the other hand, some people think differently',
+    band8Target:
+      'Nevertheless, critics contend that uniform benchmarks narrow exploratory inquiry.',
+    criterion: 'Coherence & Cohesion',
+    contextNote: 'Eliminates conversational fillers in favor of formal concession markers.',
+    contextNoteBn: 'কথ্য রূপ বাদ দিয়ে আনুষ্ঠানিক কনসেশন মার্কার ব্যবহার।',
+  },
+  {
+    id: 'lex-mitigate',
+    band6Phrase: 'help to make the bad effects smaller',
+    band8Target:
+      'mitigate the adverse ecological consequences of rapid industrial expansion.',
+    criterion: 'Lexical Resource',
+    contextNote: 'High-value verb-noun collocation ("mitigate adverse consequences").',
+    contextNoteBn: 'ব্যান্ড ৮.৫-এর উপযোগী শক্তিশালী ক্রিয়া-বিশেষ্য কোলোকেশন।',
+  },
+  {
+    id: 'lex-plateau',
+    band6Phrase: 'stayed at the same level for five years',
+    band8Target:
+      'plateaued at approximately one-third of total municipal demand after 2018.',
+    criterion: 'Task Achievement',
+    contextNote: 'Combines exact chart terminology ("plateaued") with proportional framing.',
+    contextNoteBn: 'সঠিক চার্ট পরিভাষা ও আনুপাতিক ডেটা উপস্থাপনা।',
+  },
+  {
+    id: 'lex-disparity',
+    band6Phrase: 'a very big difference between rich and poor areas',
+    band8Target:
+      'a widening socio-economic disparity between metropolitan hubs and rural districts.',
+    criterion: 'Lexical Resource',
+    contextNote: 'Uses hyphenated academic compound modifiers and precise nouns.',
+    contextNoteBn: 'হাইফেনযুক্ত একাডেমিক কম্পাউন্ড ও সুনির্দিষ্ট বিশেষ্য।',
+  },
+  {
+    id: 'lex-indispensable',
+    band6Phrase: 'is very important for solving the problem',
+    band8Target:
+      'remains indispensable for remedying foundational literacy gaps across cohorts.',
+    criterion: 'Lexical Resource',
+    contextNote: 'Upgrades overused "very important" to Band 8+ academic register.',
+    contextNoteBn: '"very important"-এর পরিবর্তে উচ্চ-ব্যান্ড একাডেমিক শব্দচয়ন।',
+  },
+];
+
+export interface ListeningDictationItem {
+  readonly id: string;
+  readonly part: 'Part 1 Form' | 'Part 2 Map' | 'Part 3 Seminar' | 'Part 4 Lecture';
+  readonly audioCueText: string;
+  readonly targetWords: string;
+  readonly accent: 'en-GB' | 'en-AU' | 'en-US';
+  readonly trapNote: string;
+  readonly trapNoteBn: string;
+}
+
+export const LISTENING_DICTATION_ITEMS: readonly ListeningDictationItem[] = [
+  {
+    id: 'dict-p1-accommodation',
+    part: 'Part 1 Form',
+    audioCueText:
+      'Please write accommodation and questionnaire on the registration form before Wednesday.',
+    targetWords: 'accommodation questionnaire registration Wednesday',
+    accent: 'en-GB',
+    trapNote: 'Double c & double m in "accommodation"; double n in "questionnaire".',
+    trapNoteBn: '"accommodation"-এ ডাবল c ও m এবং "questionnaire"-এ ডাবল n লক্ষ্য রাখুন।',
+  },
+  {
+    id: 'dict-p1-fee',
+    part: 'Part 1 Form',
+    audioCueText:
+      'The refundable deposit is forty-eight pounds fifty, payable at the registrar office.',
+    targetWords: 'refundable deposit £48.50 registrar office',
+    accent: 'en-GB',
+    trapNote: 'British currency formatting (£48.50) and single-r ending in "registrar".',
+    trapNoteBn: 'ব্রিটিশ মুদ্রা ফরম্যাট (£48.50) এবং "registrar" বানান সতর্কতা।',
+  },
+  {
+    id: 'dict-p2-map',
+    part: 'Part 2 Map',
+    audioCueText:
+      'Walk past the Mediterranean courtyard toward the subterranean exhibition corridor.',
+    targetWords: 'Mediterranean courtyard subterranean exhibition corridor',
+    accent: 'en-AU',
+    trapNote: 'Australian vowel shift in "corridor"; double r in "Mediterranean" & "subterranean".',
+    trapNoteBn: 'অস্ট্রেলীয় উচ্চারণে "corridor" ও ডাবল-অক্ষর বানান অনুশীলন।',
+  },
+  {
+    id: 'dict-p3-seminar',
+    part: 'Part 3 Seminar',
+    audioCueText:
+      'Every entrepreneur must verify the committee hierarchy and accreditation schedule.',
+    targetWords: 'entrepreneur committee hierarchy accreditation schedule',
+    accent: 'en-GB',
+    trapNote: 'Triple-double consonants in "committee"; silent-e pattern in "entrepreneur".',
+    trapNoteBn: '"committee"-তে ডাবল m, t, e এবং "entrepreneur" বানান ট্র্যাপ।',
+  },
+  {
+    id: 'dict-p4-lecture',
+    part: 'Part 4 Lecture',
+    audioCueText:
+      'Archaeology and meteorology undergraduates compiled a supplementary bibliography.',
+    targetWords: 'archaeology meteorology undergraduates supplementary bibliography',
+    accent: 'en-US',
+    trapNote: '"aeo" cluster in "archaeology" and double p in "supplementary".',
+    trapNoteBn: '"archaeology"-তে aeo যুক্তাক্ষর এবং "supplementary"-তে ডাবল p।',
+  },
+  {
+    id: 'dict-p4-millennium',
+    part: 'Part 4 Lecture',
+    audioCueText:
+      'Parliamentary bureaucracy delayed laboratory maintenance until the millennium.',
+    targetWords: 'parliamentary bureaucracy laboratory maintenance millennium',
+    accent: 'en-GB',
+    trapNote: 'Silent "i" in "parliamentary"; "eau" in "bureaucracy"; double l & n in "millennium".',
+    trapNoteBn: '"bureaucracy"-তে eau এবং "millennium"-এ ডাবল l ও n সতর্কতা।',
+  },
+];
+
+export interface IeltsParagraphSplitStage {
+  readonly id: 'plan' | 'intro' | 'body' | 'proofread';
+  readonly labelEn: string;
+  readonly labelBn: string;
+  readonly minutes: number;
+  readonly wordRangeEn: string;
+  readonly focusEn: string;
+}
+
+export interface IeltsParagraphSplitPlan {
+  readonly targetTask: 'task1' | 'task2' | 'gre-awa';
+  readonly targetWordCount: number;
+  readonly totalExamMinutes: number;
+  readonly estimatedTypingMinutes: number;
+  readonly stages: readonly IeltsParagraphSplitStage[];
+}
+
+/** Calculates exact IELTS Task 1 / Task 2 / GRE AWA paragraph & proofreading minute splits. */
+export function calculateIeltsParagraphSplits(
+  targetTask: 'task1' | 'task2' | 'gre-awa',
+  currentNetWpm: number,
+): IeltsParagraphSplitPlan {
+  const safeWpm = Math.max(20, currentNetWpm || 40);
+  const config =
+    targetTask === 'task1'
+      ? { targetWordCount: 150, totalExamMinutes: 20, planMin: 3, proofMin: 3 }
+      : targetTask === 'task2'
+        ? { targetWordCount: 250, totalExamMinutes: 40, planMin: 6, proofMin: 5 }
+        : { targetWordCount: 400, totalExamMinutes: 30, planMin: 4, proofMin: 4 };
+
+  const estimatedTypingMinutes = Number((config.targetWordCount / safeWpm).toFixed(1));
+  const writingBudget = config.totalExamMinutes - config.planMin - config.proofMin;
+  const introMin = Math.max(2, Math.round(writingBudget * 0.22));
+  const bodyMin = Math.max(4, writingBudget - introMin);
+
+  return {
+    targetTask,
+    targetWordCount: config.targetWordCount,
+    totalExamMinutes: config.totalExamMinutes,
+    estimatedTypingMinutes,
+    stages: [
+      {
+        id: 'plan',
+        labelEn: '1. Planning & Outline',
+        labelBn: '১. পরিকল্পনা ও রূপরেখা',
+        minutes: config.planMin,
+        wordRangeEn: '0w (Notes)',
+        focusEn:
+          targetTask === 'task1'
+            ? 'Identify key trends, extremes, and groupings.'
+            : 'Lock thesis position and 2–3 topic sentences.',
+      },
+      {
+        id: 'intro',
+        labelEn: targetTask === 'task1' ? '2. Intro & Overview' : '2. Introduction & Thesis',
+        labelBn: targetTask === 'task1' ? '২. ভূমিকা ও ওভারভিউ' : '২. ভূমিকা ও মূল বক্তব্য',
+        minutes: introMin,
+        wordRangeEn: `1–${Math.round(config.targetWordCount * 0.25)}w`,
+        focusEn: 'Paraphrase prompt cleanly without copying phrasing.',
+      },
+      {
+        id: 'body',
+        labelEn: `3. Body Paragraphs (${config.targetWordCount}w)`,
+        labelBn: `৩. মূল অনুচ্ছেদ (${config.targetWordCount} শব্দ)`,
+        minutes: bodyMin,
+        wordRangeEn: `${Math.round(config.targetWordCount * 0.25)}–${config.targetWordCount}w`,
+        focusEn: 'Develop evidence, comparisons, and Band 8+ cohesive links.',
+      },
+      {
+        id: 'proofread',
+        labelEn: '4. Final Proofreading & Spelling Audit',
+        labelBn: '৪. চূড়ান্ত প্রুফরিডিং ও বানান যাচাই',
+        minutes: config.proofMin,
+        wordRangeEn: `${config.targetWordCount}+w`,
+        focusEn: 'Verify subject-verb agreement, articles, and double consonants.',
+      },
+    ],
+  };
 }

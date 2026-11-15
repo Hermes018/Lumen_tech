@@ -23,8 +23,8 @@ export default function ScholarTypingStudioPage() {
         }
         subtitle={
           isBn
-            ? 'টাস্ক ১ (১৫০ শব্দ), টাস্ক ২ (২৫০ শব্দ), লিসেনিং বানান সতর্কতা এবং জিআরই ইস্যু প্রবন্ধের ওপর নির্ভুল গতি তৈরি করুন।'
-            : 'Build timed fluency across IELTS Task 1 data reports, Band 8.5 Task 2 prose, Listening spelling traps, and GRE AWA arguments.'
+            ? 'কপি-ফ্লো গতি, অডিও বানান ডিক্টেশন, ব্যান্ড ৮.৫ লেক্সিক্যাল আপগ্রেড এবং টাস্ক ১/২ পেসিং কোচের মাধ্যমে নির্ভুল গতি তৈরি করুন।'
+            : 'Build timed fluency across Copy-Flow speed, British/Australian audio spelling dictation, Band 8.5 lexical upgrades, and Task 1/2 pacing.'
         }
         metaText={
           isBn

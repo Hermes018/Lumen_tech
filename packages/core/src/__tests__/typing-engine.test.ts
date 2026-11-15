@@ -3,10 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  LEXICAL_UPGRADE_PAIRS,
+  LISTENING_DICTATION_ITEMS,
   TYPING_CORPORA,
   buildTypingWords,
   calculateAccuracy,
   calculateConsistency,
+  calculateIeltsParagraphSplits,
   calculateNetWpm,
   calculateRawWpm,
   computeCorpusCharTotals,
@@ -201,5 +204,101 @@ describe('Typing Studio UI, Route & Catalog Integration Guards (P32)', () => {
       'utf8',
     );
     expect(guardSrc).toContain('CD-IELTS Typing Studio');
+  });
+});
+
+describe('Curriculum-Aligned Typing Upgrades & Grammar-Aware Punctuation (P35)', () => {
+  it('never glues random colons, semicolons, or commas onto function words or subterranean', () => {
+    const functionWords = [
+      'the',
+      'a',
+      'an',
+      'from',
+      'to',
+      'in',
+      'of',
+      'for',
+      'with',
+      'how',
+      'and',
+      'or',
+      'by',
+      'at',
+    ];
+    const corpora = [
+      'ielts-task2-band8',
+      'ielts-task1-data',
+      'ielts-listening-spelling',
+      'gre-awa-issue',
+    ] as const;
+
+    for (const corpusId of corpora) {
+      for (let seed = 0; seed < 4; seed += 1) {
+        const words = buildTypingWords(corpusId, {
+          targetCount: 140,
+          includePunctuation: true,
+          includeNumbers: true,
+          seed,
+        });
+        expect(words).toHaveLength(140);
+        for (const fw of functionWords) {
+          expect(words).not.toContain(`${fw}:`);
+          expect(words).not.toContain(`${fw};`);
+          expect(words).not.toContain(`${fw},`);
+        }
+        expect(words).not.toContain('subterranean;');
+        expect(words).not.toContain('the:');
+        expect(words).not.toContain('from:');
+      }
+    }
+  });
+
+  it('exports valid LEXICAL_UPGRADE_PAIRS, LISTENING_DICTATION_ITEMS, and calculateIeltsParagraphSplits', () => {
+    expect(LEXICAL_UPGRADE_PAIRS.length).toBeGreaterThanOrEqual(5);
+    for (const pair of LEXICAL_UPGRADE_PAIRS) {
+      expect(pair.id.length).toBeGreaterThan(0);
+      expect(pair.band6Phrase.length).toBeGreaterThan(5);
+      expect(pair.band8Target.length).toBeGreaterThan(10);
+      expect(['Lexical Resource', 'Coherence & Cohesion', 'Task Achievement']).toContain(
+        pair.criterion,
+      );
+    }
+
+    expect(LISTENING_DICTATION_ITEMS.length).toBeGreaterThanOrEqual(5);
+    for (const item of LISTENING_DICTATION_ITEMS) {
+      expect(['Part 1 Form', 'Part 2 Map', 'Part 3 Seminar', 'Part 4 Lecture']).toContain(
+        item.part,
+      );
+      expect(['en-GB', 'en-AU', 'en-US']).toContain(item.accent);
+      expect(item.audioCueText.length).toBeGreaterThan(10);
+      expect(item.targetWords.split(/\s+/).length).toBeGreaterThanOrEqual(3);
+    }
+
+    const task1Plan = calculateIeltsParagraphSplits('task1', 50);
+    expect(task1Plan.targetWordCount).toBe(150);
+    expect(task1Plan.totalExamMinutes).toBe(20);
+    expect(task1Plan.stages).toHaveLength(4);
+    expect(task1Plan.stages.reduce((acc, s) => acc + s.minutes, 0)).toBe(20);
+
+    const task2Plan = calculateIeltsParagraphSplits('task2', 50);
+    expect(task2Plan.targetWordCount).toBe(250);
+    expect(task2Plan.totalExamMinutes).toBe(40);
+    expect(task2Plan.stages).toHaveLength(4);
+    expect(task2Plan.stages.reduce((acc, s) => acc + s.minutes, 0)).toBe(40);
+  });
+
+  it('verifies TypingPracticeEngine exposes all 4 P35 curriculum drill modes and blind audio controls', () => {
+    const enginePath = path.join(
+      REPO_ROOT,
+      'apps/web/src/components/typing/TypingPracticeEngine.tsx',
+    );
+    const content = fs.readFileSync(enginePath, 'utf8');
+
+    expect(content).toContain('Copy-Flow Speed (Monkeytype)');
+    expect(content).toContain('Listening Audio Dictation (Blind Spelling)');
+    expect(content).toContain('Band 6.0 -> 8.5 Lexical Upgrade');
+    expect(content).toContain('Exam Pacing Coach (Task 1 150w / Task 2 250w)');
+    expect(content).toContain('Speak Passage / Word (en-GB / en-AU)');
+    expect(content).toContain('Mask Unreached Words (Dictation Blind Mode)');
   });
 });
