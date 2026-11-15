@@ -1,4 +1,4 @@
-/** @purpose Hardened checkout verification endpoint enforcing CSRF origin checks, rate limits, canonical BDT price lock, and signed Mushak 6.3 VAT invoices */
+/** @purpose Hardened checkout verification endpoint enforcing CSRF origin checks, rate limits, dual-currency BDT/USD price lock, fractional split-pay fees, promo codes, and signed Mushak 6.3 VAT invoices */
 
 import crypto from 'node:crypto';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -10,20 +10,34 @@ import {
   signWebhookPayload,
   verifyClientAmountNotTampered,
   verifyIdempotencyAndTimestamp,
+  type SplitMode,
 } from '@/src/lib/security/payment-guard';
 import { sanitizeInternalRedirect, verifySameOriginCsrf } from '@/src/lib/security/redirect-guard';
 
-const verifyCheckoutSchema = z.object({
-  planId: z.string().min(1).max(80),
-  splitParts: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(1),
-  clientSubmittedTotalBdt: z.number().nonnegative().finite(),
-  paymentMethod: z.enum(['bkash', 'nagad', 'rocket', 'card', 'manual']).default('bkash'),
-  idempotencyKey: z.string().min(16).max(64),
-  timestampMs: z.number().finite(),
-  customerName: z.string().min(1).max(120).optional(),
-  customerEmail: z.string().email().max(160).optional(),
-  returnPath: z.string().max(300).optional(),
-});
+const verifyCheckoutSchema = z
+  .object({
+    planId: z.string().min(1).max(80),
+    splitParts: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+    splitMode: z.enum(['full', 'split-2', 'split-3']).optional(),
+    currency: z.enum(['BDT', 'USD']).default('BDT'),
+    promoCode: z.string().max(40).optional(),
+    corporateBin: z.string().max(40).optional(),
+    corporateName: z.string().max(120).optional(),
+    clientSubmittedTotal: z.number().nonnegative().finite().optional(),
+    clientSubmittedTotalBdt: z.number().nonnegative().finite().optional(),
+    paymentMethod: z
+      .enum(['bkash', 'nagad', 'rocket', 'nexus', 'card', 'intl-card', 'intl-wire', 'manual'])
+      .default('bkash'),
+    idempotencyKey: z.string().min(16).max(64),
+    timestampMs: z.number().finite(),
+    customerName: z.string().min(1).max(120).optional(),
+    customerEmail: z.string().email().max(160).optional(),
+    returnPath: z.string().max(300).optional(),
+  })
+  .refine(
+    (data) => data.clientSubmittedTotal !== undefined || data.clientSubmittedTotalBdt !== undefined,
+    { message: 'clientSubmittedTotal or clientSubmittedTotalBdt is required' },
+  );
 
 function resolveClientKey(request: NextRequest): string {
   const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
@@ -85,6 +99,12 @@ export async function POST(request: NextRequest) {
   const {
     planId,
     splitParts,
+    splitMode,
+    currency,
+    promoCode,
+    corporateBin,
+    corporateName,
+    clientSubmittedTotal,
     clientSubmittedTotalBdt,
     paymentMethod,
     idempotencyKey,
@@ -94,10 +114,14 @@ export async function POST(request: NextRequest) {
     returnPath,
   } = parsed.data;
 
+  const effectiveSplitMode: SplitMode =
+    splitMode ?? (splitParts === 2 ? 'split-2' : splitParts === 3 ? 'split-3' : 'full');
+  const submittedTotal = clientSubmittedTotal ?? clientSubmittedTotalBdt ?? 0;
+
   try {
     verifyIdempotencyAndTimestamp({ idempotencyKey, timestampMs });
-    verifyClientAmountNotTampered(planId, clientSubmittedTotalBdt);
-    const canonicalOrder = computeCanonicalOrder(planId, splitParts);
+    verifyClientAmountNotTampered(planId, submittedTotal, effectiveSplitMode, currency, promoCode);
+    const canonicalOrder = computeCanonicalOrder(planId, effectiveSplitMode, currency, promoCode);
     const safeReturnPath = sanitizeInternalRedirect(returnPath, '/app');
 
     const issuedAtIso = new Date().toISOString();
@@ -105,20 +129,29 @@ export async function POST(request: NextRequest) {
     const receiptId = `LMN-${receiptPrefix}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
     const mushak63 = {
-      form: 'Mushak-6.3' as const,
+      form: currency === 'BDT' ? ('Mushak-6.3' as const) : ('INTL-INVOICE' as const),
       receiptId,
       issuedAtIso,
       planId: canonicalOrder.planId,
       planLabel: canonicalOrder.label,
       paymentMethod,
       currency: canonicalOrder.currency,
-      vatRatePercent: 15,
+      vatRatePercent: currency === 'BDT' ? 15 : 0,
+      rawBase: canonicalOrder.rawBase,
+      discountAmount: canonicalOrder.discountAmount,
+      promoCodeApplied: canonicalOrder.promoCodeApplied,
+      processingFeeRate: canonicalOrder.processingFeeRate,
+      processingFee: canonicalOrder.processingFee,
       baseTuitionBdt: canonicalOrder.baseTuitionBdt,
       vat15Bdt: canonicalOrder.vat15Bdt,
+      totalAmount: canonicalOrder.totalAmount,
       totalBdt: canonicalOrder.totalBdt,
       dueTodayBdt: canonicalOrder.dueTodayBdt,
       splitParts: canonicalOrder.splitParts,
+      splitMode: canonicalOrder.splitMode,
       installmentSchedule: canonicalOrder.installmentSchedule,
+      corporateBin: currency === 'BDT' && corporateBin ? corporateBin.trim() : null,
+      corporateName: currency === 'BDT' && corporateName ? corporateName.trim() : null,
       customerName: customerName ?? 'Guest Scholar',
       customerEmail: customerEmail ?? 'guest@lumen.demo',
     };

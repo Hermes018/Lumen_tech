@@ -5,13 +5,92 @@ import {
   LevelProgressBar,
   ScorePredictorChart,
 } from '@lumen/ui';
-import { LEVEL_THRESHOLDS } from '@lumen/core';
+import {
+  LEVEL_THRESHOLDS,
+  calculateStudyStreak,
+  calculateLevelInfo,
+  calculateSkillMastery,
+  calculateGreScorePrediction,
+} from '@lumen/core';
 import { ArrowLeft, Calendar, Flame, Shield, Trophy } from 'lucide-react';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
-import { getLearnerDashboardData } from '@/app/actions/analytics';
+import { getLearnerDashboardData, type LearnerDashboardData } from '@/app/actions/analytics';
+
+function getSandboxProgressData(): LearnerDashboardData {
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((new Date('2026-12-15T00:00:00Z').getTime() - Date.now()) / 86_400_000),
+  );
+  return {
+    actor: {
+      id: 'sandbox-scholar',
+      name: 'Ayman Rahman',
+      email: 'ayman@lumen.academy',
+      targetExam: 'GRE General',
+      targetDate: '2026-12-15',
+      daysRemaining,
+      targetScore: 325,
+    },
+    streak: calculateStudyStreak(
+      [
+        { date: '2026-11-06', count: 14, type: 'practice' },
+        { date: '2026-11-07', count: 20, type: 'practice' },
+        { date: '2026-11-08', count: 8, type: 'vocab' },
+        { date: '2026-11-09', count: 25, type: 'mock' },
+        { date: '2026-11-10', count: 18, type: 'practice' },
+        { date: '2026-11-11', count: 12, type: 'mistake' },
+        { date: '2026-11-12', count: 15, type: 'practice' },
+      ],
+      { today: '2026-11-12', freezeDates: ['2026-11-05'], maxFreezes: 2 },
+    ),
+    level: calculateLevelInfo(1450),
+    predictor: calculateGreScorePrediction({
+      mocks: [
+        { attemptId: 'mock-01', date: '2026-10-20', quantScaled: 156, verbalScaled: 150, awaScore: 4.0 },
+        { attemptId: 'mock-02', date: '2026-11-02', quantScaled: 160, verbalScaled: 153, awaScore: 4.0 },
+        { attemptId: 'mock-03', date: '2026-11-09', quantScaled: 163, verbalScaled: 155, awaScore: 4.5 },
+      ],
+      practice: [
+        { subject: 'quant', attempts: 85, correct: 70 },
+        { subject: 'verbal', attempts: 65, correct: 46 },
+      ],
+      targetScore: { quant: 165, verbal: 160, total: 325 },
+    }),
+    skills: calculateSkillMastery([
+      { skillSlug: 'arithmetic', name: 'Arithmetic & Number Properties', subject: 'quant', attempts: 32, correct: 28 },
+      { skillSlug: 'algebra', name: 'Algebra & Equations', subject: 'quant', attempts: 24, correct: 20 },
+      { skillSlug: 'geometry', name: 'Geometry & Coordinate Geometry', subject: 'quant', attempts: 18, correct: 14 },
+      { skillSlug: 'data-analysis', name: 'Data Interpretation & Statistics', subject: 'quant', attempts: 11, correct: 8 },
+      { skillSlug: 'text-completion', name: 'Text Completion (1, 2, 3 Blank)', subject: 'verbal', attempts: 28, correct: 19 },
+      { skillSlug: 'sentence-equiv', name: 'Sentence Equivalence', subject: 'verbal', attempts: 22, correct: 17 },
+      { skillSlug: 'reading-comp', name: 'Reading Comprehension & Critical Reasoning', subject: 'verbal', attempts: 15, correct: 10 },
+    ]),
+    nextBestAction: {
+      id: 'nba-weak-skill',
+      ruleId: 'R12',
+      title: 'Strengthen Text Completion Traps',
+      description: 'Targeted drill on 3-blank pivot contrast structures · 10 questions · 12 min',
+      actionLabel: 'Start Targeted Drill',
+      href: '/app/practice',
+      badge: 'High Impact',
+    },
+    stats: {
+      quantAccuracy: 82,
+      verbalMastery: 71,
+      fsrsCardsDue: 45,
+      fsrsCardsTotal: 1500,
+      openMistakesCount: 3,
+      avgPaceSeconds: 78,
+      mockExamsCompleted: 3,
+    },
+  };
+}
 
 export default async function LearnerProgressPage() {
-  const [data, locale] = await Promise.all([getLearnerDashboardData(), getLocale()]);
+  const [data, locale] = await Promise.all([
+    getLearnerDashboardData().catch(() => getSandboxProgressData()),
+    getLocale(),
+  ]);
   const isBn = locale === 'bn';
 
   const quantSkills = data.skills.filter((s) => s.subject === 'quant');

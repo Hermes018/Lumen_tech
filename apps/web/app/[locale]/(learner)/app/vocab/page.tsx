@@ -2,13 +2,17 @@
 import { getLocale } from 'next-intl/server';
 import { ProgressBar } from '@lumen/ui';
 import { Brain, Play, ArrowRight } from 'lucide-react';
+import { GRE_VOCAB_SEED_WORDS } from '@lumen/db';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import { fetchVocabCards } from '@/app/actions/practice';
 
 export const dynamic = 'force-dynamic';
 
 export default async function VocabHubPage() {
-  const [cards, locale] = await Promise.all([fetchVocabCards(20), getLocale()]);
+  const [cards, locale] = await Promise.all([
+    fetchVocabCards(20).catch(() => GRE_VOCAB_SEED_WORDS.slice(0, 20)),
+    getLocale(),
+  ]);
   const isBn = locale === 'bn';
 
   const studyModes = [

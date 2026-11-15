@@ -22,8 +22,29 @@ import {
   rescheduleStudyPlanAction,
   toggleTaskCompletionAction,
 } from '@/app/actions/study-plan';
-import type { StudyPlan, StudyPlanTask } from '@lumen/core';
+import {
+  generateStudyPlan,
+  rescheduleStudyPlan,
+  type StudyPlan,
+  type StudyPlanTask,
+} from '@lumen/core';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
+
+function buildSandboxStudyPlan(): StudyPlan {
+  const today = new Date();
+  const examDate = new Date();
+  examDate.setDate(today.getDate() + 42);
+  return generateStudyPlan({
+    userId: 'sandbox-scholar',
+    tier: 'plus',
+    startDate: today.toISOString().split('T')[0],
+    targetExamDate: examDate.toISOString().split('T')[0] ?? '',
+    targetScores: { quant: 167, verbal: 161 },
+    estimatedScores: { quant: 155, verbal: 152 },
+    weakTopics: ['algebra-inequalities', 'data-interpretation', 'text-completion-double'],
+    dueVocabCount: 30,
+  });
+}
 
 export default function StudyPlanPage() {
   const locale = useLocale();
@@ -44,7 +65,7 @@ export default function StudyPlanPage() {
         const data = await getStudyPlanAction();
         setPlan(data);
       } catch {
-        // Fallback
+        setPlan(buildSandboxStudyPlan());
       } finally {
         setIsLoading(false);
       }
@@ -58,7 +79,21 @@ export default function StudyPlanPage() {
       const updated = await toggleTaskCompletionAction(taskId);
       setPlan(updated);
     } catch {
-      // Toggle error
+      setPlan((prev) =>
+        prev
+          ? {
+              ...prev,
+              tasks: prev.tasks.map((task) =>
+                task.id === taskId
+                  ? {
+                      ...task,
+                      status: task.status === 'completed' ? 'pending' : 'completed',
+                    }
+                  : task,
+              ),
+            }
+          : prev,
+      );
     }
   };
 
@@ -81,11 +116,20 @@ export default function StudyPlanPage() {
           text: result.message,
         });
       }
-    } catch (err: unknown) {
-      setFeedbackMessage({
-        type: 'error',
-        text: err instanceof Error ? err.message : 'Could not reschedule tasks.',
-      });
+    } catch {
+      const result = rescheduleStudyPlan(plan);
+      if (result.success) {
+        setPlan(result.plan);
+        setFeedbackMessage({
+          type: 'success',
+          text: result.message,
+        });
+      } else {
+        setFeedbackMessage({
+          type: 'error',
+          text: result.message,
+        });
+      }
     } finally {
       setIsRescheduling(false);
     }

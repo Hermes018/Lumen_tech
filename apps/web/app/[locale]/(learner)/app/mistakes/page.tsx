@@ -2,12 +2,85 @@
 import React from 'react';
 import { getLocale } from 'next-intl/server';
 import { ArrowLeft } from 'lucide-react';
+import {
+  createMistakeNotebook,
+  recordMistake,
+  retryMistake,
+  filterMistakes,
+  type MistakeEntry,
+} from '@lumen/core';
+import { GRE_MAGOOSH_SEED_QUESTIONS } from '@lumen/db';
 import { fetchMistakesAction } from '@/app/actions/mistakes';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import { MistakesClient } from './MistakesClient';
 
+function getSandboxMistakes(): MistakeEntry[] {
+  const userId = 'sandbox-scholar';
+  let nb = createMistakeNotebook(userId);
+  const q0 = GRE_MAGOOSH_SEED_QUESTIONS[0];
+  const q1 = GRE_MAGOOSH_SEED_QUESTIONS[1];
+  const q2 = GRE_MAGOOSH_SEED_QUESTIONS[2];
+
+  if (q0) {
+    nb = recordMistake(nb, {
+      userId,
+      questionId: q0.id,
+      subject: 'quant',
+      topicSlug: q0.topicSlug,
+      questionPrompt: q0.promptMd,
+      options: q0.options,
+      selectedWrongAnswer: 'choice-a',
+      correctAnswers: q0.correctAnswers,
+      explanationMd: q0.writtenExplanationMd,
+      errorCategory: 'careless_math',
+      notes: 'Forgot to check negative integer cases for Quantity A.',
+    });
+  }
+  if (q1) {
+    nb = recordMistake(nb, {
+      userId,
+      questionId: q1.id,
+      subject: 'verbal',
+      topicSlug: q1.topicSlug,
+      questionPrompt: q1.promptMd,
+      options: q1.options,
+      selectedWrongAnswer: 'choice-c',
+      correctAnswers: q1.correctAnswers,
+      explanationMd: q1.writtenExplanationMd,
+      errorCategory: 'vocab_gap',
+      notes: 'Unfamiliar with secondary definition of the headword.',
+    });
+  }
+  if (q2) {
+    nb = recordMistake(nb, {
+      userId,
+      questionId: q2.id,
+      subject: 'quant',
+      topicSlug: q2.topicSlug,
+      questionPrompt: q2.promptMd,
+      options: q2.options,
+      selectedWrongAnswer: 'choice-b',
+      correctAnswers: q2.correctAnswers,
+      explanationMd: q2.writtenExplanationMd,
+      errorCategory: 'trap_answer',
+      notes: 'Fell for distractor trap: assumed x and y were integers.',
+    });
+    nb = retryMistake({
+      notebook: nb,
+      questionId: q2.id,
+      userAnswer: q2.correctAnswers[0] ?? 'choice-d',
+      hintsUsed: 0,
+    }).notebook;
+  }
+
+  return filterMistakes(nb, {});
+}
+
 export default async function MistakesPage() {
-  const [initialMistakes, locale] = await Promise.all([fetchMistakesAction(), getLocale()]);
+  const [initialMistakes, locale] = await Promise.all([
+    fetchMistakesAction().catch(() => getSandboxMistakes()),
+    getLocale(),
+  ]);
   const isBn = locale === 'bn';
 
   return (

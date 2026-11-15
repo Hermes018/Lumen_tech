@@ -1,7 +1,7 @@
 /** @purpose Closed vocabulary of 17 institutional UI primitives for marketing pages */
 'use client';
 
-import React, { useId, useState, type ReactNode } from 'react';
+import React, { useEffect, useId, useState, type ReactNode } from 'react';
 import {
   Banknote,
   Calendar,
@@ -965,7 +965,39 @@ export interface PricingSwitcherSectionProps {
   passes: PricingPlanItem[];
 }
 
-function PricingPlanGrid({ plans, locale }: { plans: PricingPlanItem[]; locale: string }) {
+type PricingCurrency = 'BDT' | 'USD';
+
+const PRICING_USD_MAP: Readonly<Record<string, string>> = {
+  'free-starter': '$0',
+  'free-diagnostic': '$0',
+  'ielts-complete': '$49',
+  'gre-complete': '$79',
+  'live-bundle': '$129',
+  'mock-pack-3': '$15',
+  'mock-pack-6': '$29',
+  'ai-credits-10': '$12',
+};
+
+function resolvePlanDisplayPrice(plan: PricingPlanItem, currency: PricingCurrency): string {
+  if (currency === 'BDT') return plan.price;
+  const mapped = PRICING_USD_MAP[plan.id];
+  if (mapped) return mapped;
+  const normalizedDigits = plan.price.replace(/[০-৯]/g, (ch) => String('০১২৩৪৫৬৭৮৯'.indexOf(ch)));
+  const numericBdt = Number(normalizedDigits.replace(/[^0-9]/g, ''));
+  if (!Number.isFinite(numericBdt) || numericBdt <= 0) return '$0';
+  return `$${Math.max(5, Math.round(numericBdt / 110))}`;
+}
+
+function PricingPlanGrid({
+  plans,
+  locale,
+  currency,
+}: {
+  plans: PricingPlanItem[];
+  locale: string;
+  currency: PricingCurrency;
+}) {
+  const isBn = locale === 'bn';
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
       {plans.map((plan) => (
@@ -974,19 +1006,29 @@ function PricingPlanGrid({ plans, locale }: { plans: PricingPlanItem[]; locale: 
             <div className="h-[3px] w-full bg-[var(--brand)] mb-4" aria-hidden="true" />
             <h3 className="text-xl font-bold text-[var(--brand-ink)]">{plan.title}</h3>
             <p className="mt-2">
-              <span className="text-2xl font-bold text-[var(--brand)]">{plan.price}</span>
+              <span className="text-2xl font-bold text-[var(--brand)]">
+                {resolvePlanDisplayPrice(plan, currency)}
+              </span>
               <span className="text-sm text-[var(--muted)] ml-1">{plan.period}</span>
             </p>
             <p className="lumen-body mt-3">{plan.body}</p>
             <ul className="mt-4 space-y-2 text-sm text-[var(--text)]">
-              {plan.bullets.map((bullet) => (
-                <li key={bullet} className="flex items-start gap-2">
-                  <span className="text-[var(--brand)] font-bold" aria-hidden="true">
-                    •
-                  </span>
-                  <span>{bullet}</span>
-                </li>
-              ))}
+              {plan.bullets.map((bullet) => {
+                const displayBullet =
+                  currency === 'USD' && /mushak|মূসক|মুসক/i.test(bullet)
+                    ? isBn
+                      ? 'আন্তর্জাতিক ইউএসডি রসিদ অন্তর্ভুক্ত'
+                      : 'International USD invoice included'
+                    : bullet;
+                return (
+                  <li key={bullet} className="flex items-start gap-2">
+                    <span className="text-[var(--brand)] font-bold" aria-hidden="true">
+                      •
+                    </span>
+                    <span>{displayBullet}</span>
+                  </li>
+                );
+              })}
             </ul>
           </div>
           <div className="mt-6">
@@ -1007,21 +1049,119 @@ export function PricingSwitcherSection({
   fullCourses,
   passes,
 }: PricingSwitcherSectionProps) {
+  const isBn = locale === 'bn';
+  const [currency, setCurrency] = useState<PricingCurrency>('BDT');
+
+  useEffect(() => {
+    let active = true;
+    try {
+      const saved = window.localStorage.getItem('lumen_currency');
+      if (saved === 'BDT' || saved === 'USD') {
+        setCurrency(saved);
+        return;
+      }
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      setCurrency(tz === 'Asia/Dhaka' ? 'BDT' : 'USD');
+    } catch {
+      // Ignore storage/timezone access errors
+    }
+
+    fetch('/api/pricing/region')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { currency?: string } | null) => {
+        if (!active || !data) return;
+        try {
+          const saved = window.localStorage.getItem('lumen_currency');
+          if (saved === 'BDT' || saved === 'USD') return;
+        } catch {
+          // Ignore storage restrictions
+        }
+        if (data.currency === 'BDT' || data.currency === 'USD') {
+          setCurrency(data.currency);
+        }
+      })
+      .catch(() => {
+        // Keep timezone fallback
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleCurrencyChange = (nextCurrency: PricingCurrency) => {
+    setCurrency(nextCurrency);
+    try {
+      window.localStorage.setItem('lumen_currency', nextCurrency);
+    } catch {
+      // Ignore storage restrictions
+    }
+  };
+
   return (
-    <Tabs
-      tabs={[
-        {
-          id: 'full-courses',
-          label: fullCoursesLabel,
-          content: <PricingPlanGrid plans={fullCourses} locale={locale} />,
-        },
-        {
-          id: 'passes',
-          label: passesLabel,
-          content: <PricingPlanGrid plans={passes} locale={locale} />,
-        },
-      ]}
-    />
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--hairline)] pb-4">
+        <div>
+          <p className="text-sm font-bold text-[var(--brand-ink)]">
+            {isBn ? 'বিলিং অঞ্চল ও মুদ্রা নির্বাচন করুন' : 'Billing Region & Currency'}
+          </p>
+          <p className="text-xs text-[var(--text)] mt-0.5">
+            {currency === 'BDT'
+              ? isBn
+                ? 'বাংলাদেশ · BDT ৳ (বিকাশ, নগদ, লোকাল কার্ড · ১৫% ভ্যাট অন্তর্ভুক্ত)'
+                : 'Bangladesh · BDT ৳ (bKash, Nagad, Local Cards · 15% BD VAT incl.)'
+              : isBn
+                ? 'আন্তর্জাতিক · USD $ (Visa, Mastercard, Amex · ০% বিডি ভ্যাট)'
+                : 'International · USD $ (Visa, Mastercard, Amex · 0% BD VAT)'}
+          </p>
+        </div>
+        <div
+          role="group"
+          aria-label={isBn ? 'মুদ্রা নির্বাচন' : 'Select billing currency'}
+          className="inline-flex border border-[var(--hairline)] rounded-[4px] bg-[var(--surface-paper)]"
+        >
+          <button
+            type="button"
+            onClick={() => handleCurrencyChange('BDT')}
+            aria-pressed={currency === 'BDT'}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors cursor-pointer ${
+              currency === 'BDT'
+                ? 'bg-[var(--brand-ink)] text-white'
+                : 'bg-transparent text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+            }`}
+          >
+            {isBn ? 'বাংলাদেশ · BDT ৳' : 'Bangladesh · BDT ৳'}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleCurrencyChange('USD')}
+            aria-pressed={currency === 'USD'}
+            className={`border-l border-[var(--hairline)] px-3.5 py-2 text-xs font-bold transition-colors cursor-pointer ${
+              currency === 'USD'
+                ? 'bg-[var(--brand-ink)] text-white'
+                : 'bg-transparent text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+            }`}
+          >
+            {isBn ? 'আন্তর্জাতিক · USD $' : 'International · USD $'}
+          </button>
+        </div>
+      </div>
+
+      <Tabs
+        tabs={[
+          {
+            id: 'full-courses',
+            label: fullCoursesLabel,
+            content: <PricingPlanGrid plans={fullCourses} locale={locale} currency={currency} />,
+          },
+          {
+            id: 'passes',
+            label: passesLabel,
+            content: <PricingPlanGrid plans={passes} locale={locale} currency={currency} />,
+          },
+        ]}
+      />
+    </div>
   );
 }
 

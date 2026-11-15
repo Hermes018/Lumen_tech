@@ -10,6 +10,8 @@ import {
 } from '../../../../apps/web/src/lib/security/policy';
 import {
   CANONICAL_BDT_PLANS,
+  CANONICAL_PROMO_CODES,
+  SPLIT_PROCESSING_FEE_RATES,
   PaymentSecurityError,
   clearIdempotencyReplayCache,
   computeCanonicalOrder,
@@ -29,19 +31,25 @@ describe('Batch P20 Modular Cybersecurity & Payment Integrity Suite', () => {
     resetRateLimitStore();
   });
 
-  describe('1. Canonical BDT Ledger & Price Tamper Rejection', () => {
-    it('computes exact VAT-inclusive canonical totals and installment schedules', () => {
+  describe('1. Canonical BDT & USD Ledger, Split-Pay Clearing Fees, Promo Codes & Tamper Rejection', () => {
+    it('computes exact VAT-inclusive canonical BDT totals and installment schedules', () => {
       const ielts = computeCanonicalOrder('ielts-complete', 1);
       expect(ielts.totalBdt).toBe(4990);
       expect(ielts.vat15Bdt).toBe(Math.round((4990 * 15) / 115));
       expect(ielts.baseTuitionBdt + ielts.vat15Bdt).toBe(4990);
       expect(ielts.dueTodayBdt).toBe(4990);
+      expect(ielts.processingFeeRate).toBe(0);
+      expect(ielts.processingFee).toBe(0);
 
-      const greSplit3 = computeCanonicalOrder('gre-complete', 3);
-      expect(greSplit3.totalBdt).toBe(5990);
+      const greSplit3 = computeCanonicalOrder('gre-complete', 'split-3', 'BDT');
+      expect(greSplit3.processingFeeRate).toBe(SPLIT_PROCESSING_FEE_RATES['split-3']);
+      expect(greSplit3.processingFee).toBe(Math.round(8500 * 0.0475));
+      const expectedSubtotal = 8500 + Math.round(8500 * 0.0475);
+      const expectedVat = Math.round(expectedSubtotal * 0.15);
+      expect(greSplit3.totalAmount).toBe(expectedSubtotal + expectedVat);
       expect(greSplit3.installmentSchedule).toHaveLength(3);
       const sum3 = greSplit3.installmentSchedule.reduce((acc, row) => acc + row.amountBdt, 0);
-      expect(sum3).toBe(5990);
+      expect(sum3).toBe(greSplit3.totalAmount);
 
       expect(CANONICAL_BDT_PLANS['free-diagnostic']?.totalBdt).toBe(0);
       expect(CANONICAL_BDT_PLANS['live-cohort']?.totalBdt).toBe(12990);
@@ -49,10 +57,49 @@ describe('Batch P20 Modular Cybersecurity & Payment Integrity Suite', () => {
       expect(CANONICAL_BDT_PLANS['gre-plus']?.totalBdt).toBe(8490);
       expect(CANONICAL_BDT_PLANS['gre-live']?.totalBdt).toBe(12990);
       expect(CANONICAL_BDT_PLANS['all-access']?.totalBdt).toBe(9990);
+      expect(CANONICAL_BDT_PLANS['gre-complete']?.baseBdt).toBe(8500);
+      expect(CANONICAL_BDT_PLANS['gre-complete']?.baseUsd).toBe(79);
+      expect(CANONICAL_BDT_PLANS['ielts-academic']?.baseUsd).toBe(69);
+      expect(CANONICAL_BDT_PLANS['ielts-gt']?.baseUsd).toBe(59);
+      expect(CANONICAL_BDT_PLANS['dual-prep-bundle']?.baseUsd).toBe(119);
+      expect(CANONICAL_BDT_PLANS['mock-ai-pass']?.baseUsd).toBe(25);
+    });
+
+    it('computes USD international pricing (0% BD VAT), +2.85% 2-part split fee, and LUMEN10/DU20 promo codes', () => {
+      expect(SPLIT_PROCESSING_FEE_RATES.full).toBe(0);
+      expect(SPLIT_PROCESSING_FEE_RATES['split-2']).toBe(0.0285);
+      expect(SPLIT_PROCESSING_FEE_RATES['split-3']).toBe(0.0475);
+      expect(CANONICAL_PROMO_CODES.LUMEN10?.value).toBe(10);
+      expect(CANONICAL_PROMO_CODES.DU20?.value).toBe(20);
+
+      const usdFullPromo = computeCanonicalOrder('gre-complete', 'full', 'USD', 'lumen10');
+      expect(usdFullPromo.currency).toBe('USD');
+      expect(usdFullPromo.promoCodeApplied).toBe('LUMEN10');
+      expect(usdFullPromo.discountAmount).toBe(7.9);
+      expect(usdFullPromo.discountedBase).toBe(71.1);
+      expect(usdFullPromo.processingFee).toBe(0);
+      expect(usdFullPromo.vatAmount).toBe(0);
+      expect(usdFullPromo.totalAmount).toBe(71.1);
+
+      const usdSplit2 = computeCanonicalOrder('dual-prep-bundle', 'split-2', 'USD', 'DU20');
+      expect(usdSplit2.promoCodeApplied).toBe('DU20');
+      expect(usdSplit2.discountAmount).toBe(23.8);
+      expect(usdSplit2.discountedBase).toBe(95.2);
+      expect(usdSplit2.processingFee).toBe(Number((95.2 * 0.0285).toFixed(2)));
+      expect(usdSplit2.vatAmount).toBe(0);
+      expect(usdSplit2.totalAmount).toBe(Number((95.2 + usdSplit2.processingFee).toFixed(2)));
+      expect(usdSplit2.installmentNowAmount + usdSplit2.installmentLaterAmount).toBeCloseTo(
+        usdSplit2.totalAmount,
+        2,
+      );
     });
 
     it('rejects client price tampering (4990 -> 100 or 4989) with SECURITY_PRICE_TAMPER_DETECTED', () => {
       expect(() => verifyClientAmountNotTampered('ielts-complete', 4990)).not.toThrow();
+      const usdOrder = computeCanonicalOrder('gre-complete', 'split-2', 'USD', 'LUMEN10');
+      expect(() =>
+        verifyClientAmountNotTampered('gre-complete', usdOrder.totalAmount, 'split-2', 'USD', 'LUMEN10'),
+      ).not.toThrow();
 
       expect(() => verifyClientAmountNotTampered('ielts-complete', 100)).toThrow(
         'SECURITY_PRICE_TAMPER_DETECTED',

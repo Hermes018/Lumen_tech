@@ -679,8 +679,8 @@ export function AuthForm({ mode, locale: propLocale }: AuthFormProps) {
                 >
                   <span>
                     {isBn
-                      ? 'বিডিটি চেকআউট ও ভ্যাট লেজার (/checkout)'
-                      : 'BDT Checkout & VAT Ledger (/checkout)'}
+                      ? 'বিডিটি / ইউএসডি চেকআউট ও লেজার (/checkout)'
+                      : 'BDT / USD Checkout & Ledger (/checkout)'}
                   </span>
                   <span className="font-mono text-[var(--brand)]">→</span>
                 </Link>

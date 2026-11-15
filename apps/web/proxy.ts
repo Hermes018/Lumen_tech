@@ -6,8 +6,8 @@ import { routing } from './src/i18n/routing';
 
 const intl = createMiddleware(routing);
 
+// `/app` and `/app/*` (including `/app/admin`) load directly with a deterministic Sandbox Scholar/Admin fallback profile when unauthenticated (BATCH P23).
 const PROTECTED_PREFIXES = [
-  '/app',
   '/exam',
   '/studio',
   '/grader',

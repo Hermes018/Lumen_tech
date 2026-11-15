@@ -1,7 +1,7 @@
-/** @purpose Interactive institutional checkout client with plan switcher, 0% bKash Split-Pay, 15% Mushak 6.3 VAT ledger, and demo receipt preview */
+/** @purpose Interactive institutional checkout client with Geo-IP dual-currency switcher (BDT/USD), fractional split-pay clearing fees (0%/2.85%/4.75%), promo codes, and optional B2B Mushak 6.3 BIN chalan */
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { useLocale } from 'next-intl';
 import {
   ShieldCheck,
@@ -12,6 +12,8 @@ import {
   Smartphone,
   Building2,
   Receipt,
+  Globe,
+  Tag,
 } from 'lucide-react';
 import { CANONICAL_PRODUCTS, type ProductDefinition } from '@lumen/core';
 import { initiateCheckoutAction, submitManualCheckoutAction } from '@/app/actions/checkout';
@@ -31,10 +33,68 @@ export interface CheckoutClientProps {
   user?: CheckoutUser | null;
 }
 
-type PaymentMethodId = 'bkash' | 'nagad' | 'rocket' | 'card' | 'manual';
+type CurrencyCode = 'BDT' | 'USD';
+type PaymentMethodId =
+  | 'bkash'
+  | 'nagad'
+  | 'nexus'
+  | 'card'
+  | 'manual'
+  | 'intl-card'
+  | 'intl-wire';
 type ScheduleId = 'full' | 'split-2' | 'split-3';
 
+const SPLIT_FEE_RATES: Readonly<Record<ScheduleId, number>> = {
+  full: 0,
+  'split-2': 0.0285,
+  'split-3': 0.0475,
+};
+
+const PROMO_GRANTS: Readonly<
+  Record<string, { code: string; percent: number; labelEn: string; labelBn: string }>
+> = {
+  LUMEN10: {
+    code: 'LUMEN10',
+    percent: 10,
+    labelEn: '10% Scholar Launch Grant',
+    labelBn: '১০% স্কলার লঞ্চ ছাড়',
+  },
+  DU20: {
+    code: 'DU20',
+    percent: 20,
+    labelEn: '20% University Cohort Grant',
+    labelBn: '২০% বিশ্ববিদ্যালয় কোহর্ট ছাড়',
+  },
+};
+
+const PLAN_BASE_PRICE_MAP: Readonly<Record<string, { baseBdt: number; baseUsd: number }>> = {
+  'ielts-academic-core': { baseBdt: 3470, baseUsd: 45 },
+  'gre-complete-core': { baseBdt: 4339, baseUsd: 49 },
+  'gre-mock-pack-5': { baseBdt: 1730, baseUsd: 25 },
+  'lumen-annual-pass': { baseBdt: 8687, baseUsd: 99 },
+  'gre-core': { baseBdt: 5209, baseUsd: 59 },
+  'gre-plus': { baseBdt: 7383, baseUsd: 79 },
+  'ielts-academic-plus': { baseBdt: 5643, baseUsd: 69 },
+  'ai-credits-10': { baseBdt: 426, baseUsd: 9 },
+  'mock-pack-4': { baseBdt: 861, baseUsd: 15 },
+  'human-review-pack': { baseBdt: 1296, baseUsd: 19 },
+};
+
 const BN_DIGITS = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'] as const;
+
+function toBnDigits(text: string): string {
+  return text.replace(/\d/g, (d) => BN_DIGITS[Number(d)] ?? d);
+}
+
+function formatMoney(amount: number, currency: CurrencyCode, isBn: boolean, decimals?: number): string {
+  const frac = decimals ?? (currency === 'USD' ? 2 : 0);
+  const formatted = amount.toLocaleString('en-US', {
+    minimumFractionDigits: frac,
+    maximumFractionDigits: frac,
+  });
+  const localized = isBn ? toBnDigits(formatted) : formatted;
+  return currency === 'USD' ? `$${localized}` : `৳${localized}`;
+}
 
 function formatAmount(minor: number, isBn: boolean, decimals = 2): string {
   const formatted = (minor / 100).toLocaleString('en-US', {
@@ -42,7 +102,7 @@ function formatAmount(minor: number, isBn: boolean, decimals = 2): string {
     maximumFractionDigits: decimals,
   });
   if (!isBn) return formatted;
-  return formatted.replace(/\d/g, (d) => BN_DIGITS[Number(d)] ?? d);
+  return toBnDigits(formatted);
 }
 
 function formatDateOffset(days: number, isBn: boolean): string {
@@ -63,13 +123,72 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
   const isGuest = !user?.email;
 
   const [selectedProduct, setSelectedProduct] = useState<ProductDefinition>(initialProduct);
-  React.useEffect(() => {
+  useEffect(() => {
     setSelectedProduct(initialProduct);
   }, [initialProduct]);
 
+  const [currency, setCurrency] = useState<CurrencyCode>('BDT');
+  useEffect(() => {
+    let active = true;
+    try {
+      const urlCurr = new URLSearchParams(window.location.search).get('currency');
+      if (urlCurr === 'BDT' || urlCurr === 'USD') {
+        setCurrency(urlCurr);
+        setPaymentMethod(urlCurr === 'USD' ? 'intl-card' : 'bkash');
+        return;
+      }
+      const saved = window.localStorage.getItem('lumen_currency');
+      if (saved === 'BDT' || saved === 'USD') {
+        setCurrency(saved);
+        setPaymentMethod(saved === 'USD' ? 'intl-card' : 'bkash');
+        return;
+      }
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const tzCurr: CurrencyCode = tz === 'Asia/Dhaka' ? 'BDT' : 'USD';
+      setCurrency(tzCurr);
+      setPaymentMethod(tzCurr === 'USD' ? 'intl-card' : 'bkash');
+    } catch {
+      // Ignore storage/timezone access errors
+    }
+
+    fetch('/api/pricing/region')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { currency?: string } | null) => {
+        if (!active || !data) return;
+        try {
+          const saved = window.localStorage.getItem('lumen_currency');
+          if (saved === 'BDT' || saved === 'USD') return;
+        } catch {
+          // Ignore storage restrictions
+        }
+        if (data.currency === 'BDT' || data.currency === 'USD') {
+          setCurrency(data.currency);
+          setPaymentMethod(data.currency === 'USD' ? 'intl-card' : 'bkash');
+        }
+      })
+      .catch(() => {
+        // Keep timezone fallback
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleCurrencyChange = (nextCurrency: CurrencyCode) => {
+    setCurrency(nextCurrency);
+    setPaymentMethod(nextCurrency === 'USD' ? 'intl-card' : 'bkash');
+    setErrorMsg(null);
+    try {
+      window.localStorage.setItem('lumen_currency', nextCurrency);
+    } catch {
+      // Ignore storage restrictions
+    }
+  };
+
   const splitPayEligible = selectedProduct.prices.BD >= 499000;
   const [schedule, setSchedule] = useState<ScheduleId>('full');
-  React.useEffect(() => {
+  useEffect(() => {
     if (!splitPayEligible && schedule !== 'full') {
       setSchedule('full');
     }
@@ -77,6 +196,13 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodId>('bkash');
   const [manualMethod, setManualMethod] = useState<'bkash' | 'nagad'>('bkash');
+
+  const [promoInput, setPromoInput] = useState('');
+  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
+  const [promoFeedback, setPromoFeedback] = useState<string | null>(null);
+
+  const [corporateName, setCorporateName] = useState('');
+  const [corporateBin, setCorporateBin] = useState('');
 
   const [name, setName] = useState(user?.name && user.name !== 'Guest Scholar' ? user.name : '');
   const [email, setEmail] = useState(user?.email ?? '');
@@ -93,34 +219,79 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
     activatedAt: string;
     verificationBadge: string;
     signatureDigest?: string;
-    verifiedTotalBdt?: number;
+    verifiedTotal?: number;
+    currency: CurrencyCode;
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const totalMinor = selectedProduct.prices.BD;
-  const basePriceMinor = Math.round(totalMinor / 1.15);
-  const vatMinor = totalMinor - basePriceMinor;
+  const baseEntry = PLAN_BASE_PRICE_MAP[selectedProduct.slug] ?? {
+    baseBdt: Math.round(selectedProduct.prices.BD / 115),
+    baseUsd: Number((selectedProduct.prices.A / 100).toFixed(2)),
+  };
+  const rawBase = currency === 'USD' ? baseEntry.baseUsd : baseEntry.baseBdt;
+  const activePromo = appliedPromoCode ? PROMO_GRANTS[appliedPromoCode] ?? null : null;
+  const discountAmount = activePromo
+    ? currency === 'USD'
+      ? Number(((rawBase * activePromo.percent) / 100).toFixed(2))
+      : Math.round((rawBase * activePromo.percent) / 100)
+    : 0;
+  const discountedBase = Math.max(0, Number((rawBase - discountAmount).toFixed(2)));
+  const processingFeeRate = SPLIT_FEE_RATES[schedule];
+  const processingFee =
+    currency === 'USD'
+      ? Number((discountedBase * processingFeeRate).toFixed(2))
+      : Math.round(discountedBase * processingFeeRate);
+  const subtotalAmount = Number((discountedBase + processingFee).toFixed(2));
+  const vatAmount = currency === 'BDT' ? Math.round(subtotalAmount * 0.15) : 0;
+  const totalAmount = Number((subtotalAmount + vatAmount).toFixed(2));
 
-  const dueTodayMinor =
-    schedule === 'split-2'
-      ? Math.round(totalMinor * 0.5)
-      : schedule === 'split-3'
-        ? Math.round(totalMinor * 0.4)
-        : totalMinor;
+  const roundCurr = (val: number): number =>
+    currency === 'USD' ? Number(val.toFixed(2)) : Math.round(val);
 
   const installmentRows =
     schedule === 'split-2'
-      ? [
-          { label: isBn ? '১ম কিস্তি (৫০%)' : '1st Installment (50%)', date: formatDateOffset(0, isBn), amount: Math.round(totalMinor * 0.5) },
-          { label: isBn ? '২য় কিস্তি (৫০%)' : '2nd Installment (50%)', date: formatDateOffset(30, isBn), amount: totalMinor - Math.round(totalMinor * 0.5) },
-        ]
+      ? (() => {
+          const first = roundCurr(totalAmount * 0.5);
+          const second = Number((totalAmount - first).toFixed(2));
+          return [
+            { label: isBn ? '১ম কিস্তি (৫০%)' : '1st Installment (50%)', date: formatDateOffset(0, isBn), amount: first },
+            { label: isBn ? '২য় কিস্তি (৫০%)' : '2nd Installment (50%)', date: formatDateOffset(30, isBn), amount: second },
+          ];
+        })()
       : schedule === 'split-3'
-        ? [
-            { label: isBn ? '১ম কিস্তি (৪০%)' : '1st Installment (40%)', date: formatDateOffset(0, isBn), amount: Math.round(totalMinor * 0.4) },
-            { label: isBn ? '২য় কিস্তি (৩০%)' : '2nd Installment (30%)', date: formatDateOffset(30, isBn), amount: Math.round(totalMinor * 0.3) },
-            { label: isBn ? '৩য় কিস্তি (৩০%)' : '3rd Installment (30%)', date: formatDateOffset(60, isBn), amount: totalMinor - Math.round(totalMinor * 0.4) - Math.round(totalMinor * 0.3) },
-          ]
+        ? (() => {
+            const first = roundCurr(totalAmount * 0.4);
+            const second = roundCurr(totalAmount * 0.3);
+            const third = Number((totalAmount - first - second).toFixed(2));
+            return [
+              { label: isBn ? '১ম কিস্তি (৪০%)' : '1st Installment (40%)', date: formatDateOffset(0, isBn), amount: first },
+              { label: isBn ? '২য় কিস্তি (৩০%)' : '2nd Installment (30%)', date: formatDateOffset(30, isBn), amount: second },
+              { label: isBn ? '৩য় কিস্তি (৩০%)' : '3rd Installment (30%)', date: formatDateOffset(60, isBn), amount: third },
+            ];
+          })()
         : [];
+
+  const dueTodayAmount = installmentRows[0]?.amount ?? totalAmount;
+
+  const handleApplyPromo = () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code) {
+      setAppliedPromoCode(null);
+      setPromoFeedback(null);
+      return;
+    }
+    const found = PROMO_GRANTS[code];
+    if (!found) {
+      setPromoFeedback(
+        isBn
+          ? 'অকার্যকর কোড। অনুগ্রহ করে LUMEN10 বা DU20 চেষ্টা করুন।'
+          : 'Unrecognized code. Try LUMEN10 or DU20.',
+      );
+      return;
+    }
+    setAppliedPromoCode(found.code);
+    setPromoFeedback(isBn ? `${found.code} প্রয়োগ করা হয়েছে: ${found.labelBn}` : `${found.code} applied: ${found.labelEn}`);
+  };
 
   const createIdempotencyKey = (): string => {
     const rand = Math.random().toString(36).slice(2, 12).padEnd(10, '0');
@@ -134,7 +305,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
     receiptId: string;
     signature: string;
     verificationBadge: string;
-    totalBdt: number;
+    totalAmount: number;
   }> => {
     const splitParts: 1 | 2 | 3 =
       schedule === 'split-2' ? 2 : schedule === 'split-3' ? 3 : 1;
@@ -145,7 +316,12 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
       body: JSON.stringify({
         planId: selectedProduct.slug,
         splitParts,
-        clientSubmittedTotalBdt: Math.round(totalMinor / 100),
+        splitMode: schedule,
+        currency,
+        promoCode: appliedPromoCode ?? undefined,
+        corporateBin: currency === 'BDT' && corporateBin.trim() ? corporateBin.trim() : undefined,
+        corporateName: currency === 'BDT' && corporateName.trim() ? corporateName.trim() : undefined,
+        clientSubmittedTotal: totalAmount,
         paymentMethod,
         idempotencyKey: createIdempotencyKey(),
         timestampMs: Date.now(),
@@ -160,7 +336,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
       receiptId?: string;
       signature?: string;
       verificationBadge?: string;
-      canonicalOrder?: { totalBdt: number };
+      canonicalOrder?: { totalAmount?: number; totalBdt?: number };
       error?: string;
       message?: string;
     };
@@ -174,7 +350,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
       signature: data.signature ?? '',
       verificationBadge:
         data.verificationBadge ?? 'PCI-DSS SAQ-A & HMAC-SHA256 Price-Lock Verified',
-      totalBdt: data.canonicalOrder?.totalBdt ?? Math.round(totalMinor / 100),
+      totalAmount: data.canonicalOrder?.totalAmount ?? data.canonicalOrder?.totalBdt ?? totalAmount,
     };
   };
 
@@ -192,7 +368,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
         if (paymentMethod !== 'manual') {
           const verified = await verifyCheckoutWithCanonicalLedger(effectiveName, effectiveEmail);
 
-          if (isGuest) {
+          if (isGuest || currency === 'USD') {
             setDemoReceipt({
               orderCode: verified.receiptId,
               activatedAt: new Date().toLocaleTimeString(isBn ? 'bn-BD' : 'en-US', {
@@ -201,7 +377,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               }),
               verificationBadge: verified.verificationBadge,
               signatureDigest: verified.signature.slice(0, 16),
-              verifiedTotalBdt: verified.totalBdt,
+              verifiedTotal: verified.totalAmount,
+              currency,
             });
             return;
           }
@@ -283,7 +460,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
           }),
           verificationBadge: verified.verificationBadge,
           signatureDigest: verified.signature.slice(0, 16),
-          verifiedTotalBdt: verified.totalBdt,
+          verifiedTotal: verified.totalAmount,
+          currency,
         });
       } catch (err) {
         setErrorMsg(
@@ -297,38 +475,54 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
     });
   };
 
-  const paymentMethods: { id: PaymentMethodId; label: string; sub: string; icon: React.ReactNode }[] = [
-    {
-      id: 'bkash',
-      label: isBn ? 'বিকাশ (bKash)' : 'bKash',
-      sub: isBn ? 'তাৎক্ষণিক পেমেন্ট অথবা ০% স্প্লিট-পে' : 'Instant wallet checkout or 0% Split-Pay',
-      icon: <Smartphone className="h-4 w-4 text-[var(--brand)]" />,
-    },
-    {
-      id: 'nagad',
-      label: isBn ? 'নগদ (Nagad)' : 'Nagad',
-      sub: isBn ? 'SSLCommerz এর মাধ্যমে দ্রুত নগদ পেমেন্ট' : 'Fast Nagad checkout via SSLCommerz',
-      icon: <Smartphone className="h-4 w-4 text-[var(--accent)]" />,
-    },
-    {
-      id: 'rocket',
-      label: isBn ? 'রকেট (Rocket / DBBL)' : 'Rocket (DBBL)',
-      sub: isBn ? 'ডাচ-বাংলা মোবাইল ব্যাংকিং' : 'Dutch-Bangla Mobile Banking',
-      icon: <Building2 className="h-4 w-4 text-[var(--brand-ink)]" />,
-    },
-    {
-      id: 'card',
-      label: isBn ? 'ভিসা / মাস্টারকার্ড (SSLCommerz)' : 'Visa / Mastercard via SSLCommerz',
-      sub: isBn ? 'স্থানীয় ও আন্তর্জাতিক ডেবিট/ক্রেডিট কার্ড' : 'Local & international debit/credit cards',
-      icon: <CreditCard className="h-4 w-4 text-[var(--brand-ink)]" />,
-    },
-    {
-      id: 'manual',
-      label: isBn ? 'ম্যানুয়াল বিকাশ / নগদ (TrxID)' : 'Manual bKash / Nagad (TrxID)',
-      sub: isBn ? 'সরাসরি মার্চেন্ট পেমেন্ট ও TrxID যাচাই' : 'Direct merchant transfer & TrxID verification',
-      icon: <ShieldCheck className="h-4 w-4 text-[var(--brand)]" />,
-    },
-  ];
+  const paymentMethods: { id: PaymentMethodId; label: string; sub: string; icon: React.ReactNode }[] =
+    currency === 'BDT'
+      ? [
+          {
+            id: 'bkash',
+            label: isBn ? 'বিকাশ (bKash)' : 'bKash',
+            sub: isBn ? 'তাৎক্ষণিক পেমেন্ট অথবা স্প্লিট-পে' : 'Instant wallet checkout or Split-Pay',
+            icon: <Smartphone className="h-4 w-4 text-[var(--brand)]" />,
+          },
+          {
+            id: 'nagad',
+            label: isBn ? 'নগদ (Nagad)' : 'Nagad',
+            sub: isBn ? 'SSLCommerz এর মাধ্যমে দ্রুত নগদ পেমেন্ট' : 'Fast Nagad checkout via SSLCommerz',
+            icon: <Smartphone className="h-4 w-4 text-[var(--accent)]" />,
+          },
+          {
+            id: 'card',
+            label: isBn ? 'লোকাল কার্ড (Visa / Mastercard BDT)' : 'Local Cards (Visa / Mastercard BDT)',
+            sub: isBn ? 'বাংলাদেশি ডেবিট ও ক্রেডিট কার্ড (SSLCommerz)' : 'Bangladesh debit & credit cards via SSLCommerz',
+            icon: <CreditCard className="h-4 w-4 text-[var(--brand-ink)]" />,
+          },
+          {
+            id: 'nexus',
+            label: isBn ? 'ডাচ-বাংলা নেক্সাস / রকেট' : 'Dutch-Bangla Nexus',
+            sub: isBn ? 'ডাচ-বাংলা নেক্সাস কার্ড ও রকেট ব্যাংকিং' : 'Dutch-Bangla Nexus & Rocket banking',
+            icon: <Building2 className="h-4 w-4 text-[var(--brand-ink)]" />,
+          },
+          {
+            id: 'manual',
+            label: isBn ? 'ম্যানুয়াল বিকাশ / নগদ (TrxID)' : 'Manual bKash / Nagad (TrxID)',
+            sub: isBn ? 'সরাসরি মার্চেন্ট পেমেন্ট ও TrxID যাচাই' : 'Direct merchant transfer & TrxID verification',
+            icon: <ShieldCheck className="h-4 w-4 text-[var(--brand)]" />,
+          },
+        ]
+      : [
+          {
+            id: 'intl-card',
+            label: isBn ? 'আন্তর্জাতিক ভিসা / মাস্টারকার্ড / অ্যামেক্স (USD)' : 'International Visa / Mastercard / Amex (USD)',
+            sub: isBn ? 'বিশ্বব্যাপী নিরাপদ ইউএসডি কার্ড চেকআউট' : 'Global USD card settlement with 0% BD VAT',
+            icon: <CreditCard className="h-4 w-4 text-[var(--brand)]" />,
+          },
+          {
+            id: 'intl-wire',
+            label: isBn ? 'প্রাতিষ্ঠানিক ওয়্যার / Stripe Global' : 'Institutional Wire / Stripe Global',
+            sub: isBn ? 'বিশ্ববিদ্যালয় ও আন্তর্জাতিক অনুদান নিষ্পত্তি' : 'Global bank settlement & Stripe Global',
+            icon: <Globe className="h-4 w-4 text-[var(--brand-ink)]" />,
+          },
+        ];
 
   return (
     <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
@@ -337,18 +531,58 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
         <div>
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-[var(--brand)]">
             <Lock className="h-3.5 w-3.5" />
-            <span>{isBn ? 'নিরাপদ বাংলাদেশ চেকআউট • মূসক ৬.৩ অন্তর্ভুক্ত' : 'VERIFIED BANGLADESH CHECKOUT • MUSHAK 6.3 INCLUDED'}</span>
+            <span>
+              {currency === 'BDT'
+                ? isBn
+                  ? 'নিরাপদ বাংলাদেশ চেকআউট • BDT ৳'
+                  : 'VERIFIED BANGLADESH CHECKOUT • BDT ৳'
+                : isBn
+                  ? 'আন্তর্জাতিক চেকআউট • USD $'
+                  : 'VERIFIED INTERNATIONAL CHECKOUT • USD $'}
+            </span>
           </div>
           <h1 className="lumen-h2 mt-2">
             {isBn ? 'আপনার এনরোলমেন্ট সম্পন্ন করুন' : 'Complete Your Enrollment'}
           </h1>
         </div>
-        <LocaleLink
-          href="/pricing"
-          className="text-xs font-semibold text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand)]"
-        >
-          {isBn ? '← সব প্ল্যান তুলনা করুন' : '← Compare all plans'}
-        </LocaleLink>
+        <div className="flex flex-wrap items-center gap-4">
+          <div
+            role="group"
+            aria-label={isBn ? 'বিলিং অঞ্চল ও মুদ্রা' : 'Billing Region & Currency'}
+            className="inline-flex border border-[var(--hairline)] rounded-[4px] bg-[var(--surface-paper)]"
+          >
+            <button
+              type="button"
+              onClick={() => handleCurrencyChange('BDT')}
+              aria-pressed={currency === 'BDT'}
+              className={`px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                currency === 'BDT'
+                  ? 'bg-[var(--brand-ink)] text-white'
+                  : 'bg-transparent text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+              }`}
+            >
+              Bangladesh (BDT ৳)
+            </button>
+            <button
+              type="button"
+              onClick={() => handleCurrencyChange('USD')}
+              aria-pressed={currency === 'USD'}
+              className={`border-l border-[var(--hairline)] px-3 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                currency === 'USD'
+                  ? 'bg-[var(--brand-ink)] text-white'
+                  : 'bg-transparent text-[var(--brand-ink)] hover:bg-[var(--bg-warm)]'
+              }`}
+            >
+              International (USD $)
+            </button>
+          </div>
+          <LocaleLink
+            href="/pricing"
+            className="text-xs font-semibold text-[var(--link)] underline underline-offset-4 hover:text-[var(--brand)]"
+          >
+            {isBn ? '← সব প্ল্যান তুলনা করুন' : '← Compare all plans'}
+          </LocaleLink>
+        </div>
       </div>
 
       <form onSubmit={handleCheckoutSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
@@ -359,8 +593,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hairline)] pb-4">
                 <h2 className="lumen-h3">
                   {isBn
-                    ? 'ধাপ ১: শিক্ষার্থীর অ্যাকাউন্ট ও মূসক ৬.৩ বিলিং পরিচয়'
-                    : 'Step 1: Scholar Account & Mushak 6.3 Billing Identity'}
+                    ? 'ধাপ ১: শিক্ষার্থীর অ্যাকাউন্ট ও বিলিং পরিচয়'
+                    : 'Step 1: Scholar Account & Billing Identity'}
                 </h2>
                 <LocaleLink
                   href="/sign-in"
@@ -427,7 +661,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                     : 'Step 1: Plan & Schedule Selection'}
               </h2>
               <span className="font-mono text-xs text-[var(--text)]">
-                {isBn ? 'বিডিটি (৳)' : 'BDT (৳)'}
+                {currency === 'BDT' ? (isBn ? 'বিডিটি (৳)' : 'BDT (৳)') : 'USD ($)'}
               </span>
             </div>
 
@@ -435,6 +669,11 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
             <div className="space-y-2.5" role="radiogroup" aria-label={isBn ? 'প্ল্যান নির্বাচন' : 'Select Plan'}>
               {CANONICAL_PRODUCTS.map((prod) => {
                 const active = prod.slug === selectedProduct.slug;
+                const prodPrices = PLAN_BASE_PRICE_MAP[prod.slug] ?? {
+                  baseBdt: Math.round(prod.prices.BD / 115),
+                  baseUsd: Number((prod.prices.A / 100).toFixed(2)),
+                };
+                const displayBase = currency === 'USD' ? prodPrices.baseUsd : prodPrices.baseBdt;
                 return (
                   <button
                     key={prod.slug}
@@ -466,7 +705,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                       </div>
                     </div>
                     <div className="font-mono text-sm font-extrabold text-[var(--brand-ink)] shrink-0">
-                      ৳{formatAmount(prod.prices.BD, isBn, 0)}
+                      {formatMoney(displayBase, currency, isBn)}
                     </div>
                   </button>
                 );
@@ -481,7 +720,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                 </span>
                 {!splitPayEligible && (
                   <span className="text-xs text-[var(--text)]">
-                    {isBn ? '৳৪,৯৯০+ প্ল্যানে ০% কিস্তি প্রযোজ্য' : '0% Split-Pay available on plans ≥ ৳4,990'}
+                    {isBn ? '৳৪,৯৯০+ প্ল্যানে স্প্লিট-পে প্রযোজ্য' : 'Split-Pay available on plans ≥ ৳4,990 / $49'}
                   </span>
                 )}
               </div>
@@ -496,11 +735,14 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                       : 'border-[var(--hairline)] bg-[var(--bg)] hover:bg-[var(--bg-warm)]'
                   }`}
                 >
+                  <div className="inline-block rounded-[4px] border border-emerald-700/40 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-900 mb-1">
+                    {isBn ? 'সেরা মূল্য · ০% প্রসেসিং ফি' : 'Best Value · 0% Processing Fee'}
+                  </div>
                   <div className="text-xs font-bold text-[var(--brand-ink)]">
                     {isBn ? 'সম্পূর্ণ পেমেন্ট' : 'Full Payment'}
                   </div>
                   <div className="text-[11px] text-[var(--text)] mt-0.5 font-mono">
-                    ৳{formatAmount(totalMinor, isBn, 0)} {isBn ? 'আজ' : 'today'}
+                    {isBn ? 'স্প্লিট-পে ফি ১০০% সাশ্রয়' : 'Save 100% on Split-Pay Fees'}
                   </div>
                 </button>
 
@@ -515,7 +757,10 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                   }`}
                 >
                   <div className="text-xs font-bold text-[var(--brand-ink)]">
-                    {isBn ? '০% বিকাশ ২-কিস্তি' : '0% bKash 2-Part'}
+                    {isBn ? '২-কিস্তি স্প্লিট' : '2-Part Split'}
+                  </div>
+                  <div className="text-[11px] font-semibold text-[var(--brand)] mt-0.5">
+                    {isBn ? '+২.৮৫% গেটওয়ে ও ক্লিয়ারিং ফি' : '+2.85% Gateway & Clearing Fee'}
                   </div>
                   <div className="text-[11px] text-[var(--text)] mt-0.5 font-mono">
                     {isBn ? '৫০% আজ + ৫০% ৩০ দিনে' : '50% today + 50% in 30d'}
@@ -533,7 +778,10 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                   }`}
                 >
                   <div className="text-xs font-bold text-[var(--brand-ink)]">
-                    {isBn ? '০% বিকাশ ৩-কিস্তি' : '0% bKash 3-Part'}
+                    {isBn ? '৩-কিস্তি স্প্লিট' : '3-Part Split'}
+                  </div>
+                  <div className="text-[11px] font-semibold text-[var(--brand)] mt-0.5">
+                    {isBn ? '+৪.৭৫% গেটওয়ে ও ক্লিয়ারিং ফি' : '+4.75% Gateway & Clearing Fee'}
                   </div>
                   <div className="text-[11px] text-[var(--text)] mt-0.5 font-mono">
                     {isBn ? '৪০% + ৩০% + ৩০%' : '40% + 30% + 30%'}
@@ -624,8 +872,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                   </div>
                   <p className="text-[var(--text)]">
                     {isBn
-                      ? `মোট ৳${formatAmount(dueTodayMinor, isBn)} পেমেন্ট করে নিচে প্রেরকের নম্বর ও TrxID দিন।`
-                      : `Send BDT ${formatAmount(dueTodayMinor, false)} via Make Payment and enter your sender number & TrxID below.`}
+                      ? `মোট ${formatMoney(dueTodayAmount, currency, true)} পেমেন্ট করে নিচে প্রেরকের নম্বর ও TrxID দিন।`
+                      : `Send ${formatMoney(dueTodayAmount, currency, false)} via Make Payment and enter your sender number & TrxID below.`}
                   </p>
                 </div>
 
@@ -731,6 +979,42 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                   />
                 </div>
               </div>
+
+              {currency === 'BDT' && (
+                <details className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-3.5 text-xs">
+                  <summary className="cursor-pointer font-bold text-[var(--brand-ink)] select-none">
+                    {isBn
+                      ? 'কর্পোরেট / বিশ্ববিদ্যালয় স্পন্সর ভ্যাট চালান (মূসক ৬.৩ BIN)'
+                      : 'Corporate / University Sponsor VAT Chalan (Mushak 6.3 BIN)'}
+                  </summary>
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-[var(--brand-ink)]">
+                        {isBn ? 'স্পন্সর প্রতিষ্ঠানের নাম' : 'Sponsor Organization Name'}
+                      </label>
+                      <input
+                        type="text"
+                        value={corporateName}
+                        onChange={(e) => setCorporateName(e.target.value)}
+                        placeholder={isBn ? 'ঢাকা বিশ্ববিদ্যালয় / কর্পোরেট বিভাগ' : 'University / Corporate Sponsor'}
+                        className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-2 text-xs text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-[var(--brand-ink)]">
+                        {isBn ? '১৩-ডিজিটের এনবিআর BIN নম্বর' : '13-Digit NBR BIN Number'}
+                      </label>
+                      <input
+                        type="text"
+                        value={corporateBin}
+                        onChange={(e) => setCorporateBin(e.target.value)}
+                        placeholder="001234567-0101"
+                        className="mt-1 w-full rounded-[4px] border border-[var(--hairline)] bg-[var(--surface-paper)] p-2 text-xs font-mono text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </details>
+              )}
             </div>
           </section>
         </div>
@@ -739,7 +1023,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
         <aside className="lg:col-span-5 bg-[var(--surface-paper)] border border-[var(--hairline)] p-6 sm:p-8 space-y-6 lg:sticky lg:top-24">
           <div className="border-b border-[var(--hairline)] pb-4 flex items-center justify-between">
             <h2 className="lumen-h3">
-              {isBn ? 'অর্ডার সারসংক্ষেপ ও ভ্যাট রসিদ' : 'Order Ledger'}
+              {isBn ? 'অর্ডার সারসংক্ষেপ ও লেজার' : 'Order Ledger'}
             </h2>
             <span className="font-mono text-xs text-[var(--brand)] font-bold">
               {selectedProduct.name}
@@ -774,28 +1058,82 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
             </li>
           </ul>
 
-          {/* VAT Breakdown */}
+          {/* Promo / Scholarship Code */}
+          <div className="space-y-2 border-b border-[var(--hairline)] pb-4">
+            <label className="flex items-center gap-1.5 text-xs font-bold text-[var(--brand-ink)]">
+              <Tag className="h-3.5 w-3.5 text-[var(--brand)]" />
+              <span>{isBn ? 'প্রোমো / স্কলারশিপ কোড' : 'Promo / Scholarship Code'}</span>
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                placeholder="LUMEN10 / DU20"
+                className="flex-1 rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3 py-2 text-xs font-mono uppercase text-[var(--brand-ink)] focus:border-[var(--brand)] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleApplyPromo}
+                className="rounded-[4px] border border-[var(--brand-ink)] bg-[var(--bg)] px-3.5 py-2 text-xs font-bold text-[var(--brand-ink)] hover:bg-[var(--bg-warm)] cursor-pointer"
+              >
+                {isBn ? 'প্রয়োগ করুন' : 'Apply'}
+              </button>
+            </div>
+            {promoFeedback && (
+              <p className="text-[11px] font-medium text-[var(--brand-ink)]">{promoFeedback}</p>
+            )}
+          </div>
+
+          {/* Ledger Breakdown */}
           <div className="space-y-2.5 text-xs">
             <div className="flex justify-between text-[var(--text)]">
-              <span>{isBn ? 'মূল মূল্য (ভ্যাট ব্যতীত):' : 'Subtotal (excl. VAT):'}</span>
+              <span>{isBn ? 'বেস প্ল্যান মূল্য:' : 'Base Plan Price:'}</span>
               <span className="font-mono font-semibold text-[var(--brand-ink)]">
-                BDT {formatAmount(basePriceMinor, isBn)}
+                {formatMoney(rawBase, currency, isBn)}
               </span>
             </div>
-            <div className="flex justify-between text-[var(--text)]">
-              <span>
-                {isBn
-                  ? '১৫% বাংলাদেশ ভ্যাট (মূসক ৬.৩ অন্তর্ভুক্ত):'
-                  : '15% BD VAT (Mushak 6.3 Included):'}
-              </span>
-              <span className="font-mono font-semibold text-[var(--brand-ink)]">
-                BDT {formatAmount(vatMinor, isBn)}
-              </span>
-            </div>
+            {discountAmount > 0 && activePromo && (
+              <div className="flex justify-between text-emerald-800 font-semibold">
+                <span>
+                  {isBn
+                    ? `স্কলারশিপ ছাড় (${activePromo.code}):`
+                    : `Grant Discount (${activePromo.code}):`}
+                </span>
+                <span className="font-mono">-{formatMoney(discountAmount, currency, isBn)}</span>
+              </div>
+            )}
+            {processingFee > 0 && (
+              <div className="flex justify-between text-[var(--text)]">
+                <span>
+                  {isBn
+                    ? `গেটওয়ে ও ক্লিয়ারিং ফি (+${(processingFeeRate * 100).toFixed(2)}%):`
+                    : `Gateway & Clearing Fee (+${(processingFeeRate * 100).toFixed(2)}%):`}
+                </span>
+                <span className="font-mono font-semibold text-[var(--brand-ink)]">
+                  +{formatMoney(processingFee, currency, isBn)}
+                </span>
+              </div>
+            )}
+            {currency === 'BDT' ? (
+              <div className="flex justify-between text-[var(--text)]">
+                <span>
+                  {isBn ? '১৫% বাংলাদেশ ভ্যাট (মূসক ৬.৩ অন্তর্ভুক্ত):' : '15% BD VAT (Mushak 6.3 Included):'}
+                </span>
+                <span className="font-mono font-semibold text-[var(--brand-ink)]">
+                  {formatMoney(vatAmount, currency, isBn)}
+                </span>
+              </div>
+            ) : (
+              <div className="flex justify-between text-[var(--text)]">
+                <span>{isBn ? 'আন্তর্জাতিক ট্যাক্স / ভ্যাট:' : 'International Tax / BD VAT:'}</span>
+                <span className="font-mono font-semibold text-[var(--brand-ink)]">$0.00</span>
+              </div>
+            )}
             <div className="flex justify-between border-t border-[var(--hairline)] pt-3 text-base font-extrabold text-[var(--brand-ink)]">
-              <span>{isBn ? 'সর্বমোট মূল্য:' : 'Total (VAT Included):'}</span>
+              <span>{isBn ? 'সর্বমোট মূল্য:' : 'Total Amount:'}</span>
               <span className="font-mono text-[var(--brand)]">
-                BDT {formatAmount(totalMinor, isBn)}
+                {formatMoney(totalAmount, currency, isBn)}
               </span>
             </div>
           </div>
@@ -804,7 +1142,9 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
           {installmentRows.length > 0 && (
             <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] p-4 space-y-2 text-xs">
               <div className="font-bold text-[var(--brand-ink)]">
-                {isBn ? '০% কিস্তির সময়সূচী:' : '0% Split-Pay Schedule:'}
+                {isBn
+                  ? `স্প্লিট-পে সময়সূচী (+${(processingFeeRate * 100).toFixed(2)}% ক্লিয়ারিং ফি):`
+                  : `Split-Pay Schedule (+${(processingFeeRate * 100).toFixed(2)}% Clearing Fee):`}
               </div>
               <div className="divide-y divide-[var(--hairline)]">
                 {installmentRows.map((row) => (
@@ -814,7 +1154,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                       <div className="text-[11px] text-[var(--text)]">{row.date}</div>
                     </div>
                     <span className="font-mono font-bold text-[var(--brand-ink)]">
-                      BDT {formatAmount(row.amount, isBn)}
+                      {formatMoney(row.amount, currency, isBn)}
                     </span>
                   </div>
                 ))}
@@ -851,8 +1191,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                       ? 'যাচাইয়ের জন্য TrxID জমা দিন →'
                       : 'Submit Manual TrxID →'
                     : isBn
-                      ? `যাচাইকৃত চেকআউটে যান (৳${formatAmount(dueTodayMinor, true, 0)}) →`
-                      : `Proceed to Verified Checkout (BDT ${formatAmount(dueTodayMinor, false, 0)}) →`}
+                      ? `যাচাইকৃত চেকআউটে যান (${formatMoney(dueTodayAmount, currency, true)}) →`
+                      : `Proceed to Verified Checkout (${formatMoney(dueTodayAmount, currency, false)}) →`}
               </span>
             </button>
 
@@ -888,8 +1228,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               </div>
               <p className="text-[var(--text)]">
                 {isBn
-                  ? `${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'})-এর জন্য ${selectedProduct.name} মূসক ৬.৩ রসিদসহ (${demoReceipt.activatedAt}) প্রস্তুত।`
-                  : `${selectedProduct.name} activated for ${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'}) with Mushak 6.3 VAT ledger at ${demoReceipt.activatedAt}.`}
+                  ? `${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'})-এর জন্য ${selectedProduct.name} (${formatMoney(demoReceipt.verifiedTotal ?? totalAmount, demoReceipt.currency, true)}) রসিদসহ (${demoReceipt.activatedAt}) প্রস্তুত।`
+                  : `${selectedProduct.name} activated for ${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'}) — ${formatMoney(demoReceipt.verifiedTotal ?? totalAmount, demoReceipt.currency, false)} verified at ${demoReceipt.activatedAt}.`}
               </p>
               <LocaleLink
                 href="/app"

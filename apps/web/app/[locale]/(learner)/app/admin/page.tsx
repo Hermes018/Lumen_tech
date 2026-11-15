@@ -276,12 +276,14 @@ export default function AdminGovernanceConsolePage() {
             </h1>
             <p className="mt-1 text-sm text-[var(--text)]">
               {isBn
-                ? 'বিডিটি এনরোলমেন্ট, ০% বিকাশ স্প্লিট-পে, এআই ব্যান্ড ক্যালিব্রেশন এবং ওয়েবহুক নিরাপত্তা যাচাই করুন।'
-                : 'Inspect live BDT enrollments, 0% bKash split-pay installments, AI rubric calibration, and webhook integrity.'}
+                ? 'বিডিটি ও ইউএসডি এনরোলমেন্ট, বিকাশ স্প্লিট-পে, এআই ব্যান্ড ক্যালিব্রেশন এবং ওয়েবহুক নিরাপত্তা যাচাই করুন।'
+                : 'Inspect live BDT & USD enrollments, bKash split-pay installments, AI rubric calibration, and webhook integrity.'}
             </p>
           </div>
           <div className="rounded-[4px] border border-[var(--hairline)] bg-[var(--bg)] px-3.5 py-2 text-xs font-mono text-[var(--brand-ink)]">
-            {isBn ? 'RBAC মোড: অ্যাডমিন স্যান্ডবক্স' : 'RBAC Scope: Admin Sandbox'}
+            {isBn
+              ? 'স্যান্ডবক্স: Ayman Rahman (admin) • ayman@lumen.academy'
+              : 'Sandbox: Ayman Rahman (admin) • ayman@lumen.academy'}
           </div>
         </div>
       </section>

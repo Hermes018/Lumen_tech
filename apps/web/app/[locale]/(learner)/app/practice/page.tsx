@@ -3,11 +3,11 @@ import { getLocale } from 'next-intl/server';
 import { Target, Sparkles, Clock, Filter, ArrowRight, Lightbulb, ShieldAlert } from 'lucide-react';
 import { LocaleLink } from '@/app/[locale]/_components/LocaleLink';
 import { fetchPracticeQuestions } from '@/app/actions/practice';
-import type { SeedGreQuestion } from '@lumen/db';
+import { GRE_MAGOOSH_SEED_QUESTIONS, type SeedGreQuestion } from '@lumen/db';
 
 export default async function PracticeDashboardPage() {
   const [seedQuestions, locale] = await Promise.all([
-    fetchPracticeQuestions({ limit: 12 }),
+    fetchPracticeQuestions({ limit: 12 }).catch(() => GRE_MAGOOSH_SEED_QUESTIONS.slice(0, 12)),
     getLocale(),
   ]);
   const isBn = locale === 'bn';

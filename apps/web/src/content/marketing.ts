@@ -277,6 +277,21 @@ export interface MarketingLocaleData {
       ctaHref: string;
     };
   };
+  forInstitutions: {
+    breadcrumbLabel: string;
+    hero: {
+      title: string;
+      body: string;
+      ctaLabel: string;
+      ctaHref: string;
+      photoSlot: MediaSlotId;
+    };
+    procurement: {
+      title: string;
+      intro: string;
+      blocks: SideBlockItem[];
+    };
+  };
 }
 
 export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
@@ -292,7 +307,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
       subBar: [
         { label: 'Free Diagnostic Test', href: '/exam/diagnostic' },
         { label: 'Explore Prep Courses', href: '/courses' },
-        { label: 'Compare BDT Plans', href: '/pricing' },
+        { label: 'Plans & Pricing', href: '/pricing' },
       ],
       stats: [
         {
@@ -311,8 +326,8 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           verified: true,
         },
         {
-          value: '15% VAT',
-          caption: 'Official Mushak 6.3 Invoice Included',
+          value: '40+ Rubrics',
+          caption: 'Calibrated Automated & Mentor Writing Evaluations',
           verified: true,
         },
       ],
@@ -1133,6 +1148,37 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
         ctaHref: '/pricing',
       },
     },
+    forInstitutions: {
+      breadcrumbLabel: 'For Institutions',
+      hero: {
+        title: 'Corporate & University Cohorts with NBR Mushak 6.3',
+        body: 'Bulk seat licensing in BDT ৳ and USD $ with Official NBR Mushak 6.3 Corporate & University VAT Chalans and PO or bank-transfer settlement.',
+        ctaLabel: 'Request Proposal',
+        ctaHref: '/for-institutions',
+        photoSlot: 'hero-courses',
+      },
+      procurement: {
+        title: 'Institutional Licensing & Tax Compliance',
+        intro: 'Designed for university career centers, study-abroad departments, and corporate scholarship cohorts.',
+        blocks: [
+          {
+            icon: 'shield',
+            title: 'Official NBR Mushak 6.3 VAT Chalans',
+            body: 'Automated 15% NBR Mushak 6.3 Corporate & University VAT Chalans issued with your 13-digit institutional BIN.',
+          },
+          {
+            icon: 'currency',
+            title: 'Bulk Seat Licensing (BDT ৳ & USD $)',
+            body: 'Flexible volume tiers settled in BDT ৳ for Bangladesh campuses or USD $ for international partner grants.',
+          },
+          {
+            icon: 'calendar',
+            title: 'Purchase Order & Bank-Transfer Settlement',
+            body: 'Net-30 institutional purchase orders, EFT/BEFTN bank-transfer settlement, and single-upload CSV roster provisioning.',
+          },
+        ],
+      },
+    },
   },
   bn: {
     home: {
@@ -1146,7 +1192,7 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
       subBar: [
         { label: 'ফ্রি ডায়াগনস্টিক টেস্ট', href: '/exam/diagnostic' },
         { label: 'সব কোর্স দেখুন', href: '/courses' },
-        { label: 'টাকায় প্ল্যান তুলনা করুন', href: '/pricing' },
+        { label: 'প্ল্যান ও মূল্য', href: '/pricing' },
       ],
       stats: [
         {
@@ -1165,8 +1211,8 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
           verified: true,
         },
         {
-          value: '১৫% ভ্যাট',
-          caption: 'অফিসিয়াল মুসক ৬.৩ চালান অন্তর্ভুক্ত',
+          value: '৪০+ রুব্রিক',
+          caption: 'স্বয়ংক্রিয় ও মেন্টর রাইটিং মূল্যায়ন মানদণ্ড',
           verified: true,
         },
       ],
@@ -1981,6 +2027,37 @@ export const MARKETING_CONTENT: Record<MarketingLocale, MarketingLocaleData> = {
         body: 'ফ্রি অ্যাকাউন্ট তৈরি করুন অথবা আমাদের স্বচ্ছ মূল্য ও রিফান্ড নীতি দেখুন।',
         ctaLabel: 'মূল্য ও প্রশ্নোত্তর দেখুন',
         ctaHref: '/pricing',
+      },
+    },
+    forInstitutions: {
+      breadcrumbLabel: 'বিশ্ববিদ্যালয় ও প্রতিষ্ঠান',
+      hero: {
+        title: 'কর্পোরেট ও বিশ্ববিদ্যালয় কোহর্ট ও এনবিআর মূসক ৬.৩',
+        body: 'অফিসিয়াল এনবিআর মূসক ৬.৩ কর্পোরেট ও বিশ্ববিদ্যালয় ভ্যাট চালান, BDT ৳ ও USD $ বাল্ক সিট লাইসেন্সিং এবং পিও বা ব্যাংক ট্রান্সফার সুবিধা।',
+        ctaLabel: 'প্রস্তাবনার অনুরোধ করুন',
+        ctaHref: '/for-institutions',
+        photoSlot: 'hero-courses',
+      },
+      procurement: {
+        title: 'প্রাতিষ্ঠানিক লাইসেন্সিং ও ভ্যাট নীতি',
+        intro: 'বিশ্ববিদ্যালয়ের ক্যারিয়ার সেন্টার, উচ্চশিক্ষা সেল এবং কর্পোরেট স্কলারশিপ কোহর্টের জন্য উপযোগী।',
+        blocks: [
+          {
+            icon: 'shield',
+            title: 'অফিসিয়াল এনবিআর মূসক ৬.৩ ভ্যাট চালান',
+            body: 'আপনার ১৩-ডিজিটের প্রাতিষ্ঠানিক BIN সহ স্বয়ংক্রিয় ১৫% এনবিআর মূসক ৬.৩ কর্পোরেট ও বিশ্ববিদ্যালয় চালান।',
+          },
+          {
+            icon: 'currency',
+            title: 'বাল্ক সিট লাইসেন্সিং (BDT ৳ ও USD $)',
+            body: 'দেশীয় ক্যাম্পাসের জন্য BDT ৳ এবং আন্তর্জাতিক অনুদান কোহর্টের জন্য USD $ ভলিউম লাইসেন্সিং।',
+          },
+          {
+            icon: 'calendar',
+            title: 'পারচেজ অর্ডার ও ব্যাংক-ট্রান্সফার নিষ্পত্তি',
+            body: 'নেট-৩০ প্রাতিষ্ঠানিক পিও, BEFTN ব্যাংক-ট্রান্সফার নিষ্পত্তি এবং একক CSV রোস্টার অনবোর্ডিং।',
+          },
+        ],
       },
     },
   },
