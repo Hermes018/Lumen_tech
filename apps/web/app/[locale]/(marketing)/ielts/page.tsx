@@ -5,11 +5,14 @@ import { buildLocalizedMetadata } from '@/src/lib/seo';
 import {
   Breadcrumb,
   CtaBand,
+  FaqDisclosureList,
   HeroBand,
   MediaColumns,
   Section,
   SideHeadingBlocks,
+  StatRow,
   Tabs,
+  TabSectionPanel,
 } from '@/src/components/ui/primitives';
 import { MARKETING_CONTENT, type MarketingLocale } from '@/src/content/marketing';
 
@@ -43,7 +46,17 @@ export default async function IeltsPage({
   const tabs = content.tabs.map((tab) => ({
     id: tab.id,
     label: tab.label,
-    content: <p>{tab.body}</p>,
+    content: (
+      <TabSectionPanel
+        locale={locale}
+        title={tab.title}
+        body={tab.body}
+        bullets={tab.bullets}
+        disclosures={tab.disclosures}
+        ctaLabel={tab.ctaLabel}
+        ctaHref={tab.ctaHref}
+      />
+    ),
   }));
 
   return (
@@ -57,6 +70,7 @@ export default async function IeltsPage({
       />
       <HeroBand
         tone="crimson"
+        frame="petal"
         title={content.hero.title}
         body={content.hero.body}
         ctaLabel={content.hero.ctaLabel}
@@ -64,6 +78,9 @@ export default async function IeltsPage({
         photoSlot={content.hero.photoSlot}
         locale={locale}
       />
+      <Section tone="white">
+        <StatRow stats={content.stats} />
+      </Section>
       <Section tone="white">
         <SideHeadingBlocks
           title={content.overview.title}
@@ -75,7 +92,7 @@ export default async function IeltsPage({
         />
       </Section>
       <Section tone="tint">
-        <Tabs tabs={tabs} />
+        <Tabs title={content.tabsTitle} tabs={tabs} />
       </Section>
       <Section tone="white">
         <MediaColumns
@@ -85,6 +102,9 @@ export default async function IeltsPage({
           locale={locale}
           items={content.skills.items}
         />
+      </Section>
+      <Section tone="tint">
+        <FaqDisclosureList title={content.roadmapTitle} items={content.roadmap} />
       </Section>
       <CtaBand
         title={content.ctaBand.title}

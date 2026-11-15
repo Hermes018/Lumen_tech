@@ -707,11 +707,68 @@ export function Disclosure({ summary, children }: DisclosureProps) {
 }
 
 /* 14. Tabs */
+export interface TabSectionPanelDisclosure {
+  summary: string;
+  detail: string;
+}
+
+export interface TabSectionPanelProps {
+  locale: string;
+  title: string;
+  body: string;
+  bullets?: string[];
+  disclosures?: TabSectionPanelDisclosure[];
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+export function TabSectionPanel({
+  locale,
+  title,
+  body,
+  bullets,
+  disclosures,
+  ctaLabel,
+  ctaHref,
+}: TabSectionPanelProps) {
+  return (
+    <div className="space-y-4">
+      <h3 className="lumen-h3 text-[var(--brand-ink)]">{title}</h3>
+      <p className="lumen-body">{body}</p>
+      {bullets && bullets.length > 0 ? (
+        <ul className="list-disc pl-5 space-y-2 text-[var(--text)]">
+          {bullets.map((bullet) => (
+            <li key={bullet}>{bullet}</li>
+          ))}
+        </ul>
+      ) : null}
+      {disclosures && disclosures.length > 0 ? (
+        <div className="pt-2">
+          {disclosures.map((item) => (
+            <Disclosure key={item.summary} summary={item.summary}>
+              <p className="lumen-body">{item.detail}</p>
+            </Disclosure>
+          ))}
+        </div>
+      ) : null}
+      {ctaLabel && ctaHref ? (
+        <div className="pt-2">
+          <Button href={ctaHref} locale={locale} variant="link">
+            {ctaLabel}
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export interface TabsProps {
+  title?: string;
+  intro?: string;
   tabs: Array<{ id: string; label: string; content: ReactNode }>;
 }
 
-export function Tabs({ tabs }: TabsProps) {
+export function Tabs({ title, intro, tabs }: TabsProps) {
   const baseId = useId();
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -737,43 +794,52 @@ export function Tabs({ tabs }: TabsProps) {
   }
 
   return (
-    <div>
-      <div role="tablist" className="flex flex-wrap border-b border-[var(--hairline)] gap-2">
-        {tabs.map((tab, idx) => {
-          const selected = idx === safeIndex;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              role="tab"
-              id={`${baseId}-tab-${tab.id}`}
-              aria-selected={selected}
-              aria-controls={`${baseId}-panel-${tab.id}`}
-              tabIndex={selected ? 0 : -1}
-              onClick={() => setActiveIndex(idx)}
-              onKeyDown={(e) => handleKeyDown(e, idx)}
-              className={
-                selected
-                  ? 'px-5 py-3 min-h-[44px] border-b-4 border-[var(--brand)] text-[var(--brand-ink)] font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]'
-                  : 'px-5 py-3 min-h-[44px] border-b-4 border-transparent text-[var(--text)] hover:text-[var(--brand-ink)] font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]'
-              }
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {activeTab ? (
-        <div
-          role="tabpanel"
-          id={`${baseId}-panel-${activeTab.id}`}
-          aria-labelledby={`${baseId}-tab-${activeTab.id}`}
-          className="pt-6"
-        >
-          {activeTab.content}
+    <div className="space-y-8">
+      {title ? (
+        <div className="max-w-3xl space-y-3">
+          <Heading level={2}>{title}</Heading>
+          {intro ? <p className="lumen-body">{intro}</p> : null}
         </div>
       ) : null}
+
+      <div>
+        <div role="tablist" className="flex flex-wrap border-b border-[var(--hairline)] gap-2">
+          {tabs.map((tab, idx) => {
+            const selected = idx === safeIndex;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                id={`${baseId}-tab-${tab.id}`}
+                aria-selected={selected}
+                aria-controls={`${baseId}-panel-${tab.id}`}
+                tabIndex={selected ? 0 : -1}
+                onClick={() => setActiveIndex(idx)}
+                onKeyDown={(e) => handleKeyDown(e, idx)}
+                className={
+                  selected
+                    ? 'px-5 py-3 min-h-[44px] border-b-4 border-[var(--brand)] text-[var(--brand-ink)] font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]'
+                    : 'px-5 py-3 min-h-[44px] border-b-4 border-transparent text-[var(--text)] hover:text-[var(--brand-ink)] font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus)]'
+                }
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab ? (
+          <div
+            role="tabpanel"
+            id={`${baseId}-panel-${activeTab.id}`}
+            aria-labelledby={`${baseId}-tab-${activeTab.id}`}
+            className="pt-6"
+          >
+            {activeTab.content}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
