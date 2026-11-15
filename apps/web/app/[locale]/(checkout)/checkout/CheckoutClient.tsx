@@ -20,6 +20,13 @@ import { initiateCheckoutAction, submitManualCheckoutAction } from '@/app/action
 import { BangladeshPaymentTrustBar } from '../../(marketing)/_components/BangladeshPaymentTrustBar';
 import { LocaleLink } from '../../_components/LocaleLink';
 
+import type {
+  RuntimeCatalogPlan,
+  RuntimeCatalogSnapshot,
+  RuntimeFeeRates,
+  RuntimePromoCode,
+} from '@/src/lib/security/payment-guard';
+
 export interface CheckoutUser {
   id: string;
   email?: string | null;
@@ -44,26 +51,34 @@ type PaymentMethodId =
   | 'intl-wire';
 type ScheduleId = 'full' | 'split-2' | 'split-3';
 
-const SPLIT_FEE_RATES: Readonly<Record<ScheduleId, number>> = {
-  full: 0,
-  'split-2': 0.0285,
-  'split-3': 0.0475,
+const DEFAULT_FEE_RATES: RuntimeFeeRates = {
+  split2Rate: 0.0285,
+  split3Rate: 0.0475,
+  vatRateBdt: 0.15,
 };
 
-const PROMO_GRANTS: Readonly<
-  Record<string, { code: string; percent: number; labelEn: string; labelBn: string }>
-> = {
+const DEFAULT_PROMO_GRANTS: Readonly<Record<string, RuntimePromoCode>> = {
   LUMEN10: {
     code: 'LUMEN10',
-    percent: 10,
+    discountType: 'percent',
+    value: 10,
+    active: true,
     labelEn: '10% Scholar Launch Grant',
     labelBn: '১০% স্কলার লঞ্চ ছাড়',
+    maxRedemptions: 500,
+    redemptionsCount: 42,
+    expiresAt: null,
   },
   DU20: {
     code: 'DU20',
-    percent: 20,
+    discountType: 'percent',
+    value: 20,
+    active: true,
     labelEn: '20% University Cohort Grant',
     labelBn: '২০% বিশ্ববিদ্যালয় কোহর্ট ছাড়',
+    maxRedemptions: 250,
+    redemptionsCount: 19,
+    expiresAt: null,
   },
 };
 
@@ -122,10 +137,95 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
   const isBn = locale === 'bn';
   const isGuest = !user?.email;
 
-  const [selectedProduct, setSelectedProduct] = useState<ProductDefinition>(initialProduct);
+  const [selectedSlug, setSelectedSlug] = useState<string>(initialProduct.slug);
   useEffect(() => {
-    setSelectedProduct(initialProduct);
-  }, [initialProduct]);
+    setSelectedSlug(initialProduct.slug);
+  }, [initialProduct.slug]);
+
+  const [runtimePlans, setRuntimePlans] = useState<Record<string, RuntimeCatalogPlan> | null>(null);
+  const [feeRates, setFeeRates] = useState<RuntimeFeeRates>(DEFAULT_FEE_RATES);
+  const [promoCatalog, setPromoCatalog] = useState<Readonly<Record<string, RuntimePromoCode>>>(DEFAULT_PROMO_GRANTS);
+  const [splitPayFlagEnabled, setSplitPayFlagEnabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/catalog', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: RuntimeCatalogSnapshot | null) => {
+        if (!active || !data) return;
+        if (data.plans) setRuntimePlans(data.plans);
+        if (data.feeRates) setFeeRates(data.feeRates);
+        if (data.promoCodes) setPromoCatalog(data.promoCodes);
+        if (data.featureFlags) setSplitPayFlagEnabled(data.featureFlags.splitPayEnabled);
+      })
+      .catch(() => {
+        // Keep canonical static defaults offline
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  interface MergedCheckoutPlan {
+    slug: string;
+    name: string;
+    baseBdt: number;
+    baseUsd: number;
+    fullMocks: number;
+    aiCredits: number;
+    splitPayEligible: boolean;
+  }
+
+  const availablePlans: MergedCheckoutPlan[] = (() => {
+    const bySlug = new Map<string, MergedCheckoutPlan>();
+    for (const prod of CANONICAL_PRODUCTS) {
+      const rt = runtimePlans?.[prod.slug];
+      if (rt && !rt.active) continue;
+      const fallback = PLAN_BASE_PRICE_MAP[prod.slug] ?? {
+        baseBdt: Math.round(prod.prices.BD / 115),
+        baseUsd: Number((prod.prices.A / 100).toFixed(2)),
+      };
+      bySlug.set(prod.slug, {
+        slug: prod.slug,
+        name: rt ? (isBn ? rt.nameBn : rt.nameEn) : prod.name,
+        baseBdt: rt ? rt.baseBdt : fallback.baseBdt,
+        baseUsd: rt ? rt.baseUsd : fallback.baseUsd,
+        fullMocks: rt ? rt.fullMocks : prod.allowances.full_mocks,
+        aiCredits: rt ? rt.aiCredits : prod.allowances.ai_credits,
+        splitPayEligible: rt ? rt.splitPayEligible : prod.prices.BD >= 499000,
+      });
+    }
+    if (runtimePlans) {
+      for (const rt of Object.values(runtimePlans)) {
+        if (!rt.active || !rt.isCustom || bySlug.has(rt.planId)) continue;
+        bySlug.set(rt.planId, {
+          slug: rt.planId,
+          name: isBn ? rt.nameBn : rt.nameEn,
+          baseBdt: rt.baseBdt,
+          baseUsd: rt.baseUsd,
+          fullMocks: rt.fullMocks,
+          aiCredits: rt.aiCredits,
+          splitPayEligible: rt.splitPayEligible,
+        });
+      }
+    }
+    return Array.from(bySlug.values());
+  })();
+
+  const selectedPlan: MergedCheckoutPlan =
+    availablePlans.find((p) => p.slug === selectedSlug) ?? {
+      slug: initialProduct.slug,
+      name: initialProduct.name,
+      baseBdt:
+        PLAN_BASE_PRICE_MAP[initialProduct.slug]?.baseBdt ??
+        Math.round(initialProduct.prices.BD / 115),
+      baseUsd:
+        PLAN_BASE_PRICE_MAP[initialProduct.slug]?.baseUsd ??
+        Number((initialProduct.prices.A / 100).toFixed(2)),
+      fullMocks: initialProduct.allowances.full_mocks,
+      aiCredits: initialProduct.allowances.ai_credits,
+      splitPayEligible: initialProduct.prices.BD >= 499000,
+    };
 
   const [currency, setCurrency] = useState<CurrencyCode>('BDT');
   useEffect(() => {
@@ -186,7 +286,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
     }
   };
 
-  const splitPayEligible = selectedProduct.prices.BD >= 499000;
+  const splitPayEligible = splitPayFlagEnabled && selectedPlan.splitPayEligible;
   const [schedule, setSchedule] = useState<ScheduleId>('full');
   useEffect(() => {
     if (!splitPayEligible && schedule !== 'full') {
@@ -224,25 +324,33 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
   } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const baseEntry = PLAN_BASE_PRICE_MAP[selectedProduct.slug] ?? {
-    baseBdt: Math.round(selectedProduct.prices.BD / 115),
-    baseUsd: Number((selectedProduct.prices.A / 100).toFixed(2)),
-  };
-  const rawBase = currency === 'USD' ? baseEntry.baseUsd : baseEntry.baseBdt;
-  const activePromo = appliedPromoCode ? PROMO_GRANTS[appliedPromoCode] ?? null : null;
+  const rawBase = currency === 'USD' ? selectedPlan.baseUsd : selectedPlan.baseBdt;
+  const candidatePromo = appliedPromoCode ? promoCatalog[appliedPromoCode] ?? null : null;
+  const activePromo =
+    candidatePromo &&
+    candidatePromo.active &&
+    (!candidatePromo.expiresAt || Date.parse(candidatePromo.expiresAt) >= Date.now()) &&
+    (candidatePromo.maxRedemptions === null || candidatePromo.redemptionsCount < candidatePromo.maxRedemptions)
+      ? candidatePromo
+      : null;
   const discountAmount = activePromo
-    ? currency === 'USD'
-      ? Number(((rawBase * activePromo.percent) / 100).toFixed(2))
-      : Math.round((rawBase * activePromo.percent) / 100)
+    ? activePromo.discountType === 'percent'
+      ? currency === 'USD'
+        ? Number(((rawBase * activePromo.value) / 100).toFixed(2))
+        : Math.round((rawBase * activePromo.value) / 100)
+      : currency === 'USD'
+        ? Number(Math.min(rawBase, activePromo.value).toFixed(2))
+        : Math.round(Math.min(rawBase, activePromo.value))
     : 0;
   const discountedBase = Math.max(0, Number((rawBase - discountAmount).toFixed(2)));
-  const processingFeeRate = SPLIT_FEE_RATES[schedule];
+  const processingFeeRate =
+    schedule === 'full' ? 0 : schedule === 'split-2' ? feeRates.split2Rate : feeRates.split3Rate;
   const processingFee =
     currency === 'USD'
       ? Number((discountedBase * processingFeeRate).toFixed(2))
       : Math.round(discountedBase * processingFeeRate);
   const subtotalAmount = Number((discountedBase + processingFee).toFixed(2));
-  const vatAmount = currency === 'BDT' ? Math.round(subtotalAmount * 0.15) : 0;
+  const vatAmount = currency === 'BDT' ? Math.round(subtotalAmount * feeRates.vatRateBdt) : 0;
   const totalAmount = Number((subtotalAmount + vatAmount).toFixed(2));
 
   const roundCurr = (val: number): number =>
@@ -280,12 +388,16 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
       setPromoFeedback(null);
       return;
     }
-    const found = PROMO_GRANTS[code];
-    if (!found) {
+    const found = promoCatalog[code];
+    const expired = found?.expiresAt ? Date.parse(found.expiresAt) < Date.now() : false;
+    const maxedOut =
+      found && found.maxRedemptions !== null && found.redemptionsCount >= found.maxRedemptions;
+    if (!found || !found.active || expired || maxedOut) {
+      setAppliedPromoCode(null);
       setPromoFeedback(
         isBn
-          ? 'অকার্যকর কোড। অনুগ্রহ করে LUMEN10 বা DU20 চেষ্টা করুন।'
-          : 'Unrecognized code. Try LUMEN10 or DU20.',
+          ? 'অকার্যকর বা মেয়াদোত্তীর্ণ কোড। অনুগ্রহ করে LUMEN10 বা DU20 চেষ্টা করুন।'
+          : 'Unrecognized or inactive code. Try LUMEN10 or DU20.',
       );
       return;
     }
@@ -314,7 +426,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        planId: selectedProduct.slug,
+        planId: selectedPlan.slug,
         splitParts,
         splitMode: schedule,
         currency,
@@ -384,7 +496,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
           }
 
           const res = await initiateCheckoutAction({
-            productSlug: selectedProduct.slug,
+            productSlug: selectedPlan.slug,
             name: effectiveName,
             email: effectiveEmail,
             phone: effectivePhone,
@@ -412,7 +524,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
           }
 
           const res = await submitManualCheckoutAction({
-            productSlug: selectedProduct.slug,
+            productSlug: selectedPlan.slug,
             name: effectiveName,
             email: effectiveEmail,
             phone: effectivePhone,
@@ -667,20 +779,16 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
 
             {/* Interactive Plan Switcher */}
             <div className="space-y-2.5" role="radiogroup" aria-label={isBn ? 'প্ল্যান নির্বাচন' : 'Select Plan'}>
-              {CANONICAL_PRODUCTS.map((prod) => {
-                const active = prod.slug === selectedProduct.slug;
-                const prodPrices = PLAN_BASE_PRICE_MAP[prod.slug] ?? {
-                  baseBdt: Math.round(prod.prices.BD / 115),
-                  baseUsd: Number((prod.prices.A / 100).toFixed(2)),
-                };
-                const displayBase = currency === 'USD' ? prodPrices.baseUsd : prodPrices.baseBdt;
+              {availablePlans.map((prod) => {
+                const active = prod.slug === selectedPlan.slug;
+                const displayBase = currency === 'USD' ? prod.baseUsd : prod.baseBdt;
                 return (
                   <button
                     key={prod.slug}
                     type="button"
                     role="radio"
                     aria-checked={active}
-                    onClick={() => setSelectedProduct(prod)}
+                    onClick={() => setSelectedSlug(prod.slug)}
                     className={`w-full flex items-center justify-between gap-4 rounded-[4px] border p-4 text-left transition-colors cursor-pointer ${
                       active
                         ? 'border-[var(--brand)] bg-[var(--bg-tint)]'
@@ -699,8 +807,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                         <div className="text-sm font-bold text-[var(--brand-ink)]">{prod.name}</div>
                         <div className="text-xs text-[var(--text)] mt-0.5">
                           {isBn
-                            ? `${prod.allowances.full_mocks} মক টেস্ট • ${prod.allowances.ai_credits} এআই মূল্যায়ন`
-                            : `${prod.allowances.full_mocks} Full Mocks • ${prod.allowances.ai_credits} AI Evaluations`}
+                            ? `${prod.fullMocks} মক টেস্ট • ${prod.aiCredits} এআই মূল্যায়ন`
+                            : `${prod.fullMocks} Full Mocks • ${prod.aiCredits} AI Evaluations`}
                         </div>
                       </div>
                     </div>
@@ -760,7 +868,9 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                     {isBn ? '২-কিস্তি স্প্লিট' : '2-Part Split'}
                   </div>
                   <div className="text-[11px] font-semibold text-[var(--brand)] mt-0.5">
-                    {isBn ? '+২.৮৫% গেটওয়ে ও ক্লিয়ারিং ফি' : '+2.85% Gateway & Clearing Fee'}
+                    {isBn
+                      ? `+${toBnDigits((feeRates.split2Rate * 100).toFixed(2))}% গেটওয়ে ও ক্লিয়ারিং ফি`
+                      : `+${(feeRates.split2Rate * 100).toFixed(2)}% Gateway & Clearing Fee`}
                   </div>
                   <div className="text-[11px] text-[var(--text)] mt-0.5 font-mono">
                     {isBn ? '৫০% আজ + ৫০% ৩০ দিনে' : '50% today + 50% in 30d'}
@@ -781,7 +891,9 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
                     {isBn ? '৩-কিস্তি স্প্লিট' : '3-Part Split'}
                   </div>
                   <div className="text-[11px] font-semibold text-[var(--brand)] mt-0.5">
-                    {isBn ? '+৪.৭৫% গেটওয়ে ও ক্লিয়ারিং ফি' : '+4.75% Gateway & Clearing Fee'}
+                    {isBn
+                      ? `+${toBnDigits((feeRates.split3Rate * 100).toFixed(2))}% গেটওয়ে ও ক্লিয়ারিং ফি`
+                      : `+${(feeRates.split3Rate * 100).toFixed(2)}% Gateway & Clearing Fee`}
                   </div>
                   <div className="text-[11px] text-[var(--text)] mt-0.5 font-mono">
                     {isBn ? '৪০% + ৩০% + ৩০%' : '40% + 30% + 30%'}
@@ -1026,7 +1138,7 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               {isBn ? 'অর্ডার সারসংক্ষেপ ও লেজার' : 'Order Ledger'}
             </h2>
             <span className="font-mono text-xs text-[var(--brand)] font-bold">
-              {selectedProduct.name}
+              {selectedPlan.name}
             </span>
           </div>
 
@@ -1044,16 +1156,16 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
               <span>
                 {isBn
-                  ? `${formatAmount(selectedProduct.allowances.full_mocks * 100, true, 0)}টি পূর্ণাঙ্গ অ্যাডাপটিভ মক টেস্ট`
-                  : `${selectedProduct.allowances.full_mocks} Full Adaptive Mock Tests`}
+                  ? `${formatAmount(selectedPlan.fullMocks * 100, true, 0)}টি পূর্ণাঙ্গ অ্যাডাপটিভ মক টেস্ট`
+                  : `${selectedPlan.fullMocks} Full Adaptive Mock Tests`}
               </span>
             </li>
             <li className="flex items-center gap-2">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
               <span>
                 {isBn
-                  ? `${formatAmount(selectedProduct.allowances.ai_credits * 100, true, 0)}টি এআই রাইটিং / স্পিকিং মূল্যায়ন`
-                  : `${selectedProduct.allowances.ai_credits} AI Writing / Speaking Evaluations`}
+                  ? `${formatAmount(selectedPlan.aiCredits * 100, true, 0)}টি এআই রাইটিং / স্পিকিং মূল্যায়ন`
+                  : `${selectedPlan.aiCredits} AI Writing / Speaking Evaluations`}
               </span>
             </li>
           </ul>
@@ -1118,7 +1230,11 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
             {currency === 'BDT' ? (
               <div className="flex justify-between text-[var(--text)]">
                 <span>
-                  {isBn ? '১৫% বাংলাদেশ ভ্যাট (মূসক ৬.৩ অন্তর্ভুক্ত):' : '15% BD VAT (Mushak 6.3 Included):'}
+                  {isBn
+                    ? Math.round(feeRates.vatRateBdt * 100) === 15
+                      ? '১৫% বাংলাদেশ ভ্যাট (মূসক ৬.৩ অন্তর্ভুক্ত):'
+                      : `${toBnDigits(String(Math.round(feeRates.vatRateBdt * 100)))}% বাংলাদেশ ভ্যাট (মূসক ৬.৩ অন্তর্ভুক্ত):`
+                    : `${Math.round(feeRates.vatRateBdt * 100)}% BD VAT (Mushak 6.3 Included):`}
                 </span>
                 <span className="font-mono font-semibold text-[var(--brand-ink)]">
                   {formatMoney(vatAmount, currency, isBn)}
@@ -1228,8 +1344,8 @@ export function CheckoutClient({ initialProduct, locale: propLocale, user }: Che
               </div>
               <p className="text-[var(--text)]">
                 {isBn
-                  ? `${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'})-এর জন্য ${selectedProduct.name} (${formatMoney(demoReceipt.verifiedTotal ?? totalAmount, demoReceipt.currency, true)}) রসিদসহ (${demoReceipt.activatedAt}) প্রস্তুত।`
-                  : `${selectedProduct.name} activated for ${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'}) — ${formatMoney(demoReceipt.verifiedTotal ?? totalAmount, demoReceipt.currency, false)} verified at ${demoReceipt.activatedAt}.`}
+                  ? `${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'})-এর জন্য ${selectedPlan.name} (${formatMoney(demoReceipt.verifiedTotal ?? totalAmount, demoReceipt.currency, true)}) রসিদসহ (${demoReceipt.activatedAt}) প্রস্তুত।`
+                  : `${selectedPlan.name} activated for ${name || 'Guest Scholar'} (${email || 'guest@lumen.demo'}) — ${formatMoney(demoReceipt.verifiedTotal ?? totalAmount, demoReceipt.currency, false)} verified at ${demoReceipt.activatedAt}.`}
               </p>
               <LocaleLink
                 href="/app"

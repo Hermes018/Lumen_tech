@@ -13,9 +13,20 @@ import {
   CANONICAL_PROMO_CODES,
   SPLIT_PROCESSING_FEE_RATES,
   PaymentSecurityError,
+  addRuntimePlan,
+  applyRuntimeCmsUpdate,
+  applyRuntimeOrderAction,
+  applyRuntimeScholarAction,
   clearIdempotencyReplayCache,
   computeCanonicalOrder,
+  getRuntimeCatalog,
+  resetRuntimeCatalogToDefaults,
   signWebhookPayload,
+  toggleRuntimeFeatureFlag,
+  toggleRuntimePromoCode,
+  updateRuntimeFeeRates,
+  updateRuntimePlan,
+  upsertRuntimePromoCode,
   verifyClientAmountNotTampered,
   verifyIdempotencyAndTimestamp,
   verifyWebhookHmacSignature,
@@ -29,6 +40,7 @@ describe('Batch P20 Modular Cybersecurity & Payment Integrity Suite', () => {
   beforeEach(() => {
     clearIdempotencyReplayCache();
     resetRateLimitStore();
+    resetRuntimeCatalogToDefaults();
   });
 
   describe('1. Canonical BDT & USD Ledger, Split-Pay Clearing Fees, Promo Codes & Tamper Rejection', () => {
@@ -254,6 +266,107 @@ describe('Batch P20 Modular Cybersecurity & Payment Integrity Suite', () => {
       expect(content).toContain("value: 'strict-origin-when-cross-origin'");
       expect(content).toContain("key: 'Permissions-Policy'");
       expect(content).toContain('camera=(), microphone=(self), geolocation=()');
+    });
+  });
+
+  describe('6. Batch P24 Runtime Admin Catalog, Fee, Promo & ERP Sync', () => {
+    it('reflects live Admin plan price updates and rejects stale pre-edit client totals', () => {
+      const before = computeCanonicalOrder('gre-complete', 'full', 'BDT');
+      expect(before.totalAmount).toBe(9775); // 8500 + 15% VAT (1275)
+
+      updateRuntimePlan('gre-complete', { baseBdt: 10000, baseUsd: 95 });
+
+      const afterBdt = computeCanonicalOrder('gre-complete', 'full', 'BDT');
+      expect(afterBdt.rawBase).toBe(10000);
+      expect(afterBdt.vatAmount).toBe(1500);
+      expect(afterBdt.totalAmount).toBe(11500);
+
+      const afterUsd = computeCanonicalOrder('gre-complete', 'full', 'USD');
+      expect(afterUsd.totalAmount).toBe(95);
+
+      // Tamper check rejects old price 9775 and accepts new canonical 11500
+      expect(() => verifyClientAmountNotTampered('gre-complete', 9775, 'full', 'BDT')).toThrow(
+        'SECURITY_PRICE_TAMPER_DETECTED',
+      );
+      expect(() => verifyClientAmountNotTampered('gre-complete', 11500, 'full', 'BDT')).not.toThrow();
+
+      resetRuntimeCatalogToDefaults();
+      expect(computeCanonicalOrder('gre-complete', 'full', 'BDT').totalAmount).toBe(9775);
+    });
+
+    it('supports creating custom packages, updating split-pay/VAT fee rates, and percent/fixed promos', () => {
+      addRuntimePlan({
+        planId: 'buet-quant-sprint',
+        nameEn: 'BUET Quant Sprint',
+        baseBdt: 6000,
+        baseUsd: 55,
+        allowSplit: true,
+      });
+
+      updateRuntimeFeeRates({ split2Rate: 0.03, split3Rate: 0.05, vatRateBdt: 0.1 });
+
+      upsertRuntimePromoCode({
+        code: 'BUET25',
+        discountType: 'percent',
+        value: 25,
+        active: true,
+      });
+      upsertRuntimePromoCode({
+        code: 'CORP50',
+        discountType: 'fixed',
+        value: 500,
+        active: true,
+      });
+
+      const orderPercent = computeCanonicalOrder('buet-quant-sprint', 'split-2', 'BDT', 'BUET25');
+      // 6000 - 25% (1500) = 4500; +3% (135) = 4635; +10% VAT (464) = 5099
+      expect(orderPercent.promoCodeApplied).toBe('BUET25');
+      expect(orderPercent.discountAmount).toBe(1500);
+      expect(orderPercent.processingFeeRate).toBe(0.03);
+      expect(orderPercent.processingFee).toBe(135);
+      expect(orderPercent.vatAmount).toBe(464);
+      expect(orderPercent.totalAmount).toBe(5099);
+
+      const orderFixed = computeCanonicalOrder('buet-quant-sprint', 'full', 'BDT', 'CORP50');
+      // 6000 - 500 = 5500; +10% VAT (550) = 6050
+      expect(orderFixed.discountAmount).toBe(500);
+      expect(orderFixed.totalAmount).toBe(6050);
+
+      // Paused promo code is ignored
+      toggleRuntimePromoCode('CORP50', false);
+      const afterPause = computeCanonicalOrder('buet-quant-sprint', 'full', 'BDT', 'CORP50');
+      expect(afterPause.promoCodeApplied).toBeNull();
+      expect(afterPause.discountAmount).toBe(0);
+
+      // Disabling splitPayEnabled kill-switch rejects split-pay
+      toggleRuntimeFeatureFlag('splitPayEnabled', false);
+      expect(() => computeCanonicalOrder('buet-quant-sprint', 'split-2', 'BDT')).toThrow(
+        'SECURITY_SPLIT_PAY_NOT_ELIGIBLE',
+      );
+    });
+
+    it('records ERP order, CMS moderation, and scholar CRM mutations in the audit log', () => {
+      applyRuntimeOrderAction('LMN-2026-8841', 'issue_mushak', '009988776-0101');
+      applyRuntimeCmsUpdate({
+        kind: 'moderate',
+        submissionId: 'SUB-4091',
+        decision: 'approve',
+        feedbackNote: 'Strong Band 7.5 cohesion.',
+      });
+      applyRuntimeScholarAction('SCH-01', 'grant_ai_credits', { credits: 10 });
+
+      const snap = getRuntimeCatalog();
+      const order = snap.orders.find((o) => o.id === 'LMN-2026-8841');
+      expect(order?.mushakVerified).toBe(true);
+      expect(order?.corporateBin).toBe('009988776-0101');
+
+      const sub = snap.moderationQueue.find((m) => m.id === 'SUB-4091');
+      expect(sub?.status).toBe('Approved');
+
+      const scholar = snap.scholars.find((s) => s.id === 'SCH-01');
+      expect(scholar?.aiCreditsRemaining).toBe(34);
+
+      expect(snap.auditLogs[0]?.action).toBe('SCHOLAR_GRANT_AI_CREDITS');
     });
   });
 });
